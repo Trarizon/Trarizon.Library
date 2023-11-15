@@ -82,3 +82,4 @@ IFloatNumber|`Remap`<br/>`RemapInto`|将值映射到另一个范围
 `Type`|Remarks
 :-:|:--
 `Optional<>`|Optional
+`LazyInit<>`<br/>`LazyInit<,>`|一个轻量的延迟初始化
