@@ -9,7 +9,7 @@ Provide interception for `I(Async)Enumerator<>.MoveNext(Async)`.
 This mainly aims to extends `yield return`, provide communication capability to
 `yield return`-generated iterator. (like python
 
-> Example `Test.Run.Examples.YieliceptionExample`
+> Example [`RunTest.Examples.YieliceptionExample`](../Trarizon.Test.Run/Examples/YieliceptionExample.cs)
 
 <details>
 <summary>Types</summary>
@@ -58,7 +58,7 @@ and the iterator didn't end,
 
 ## Iterator Communication
 
-> Example `RunTest.Examples.YieliceptionExample.RunCommunication`
+> Example [`RunTest.Examples.YieliceptionExample.RunCommunication`](../Trarizon.Test.Run/Examples/YieliceptionExample.cs)
 
 >*Similar to Python*
 
