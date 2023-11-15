@@ -13,8 +13,6 @@
 
 主要是为了扩展`yield return`，通过允许内外交互以便于用yield写出可以通信状态机
 
-> 例见`Test.Run.Examples`
-
 <details>
 <summary>Types</summary>
 
@@ -40,7 +38,7 @@ Type|Remarks
 
 ## Iterator Interception
 
-> 例见`RunTest.Examples.YieliceptionExample`
+> 例见[`RunTest.Examples.YieliceptionExample`](../Trarizon.Test.Run/Examples/YieliceptionExample.cs)
 
 迭代器方法返回`IEnumerator<IYieliceptor<>?>`，通过`yield return`挂起迭代器。
 
@@ -65,7 +63,7 @@ Type|Remarks
 
 ## 迭代器通信
 
-> 例见`RunTest.Examples.YieliceptionExample.RunCommunication`
+> 例见[`RunTest.Examples.YieliceptionExample.RunCommunication`](../Trarizon.Test.Run/Examples/YieliceptionExample.cs)
 
 *Similar to Python*
 
