@@ -21,6 +21,7 @@
 `Dictionary<,>`<br/>`IDictionary<,>`|`GetOrAdd`|获取键的值，否则添加并返回值
 `Span<>`<br/>`ROS<>`|`OffsetOf`|通过指针计算元素/子数组的下标值
 ||`IndexOf`|重载了从指定下标值开始查找的功能
+`T[]`<br/>`List<>`<br/>`Span<>`|`SortStably`|使用内置`Sort`实现的稳定排序
 
 ## Collections.Extensions.Query
 

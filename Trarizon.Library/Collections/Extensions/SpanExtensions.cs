@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Trarizon.Library.Collections.Utilities;
 
 
 namespace Trarizon.Library.Collections.Extensions;
@@ -58,4 +58,14 @@ public static partial class SpanExtensions
         => span[startIndex..].IndexOf(value) + startIndex;
     public static int IndexOf<T>(this ReadOnlySpan<T> span, T value, int startIndex) where T : IEquatable<T>?
         => span[startIndex..].IndexOf(value) + startIndex;
+
+    public static void SortStably<T>(this Span<T> span, Comparison<T>? comparison = null)
+    {
+        Span<(int, T)> keys = new (int, T)[span.Length];
+        for (int i = 0; i < span.Length; i++)
+            keys[i] = (i, span[i]);
+        keys.Sort(span, comparison is null
+            ? StableSortComparer<T>.Default
+            : new StableSortComparer<T>(comparison));
+    }
 }
