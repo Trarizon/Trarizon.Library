@@ -21,7 +21,7 @@ public readonly struct Optional<T>(T value)
     {
         get {
             if (!_hasValue)
-                ThrowHelper.ThrowInvalidOperation($"Option<{typeof(T).Name}> has no value.");
+                ThrowHelper.ThrowInvalidOperation($"Optional<> has no value.");
             return _value!;
         }
     }
