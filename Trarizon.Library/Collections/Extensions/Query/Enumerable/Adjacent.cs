@@ -9,7 +9,7 @@ partial class EnumerableQuery
     public static IEnumerable<(T, T)> Adjacent<T>(this IEnumerable<T> source) => new AdjacentQuerier<T>(source);
 
 
-    private sealed class AdjacentQuerier<T>(IEnumerable<T> source) : SimpleEnumerationQuerier<T, (T Prev, T Curr)>(source)
+    private sealed class AdjacentQuerier<T>(IEnumerable<T> source) : SimpleEnumerationQuerier<T, (T, T)>(source)
     {
         public override bool MoveNext()
         {
@@ -21,9 +21,9 @@ partial class EnumerableQuery
                     _enumerator = _source.GetEnumerator();
 
                     if (_enumerator.MoveNext()) {
-                        _current.Prev = _enumerator.Current;
+                        _current.Item1 = _enumerator.Current;
                         if (_enumerator.MoveNext()) {
-                            _current.Curr = _enumerator.Current;
+                            _current.Item2 = _enumerator.Current;
                             _state = Iterating;
                             return true;
                         }
@@ -32,8 +32,8 @@ partial class EnumerableQuery
                     return false;
                 case Iterating:
                     if (_enumerator!.MoveNext()) {
-                        _current.Prev = _current.Curr;
-                        _current.Curr = _enumerator.Current;
+                        _current.Item1 = _current.Item2;
+                        _current.Item2 = _enumerator.Current;
                         return true;
                     }
                     _state = NoMoreElement;

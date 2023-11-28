@@ -1,6 +1,9 @@
 ﻿namespace Trarizon.Library.Collections.Extensions.Query;
 partial class EnumerableQuery
 {
+    // TODO?: Warning when T is null, defaultValue is notnull, return false
+    // Same in PopFront
+
     /// <summary>
     /// Try get first element in sequence,
     /// this method returns false when there is not exactly one element in sequence
@@ -10,7 +13,7 @@ partial class EnumerableQuery
     /// or <paramref name="defaultValue"/> if sequence is empty or contains more than 1 element.
     /// </param>
     /// <returns><see langword="true"/> if there is exactly one elements in sequence</returns>
-    public static bool TrySingle<T>(this IEnumerable<T> source, out T? value, T? defaultValue = default)
+    public static bool TrySingle<T>(this IEnumerable<T> source, out T value, T defaultValue = default!)
         => source.TrySingleInternal(out value, defaultValue, false);
 
     /// <summary>
@@ -22,10 +25,10 @@ partial class EnumerableQuery
     /// or <paramref name="defaultValue"/> if sequence is empty or contains more than 1 element.
     /// </param>
     /// <returns><see langword="true"/> if there is one or zero elements in sequence</returns>
-    public static bool TrySingleOrNone<T>(this IEnumerable<T> source, out T? value, T? defaultValue = default)
+    public static bool TrySingleOrNone<T>(this IEnumerable<T> source, out T value, T defaultValue = default!)
         => source.TrySingleInternal(out value, defaultValue, true);
 
-    private static bool TrySingleInternal<T>(this IEnumerable<T> source, out T? value, T? defaultValue, bool resultWhenZero)
+    private static bool TrySingleInternal<T>(this IEnumerable<T> source, out T value, T defaultValue, bool resultWhenZero)
     {
         if (source is IList<T> list) {
             switch (list.Count) {

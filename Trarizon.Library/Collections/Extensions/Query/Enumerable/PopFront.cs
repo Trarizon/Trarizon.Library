@@ -42,7 +42,7 @@ partial class EnumerableQuery
     /// If no element in <paramref name="source"/>,
     /// <paramref name="firstElement"/> is <paramref name="defaultValue"/>
     /// </summary>
-    public static IEnumerable<T> PopFirst<T>(this IEnumerable<T> source, out T? firstElement, T? defaultValue = default)
+    public static IEnumerable<T> PopFirst<T>(this IEnumerable<T> source, out T firstElement, T defaultValue = default!)
     {
         if (source is IList<T> list) {
             return list.PopFirstList(out firstElement, defaultValue);
