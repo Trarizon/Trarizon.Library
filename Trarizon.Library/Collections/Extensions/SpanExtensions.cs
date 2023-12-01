@@ -45,9 +45,9 @@ public static partial class SpanExtensions
     {
 #pragma warning disable CS8500
         fixed (T* rPtr = &right, lPtr = &left) {
-            var res = (nuint)lPtr - (nuint)rPtr;
+            var res = (int)((nuint)lPtr - (nuint)rPtr) / sizeof(T);
             Debug.Assert(Unsafe.AreSame(in Unsafe.Subtract(ref Unsafe.AsRef(in left), res), in right));
-            return (int)res;
+            return res;
         }
 #pragma warning restore CS8500
     }
