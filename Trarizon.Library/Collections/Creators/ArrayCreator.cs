@@ -3,7 +3,7 @@
 namespace Trarizon.Library.Collections.Creators;
 public static partial class ArrayCreator
 {
-    public static T[] Repeat<T>(int length, T item)
+    public static T[] Repeat<T>(T item, int length)
     {
         var res = new T[length];
         res.Fill(item);

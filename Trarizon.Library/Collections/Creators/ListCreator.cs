@@ -4,7 +4,7 @@ using Trarizon.Library.Collections.Extensions;
 namespace Trarizon.Library.Collections.Creators;
 public static partial class ListCreator
 {
-    public static List<T> Repeat<T>(int count, T item)
+    public static List<T> Repeat<T>(T item, int count)
     {
         var list = new List<T>(count);
 #if NET8_0_OR_GREATER

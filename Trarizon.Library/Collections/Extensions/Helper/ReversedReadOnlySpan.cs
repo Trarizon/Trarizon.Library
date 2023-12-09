@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace Trarizon.Library.Collections.Utilities;
+namespace Trarizon.Library.Collections.Extensions.Helper;
 public readonly ref struct ReversedReadOnlySpan<T>
 {
     private readonly ReadOnlySpan<T> _span;
@@ -43,7 +43,8 @@ public readonly ref struct ReversedReadOnlySpan<T>
         public bool MoveNext()
         {
             int index = _index - 1;
-            if (index >= 0) {
+            if (index >= 0)
+            {
                 _index = index;
                 return true;
             }
