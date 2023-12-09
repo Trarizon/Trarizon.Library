@@ -29,7 +29,7 @@ internal static class GlobalUsings
         => Console.WriteLine(value ?? "<null>");
     public static void Print<T>(this T value) => Print(PrintValue(value));
     public static void Print<T>(this IEnumerable<T> values) => Print(PrintValue(values));
-    public static void Print<T>(this Span<T> values) => Print(values);
+    public static void Print<T>(this Span<T> values) => Print(PrintValue((ReadOnlySpan<T>)values));
     public static void Print<T>(this ReadOnlySpan<T> values) => Print(PrintValue(values));
 
     private static string? PrintValue<T>(T value)
