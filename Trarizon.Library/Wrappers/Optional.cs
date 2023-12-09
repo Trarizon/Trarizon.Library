@@ -38,11 +38,6 @@ public readonly struct Optional<T>(T value)
     public Optional<TResult> SelectWrapped<TResult>(Func<T, Optional<TResult>> selector)
         => _hasValue ? selector(_value!) : default;
 
-    public Optional<TResult> SelectWrapped<T2, TResult>(Func<T, Optional<T2>> selector, Func<T, T2, TResult> resultSelector)
-        => _hasValue && selector(_value) is var mid && mid._hasValue
-            ? new(resultSelector(_value!, mid._value))
-            : default;
-
     public override string? ToString() => _hasValue ? _value!.ToString() : null;
 
     /// <remarks>
