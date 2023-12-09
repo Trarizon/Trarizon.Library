@@ -6,14 +6,19 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Trarizon.Library.Collections.Creators;
 using Trarizon.Library.Collections.Extensions;
-using Trarizon.Library.Collections.Extensions.Query;
 using Trarizon.Library.RunTest.Examples;
 using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 using Trarizon.Test.UnitTest;
 
-ReadOnlySpan<char> chars = "abcdefghi";
+int[,] ints = {
+    {1,2,3 },
+    {4,5,6 },
+    {7,8,9 },
+    {10,11,12 },
+    {13,14,15 },
+};
 
-chars.OffsetOf(in chars[5]).Print();
+ints.AsSpan(1).Print();
 
 "end".Print();

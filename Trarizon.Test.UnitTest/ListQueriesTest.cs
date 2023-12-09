@@ -1,4 +1,4 @@
-﻿using Trarizon.Library.Collections.Extensions.Query;
+﻿using Trarizon.Library.Collections.Extensions;
 
 namespace Trarizon.Test.UnitTest;
 [TestClass]

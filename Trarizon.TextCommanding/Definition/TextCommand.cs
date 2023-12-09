@@ -1,7 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-using Trarizon.Library.Collections.Extensions.Query;
+using Trarizon.Library.Collections.Extensions;
 using Trarizon.Library.Wrappers;
 using Trarizon.TextCommanding.Attributes;
 using Trarizon.TextCommanding.Exceptions;

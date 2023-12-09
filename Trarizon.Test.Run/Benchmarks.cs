@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Trarizon.Library.Collections.Extensions;
-using Trarizon.Library.Collections.Extensions.Query;
+using Trarizon.Library.Collections.Extensions;
 
 namespace Trarizon.Test.Run;
 [MemoryDiagnoser]
