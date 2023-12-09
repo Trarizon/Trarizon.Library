@@ -24,10 +24,9 @@ public class ValidationYieliceptor<TArgs, TResult>(
 
     public bool CanMoveNext(TArgs args)
     {
-        var opt = validator(args);
-        if (opt.HasValue) {
+        if (validator(args) is (true, var result)) {
             IsTimeout = false;
-            _result = opt.GetValueOrDefault();
+            _result = result;
             return true;
         }
         else {

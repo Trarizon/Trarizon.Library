@@ -7,7 +7,7 @@ partial class EnumerableQuery
     /// <summary>
     /// Combine Where and Select, so you can use intermediate variables
     /// </summary>
-    public static IEnumerable<TResult> WhereSelect<T, TResult>(this IEnumerable<T> source, Func<T, Optional<TResult>> whereSelector) 
+    public static IEnumerable<TResult> WhereSelect<T, TResult>(this IEnumerable<T> source, Func<T, Optional<TResult>> whereSelector)
         => new WhereSelectQuerier<T, TResult>(source, whereSelector);
 
 
@@ -27,10 +27,8 @@ partial class EnumerableQuery
                     return false;
                 default:
                     if (_enumerator!.MoveNext()) {
-                        var arg = _enumerator.Current;
-                        var opt = whereSelector(arg);
-                        if (opt.HasValue) {
-                            _current = opt.GetValueOrDefault()!;
+                        if (whereSelector(_enumerator.Current) is (true, var val)) {
+                            _current = val;
                             return true;
                         }
                         else goto default; // Loop 

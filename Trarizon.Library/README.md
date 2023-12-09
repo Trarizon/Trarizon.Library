@@ -86,3 +86,20 @@ IFloatNumber|`Remap`<br/>`RemapInto`|将值映射到另一个范围
 :-:|:--
 `Optional<>`|Optional
 `LazyInit<>`<br/>`LazyInit<,>`|一个轻量的延迟初始化
+
+<details>
+<summary><code>Optional&lt;&gt;</code>小寄巧</summary>
+
+`Optional<>` 实现了`Deconstruct(out bool, out T)`，
+因此，可以使用以下方式快速判断并获取`Value`
+``` csharp
+if (optional is (true, var value)) {
+    Process(value);
+}
+
+_ = optional is (true, var value)
+    ? value
+    : default;
+```
+
+</details>
