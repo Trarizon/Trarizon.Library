@@ -59,6 +59,9 @@ public static partial class SpanExtensions
     public static int IndexOf<T>(this ReadOnlySpan<T> span, T value, int startIndex) where T : IEquatable<T>?
         => span[startIndex..].IndexOf(value) + startIndex;
 
+    public static ReversedSpan<T> Reverse<T>(this Span<T> span) => new(span);
+    public static ReversedReadOnlySpan<T> Reverse<T>(this ReadOnlySpan<T> span) => new(span);
+
     public static void SortStably<T>(this Span<T> span, Comparison<T>? comparison = null)
     {
         Span<(int, T)> keys = new (int, T)[span.Length];
