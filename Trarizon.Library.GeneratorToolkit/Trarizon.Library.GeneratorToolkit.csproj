@@ -1,0 +1,39 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+	  <LangVersion>12</LangVersion>
+	  <Nullable>enable</Nullable>
+	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" />
+    <PackageReference Include="PolySharp" Version="1.14.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+	<PropertyGroup Label="PolySharpProperties">
+		<PolySharpIncludeGeneratedTypes>
+			System.Index;
+			System.Range;
+			System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute;
+			System.Diagnostics.CodeAnalysis.NotNullWhenAttribute;
+			System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute;
+			System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute;
+		</PolySharpIncludeGeneratedTypes>
+	</PropertyGroup>
+
+	<PropertyGroup Label="NugetProperties">
+		<Title>$(AssemblyName)</Title>
+		<Authors>Trarizon</Authors>
+		<RepositoryType>https://github.com/Trarizon/Trarizon.Library</RepositoryType>
+	</PropertyGroup>
+
+</Project>
