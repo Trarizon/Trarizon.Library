@@ -17,6 +17,14 @@ internal static class GlobalUsings
         return res;
     }
 
+    public static List<int> ListInts(int length = 8)
+    {
+        var res = new List<int>(length);
+        for (int i = 0; i < length; i++)
+            res[i] = i;
+        return res;
+    }
+
     public static IEnumerable<int> EnumerateInts(int length = 8)
     {
         for (int i = 0; i < length; i++)

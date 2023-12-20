@@ -19,6 +19,7 @@
 :-:|:-:|:--
 `T[]`<br/>`List<>`|`Fill`|填充集合
 `Dictionary<,>`<br/>`IDictionary<,>`|`GetOrAdd`|获取键的值，否则添加并返回值
+||`AddOrUpdate`|Add or Update
 `Span<>`<br/>`ReadOnlySpan<>`|`OffsetOf`|通过指针计算元素/子数组的下标值
 ||`IndexOf`|重载了从指定下标值开始查找的功能
 ||`Reverse`|反转span
