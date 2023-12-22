@@ -71,7 +71,7 @@
 
 `this`|Method|Remarks
 :-:|:-:|:--
-`Task`<br/>`Task<>`<br/>`ValueTask`<br/>`ValueTask<>`<br/>`ValueTask?`|`Sync`|`GetAwaiter().GetResult()`
+`Task`<br/>`Task<>`<br/>`ValueTask`<br/>`ValueTask<>`|`Sync`|`GetAwaiter().GetResult()`
 `ValueTask?`|`GetAwaiter`|为`ValueTask?`提供`await`语法支持
 `Task<>`<br/>`ValueTask<>`|`Select`|Monad
 IFloatNumber|`Remap`<br/>`RemapInto`|将值映射到另一个范围
