@@ -119,16 +119,16 @@ public static class SyntaxCreator
     /// Create all containing partial types of a type by copy the basic info of original types
     /// </summary>
     public static TypeDeclarationSyntax CloneAllContainingTypeDeclarations(TypeDeclarationSyntax nestedType,
-        IAttributeSyntaxContext<TypeDeclarationSyntax, ITypeSymbol> codeContextUtil)
+        IAttributeSyntaxContext<TypeDeclarationSyntax, ITypeSymbol> contextUtil)
     {
-        var (syntax, symbol) = (codeContextUtil.Syntax, codeContextUtil.Symbol);
+        var (syntax, symbol) = (contextUtil.Syntax, contextUtil.Symbol);
         var type = nestedType;
 
         while (symbol.ContainingType != null) {
             symbol = symbol.ContainingType;
             syntax = (TypeDeclarationSyntax)syntax.Parent!;
             type = ClonePartialDeclaration(syntax, default, default,
-                SyntaxFactory.List<MemberDeclarationSyntax>(new[] { type }));
+                SyntaxFactory.List<MemberDeclarationSyntax>([type]));
         }
 
         return type;
@@ -140,12 +140,12 @@ public static class SyntaxCreator
     public static MemberDeclarationSyntax CloneNamespaceDeclaration(TypeDeclarationSyntax type,
         ITypeSymbol typeUtil)
     {
-        string? nsString = typeUtil.ContainingNamespace.GetFullName();
-        if (nsString == null)
+        string nsString = typeUtil.ContainingNamespace.ToDisplayString();
+        if (nsString == Literals.GlobalNamespaceDisplayString)
             return type;
 
         return SyntaxFactory.NamespaceDeclaration(
-            SyntaxFactory.ParseName(nsString, "global::".Length),
+            SyntaxFactory.ParseName(nsString),
             externs: default,
             usings: default,
             members: SyntaxFactory.List<MemberDeclarationSyntax>([type]));
@@ -157,13 +157,13 @@ public static class SyntaxCreator
 
     public static AttributeListSyntax GetGeneratedCodeAttributeSyntax(string tool, string version) => SyntaxFactory.AttributeList(SyntaxFactory.SingletonSeparatedList(
         SyntaxFactory.Attribute(
-            SyntaxFactory.ParseName($"global::{typeof(GeneratedCodeAttribute).FullName}"),
-            SyntaxFactory.AttributeArgumentList(SyntaxFactory.SeparatedList(new[] {
+            SyntaxFactory.ParseName($"global::{Literals.GeneratedCodeAttributeFullName}"),
+            SyntaxFactory.AttributeArgumentList(SyntaxFactory.SeparatedList([
                 SyntaxFactory.AttributeArgument(SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression,
                     SyntaxFactory.Literal(tool))),
                 SyntaxFactory.AttributeArgument(SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression,
                     SyntaxFactory.Literal(version)))
-            })))));
+            ])))));
 
     #endregion
 }
