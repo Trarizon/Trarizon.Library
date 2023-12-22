@@ -78,7 +78,7 @@ public static partial class AsyncExtensions
         return task.IsCompletedSuccessfully
             ? ValueTask.FromResult(selector(task.Result))
             : Otherwise(task, selector);
-        static async ValueTask<TResult> Otherwise(ValueTask<T> task, Func<T, TResult> selector) => selector(await task);
+        static async ValueTask<TResult> Otherwise(ValueTask<T> task, Func<T, TResult> selector) => selector(await task.ConfigureAwait(false));
     }
 
     public static Task<TResult> Select<T, TResult>(this Task<T> task, Func<T, TResult> selector)
@@ -86,7 +86,7 @@ public static partial class AsyncExtensions
         return task.IsCompletedSuccessfully
             ? Task.FromResult(selector(task.Result))
             : Otherwise(task, selector);
-        static async Task<TResult> Otherwise(Task<T> task, Func<T, TResult> selector) => selector(await task);
+        static async Task<TResult> Otherwise(Task<T> task, Func<T, TResult> selector) => selector(await task.ConfigureAwait(false));
     }
 
     #endregion
