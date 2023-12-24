@@ -13,6 +13,10 @@ Private lib, Based on .NET 8, written in C#12
 
 Miscellaneous
 
+## [GeneratorToolkit](./Trarizon.Library.GeneratorToolkit/README.md)
+
+Toolkit for source generator
+
 ## [TextCommanding](./Trarizon.TextCommanding/README.md)
 
 Parse text input command(CLI like).
