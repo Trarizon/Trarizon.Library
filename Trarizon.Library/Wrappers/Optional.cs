@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Trarizon.Library.Wrappers;
 public static class Optional
@@ -9,22 +10,23 @@ public static class Optional
         => value.HasValue ? value.GetValueOrDefault()! : default;
 
     public static T? ToNullable<T>(this Optional<T> value) where T : struct
-        => value.HasValue ? value.GetValueOrDefault()! : default;
+        => value.HasValue ? value._value : default;
 }
 
 public readonly struct Optional<T>(T value)
 {
     private readonly bool _hasValue = true;
-    private readonly T _value = value;
+    internal readonly T _value = value;
 
+    [MemberNotNullWhen(true, nameof(_value))]
     public readonly bool HasValue => _hasValue;
 
     public readonly T Value
     {
         get {
-            if (!_hasValue)
+            if (HasValue)
                 ThrowHelper.ThrowInvalidOperation($"Optional<> has no value.");
-            return _value!;
+            return _value;
         }
     }
 
@@ -33,12 +35,12 @@ public readonly struct Optional<T>(T value)
     public static implicit operator Optional<T>(T value) => new(value);
 
     public Optional<TResult> Select<TResult>(Func<T, TResult> selector)
-        => _hasValue ? new(selector(_value!)) : default;
+        => HasValue ? new(selector(_value)) : default;
 
     public Optional<TResult> SelectWrapped<TResult>(Func<T, Optional<TResult>> selector)
-        => _hasValue ? selector(_value!) : default;
+        => HasValue ? selector(_value) : default;
 
-    public override string? ToString() => _hasValue ? _value!.ToString() : null;
+    public override string? ToString() => HasValue ? _value.ToString() : null;
 
     /// <remarks>
     /// This method is impl for positional pattern,

@@ -19,6 +19,7 @@
 :-:|:-:|:--
 `T[]`<br/>`List<>`|`Fill`|填充集合
 `Dictionary<,>`<br/>`IDictionary<,>`|`GetOrAdd`|获取键的值，否则添加并返回值
+||`AddOrUpdate`|Add or Update
 `Span<>`<br/>`ReadOnlySpan<>`|`OffsetOf`|通过指针计算元素/子数组的下标值
 ||`IndexOf`|重载了从指定下标值开始查找的功能
 ||`Reverse`|反转span
@@ -70,7 +71,7 @@
 
 `this`|Method|Remarks
 :-:|:-:|:--
-`Task`<br/>`Task<>`<br/>`ValueTask`<br/>`ValueTask<>`<br/>`ValueTask?`|`Sync`|`GetAwaiter().GetResult()`
+`Task`<br/>`Task<>`<br/>`ValueTask`<br/>`ValueTask<>`|`Sync`|`GetAwaiter().GetResult()`
 `ValueTask?`|`GetAwaiter`|为`ValueTask?`提供`await`语法支持
 `Task<>`<br/>`ValueTask<>`|`Select`|Monad
 IFloatNumber|`Remap`<br/>`RemapInto`|将值映射到另一个范围

@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Trarizon.Library.Collections.Extensions;
 public static partial class DictionaryExtensions
@@ -52,4 +53,21 @@ public static partial class DictionaryExtensions
     }
 
     #endregion
+
+    public static void AddOrUpdate<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key, Func<TKey, TValue> addFactory, Func<TKey, TValue, TValue> updateFunc) where TKey : notnull
+    {
+        ref var val = ref CollectionsMarshal.GetValueRefOrNullRef(dictionary, key);
+        if (Unsafe.IsNullRef(ref val))
+            val = addFactory(key);
+        else
+            val = updateFunc(key, val);
+    }
+    public static void AddOrUpdate<TKey, TValue, TArgs>(this Dictionary<TKey, TValue> dictionary, TKey key, Func<TKey, TArgs, TValue> addFactory, Func<TKey, TValue, TArgs, TValue> updateFunc, TArgs factoryArgs) where TKey : notnull
+    {
+        ref var val = ref CollectionsMarshal.GetValueRefOrNullRef(dictionary, key);
+        if (Unsafe.IsNullRef(ref val))
+            val = addFactory(key, factoryArgs);
+        else
+            val = updateFunc(key, val, factoryArgs);
+    }
 }
