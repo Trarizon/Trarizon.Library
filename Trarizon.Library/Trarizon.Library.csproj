@@ -1,18 +1,37 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFrameworks>net8.0;netstandard2.0</TargetFrameworks>
 	<LangVersion>12</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+	
   <PropertyGroup>
 		  <Title>Trarizon.Library</Title>
     <Authors>Trarizon</Authors>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/Trarizon/Trarizon.Library</RepositoryUrl>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="PolySharp" Version="1.14.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="System.Memory" Version="4.5.5" />
+  </ItemGroup>
+
+	<PropertyGroup Label="PolySharpSettings" Condition="'$(TargetFramework)' == 'netstandard2.0'">
+		<PolySharpUsePublicAccessibilityForGeneratedTypes>true</PolySharpUsePublicAccessibilityForGeneratedTypes>
+		<PolySharpIncludeGeneratedTypes>
+			System.Index;
+			System.Range;
+			System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute;
+			System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute;
+			System.Diagnostics.CodeAnalysis.NotNullWhenAttribute;
+		</PolySharpIncludeGeneratedTypes>
+	</PropertyGroup>
 
   <ItemGroup>
     <None Update="README.md">

@@ -28,33 +28,28 @@ public static partial class RandomExtensions
         Debug.Assert(false);
         return weights.Length - 1;
     }
+
+#if NET8_0_OR_GREATER
+
     /// <summary>
     /// Weight random
     /// </summary>
     /// <returns>The index of result in <paramref name="weights"/></returns>
     public static int SelectWeighted(this Random random, List<float> weights)
         => random.SelectWeighted(CollectionsMarshal.AsSpan(weights));
+#endif
 
     #endregion
 
     #region Shuffle
 
+#if NET8_0_OR_GREATER
+
     public static void Shuffle<T>(this Random random, List<T> list)
         => random.Shuffle(CollectionsMarshal.AsSpan(list));
 
-#if !NET8_0_OR_GREATER
-
-    public static void Shuffle<T>(this Random random, Span<T> span)
-    {
-        int ptr = span.Length - 1;
-        while (ptr >= 0) {
-            var rndIndex = random.Next(ptr);
-            (span[ptr], span[rndIndex]) = (span[rndIndex], span[ptr]);
-            ptr--;
-        }
-    }
-
 #endif
+
     #endregion
 
     #region NextFloat
@@ -64,6 +59,13 @@ public static partial class RandomExtensions
 
     public static double NextDouble(this Random random, double min, double max)
         => random.NextDouble() * (max - min) + min;
+
+#if NETSTANDARD2_0
+
+    public static float NextSingle(this Random random)
+        => (float)random.NextDouble();
+
+#endif
 
     #endregion
 }

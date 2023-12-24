@@ -6,6 +6,8 @@ public static partial class DictionaryExtensions
 {
     #region GetOrAdd
 
+#if NET8_0_OR_GREATER
+
     public static TValue GetOrAdd<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key, TValue addValue) where TKey : notnull
     {
         ref TValue? value = ref CollectionsMarshal.GetValueRefOrAddDefault(dictionary, key, out var exists);
@@ -27,6 +29,8 @@ public static partial class DictionaryExtensions
             value = factory(key, factoryArgs);
         return value!;
     }
+
+#endif
 
     public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue addValue) where TKey : notnull
     {
@@ -54,6 +58,10 @@ public static partial class DictionaryExtensions
 
     #endregion
 
+    #region AddOrUpdate
+
+#if NET8_0_OR_GREATER
+
     public static void AddOrUpdate<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key, Func<TKey, TValue> addFactory, Func<TKey, TValue, TValue> updateFunc) where TKey : notnull
     {
         ref var val = ref CollectionsMarshal.GetValueRefOrNullRef(dictionary, key);
@@ -70,4 +78,8 @@ public static partial class DictionaryExtensions
         else
             val = updateFunc(key, val, factoryArgs);
     }
+
+#endif
+
+    #endregion
 }

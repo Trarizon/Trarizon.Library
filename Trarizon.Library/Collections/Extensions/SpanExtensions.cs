@@ -45,7 +45,9 @@ public static partial class SpanExtensions
 #pragma warning disable CS8500
         fixed (T* rPtr = &right, lPtr = &left) {
             var res = (int)((nuint)lPtr - (nuint)rPtr) / sizeof(T);
+#if NET8_0_OR_GREATER
             Debug.Assert(Unsafe.AreSame(in Unsafe.Subtract(ref Unsafe.AsRef(in left), res), in right));
+#endif
             return res;
         }
 #pragma warning restore CS8500
@@ -61,6 +63,8 @@ public static partial class SpanExtensions
     public static ReversedSpan<T> Reverse<T>(this Span<T> span) => new(span);
     public static ReversedReadOnlySpan<T> Reverse<T>(this ReadOnlySpan<T> span) => new(span);
 
+#if NET8_0_OR_GREATER
+
     public static void SortStably<T>(this Span<T> span, Comparison<T>? comparison = null)
     {
         Span<(int, T)> keys = new (int, T)[span.Length];
@@ -70,4 +74,6 @@ public static partial class SpanExtensions
             ? StableSortComparer<T>.Default
             : new StableSortComparer<T>(comparison));
     }
+
+#endif
 }
