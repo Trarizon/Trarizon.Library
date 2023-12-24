@@ -13,20 +13,19 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" />
-    <PackageReference Include="PolySharp" Version="1.14.0">
+    <PackageReference Include="PolySharp" Version="1.14.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Trarizon.Library\Trarizon.Library.csproj" />
+  </ItemGroup>
+
 	<PropertyGroup Label="PolySharpProperties">
+		<PolySharpUsePublicAccessibilityForGeneratedTypes>true</PolySharpUsePublicAccessibilityForGeneratedTypes>
 		<PolySharpIncludeGeneratedTypes>
-			System.Index;
-			System.Range;
-			System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute;
-			System.Diagnostics.CodeAnalysis.NotNullWhenAttribute;
-			System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute;
-			System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute;
 		</PolySharpIncludeGeneratedTypes>
 	</PropertyGroup>
 

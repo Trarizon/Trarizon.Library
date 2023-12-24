@@ -3,10 +3,18 @@ using Microsoft.CodeAnalysis.CSharp;
 using System.Collections.Immutable;
 
 namespace Trarizon.Library.GeneratorToolkit;
-public interface IAttributeSyntaxContext<out TSyntax, out TSymbol>
+public sealed class StrongTypeAttributeSyntaxContext<TSyntax, TSymbol>
     where TSyntax : CSharpSyntaxNode
     where TSymbol : ISymbol
 {
+    internal StrongTypeAttributeSyntaxContext(in GeneratorAttributeSyntaxContext context)
+    {
+        Syntax = (TSyntax)context.TargetNode;
+        Symbol = (TSymbol)context.TargetSymbol;
+        SemanticModel = context.SemanticModel;
+        Attributes = context.Attributes;
+    }
+
     /// <summary>
     /// The syntax node the attribute is attached to.  For example, with <c>[CLSCompliant] class C { }</c> this would
     /// the class declaration node.
@@ -33,18 +41,4 @@ public interface IAttributeSyntaxContext<out TSyntax, out TSymbol>
     /// </para>
     /// </summary>
     public ImmutableArray<AttributeData> Attributes { get; }
-}
-
-// TODO:constructor
-internal sealed class AttributeSyntaxContext<TSyntax, TSymbol>(in GeneratorAttributeSyntaxContext context) : IAttributeSyntaxContext<TSyntax, TSymbol>
-    where TSyntax : CSharpSyntaxNode
-    where TSymbol : ISymbol
-{
-    public TSyntax Syntax { get; }
-
-    public TSymbol Symbol => throw new System.NotImplementedException();
-
-    public SemanticModel SemanticModel => throw new System.NotImplementedException();
-
-    public ImmutableArray<AttributeData> Attributes => throw new System.NotImplementedException();
 }

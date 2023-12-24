@@ -4,7 +4,7 @@ using System.Linq;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Trarizon.Library.GeneratorToolkit;
-public sealed class OutputResult<TContext>
+public sealed class Filter<TContext>
 {
     public TContext? Context { get; }
     public IEnumerable<Diagnostic>? Diagnostics { get; }
@@ -13,7 +13,7 @@ public sealed class OutputResult<TContext>
     [MemberNotNullWhen(true, nameof(Diagnostics))]
     public bool HasDiagnostic => Diagnostics != null && Diagnostics.Any();
 
-    public OutputResult(TContext context) { Context = context; }
+    public Filter(TContext context) { Context = context; }
 
-    public OutputResult(IEnumerable<Diagnostic> diagnostics) {  Diagnostics = diagnostics; }
+    public Filter(IEnumerable<Diagnostic> diagnostics) {  Diagnostics = diagnostics; }
 }

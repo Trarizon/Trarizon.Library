@@ -1,6 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 
-namespace Trarizon.Library.GeneratorToolkit;
+namespace Trarizon.Library.GeneratorToolkit.Factories;
 public static class DiagnosticFactory
 {
     public static Diagnostic Create(DiagnosticDescriptor descriptor, SyntaxNode node, params object?[]? messageArgs)

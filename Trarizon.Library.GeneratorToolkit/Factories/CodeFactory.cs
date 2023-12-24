@@ -5,18 +5,15 @@ using System;
 using System.CodeDom.Compiler;
 using Trarizon.Library.GeneratorToolkit.Extensions;
 
-namespace Trarizon.Library.GeneratorToolkit;
+namespace Trarizon.Library.GeneratorToolkit.Factories;
 /// <summary>
 /// Extensions of <see cref="SyntaxFactory"/>,
 /// </summary>
-public static class SyntaxCreator
+public static class CodeFactory
 {
-    public static ParameterListSyntax EmptyParameterListSyntax = SyntaxFactory.ParameterList();
-    public static ArgumentListSyntax EmptyArgumentListSyntax = SyntaxFactory.ArgumentList();
-
     public static SyntaxToken SemicolonToken = SyntaxFactory.Token(SyntaxKind.SemicolonToken);
 
-    public static SyntaxTokenList Modifiers(params SyntaxKind[] modifiers)
+    public static SyntaxTokenList Modifiers(ReadOnlySpan<SyntaxKind> modifiers)
     {
         var tokens = new SyntaxToken[modifiers.Length];
         for (int i = 0; i < modifiers.Length; i++) {
@@ -119,7 +116,7 @@ public static class SyntaxCreator
     /// Create all containing partial types of a type by copy the basic info of original types
     /// </summary>
     public static TypeDeclarationSyntax CloneAllContainingTypeDeclarations(TypeDeclarationSyntax nestedType,
-        IAttributeSyntaxContext<TypeDeclarationSyntax, ITypeSymbol> contextUtil)
+        StrongTypeAttributeSyntaxContext<TypeDeclarationSyntax, ITypeSymbol> contextUtil)
     {
         var (syntax, symbol) = (contextUtil.Syntax, contextUtil.Symbol);
         var type = nestedType;
