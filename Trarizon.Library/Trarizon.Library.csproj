@@ -8,19 +8,24 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 	
-  <PropertyGroup>
-		  <Title>Trarizon.Library</Title>
+  <PropertyGroup Label="NugetProperties">
+	<Title>Trarizon.Library</Title>
     <Authors>Trarizon</Authors>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/Trarizon/Trarizon.Library</RepositoryUrl>
   </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="PolySharp" Version="1.14.1">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="System.Memory" Version="4.5.5" />
+	
+  <ItemGroup Label="NugetItems">
+	  <None Include="README.md" Pack="true" PackagePath=""/>
   </ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+	  <PackageReference Include="PolySharp" Version="1.14.1">
+	    <PrivateAssets>all</PrivateAssets>
+	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	  </PackageReference>
+	  <PackageReference Include="System.Memory" Version="4.5.5" />
+	</ItemGroup>
 
 	<PropertyGroup Label="PolySharpSettings" Condition="'$(TargetFramework)' == 'netstandard2.0'">
 		<PolySharpUsePublicAccessibilityForGeneratedTypes>true</PolySharpUsePublicAccessibilityForGeneratedTypes>
@@ -33,11 +38,5 @@
 		</PolySharpIncludeGeneratedTypes>
 	</PropertyGroup>
 
-  <ItemGroup>
-    <None Update="README.md">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
 
 </Project>

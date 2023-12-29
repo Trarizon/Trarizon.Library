@@ -17,10 +17,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Trarizon.Library\Trarizon.Library.csproj" />
+    <PackageReference Include="Trarizon.Library" Version="1.0.0" />
   </ItemGroup>
 
 	<PropertyGroup Label="PolySharpProperties">
