@@ -25,6 +25,11 @@ public static partial class AsyncExtensions
     /// </summary>
     public static T Sync<T>(this in ValueTask<T> task) => task.GetAwaiter().GetResult();
 
+    /// <summary>
+    /// Run synchronously by call GetAwaiter().GetResult()
+    /// </summary>
+    public static void Sync<T>(this in ValueTask? task) => task.GetAwaiter().GetResult();
+
 #endif
 
     #endregion
