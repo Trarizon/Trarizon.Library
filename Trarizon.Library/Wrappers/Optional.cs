@@ -13,6 +13,19 @@ public static class Optional
         => value.HasValue ? value._value : default;
 }
 
+/// <summary>
+/// Optional monad indicates whether a value is exist or not, 
+/// use <c>default</c> as None
+/// </summary>
+/// <remarks>
+/// You can deconstruct this into (bool, T) to quick check
+/// <code>
+/// if (opt is (true, var val))
+///     Process(val);
+/// </code>
+/// </remarks>
+/// <typeparam name="T"></typeparam>
+/// <param name="value"></param>
 public readonly struct Optional<T>(T value)
 {
     private readonly bool _hasValue = true;

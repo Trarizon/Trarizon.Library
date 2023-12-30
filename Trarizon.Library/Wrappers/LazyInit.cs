@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
 namespace Trarizon.Library.Wrappers;
-
 public struct LazyInit<T>(Func<T> creator)
 {
     private Func<T>? _creator = creator;

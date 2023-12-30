@@ -1,23 +1,29 @@
 # Trarizon.Library
 
-杂七杂八的集合体
+Miscellaneous
 
-## Collections.Creators
+Contents:
 
-集合创建
+- [Collection extensions](#Collections)
+- [Extensions for BCL type](#Extensions)
+- [Simple wrapper types](#Wrappers)
 
-`Type`|Method|Remarks
-:-:|:-:|:--
-`ArrayCreator`|`Repeat`|填充值后的数组
-`ListCreator`|`Repeat`|填充值后的`List<>`
+## Collections
 
-## Collections.Extensions
+### Creators
+
+static classes for quickly creating collections
+
+- `ArrayCreator`
+- `ListCreator`
+
+### Extensions
 
 扩展方法
 
 `this`|Method|Remarks
-:-:|:-:|:--
-`T[]`<br/>`List<>`|`Fill`|填充集合
+--:|:--|:--
+`T[]`<br/>`List<>`|`Fill`|Fill the collection with specific value
 `Dictionary<,>`<br/>`IDictionary<,>`|`GetOrAdd`|获取键的值，否则添加并返回值
 ||`AddOrUpdate`|Add or Update
 `Span<>`<br/>`ReadOnlySpan<>`|`OffsetOf`|通过指针计算元素/子数组的下标值
@@ -26,9 +32,7 @@
 `T[]`<br/>`List<>`<br/>`Span<>`|`SortStably`|使用内置`Sort`实现的稳定排序
 `T[,]`|`AsSpan`<br/>`AsReadOnlySpan`|将二维数组中的一行转为`Span<>`/`ROS<>`
 
-## Collections.Extensions.Query
-
-类Linq的扩展方法
+LinQ-like extensions
 
 <details>
 <summary>展开</summary>
@@ -86,8 +90,8 @@ IFloatNumber|`Remap`<br/>`RemapInto`|将值映射到另一个范围
 
 `Type`|Remarks
 :-:|:--
+`LazyInit<>`<br/>`LazyInit<,>`|Lightweight `Lazy<>`
 `Optional<>`|Optional
-`LazyInit<>`<br/>`LazyInit<,>`|一个轻量的延迟初始化
 
 <details>
 <summary><code>Optional&lt;&gt;</code>小寄巧</summary>
