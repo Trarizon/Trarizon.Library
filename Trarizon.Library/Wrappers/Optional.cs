@@ -37,7 +37,7 @@ public readonly struct Optional<T>(T value)
     public readonly T Value
     {
         get {
-            if (HasValue)
+            if (!HasValue)
                 ThrowHelper.ThrowInvalidOperation($"Optional<> has no value.");
             return _value;
         }
