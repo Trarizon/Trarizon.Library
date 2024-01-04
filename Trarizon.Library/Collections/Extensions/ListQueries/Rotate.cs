@@ -1,5 +1,5 @@
-﻿using Trarizon.Library.Collections.Extensions.Helper;
-using Trarizon.Library.Collections.Extensions.Helper.Queriers;
+﻿using Trarizon.Library.Collections.Extensions.Helpers.Queriers;
+using Trarizon.Library.Collections.Extensions.ListQueries.Helpers;
 
 namespace Trarizon.Library.Collections.Extensions;
 partial class ListQuery

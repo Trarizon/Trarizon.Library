@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 
-namespace Trarizon.Library.Collections.Extensions.Helper;
+namespace Trarizon.Library.Collections.Extensions.ListQueries.Helpers;
 internal readonly struct ListWrapper<T> : IReadOnlyList<T>
 {
     public readonly IList<T> List;

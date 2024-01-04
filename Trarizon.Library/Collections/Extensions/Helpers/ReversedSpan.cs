@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace Trarizon.Library.Collections.Extensions.Helper;
+namespace Trarizon.Library.Collections.Extensions.Helpers;
 public readonly ref struct ReversedSpan<T>
 {
     private readonly Span<T> _span;

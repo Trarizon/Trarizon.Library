@@ -1,4 +1,4 @@
-﻿namespace Trarizon.Library.Collections.Extensions.Helper;
+﻿namespace Trarizon.Library.Collections.Extensions.Helpers;
 internal sealed class StableSortComparer<T>(Comparison<T> comparison) : IComparer<(int, T)>
 {
     public static StableSortComparer<T> Default = new(Comparer<T>.Default.Compare);

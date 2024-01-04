@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Trarizon.Library.Collections.Extensions.Helper;
+using Trarizon.Library.Collections.Extensions.Helpers;
 
 namespace Trarizon.Library.Collections.Extensions;
 public static partial class SpanExtensions

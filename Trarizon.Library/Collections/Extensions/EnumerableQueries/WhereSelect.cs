@@ -1,4 +1,4 @@
-﻿using Trarizon.Library.Collections.Extensions.Helper.Queriers;
+﻿using Trarizon.Library.Collections.Extensions.Helpers.Queriers;
 using Trarizon.Library.Wrappers;
 
 namespace Trarizon.Library.Collections.Extensions;

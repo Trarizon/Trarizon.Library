@@ -1,4 +1,4 @@
-﻿namespace Trarizon.Library.Collections.Extensions.Helper.Queriers;
+﻿namespace Trarizon.Library.Collections.Extensions.Helpers.Queriers;
 internal abstract class SimpleEnumerationQuerier<TIn, TOut> : EnumerationQuerier<TOut>
 {
     protected readonly IEnumerable<TIn> _source;

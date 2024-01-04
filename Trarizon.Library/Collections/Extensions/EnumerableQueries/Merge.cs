@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
-using Trarizon.Library.Collections.Extensions.Helper;
-using Trarizon.Library.Collections.Extensions.Helper.Queriers;
+using Trarizon.Library.Collections.Extensions.Helpers;
+using Trarizon.Library.Collections.Extensions.Helpers.Queriers;
 
 namespace Trarizon.Library.Collections.Extensions;
 partial class EnumerableQuery

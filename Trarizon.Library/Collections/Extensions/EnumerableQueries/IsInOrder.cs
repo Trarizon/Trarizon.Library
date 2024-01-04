@@ -1,5 +1,5 @@
 ﻿using System.Numerics;
-using Trarizon.Library.Collections.Extensions.Helper;
+using Trarizon.Library.Collections.Extensions.Helpers;
 
 namespace Trarizon.Library.Collections.Extensions;
 partial class EnumerableQuery

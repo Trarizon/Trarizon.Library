@@ -1,4 +1,4 @@
-﻿namespace Trarizon.Library.Collections.Extensions.Helper.Queriers;
+﻿namespace Trarizon.Library.Collections.Extensions.Helpers.Queriers;
 internal abstract class ListQuerier<T> : EnumerationQuerier<T>, IList<T>, IReadOnlyList<T>
 {
     public abstract T this[int index] { get; }

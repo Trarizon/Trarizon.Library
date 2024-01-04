@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace Trarizon.Library.Collections.Extensions.Helper;
+namespace Trarizon.Library.Collections.Extensions.Helpers;
 internal static class QueryUtil
 {
 #if NET7_0_OR_GREATER
