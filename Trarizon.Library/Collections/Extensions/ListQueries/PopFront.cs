@@ -27,7 +27,7 @@ partial class ListQuery
     /// If no element in <paramref name="list"/>,
     /// <paramref name="firstElement"/> is <paramref name="defaultValue"/>
     /// </summary>
-    public static IList<T> PopFirstList<T>(this IList<T> list, out T firstElement, T defaultValue = default!)
+    public static IList<T> PopFirstList<T>(this IList<T> list, out T? firstElement, T? defaultValue = default!)
     {
         switch (list.Count) {
             case 0:
@@ -90,7 +90,7 @@ partial class ListQuery
     /// If no element in <paramref name="list"/>,
     /// <paramref name="firstElement"/> is <paramref name="defaultValue"/>
     /// </summary>
-    public static IReadOnlyList<T> PopFirstROList<T>(this IReadOnlyList<T> list, out T firstElement, T defaultValue = default!)
+    public static IReadOnlyList<T> PopFirstROList<T>(this IReadOnlyList<T> list, out T? firstElement, T? defaultValue = default!)
     {
         switch (list.Count) {
             case 0:
