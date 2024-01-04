@@ -1,4 +1,5 @@
-﻿using Trarizon.Library.Collections.Extensions.Helper.Queriers;
+﻿using Trarizon.Library.Collections.Extensions.Helper;
+using Trarizon.Library.Collections.Extensions.Helper.Queriers;
 
 namespace Trarizon.Library.Collections.Extensions;
 partial class ListQuery
@@ -11,11 +12,22 @@ partial class ListQuery
         if (splitPosition == 0 || splitPosition >= list.Count)
             return list;
         else
-            return new RotateQuerier<T>(list, splitPosition);
+            return new RotateQuerier<ListWrapper<T>, T>(list.Wrap(), splitPosition);
+    }
+
+    /// <summary>
+    /// Swap two parts of the list
+    /// </summary>
+    public static IReadOnlyList<T> RotateROList<T>(this IReadOnlyList<T> list, int splitPosition)
+    {
+        if (splitPosition == 0 || splitPosition >= list.Count)
+            return list;
+        else
+            return new RotateQuerier<IReadOnlyList<T>, T>(list, splitPosition);
     }
 
 
-    private sealed class RotateQuerier<T>(IList<T> list, int splitPosition) : SimpleListQuerier<T, T>(list)
+    private sealed class RotateQuerier<TList, T>(TList list, int splitPosition) : SimpleListQuerier<TList, T, T>(list) where TList : IReadOnlyList<T>
     {
         private readonly int _splitPosition = splitPosition;
 
@@ -29,7 +41,7 @@ partial class ListQuery
         }
         public override int Count => _list.Count;
 
-        protected override EnumerationQuerier<T> Clone() => new RotateQuerier<T>(_list, _splitPosition);
+        protected override EnumerationQuerier<T> Clone() => new RotateQuerier<TList, T>(_list, _splitPosition);
     }
 
 }

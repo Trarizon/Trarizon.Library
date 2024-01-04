@@ -1,4 +1,4 @@
-# Trarizon.Library
+ï»¿# Trarizon.Library
 
 Miscellaneous
 
@@ -19,70 +19,70 @@ static classes for quickly creating collections
 
 ### Extensions
 
-À©Õ¹·½·¨
+æ‰©å±•æ–¹æ³•
 
 `this`|Method|Remarks
 --:|:--|:--
 `T[]`<br/>`List<>`|`Fill`|Fill the collection with specific value
-`Dictionary<,>`<br/>`IDictionary<,>`|`GetOrAdd`|»ñÈ¡¼üµÄÖµ£¬·ñÔòÌí¼Ó²¢·µ»ØÖµ
+`Dictionary<,>`<br/>`IDictionary<,>`|`GetOrAdd`|è·å–é”®çš„å€¼ï¼Œå¦åˆ™æ·»åŠ å¹¶è¿”å›å€¼
 ||`AddOrUpdate`|Add or Update
-`Span<>`<br/>`ReadOnlySpan<>`|`OffsetOf`|Í¨¹ıÖ¸Õë¼ÆËãÔªËØ/×ÓÊı×éµÄÏÂ±êÖµ
-||`IndexOf`|ÖØÔØÁË´ÓÖ¸¶¨ÏÂ±êÖµ¿ªÊ¼²éÕÒµÄ¹¦ÄÜ
-||`Reverse`|·´×ªspan
-`T[]`<br/>`List<>`<br/>`Span<>`|`SortStably`|Ê¹ÓÃÄÚÖÃ`Sort`ÊµÏÖµÄÎÈ¶¨ÅÅĞò
-`T[,]`|`AsSpan`<br/>`AsReadOnlySpan`|½«¶şÎ¬Êı×éÖĞµÄÒ»ĞĞ×ªÎª`Span<>`/`ROS<>`
+`Span<>`<br/>`ReadOnlySpan<>`|`OffsetOf`|é€šè¿‡æŒ‡é’ˆè®¡ç®—å…ƒç´ /å­æ•°ç»„çš„ä¸‹æ ‡å€¼
+||`IndexOf`|é‡è½½äº†ä»æŒ‡å®šä¸‹æ ‡å€¼å¼€å§‹æŸ¥æ‰¾çš„åŠŸèƒ½
+||`Reverse`|åè½¬span
+`T[]`<br/>`List<>`<br/>`Span<>`|`SortStably`|ä½¿ç”¨å†…ç½®`Sort`å®ç°çš„ç¨³å®šæ’åº
+`T[,]`|`AsSpan`<br/>`AsReadOnlySpan`|å°†äºŒç»´æ•°ç»„ä¸­çš„ä¸€è¡Œè½¬ä¸º`Span<>`/`ROS<>`
 
 LinQ-like extensions
 
 <details>
-<summary>Õ¹¿ª</summary>
+<summary>å±•å¼€</summary>
 
-`Enumerable`|Remarks
-:-:|:--
-`Adjacent`|·µ»ØÏàÁÚµÄÁ½¸öÖµ£¨°´ÏÂ±ê(0,1), (1,2), ...£©
-`AggregateSelect`|ÀàLinQµÄ`Aggregate`£¬·µ»ØÖ´ĞĞÖÁÃ¿Ò»¸öÔªËØµÄ½á¹û
-`ChunkPair`<br/>`ChunkTriple`|ÀàLinQµÄ`Chunk`£¬·µ»Ø½á¹ûÎª`ValueTuple`
-`CountsMoreThan`<br/>`CountsLessThan`<br/>`CountsAtLeast`<br/>`CountsAtMost`<br/>`CountsEqualsTo`<br/>`CountsBetween`|±È½ÏĞòÁĞ´óĞ¡£¬¿ÉÑ¡out²ÎÊıÔÚĞ¡ÓÚÖ¸¶¨ÖµÊ±·µ»Øµ±Ç°ĞòÁĞ´óĞ¡
-`EmptyIfNull`|ĞòÁĞÎª`null`Ê±·µ»Ø¿ÕĞòÁĞ£¬·ñÔò·µ»Ø×ÔÉí
-`IsInOrder`<br/>`IsInOrderBy`|ÅĞ¶ÏĞòÁĞÊÇ·ñÓĞĞò
-`Merge`|ºÏ²¢Á½¸öÓĞĞòĞòÁĞ
-`MinMax`<br/>`MinMaxBy`|Ò»´Î±éÀú·µ»ØĞòÁĞÖĞµÄ×îĞ¡ÖµÓë×î´óÖµ
-`PopFront`<br/>`PopFirst`<br/>`PopFrontWhile`|È¡³ö¿ªÍ·Ö¸¶¨ÊıÁ¿µÄÔªËØ£¨*·ÇÑÓ³Ù¼ÓÔØ*£©£¬²¢·µ»ØÊ£ÏÂµÄÔªËØ
-`Repeat`|½«ĞòÁĞÖØ¸´
-`Rotate`|½»»»ĞòÁĞÇ°ºóÁ½¸ö²¿·Ö
-`StartsWith`|À©Õ¹ÁË´ÓÖ¸¶¨Î»ÖÃ¿ªÊ¼ÅĞ¶¨µÄ·½·¨
-`TryFirst`|ÅĞ¶ÏĞòÁĞÊÇ·ñÓĞÖµ£¬ÈôÓĞ£¬·µ»ØµÚÒ»¸öÖµ
-`TrySingle`<br/>`TrySingleOrNone`|ÅĞ¶ÏĞòÁĞÊÇ·ñ½öº¬ÓĞ1(<=1)¸öÖµ£¬²¢·µ»Ø¸ÃÖµ£¨»òÖ¸¶¨Ä¬ÈÏÖµ£©
-`WhereSelect`|ºÏ²¢ÁËLinQµÄ`Where`ºÍ`Select`£¬ÒÔ´Ë¿ÉÒÔÀûÓÃÖĞ¼äÖµ
+éƒ¨åˆ†æ–¹æ³•ä¸ºå¤šç§é›†åˆè¿›è¡Œäº†å®ç°ï¼Œä¸‹è¡¨ä¸­ç¬¬ä¸€åˆ—æŒ‡ç¤ºå®ç°ç±»å‹ï¼Œç±»å‹åˆ—è¡¨å¦‚ä¸‹ï¼Œä¸åŒç±»å‹çš„æ–¹æ³•åæ·»åŠ äº†ä¸åŒåç¼€ä»¥ä½œåŒºåˆ†
+- `IList<>` : `List`
+- `IReadOnlyList<>` : `ROList`
 
-*`ListQuery`²¿·Ö·½·¨ÎªLinQÓë`EnumerableQuery`µÄ`IList<>`°æÊµÏÖ£¬ÇÒÔÚ`EnumerableQuery`ÖĞÓĞ¶ÔÓ¦·ÖÖ§¡£
-ÕâĞ©·½·¨¹«¿ªÖ÷ÒªÊÇÌá¹©`IList<>`×÷Îª·µ»ØÖµ£¬ÃüÃû¹æÔòÎª`<name>List`»òÍ¬Ãû£¬×¢ÊÍÂÔ*
+|Impl|Method|Remarks
+|--:|:-:|:--|:-:
+||`Adjacent`|è¿”å›ç›¸é‚»çš„ä¸¤ä¸ªå€¼ï¼ˆæŒ‰ä¸‹æ ‡(0,1), (1,2), ...ï¼‰
+||`AggregateSelect`|ç±»LinQçš„`Aggregate`ï¼Œè¿”å›æ‰§è¡Œè‡³æ¯ä¸€ä¸ªå…ƒç´ çš„ç»“æœ
+||`ChunkPair`<br/>`ChunkTriple`|ç±»LinQçš„`Chunk`ï¼Œè¿”å›ç»“æœä¸º`ValueTuple`
+||`CountsMoreThan`<br/>`CountsLessThan`<br/>`CountsAtLeast`<br/>`CountsAtMost`<br/>`CountsEqualsTo`<br/>`CountsBetween`|æ¯”è¾ƒåºåˆ—å¤§å°ï¼Œå¯é€‰outå‚æ•°åœ¨å°äºæŒ‡å®šå€¼æ—¶è¿”å›å½“å‰åºåˆ—å¤§å°
+||`EmptyIfNull`|åºåˆ—ä¸º`null`æ—¶è¿”å›ç©ºåºåˆ—ï¼Œå¦åˆ™è¿”å›è‡ªèº«
+||`IsInOrder`<br/>`IsInOrderBy`|åˆ¤æ–­åºåˆ—æ˜¯å¦æœ‰åº
+||`Merge`|åˆå¹¶ä¸¤ä¸ªæœ‰åºåºåˆ—
+||`MinMax`<br/>`MinMaxBy`|ä¸€æ¬¡éå†è¿”å›åºåˆ—ä¸­çš„æœ€å°å€¼ä¸æœ€å¤§å€¼
+|âœ”âœ”|`PopFront`<br/>`PopFirst`<br/>`PopFrontWhile`|å–å‡ºå¼€å¤´æŒ‡å®šæ•°é‡çš„å…ƒç´ ï¼ˆ*éå»¶è¿ŸåŠ è½½*ï¼‰ï¼Œå¹¶è¿”å›å‰©ä¸‹çš„å…ƒç´ 
+|âœ”âœ”|`Repeat`|å°†åºåˆ—é‡å¤
+|âœ”âœ”|`Reverse`|-
+|âœ”âœ”|`Rotate`|äº¤æ¢åºåˆ—å‰åä¸¤ä¸ªéƒ¨åˆ†
+||`StartsWith`|æ‰©å±•äº†ä»æŒ‡å®šä½ç½®å¼€å§‹åˆ¤å®šçš„æ–¹æ³•
+|âœ”âœ”|`Take`|-
+||`TryFirst`|åˆ¤æ–­åºåˆ—æ˜¯å¦æœ‰å€¼ï¼Œè‹¥æœ‰ï¼Œè¿”å›ç¬¬ä¸€ä¸ªå€¼
+||`TrySingle`<br/>`TrySingleOrNone`|åˆ¤æ–­åºåˆ—æ˜¯å¦ä»…å«æœ‰1(<=1)ä¸ªå€¼ï¼Œå¹¶è¿”å›è¯¥å€¼ï¼ˆæˆ–æŒ‡å®šé»˜è®¤å€¼ï¼‰
+||`WhereSelect`|åˆå¹¶äº†LinQçš„`Where`å’Œ`Select`ï¼Œä»¥æ­¤å¯ä»¥åˆ©ç”¨ä¸­é—´å€¼
+
+ä»¥ä¸‹æ–¹æ³•é€‚ç”¨`IList<>`ä¸`IReadOnlyList`
 
 `List`|Remarks
 :-:|:--
-`AsList`|·µ»Ø×ÔÉí
-`AtOrDefault`|°´ÏÂ±ê»ñÈ¡Öµ£¬Ô½½ç·µ»ØÄ¬ÈÏÖµ
-`PopFrontList`<br/>`PopFirstList`<br/>`PopFrontWhileList`|
-`RepeatList`|
-`ReverseList`|
-`RotateList`|
-`TakeList`|
+`AsList`|è¿”å›è‡ªèº«
+`AtOrDefault`|æŒ‰ä¸‹æ ‡è·å–å€¼ï¼Œè¶Šç•Œè¿”å›é»˜è®¤å€¼
 
 </details>
 
 ## Extensions
 
-ÔÓÆßÔÓ°ËµÄÀ©Õ¹·½·¨
+æ‚ä¸ƒæ‚å…«çš„æ‰©å±•æ–¹æ³•
 
 `this`|Method|Remarks
 :-:|:-:|:--
 `Task`<br/>`Task<>`<br/>`ValueTask`<br/>`ValueTask<>`|`Sync`|`GetAwaiter().GetResult()`
-`ValueTask?`|`GetAwaiter`|Îª`ValueTask?`Ìá¹©`await`Óï·¨Ö§³Ö
+`ValueTask?`|`GetAwaiter`|ä¸º`ValueTask?`æä¾›`await`è¯­æ³•æ”¯æŒ
 `Task<>`<br/>`ValueTask<>`|`Select`|Monad
-IFloatNumber|`Remap`<br/>`RemapInto`|½«ÖµÓ³Éäµ½ÁíÒ»¸ö·¶Î§
-`Random`|`SelectWeighted`|°´È¨ÖØËæ»ú£¬·µ»Ø½á¹ûÏÂ±ê
-||`Shuffle`|´òÂÒÁĞ±í
-||`NextSingle`<br/>`NextDouble`|ÔÚ·¶Î§ÄÚËæ»úÒ»Î»¸¡µãÊı
+IFloatNumber|`Remap`<br/>`RemapInto`|å°†å€¼æ˜ å°„åˆ°å¦ä¸€ä¸ªèŒƒå›´
+`Random`|`SelectWeighted`|æŒ‰æƒé‡éšæœºï¼Œè¿”å›ç»“æœä¸‹æ ‡
+||`Shuffle`|æ‰“ä¹±åˆ—è¡¨
+||`NextSingle`<br/>`NextDouble`|åœ¨èŒƒå›´å†…éšæœºä¸€ä½æµ®ç‚¹æ•°
 
 </details>
 
@@ -94,10 +94,10 @@ IFloatNumber|`Remap`<br/>`RemapInto`|½«ÖµÓ³Éäµ½ÁíÒ»¸ö·¶Î§
 `Optional<>`|Optional
 
 <details>
-<summary><code>Optional&lt;&gt;</code>Ğ¡¼ÄÇÉ</summary>
+<summary><code>Optional&lt;&gt;</code>å°å¯„å·§</summary>
 
-`Optional<>` ÊµÏÖÁË`Deconstruct(out bool, out T)`£¬
-Òò´Ë£¬¿ÉÒÔÊ¹ÓÃÒÔÏÂ·½Ê½¿ìËÙÅĞ¶Ï²¢»ñÈ¡`Value`
+`Optional<>` å®ç°äº†`Deconstruct(out bool, out T)`ï¼Œ
+å› æ­¤ï¼Œå¯ä»¥ä½¿ç”¨ä»¥ä¸‹æ–¹å¼å¿«é€Ÿåˆ¤æ–­å¹¶è·å–`Value`
 ``` csharp
 if (optional is (true, var value)) {
     Process(value);

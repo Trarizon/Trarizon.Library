@@ -1,4 +1,8 @@
-﻿namespace Trarizon.Library.Collections.Extensions;
+﻿using System.Runtime.CompilerServices;
+using Trarizon.Library.Collections.Extensions.Helper;
+
+namespace Trarizon.Library.Collections.Extensions;
 public static partial class ListQuery
 {
+    internal static ListWrapper<T> Wrap<T>(this IList<T> list) => Unsafe.As<IList<T>, ListWrapper<T>>(ref list);
 }
