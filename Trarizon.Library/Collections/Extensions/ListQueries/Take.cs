@@ -59,28 +59,31 @@ partial class ListQuery
 
     private sealed class TakeRangeQuerier<TList, T>(TList list, Index start, int length) : SimpleListQuerier<TList, T, T>(list) where TList : IReadOnlyList<T>
     {
+        private readonly int _start =
+#if NET8_0_OR_GREATER
+            int.Clamp(start.GetOffset(list.Count), 0, list.Count);
+#else
+            start.GetOffset(list.Count) is var value && value < 0 ? 0 : (value > list.Count ? list.Count : value);
+#endif
+        private readonly int _length = Math.Max(length, 0);
+
         public override T this[int index]
         {
             get {
-                if (index < 0 || index >= length)
+                if (index < 0 || index >= Count)
                     ThrowHelper.ThrowArgumentOutOfRange(nameof(index));
 
-                return _list[index + start.GetOffset(_list.Count)];
+                return _list[index + _start];
             }
         }
 
         public override int Count
         {
             get {
-                if (start.IsFromEnd && start.Value < length)
-                    return 0;
-                else if (start.Value + length > _list.Count)
-                    return 0;
-                else
-                    return length;
+                return Math.Min(_length, _list.Count - _start);
             }
         }
 
-        protected override EnumerationQuerier<T> Clone() => new TakeRangeQuerier<TList, T>(_list, start, length);
+        protected override EnumerationQuerier<T> Clone() => new TakeRangeQuerier<TList, T>(_list, _start, _length);
     }
 }
