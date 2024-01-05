@@ -19,20 +19,10 @@ public static class GeneratorContextExtensions
     {
         // Report diagnostics
         context.RegisterSourceOutput(
-            filtered.SelectMany((src, token) => src.Diagnostics ?? []),
+            filtered.SelectMany((src, token) => src.Diagnostics),
             static (context, diagnostic) => context.ReportDiagnostic(diagnostic));
 
         // Add source
         context.RegisterSourceOutput(filtered.Where(src => !src.HasDiagnostic), action);
-    }
-
-    public static Filter<StrongTypeAttributeSyntaxContext<TSyntax, TSymbol>>? ToFilteringResult<TSyntax, TSymbol>(this in GeneratorAttributeSyntaxContext context)
-        where TSyntax : CSharpSyntaxNode
-        where TSymbol : ISymbol
-    {
-        if (context is { TargetNode: TSyntax, TargetSymbol: TSymbol })
-            return new Filter<StrongTypeAttributeSyntaxContext<TSyntax, TSymbol>>(new StrongTypeAttributeSyntaxContext<TSyntax, TSymbol>(context));
-        else
-            return null;
     }
 }
