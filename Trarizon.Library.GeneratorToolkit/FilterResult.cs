@@ -2,13 +2,16 @@
 using System.Diagnostics.CodeAnalysis;
 
 namespace Trarizon.Library.GeneratorToolkit;
-public readonly struct FilterResult
+public readonly partial struct FilterResult
 {
-    public static FilterResult Create(Diagnostic diagnostic, bool closeWhenError = false) => new(closeWhenError, diagnostic);
+    public static FilterResult Create(Diagnostic diagnostic, bool closeWhenError) => new(closeWhenError, diagnostic);
 
     public static FilterResult<T> Create<T>(T value) => new(value, null);
     public static FilterResult<T> Create<T>(Diagnostic diagnostic) => new(default, diagnostic);
+}
 
+partial struct FilterResult
+{
     private FilterResult(bool close, Diagnostic diagnostic)
         => (WillClose, Diagnostic) = (close, diagnostic);
 

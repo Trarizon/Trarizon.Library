@@ -44,9 +44,9 @@ public sealed class Filter<TContext>
             var result = predicate(val);
             if (result.Diagnostic != null) {
                 (_diagnostics ??= []).Add(result.Diagnostic);
-                if (result.WillClose)
-                    _context = default;
             }
+            if (result.WillClose && HasDiagnostic)
+                _context = default;
         }
         return this;
     }
