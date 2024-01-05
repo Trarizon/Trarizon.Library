@@ -10,8 +10,10 @@ public static class Filter
     public static Filter<TResult> Create<TSource, TResult>(in TSource source, Func<TSource, FilterResult<TResult>> selector)
     {
         var result = selector(source);
-        if (result.Error)
+        if (result.Diagnostic != null)
             return new(default, [result.Diagnostic]);
+        else if (result.Diagnostics != null)
+            return new(default, [.. result.Diagnostics]);
         else
             return new(result.Value, null);
     }
@@ -42,9 +44,10 @@ public sealed class Filter<TContext>
     {
         if (_context is (true, var val)) {
             var result = predicate(val);
-            if (result.Diagnostic != null) {
+            if (result.Diagnostic != null)
                 (_diagnostics ??= []).Add(result.Diagnostic);
-            }
+            else if (result.Diagnostics != null)
+                (_diagnostics ??= []).AddRange(result.Diagnostics);
             if (result.WillClose && HasDiagnostic)
                 _context = default;
         }
@@ -55,8 +58,10 @@ public sealed class Filter<TContext>
     {
         if (_context is (true, var context)) {
             var result = selector(context);
-            if (result.Error)
+            if (result.Diagnostic != null)
                 (_diagnostics ??= []).Add(result.Diagnostic);
+            else if (result.Diagnostics != null)
+                (_diagnostics ??= []).AddRange(result.Diagnostics);
             else
                 return new(result.Value, _diagnostics);
         }
