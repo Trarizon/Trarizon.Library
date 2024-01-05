@@ -11,8 +11,6 @@ namespace Trarizon.Library.GeneratorToolkit.Factories;
 /// </summary>
 public static class CodeFactory
 {
-    public static SyntaxToken SemicolonToken = SyntaxFactory.Token(SyntaxKind.SemicolonToken);
-
     public static SyntaxTokenList Modifiers(ReadOnlySpan<SyntaxKind> modifiers)
     {
         var tokens = new SyntaxToken[modifiers.Length];
@@ -109,6 +107,23 @@ public static class CodeFactory
             baseList,
             default,
             members);
+
+    public static MethodDeclarationSyntax ClonePartialDeclaration(MethodDeclarationSyntax self,
+        SyntaxList<AttributeListSyntax> attributeLists,
+        BlockSyntax? body,
+        ArrowExpressionClauseSyntax? expressionBody)
+        => SyntaxFactory.MethodDeclaration(
+            attributeLists,
+            Modifiers(SyntaxKind.PartialKeyword),
+            self.ReturnType,
+            self.ExplicitInterfaceSpecifier,
+            self.Identifier,
+            self.TypeParameterList,
+            self.ParameterList,
+            self.ConstraintClauses,
+            body,
+            expressionBody,
+            expressionBody is not null ? SyntaxFactory.Token(SyntaxKind.SemicolonToken) : default);
 
     #endregion
 

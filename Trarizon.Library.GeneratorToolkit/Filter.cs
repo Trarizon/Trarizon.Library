@@ -2,10 +2,21 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using Trarizon.Library.GeneratorToolkit.Utilities;
 using Traw = Trarizon.Library.Wrappers;
 
 namespace Trarizon.Library.GeneratorToolkit;
+public static class Filter
+{
+    public static Filter<TResult> Create<TSource, TResult>(in TSource source, Func<TSource, FilterResult<TResult>> selector)
+    {
+        var result = selector(source);
+        if (result.Error)
+            return new(default, [result.Diagnostic]);
+        else
+            return new(result.Value, null);
+    }
+}
+
 public sealed class Filter<TContext>
 {
     private Traw.Optional<TContext> _context;
@@ -18,7 +29,7 @@ public sealed class Filter<TContext>
     [MemberNotNullWhen(false, nameof(Context))]
     public bool HasDiagnostic => _diagnostics?.Count > 0;
 
-    private Filter(Traw.Optional<TContext> context, List<Diagnostic>? diagnostics)
+    internal Filter(Traw.Optional<TContext> context, List<Diagnostic>? diagnostics)
     {
         _context = context;
         _diagnostics = diagnostics;
@@ -26,15 +37,6 @@ public sealed class Filter<TContext>
 
     public Filter(TContext context) : this(context, null)
     { }
-
-    public static Filter<TContext> Create<TSource>(in TSource source, Func<TSource, FilterResult<TContext>> selector)
-    {
-        var result = selector(source);
-        if (result.Error)
-            return new(default, [result.Diagnostic]);
-        else
-            return new(result.Value, null);
-    }
 
     public Filter<TContext> Predicate(Func<TContext, FilterResult> predicate)
     {

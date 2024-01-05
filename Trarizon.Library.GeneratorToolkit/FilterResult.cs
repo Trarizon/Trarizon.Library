@@ -1,11 +1,10 @@
 ﻿using Microsoft.CodeAnalysis;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Trarizon.Library.GeneratorToolkit.Utilities;
+namespace Trarizon.Library.GeneratorToolkit;
 public readonly struct FilterResult
 {
-    public static FilterResult Create(Diagnostic diagnostic) => new(false, diagnostic);
-    public static FilterResult Close(Diagnostic diagnostic) => new(true, diagnostic);
+    public static FilterResult Create(Diagnostic diagnostic, bool closeWhenError = false) => new(closeWhenError, diagnostic);
 
     public static FilterResult<T> Create<T>(T value) => new(value, null);
     public static FilterResult<T> Create<T>(Diagnostic diagnostic) => new(default, diagnostic);

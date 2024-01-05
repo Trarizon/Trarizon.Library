@@ -14,6 +14,8 @@
 		<RepositoryUrl>https://github.com/Trarizon/Trarizon.Library</RepositoryUrl>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<Version>1.0.1</Version>
+		<AssemblyVersion>1.0.0.1</AssemblyVersion>
 		<FileVersion>$(AssemblyVersion)</FileVersion>
 	</PropertyGroup>
 
@@ -32,7 +34,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Trarizon.Library" Version="1.1.0" />
+    <PackageReference Include="Trarizon.Library" Version="1.1.1" />
   </ItemGroup>
 
 	<PropertyGroup Label="PolySharpProperties">
