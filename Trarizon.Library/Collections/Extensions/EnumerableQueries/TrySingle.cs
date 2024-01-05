@@ -17,6 +17,18 @@ partial class EnumerableQuery
         => source.TrySingleInternal(out value, defaultValue, false);
 
     /// <summary>
+    /// Try get first element satisfying specific condition in sequence,
+    /// this method returns false when there is not exactly one element satisfying condition in sequence
+    /// </summary>
+    /// <param name="value">
+    /// The only element in sequence,
+    /// or <paramref name="defaultValue"/> if sequence is empty or contains more than 1 element.
+    /// </param>
+    /// <returns><see langword="true"/> if there is exactly one elements satisfying condition in sequence</returns>
+    public static bool TrySingle<T>(this IEnumerable<T> source, Func<T, bool> predicate, out T value, T defaultValue = default!)
+        => source.TryPredicateSingleInternal(predicate, out value, defaultValue, false);
+
+    /// <summary>
     /// Try get first element in sequence or default,
     /// this method returns false when there are more than one element in sequence
     /// </summary>
@@ -27,6 +39,18 @@ partial class EnumerableQuery
     /// <returns><see langword="true"/> if there is one or zero elements in sequence</returns>
     public static bool TrySingleOrNone<T>(this IEnumerable<T> source, out T value, T defaultValue = default!)
         => source.TrySingleInternal(out value, defaultValue, true);
+
+    /// <summary>
+    /// Try get first element satisfying specific condition in sequence or default,
+    /// this method returns false when there are more than one element satisfying condition in sequence
+    /// </summary>
+    /// <param name="value">
+    /// The only element in sequence,
+    /// or <paramref name="defaultValue"/> if sequence is empty or contains more than 1 element.
+    /// </param>
+    /// <returns><see langword="true"/> if there is one or zero elements satisfying condition in sequence</returns>
+    public static bool TrySingleOrNone<T>(this IEnumerable<T> source, Func<T, bool> predicate, out T value, T defaultValue = default!)
+        => source.TryPredicateSingleInternal(predicate, out value, defaultValue, true);
 
     private static bool TrySingleInternal<T>(this IEnumerable<T> source, out T value, T defaultValue, bool resultWhenZero)
     {
@@ -59,5 +83,32 @@ partial class EnumerableQuery
         // More than 1
         value = defaultValue;
         return false;
+    }
+
+    private static bool TryPredicateSingleInternal<T>(this IEnumerable<T> source, Func<T, bool> predicate, out T value, T defaultValue, bool resultWhenNotFound)
+    {
+        using var enumerator = source.GetEnumerator();
+
+        bool find = false;
+        T current = default!;
+        while (enumerator.MoveNext()) {
+            current = enumerator.Current;
+            if (predicate(current)) {
+                if (find) {
+                    value = defaultValue;
+                    return false;
+                }
+                find = true;
+            }
+        }
+
+        if (find) {
+            value = current;
+            return true;
+        }
+        else {
+            value = defaultValue;
+            return false;
+        }
     }
 }

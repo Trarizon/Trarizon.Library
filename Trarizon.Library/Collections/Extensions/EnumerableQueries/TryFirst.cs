@@ -25,4 +25,19 @@ partial class EnumerableQuery
             return false;
         }
     }
+
+    public static bool TryFirst<T>(this IEnumerable<T> source, Func<T, bool> predicate, out T value, T defaultValue = default!)
+    {
+        using var enumerator = source.GetEnumerator();
+
+        while (enumerator.MoveNext()) {
+            var current = enumerator.Current;
+            if (predicate(current)) {
+                value = current;
+                return true;
+            }
+        }
+        value = defaultValue;
+        return false;
+    }
 }
