@@ -1,29 +1,21 @@
 ﻿using Microsoft.CodeAnalysis;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 
 namespace Trarizon.Library.GeneratorToolkit;
 public readonly partial struct FilterResult
 {
-    public static FilterResult Create(Diagnostic diagnostic, bool closeWhenError) => new(closeWhenError, diagnostic);
+    public static FilterResult Create(Diagnostic diagnostic) => Unsafe.As<Diagnostic, FilterResult>(ref diagnostic);
 
     public static FilterResult<T> Create<T>(T value) => new(value, default(Diagnostic));
     public static FilterResult<T> Create<T>(Diagnostic diagnostic) => new(default, diagnostic);
     public static FilterResult<T> Create<T>(IEnumerable<Diagnostic> diagnostics) => new(default, diagnostics);
 
-    public static FilterResult Create(IEnumerable<Diagnostic> diagnostics, bool closeWhenError) => new(closeWhenError, diagnostics);
+    public static FilterResult Create(IEnumerable<Diagnostic> diagnostics) => Unsafe.As<IEnumerable<Diagnostic>, FilterResult>(ref diagnostics);
 }
 
 partial struct FilterResult
 {
-    private FilterResult(bool close, Diagnostic diagnostic)
-        => (WillClose, _diagnostic) = (close, diagnostic);
-
-    private FilterResult(bool close, IEnumerable<Diagnostic> diagnostics)
-        => (WillClose, _diagnostic) = (close, diagnostics);
-
-    internal readonly bool WillClose;
-
     private readonly object? _diagnostic;
     internal readonly Diagnostic? Diagnostic => _diagnostic as Diagnostic;
     internal readonly IEnumerable<Diagnostic>? Diagnostics => _diagnostic as IEnumerable<Diagnostic>;

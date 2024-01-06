@@ -25,8 +25,4 @@ public static class GeneratorContextExtensions
         // Add source
         context.RegisterSourceOutput(filtered.Where(src => !src.HasDiagnostic), action);
     }
-
-    public static StrongTypeAttributeSyntaxContext<TSyntax, TSymbol> ToStrongType<TSyntax, TSymbol>(this in GeneratorAttributeSyntaxContext context)
-        where TSyntax : CSharpSyntaxNode where TSymbol : ISymbol 
-        => new(context);
 }

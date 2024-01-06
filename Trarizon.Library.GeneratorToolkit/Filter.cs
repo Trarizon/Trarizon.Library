@@ -40,6 +40,13 @@ public sealed class Filter<TContext>
     public Filter(TContext context) : this(context, null)
     { }
 
+    public Filter<TContext> CloseIfHasDiagnostic()
+    {
+        if (HasDiagnostic)
+            _context = default;
+        return this;
+    }
+
     public Filter<TContext> Predicate(Func<TContext, FilterResult> predicate)
     {
         if (_context is (true, var val)) {
@@ -48,8 +55,6 @@ public sealed class Filter<TContext>
                 (_diagnostics ??= []).Add(result.Diagnostic);
             else if (result.Diagnostics != null)
                 (_diagnostics ??= []).AddRange(result.Diagnostics);
-            if (result.WillClose && HasDiagnostic)
-                _context = default;
         }
         return this;
     }
