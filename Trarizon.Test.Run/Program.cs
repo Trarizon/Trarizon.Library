@@ -11,11 +11,7 @@ using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 using Trarizon.Test.UnitTest;
 
-Optional<int> opt = default;
-
-if (opt is (false, var val)) {
-
-}
+Result<int, InvalidOperationException> res;
 
 "end".Print();
 

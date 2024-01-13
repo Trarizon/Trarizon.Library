@@ -14,15 +14,19 @@ public static class GeneratorContextExtensions
     }
 
     public static void RegisterFilteredSourceOutput<TContext>(this in IncrementalGeneratorInitializationContext context,
-        IncrementalValuesProvider<Filter<TContext>> filtered,
-        Action<SourceProductionContext, Filter<TContext>> action)
+        IncrementalValuesProvider<Filter<TContext>> filterSource,
+        Action<SourceProductionContext, TContext> action)
     {
-        // Report diagnostics
-        context.RegisterSourceOutput(
-            filtered.SelectMany((src, token) => src.Diagnostics),
-            static (context, diagnostic) => context.ReportDiagnostic(diagnostic));
-
-        // Add source
-        context.RegisterSourceOutput(filtered.Where(src => !src.HasDiagnostic), action);
+        context.RegisterSourceOutput(filterSource, (context, source) =>
+        {
+            if (source.HasDiagnostic) {
+                foreach (var item in source.Diagnostics) {
+                    context.ReportDiagnostic(item);
+                }
+            }
+            else {
+                action(context, source.Context);
+            }
+        });
     }
 }

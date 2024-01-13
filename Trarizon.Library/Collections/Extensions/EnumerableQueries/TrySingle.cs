@@ -95,6 +95,7 @@ partial class EnumerableQuery
             current = enumerator.Current;
             if (predicate(current)) {
                 if (find) {
+                    // Multiple
                     value = defaultValue;
                     return false;
                 }
@@ -102,13 +103,15 @@ partial class EnumerableQuery
             }
         }
 
+        // Single
         if (find) {
             value = current;
             return true;
         }
+        // Not found
         else {
             value = defaultValue;
-            return false;
+            return resultWhenNotFound;
         }
     }
 }

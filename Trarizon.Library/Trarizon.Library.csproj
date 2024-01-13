@@ -15,8 +15,8 @@
 		<RepositoryUrl>https://github.com/Trarizon/Trarizon.Library</RepositoryUrl>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
-		<Version>1.1.1</Version>
-		<AssemblyVersion>1.1.0.1</AssemblyVersion>
+		<Version>1.1.5</Version>
+		<AssemblyVersion>1.1.0.5</AssemblyVersion>
 		<FileVersion>$(AssemblyVersion)</FileVersion>
 	</PropertyGroup>
 
@@ -41,6 +41,7 @@
 			System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute;
 			System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute;
 			System.Diagnostics.CodeAnalysis.NotNullWhenAttribute;
+			System.Diagnostics.CodeAnalysis.NotNullAttribute;
 		</PolySharpIncludeGeneratedTypes>
 	</PropertyGroup>
 

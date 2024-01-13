@@ -10,7 +10,7 @@ public static class Optional
         => value.HasValue ? value.GetValueOrDefault()! : default;
 
     public static T? ToNullable<T>(this Optional<T> value) where T : struct
-        => value.HasValue ? value._value : default;
+        => value.HasValue ? value.GetValueOrDefault() : default;
 }
 
 /// <summary>
@@ -29,9 +29,9 @@ public static class Optional
 public readonly struct Optional<T>(T value)
 {
     private readonly bool _hasValue = true;
-    internal readonly T _value = value;
+    private readonly T _value = value;
 
-    [MemberNotNullWhen(true, nameof(_value))]
+    [MemberNotNullWhen(true, nameof(_value), nameof(Value))]
     public readonly bool HasValue => _hasValue;
 
     public readonly T Value

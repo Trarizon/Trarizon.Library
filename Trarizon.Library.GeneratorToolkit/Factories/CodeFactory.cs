@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.CodeDom.Compiler;
+using System.Collections.Generic;
 using Trarizon.Library.GeneratorToolkit.Extensions;
 
 namespace Trarizon.Library.GeneratorToolkit.Factories;
@@ -30,11 +31,11 @@ public static class CodeFactory
     /// <summary>
     /// Create a partial type by copy the basic info of original type
     /// </summary>
-    public static TypeDeclarationSyntax ClonePartialDeclaration(TypeDeclarationSyntax self,
+    public static TypeDeclarationSyntax ClonePartialDeclaration(TypeDeclarationSyntax source,
         SyntaxList<AttributeListSyntax> attributeLists,
         BaseListSyntax? baseList,
         SyntaxList<MemberDeclarationSyntax> members)
-        => self switch {
+        => source switch {
             ClassDeclarationSyntax clz => ClonePartialDeclaration(clz, attributeLists, baseList, members),
             StructDeclarationSyntax str => ClonePartialDeclaration(str, attributeLists, baseList, members),
             RecordDeclarationSyntax rec => ClonePartialDeclaration(rec, attributeLists, baseList, members),
@@ -45,15 +46,15 @@ public static class CodeFactory
     /// <summary>
     /// Create a partial class by copy the basic info of original class
     /// </summary>
-    public static ClassDeclarationSyntax ClonePartialDeclaration(ClassDeclarationSyntax self,
+    public static ClassDeclarationSyntax ClonePartialDeclaration(ClassDeclarationSyntax source,
         SyntaxList<AttributeListSyntax> attributeLists,
         BaseListSyntax? baseList,
         SyntaxList<MemberDeclarationSyntax> members)
         => SyntaxFactory.ClassDeclaration(
             attributeLists,
             Modifiers(SyntaxKind.PartialKeyword),
-            self.Identifier,
-            self.TypeParameterList,
+            source.Identifier,
+            source.TypeParameterList,
             baseList,
             default,
             members);
@@ -61,15 +62,15 @@ public static class CodeFactory
     /// <summary>
     /// Create a partial struct by copy the basic info of original struct
     /// </summary>
-    public static StructDeclarationSyntax ClonePartialDeclaration(StructDeclarationSyntax self,
+    public static StructDeclarationSyntax ClonePartialDeclaration(StructDeclarationSyntax source,
         SyntaxList<AttributeListSyntax> attributeLists,
         BaseListSyntax? baseList,
         SyntaxList<MemberDeclarationSyntax> members)
         => SyntaxFactory.StructDeclaration(
             attributeLists,
             Modifiers(SyntaxKind.PartialKeyword),
-            self.Identifier,
-            self.TypeParameterList,
+            source.Identifier,
+            source.TypeParameterList,
             baseList,
             default,
             members);
@@ -77,15 +78,15 @@ public static class CodeFactory
     /// <summary>
     /// Create a partial interface by copy the basic info of original interface
     /// </summary>
-    public static InterfaceDeclarationSyntax ClonePartialDeclaration(InterfaceDeclarationSyntax self,
+    public static InterfaceDeclarationSyntax ClonePartialDeclaration(InterfaceDeclarationSyntax source,
         SyntaxList<AttributeListSyntax> attributeLists,
         BaseListSyntax? baseList,
         SyntaxList<MemberDeclarationSyntax> members)
         => SyntaxFactory.InterfaceDeclaration(
             attributeLists,
             Modifiers(SyntaxKind.PartialKeyword),
-            self.Identifier,
-            self.TypeParameterList,
+            source.Identifier,
+            source.TypeParameterList,
             baseList,
             default,
             members);
@@ -93,7 +94,7 @@ public static class CodeFactory
     /// <summary>
     /// Create a partial record by copy the basic info of original record
     /// </summary>
-    public static RecordDeclarationSyntax ClonePartialDeclaration(RecordDeclarationSyntax self,
+    public static RecordDeclarationSyntax ClonePartialDeclaration(RecordDeclarationSyntax source,
         SyntaxList<AttributeListSyntax> attributeLists,
         BaseListSyntax? baseList,
         SyntaxList<MemberDeclarationSyntax> members)
@@ -101,26 +102,26 @@ public static class CodeFactory
             attributeLists,
             Modifiers(SyntaxKind.PartialKeyword),
             SyntaxFactory.Token(SyntaxKind.RecordKeyword),
-            self.Identifier,
-            self.TypeParameterList,
+            source.Identifier,
+            source.TypeParameterList,
             default,
             baseList,
             default,
             members);
 
-    public static MethodDeclarationSyntax ClonePartialDeclaration(MethodDeclarationSyntax self,
+    public static MethodDeclarationSyntax ClonePartialDeclaration(MethodDeclarationSyntax source,
         SyntaxList<AttributeListSyntax> attributeLists,
         BlockSyntax? body,
         ArrowExpressionClauseSyntax? expressionBody)
         => SyntaxFactory.MethodDeclaration(
             attributeLists,
             Modifiers(SyntaxKind.PartialKeyword),
-            self.ReturnType,
-            self.ExplicitInterfaceSpecifier,
-            self.Identifier,
-            self.TypeParameterList,
-            self.ParameterList,
-            self.ConstraintClauses,
+            source.ReturnType,
+            source.ExplicitInterfaceSpecifier,
+            source.Identifier,
+            source.TypeParameterList,
+            source.ParameterList,
+            source.ConstraintClauses,
             body,
             expressionBody,
             expressionBody is not null ? SyntaxFactory.Token(SyntaxKind.SemicolonToken) : default);
@@ -130,37 +131,37 @@ public static class CodeFactory
     /// <summary>
     /// Create all containing partial types of a type by copy the basic info of original types
     /// </summary>
-    public static TypeDeclarationSyntax CloneAllContainingTypeDeclarations(TypeDeclarationSyntax nestedType,
-        StrongTypeAttributeSyntaxContext<TypeDeclarationSyntax, ITypeSymbol> contextUtil)
+    public static TypeDeclarationSyntax CloneContainingTypeDeclarations(TypeDeclarationSyntax sourceSyntax,
+        SyntaxList<MemberDeclarationSyntax> members)
     {
-        var (syntax, symbol) = (contextUtil.Syntax, contextUtil.Symbol);
-        var type = nestedType;
+        TypeDeclarationSyntax type = ClonePartialDeclaration(sourceSyntax, default, default, members);
 
-        while (symbol.ContainingType != null) {
-            symbol = symbol.ContainingType;
-            syntax = (TypeDeclarationSyntax)syntax.Parent!;
-            type = ClonePartialDeclaration(syntax, default, default,
-                SyntaxFactory.List<MemberDeclarationSyntax>([type]));
+        while (sourceSyntax.GetParent<TypeDeclarationSyntax>() is { } sourceParent) {
+            sourceSyntax = sourceParent;
+            type = ClonePartialDeclaration(sourceSyntax, default, default,
+                SyntaxFactory.SingletonList<MemberDeclarationSyntax>(type));
         }
 
         return type;
     }
 
     /// <summary>
-    /// Create namespace by clone given ITypeSymbol 
+    /// Create containing partial types and namespace from given source
     /// </summary>
-    public static MemberDeclarationSyntax CloneNamespaceDeclaration(TypeDeclarationSyntax type,
-        ITypeSymbol typeUtil)
+    public static MemberDeclarationSyntax CloneContainingTypeAndNamespaceDeclarations(TypeDeclarationSyntax sourceTypeSyntax, ISymbol sourceMemberSymbol,
+        SyntaxList<MemberDeclarationSyntax> members)
     {
-        string nsString = typeUtil.ContainingNamespace.ToDisplayString();
+        var topType = CloneContainingTypeDeclarations(sourceTypeSyntax, members);
+
+        string nsString = sourceMemberSymbol.ContainingNamespace.ToDisplayString();
         if (nsString == Literals.GlobalNamespaceDisplayString)
-            return type;
+            return topType;
 
         return SyntaxFactory.NamespaceDeclaration(
             SyntaxFactory.ParseName(nsString),
             externs: default,
             usings: default,
-            members: SyntaxFactory.List<MemberDeclarationSyntax>([type]));
+            members: SyntaxFactory.SingletonList<MemberDeclarationSyntax>(topType));
     }
 
     #endregion

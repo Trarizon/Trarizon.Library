@@ -90,8 +90,8 @@ IFloatNumber|`Remap`<br/>`RemapInto`|将值映射到另一个范围
 
 `Type`|Remarks
 :-:|:--
-`LazyInit<>`<br/>`LazyInit<,>`|Lightweight `Lazy<>`
 `Optional<>`|Optional
+`Result<,>`|Result, `TError`支持任意引用类型
 
 <details>
 <summary><code>Optional&lt;&gt;</code>小寄巧</summary>

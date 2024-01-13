@@ -7,16 +7,7 @@ using Traw = Trarizon.Library.Wrappers;
 namespace Trarizon.Library.GeneratorToolkit;
 public static class Filter
 {
-    public static Filter<TResult> Create<TSource, TResult>(in TSource source, Func<TSource, FilterResult<TResult>> selector)
-    {
-        var result = selector(source);
-        if (result.Diagnostic != null)
-            return new(default, [result.Diagnostic]);
-        else if (result.Diagnostics != null)
-            return new(default, [.. result.Diagnostics]);
-        else
-            return new(result.Value, null);
-    }
+    public static Filter<TContext> Create<TContext>(in TContext context) => new(context);
 }
 
 public sealed class Filter<TContext>
@@ -25,6 +16,8 @@ public sealed class Filter<TContext>
     private List<Diagnostic>? _diagnostics;
 
     public TContext? Context => _context.GetValueOrDefault();
+
+    public bool IsClosed => !_context.HasValue;
 
     public IReadOnlyList<Diagnostic> Diagnostics => _diagnostics ?? [];
 
