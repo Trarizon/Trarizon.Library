@@ -53,7 +53,7 @@ public readonly struct Result<T, TError> where TError : class
 
     [MemberNotNullWhen(true, nameof(Value))]
     [MemberNotNullWhen(false, nameof(Error))]
-    public bool TryGetValue([MaybeNullWhen(false)] out T value, [MaybeNullWhen(true)] out TError? error)
+    public bool TryGetValue([MaybeNullWhen(false)] out T value, [MaybeNullWhen(true)] out TError error)
     {
         value = _value;
         error = _error;
