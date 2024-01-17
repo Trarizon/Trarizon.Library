@@ -27,7 +27,7 @@ partial class EnumerableQuery
                     return false;
                 default:
                     if (_enumerator!.MoveNext()) {
-                        if (whereSelector(_enumerator.Current) is (true, var val)) {
+                        if (whereSelector(_enumerator.Current).TryGetValue(out var val)) {
                             _current = val;
                             return true;
                         }

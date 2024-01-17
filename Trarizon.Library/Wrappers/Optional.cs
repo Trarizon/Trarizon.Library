@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
 namespace Trarizon.Library.Wrappers;
 public static class Optional
@@ -31,6 +30,8 @@ public readonly struct Optional<T>(T value)
     private readonly bool _hasValue = true;
     private readonly T _value = value;
 
+    #region Accessor
+
     [MemberNotNullWhen(true, nameof(_value), nameof(Value))]
     public readonly bool HasValue => _hasValue;
 
@@ -45,7 +46,21 @@ public readonly struct Optional<T>(T value)
 
     public readonly T? GetValueOrDefault() => _value;
 
+    public bool TryGetValue([MaybeNullWhen(false)] out T value)
+    {
+        value = _value;
+        return _hasValue;
+    }
+
+    #endregion
+
+    #region Creator
+
     public static implicit operator Optional<T>(T value) => new(value);
+
+    #endregion
+
+    #region Linq
 
     public Optional<TResult> Select<TResult>(Func<T, TResult> selector)
         => HasValue ? new(selector(_value)) : default;
@@ -53,25 +68,7 @@ public readonly struct Optional<T>(T value)
     public Optional<TResult> SelectWrapped<TResult>(Func<T, Optional<TResult>> selector)
         => HasValue ? selector(_value) : default;
 
-    public override string? ToString() => HasValue ? _value.ToString() : null;
+    #endregion
 
-    /// <remarks>
-    /// This method is impl for positional pattern,
-    /// You use an <c>if</c> statement to quickly check and get the value
-    /// <code>
-    /// if (optional is (true, var value)) {
-    ///     Process(value);
-    /// }
-    /// _ = optional is (true, var value)
-    ///     ? value : default;
-    /// </code>
-    /// Of course you can do similar thing in `switch` with 2 cases
-    /// <c>(false, _)</c> and <c>(_, var value)</c>
-    /// </remarks>
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public void Deconstruct(out bool hasValue, out T value)
-    {
-        hasValue = _hasValue;
-        value = _value;
-    }
+    public override string? ToString() => HasValue ? _value.ToString() : null;
 }

@@ -24,7 +24,7 @@ public class ValidationYieliceptor<TArgs, TResult>(
 
     public bool CanMoveNext(TArgs args)
     {
-        if (validator(args) is (true, var result)) {
+        if (validator(args).TryGetValue(out var result)) {
             IsTimeout = false;
             _result = result;
             return true;

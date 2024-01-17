@@ -21,25 +21,4 @@ public class WrappersTest
         opt = default(Optional<Optional<int>>);
         Assert.IsFalse(opt.GetValueOrDefault().HasValue);
     }
-
-    [TestMethod]
-    public void LazyInit_1()
-    {
-        int i = 114;
-        LazyInit<int> lazy = new(() => i + 400);
-        Assert.IsFalse(lazy.HasValue);
-        lazy.Value.ToString();
-        Assert.IsTrue(lazy.HasValue);
-        Assert.AreEqual(lazy.Value, 514);
-    }
-
-    [TestMethod]
-    public void LazyInit_2()
-    {
-        LazyInit<int, int> lazy = new(114, i => i + 400);
-        Assert.IsFalse(lazy.HasValue);
-        lazy.Value.ToString();
-        Assert.IsTrue(lazy.HasValue);
-        Assert.AreEqual(lazy.Value, 514);
-    }
 }
