@@ -1,68 +1,122 @@
 ﻿using Microsoft.CodeAnalysis;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using Traw = Trarizon.Library.Wrappers;
+using System.Runtime.CompilerServices;
 
 namespace Trarizon.Library.GeneratorToolkit;
-public static class Filter
+public partial struct Filter
 {
-    public static Filter<TContext> Create<TContext>(in TContext context) => new(context);
+    public static Filter Success => default;
+    public static Filter Create(Diagnostic diagnostic) => Unsafe.As<Diagnostic, Filter>(ref diagnostic);
+    public static Filter Create(IEnumerable<Diagnostic> diagnostics) => Unsafe.As<IEnumerable<Diagnostic>, Filter>(ref diagnostics);
+
+    public static Filter<TContext> Create<TContext>(in TContext context) where TContext : notnull => new(context, null);
+    public static Filter<TContext> Create<TContext>(Diagnostic diagnostic) => new(default, [diagnostic]);
+    public static Filter<TContext> Create<TContext>(List<Diagnostic> diagnostic) => new(default, diagnostic);
+    public static Filter<TContext> Create<TContext>(IEnumerable<Diagnostic> diagnostics) => new(default, [.. diagnostics]);
 }
 
-public sealed class Filter<TContext>
+public readonly partial struct Filter
 {
-    private Traw.Optional<TContext> _context;
+    internal readonly object? _diagnostic;
+}
+
+public struct Filter<TContext>
+{
+    private Optional<TContext> _context;
     private List<Diagnostic>? _diagnostics;
 
-    public TContext? Context => _context.GetValueOrDefault();
-
-    public bool IsClosed => !_context.HasValue;
-
-    public IReadOnlyList<Diagnostic> Diagnostics => _diagnostics ?? [];
-
-    [MemberNotNullWhen(false, nameof(Context))]
-    public bool HasDiagnostic => _diagnostics?.Count > 0;
-
-    internal Filter(Traw.Optional<TContext> context, List<Diagnostic>? diagnostics)
+    internal Filter(Optional<TContext> context, List<Diagnostic>? diagnostics)
     {
         _context = context;
         _diagnostics = diagnostics;
     }
 
-    public Filter(TContext context) : this(context, null)
-    { }
+    public static implicit operator Filter(Filter<TContext> filter) => filter._diagnostics switch {
+        null or [] => Filter.Success,
+        [var diag] => Filter.Create(diag),
+        _ => Filter.Create(filter._diagnostics),
+    };
+
+    public readonly void OnFinal(Action<TContext> onNotClosed, Action<Diagnostic> onHasDiagnostic)
+    {
+        if (_context.HasValue) {
+            onNotClosed.Invoke(_context.Value);
+        }
+
+        if (_diagnostics is not null) {
+            foreach (var diagnostic in _diagnostics) {
+                onHasDiagnostic.Invoke(diagnostic);
+            }
+        }
+    }
+
+    public readonly Filter<TContext> Do(Action action)
+    {
+        action();
+        return this;
+    }
 
     public Filter<TContext> CloseIfHasDiagnostic()
     {
-        if (HasDiagnostic)
+        if (_diagnostics?.Count > 0)
             _context = default;
         return this;
     }
 
-    public Filter<TContext> Predicate(Func<TContext, FilterResult> predicate)
+    public Filter<TContext> Predicate(Func<TContext, Filter> predicate)
     {
-        if (_context is (true, var val)) {
-            var result = predicate(val);
-            if (result.Diagnostic != null)
-                (_diagnostics ??= []).Add(result.Diagnostic);
-            else if (result.Diagnostics != null)
-                (_diagnostics ??= []).AddRange(result.Diagnostics);
-        }
+        if (!_context.HasValue)
+            return this;
+
+        HandlePredicateResultInternal(predicate.Invoke(_context.Value));
+
         return this;
     }
 
-    public Filter<TResult> Select<TResult>(Func<TContext, FilterResult<TResult>> selector)
+    public Filter<TContext> PredicateMany<T>(Func<TContext, IEnumerable<T>> selector, Func<T, Filter> predicate)
     {
-        if (_context is (true, var context)) {
-            var result = selector(context);
-            if (result.Diagnostic != null)
-                (_diagnostics ??= []).Add(result.Diagnostic);
-            else if (result.Diagnostics != null)
-                (_diagnostics ??= []).AddRange(result.Diagnostics);
-            else
-                return new(result.Value, _diagnostics);
+        if (!_context.HasValue)
+            return this;
+
+        foreach (var value in selector.Invoke(_context.Value)) {
+            HandlePredicateResultInternal(predicate.Invoke(value));
         }
-        return new(default, _diagnostics);
+
+        return this;
+    }
+
+    private void HandlePredicateResultInternal(Filter filter)
+    {
+        switch (filter._diagnostic) {
+            case Diagnostic diagnostic:
+                (_diagnostics ??= []).Add(diagnostic);
+                break;
+            case List<Diagnostic> diagnosticList:
+                if (_diagnostics is null or [])
+                    _diagnostics = diagnosticList;
+                else
+                    (_diagnostics ??= []).AddRange(diagnosticList);
+                break;
+            case IEnumerable<Diagnostic> diagnostics:
+                (_diagnostics ??= []).AddRange(diagnostics);
+                break;
+        }
+    }
+
+    public Filter<TResult> Select<TResult>(Func<TContext, Filter<TResult>> selector) where TResult : notnull
+    {
+        if (_context.HasValue)
+            return new(default, _diagnostics);
+
+        var result = selector.Invoke(_context.Value);
+        if (result._diagnostics?.Count > 0) {
+            if (_diagnostics is null or [])
+                _diagnostics = result._diagnostics;
+            else
+                _diagnostics.AddRange(_diagnostics);
+        }
+
+        return new(result._context, _diagnostics);
     }
 }

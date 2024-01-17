@@ -2,6 +2,7 @@
 
 using BenchmarkDotNet.Running;
 using System.Collections;
+using System.Runtime.InteropServices;
 using System.Text;
 using Trarizon.Test.Run;
 
@@ -20,6 +21,7 @@ internal static class GlobalUsings
     public static List<int> ListInts(int length = 8)
     {
         var res = new List<int>(length);
+        CollectionsMarshal.SetCount(res, length);
         for (int i = 0; i < length; i++)
             res[i] = i;
         return res;

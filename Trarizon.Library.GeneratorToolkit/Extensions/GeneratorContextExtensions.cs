@@ -19,14 +19,9 @@ public static class GeneratorContextExtensions
     {
         context.RegisterSourceOutput(filterSource, (context, source) =>
         {
-            if (source.HasDiagnostic) {
-                foreach (var item in source.Diagnostics) {
-                    context.ReportDiagnostic(item);
-                }
-            }
-            else {
-                action(context, source.Context);
-            }
+            source.OnFinal(
+                con => action(context, con),
+                diag => context.ReportDiagnostic(diag));
         });
     }
 }

@@ -11,9 +11,17 @@ using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 using Trarizon.Test.UnitTest;
 
-Result<int, InvalidOperationException> res;
+Test<int>().Print();
+Test<string>().Print();
+Test<List<int>>().Print();
 
 "end".Print();
+
+static bool Test<T>()
+{
+    T[] res = new T[1];
+    return res[0] is null;
+}
 
 [Singleton(InstanceProperty = "Nam")]
 sealed partial class Si
