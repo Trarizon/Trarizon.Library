@@ -21,6 +21,10 @@ Toolkit for source generator
 
 ## [TextCommanding](./Trarizon.TextCommanding/README.md)
 
+> ![note]
+> Use [`Trarizon.TextCommand`](https://github.com/Trarizon/Trarizon.TextCommand) instead
+> Original project in [this branch](https://github.com/Trarizon/Trarizon.Library/tree/archive_textcommanding/Trarizon.TextCommanding)
+
 Parse text input command(CLI like).
 
 ## [Yieliception](./Trarizon.Yieliception/README.md) ([EN](./Trarizon.Yieliception/README.en.md))
