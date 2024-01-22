@@ -94,18 +94,21 @@ IFloatNumber|`Remap`<br/>`RemapInto`|将值映射到另一个范围
 `Result<,>`|Result, `TError`支持任意引用类型
 
 <details>
-<summary><code>Optional&lt;&gt;</code>小寄巧</summary>
+<summary>小寄巧</summary>
 
-`Optional<>` 实现了`Deconstruct(out bool, out T)`，
-因此，可以使用以下方式快速判断并获取`Value`
+可以使用以下方式快速判断`Optional`和`Result`并获取`Value`
 ``` csharp
-if (optional is (true, var value)) {
+if (optional.TryGetValue(out var value)) {
     Process(value);
 }
 
-_ = optional is (true, var value)
-    ? value
-    : default;
+// 第二个参数可省略
+if (result.TryGetValue(out var val, out var err) {
+    Process(val);
+}
+else {
+    Process(err);
+}
 ```
 
 </details>
