@@ -19,14 +19,6 @@ Partially support .NET Standard 2.0
 
 Toolkit for source generator
 
-## [TextCommanding](./Trarizon.TextCommanding/README.md)
-
-> Use [`Trarizon.TextCommand`](https://github.com/Trarizon/Trarizon.TextCommand) instead
-> 
-> Original project in [this branch](https://github.com/Trarizon/Trarizon.Library/tree/archive_textcommanding/Trarizon.TextCommanding)
-
-Parse text input command(CLI like).
-
 ## [Yieliception](./Trarizon.Yieliception/README.md) ([EN](./Trarizon.Yieliception/README.en.md))
 
 Provide interception for `I(Async)Enumerator<>.MoveNext(Async)`. 
@@ -35,3 +27,13 @@ This mainly aims to extends `yield return`, provide communication capability to
 `yield return`-generated iterator. (like python
 
 > Example: [`Test.Run.Examples.YieliceptionExample`](./Trarizon.Test.Run/Examples/YieliceptionExample.cs)
+
+## Deprecated
+
+### TextCommanding
+
+> Use [`Trarizon.TextCommand`](https://github.com/Trarizon/Trarizon.TextCommand) instead
+> 
+> Original project in [this branch](https://github.com/Trarizon/Trarizon.Library/tree/archive_textcommanding/Trarizon.TextCommanding)
+
+Parse text input command(CLI like).
