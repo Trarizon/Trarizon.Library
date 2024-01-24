@@ -62,7 +62,7 @@ internal static class GlobalUsings
         var sb = new StringBuilder();
         sb.Append('[');
         foreach (var val in values) {
-            sb.Append(val).Append(", ");
+            sb.Append(PrintValue(val)).Append(", ");
         }
         sb.Length--;
         sb[^1] = ']';
