@@ -4,7 +4,6 @@ using Trarizon.Library.Collections.Extensions.Helpers;
 namespace Trarizon.Library.Collections.Extensions;
 partial class EnumerableQuery
 {
-#if NET7_0_OR_GREATER
     /// <summary>
     /// Determine if the sequence is in order
     /// </summary>
@@ -51,7 +50,7 @@ partial class EnumerableQuery
         }
         return true;
     }
-#endif
+
     /// <summary>
     /// Determine if the sequence is in order
     /// </summary>

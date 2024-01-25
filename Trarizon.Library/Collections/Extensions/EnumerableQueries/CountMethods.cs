@@ -114,8 +114,7 @@ partial class EnumerableQuery
     /// </param>
     public static bool CountsBetween<T>(this IEnumerable<T> source, int lowerBound, int upperBound, out int actualCount)
     {
-        if (lowerBound < upperBound)
-            ThrowHelper.ThrowArgumentOutOfRange(nameof(lowerBound), "lowerBound should be small than or equals to upperBound");
+        ArgumentOutOfRangeException.ThrowIfLessThan(upperBound - lowerBound, 0);
 
         return source.CountsAtMost(upperBound, out actualCount) && actualCount >= lowerBound;
     }

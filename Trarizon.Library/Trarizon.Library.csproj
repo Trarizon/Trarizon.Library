@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net8.0;netstandard2.0</TargetFrameworks>
+		<TargetFramework>net8.0</TargetFramework>
 		<LangVersion>12</LangVersion>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
@@ -15,8 +15,8 @@
 		<RepositoryUrl>https://github.com/Trarizon/Trarizon.Library</RepositoryUrl>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
-		<Version>1.1.7</Version>
-		<AssemblyVersion>1.1.0.7</AssemblyVersion>
+		<Version>1.2.0</Version>
+		<AssemblyVersion>1.2.0</AssemblyVersion>
 		<FileVersion>$(AssemblyVersion)</FileVersion>
 	</PropertyGroup>
 
@@ -24,26 +24,5 @@
 		<None Include="..\LICENSE" Pack="True" PackagePath="" />
 		<None Include="README.md" Pack="True" PackagePath="" />
 	</ItemGroup>
-
-	<ItemGroup Label="Nuget NetStd2.0" Condition="'$(TargetFramework)' == 'netstandard2.0'">
-		<PackageReference Include="PolySharp" Version="1.14.1">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
-		<PackageReference Include="System.Memory" Version="4.5.5" />
-	</ItemGroup>
-
-	<PropertyGroup Label="PolySharpSettings" Condition="'$(TargetFramework)' == 'netstandard2.0'">
-		<PolySharpUsePublicAccessibilityForGeneratedTypes>true</PolySharpUsePublicAccessibilityForGeneratedTypes>
-		<PolySharpIncludeGeneratedTypes>
-			System.Index;
-			System.Range;
-			System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute;
-			System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute;
-			System.Diagnostics.CodeAnalysis.NotNullWhenAttribute;
-			System.Diagnostics.CodeAnalysis.NotNullAttribute;
-			System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute;
-		</PolySharpIncludeGeneratedTypes>
-	</PropertyGroup>
 
 </Project>

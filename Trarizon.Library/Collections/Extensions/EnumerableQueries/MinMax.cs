@@ -88,7 +88,6 @@ partial class EnumerableQuery
         return (min, max);
     }
 
-#if NET7_0_OR_GREATER
     /// <summary>
     /// Get the minimun and maximun value in one enumeration
     /// </summary>
@@ -164,5 +163,4 @@ partial class EnumerableQuery
         }
         return (min, max);
     }
-#endif
 }

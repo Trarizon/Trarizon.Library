@@ -26,8 +26,7 @@ internal abstract class ListQuerier<T> : EnumerationQuerier<T>, IList<T>, IReadO
     bool ICollection<T>.Contains(T item) => this.Contains(item);
     void ICollection<T>.CopyTo(T[] array, int arrayIndex)
     {
-        if (arrayIndex > array.Length) ThrowHelper.ThrowArgumentOutOfRange(nameof(arrayIndex));
-        if (arrayIndex + Count > array.Length) ThrowHelper.ThrowArgumentOutOfRange(nameof(arrayIndex));
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(arrayIndex, array.Length - Count);
 
         for (int i = 0; i < array.Length; i++)
             array[i + arrayIndex] = this[i];

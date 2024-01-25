@@ -34,8 +34,8 @@ partial class ListQuery
         public override T this[int index]
         {
             get {
-                if (index > Count)
-                    ThrowHelper.ThrowArgumentOutOfRange(nameof(index));
+                ArgumentOutOfRangeException.ThrowIfGreaterThan(index, Count);
+
                 return _list[(_splitPosition + index) % _list.Count];
             }
         }

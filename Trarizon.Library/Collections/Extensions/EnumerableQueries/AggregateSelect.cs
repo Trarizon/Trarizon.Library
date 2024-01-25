@@ -6,13 +6,11 @@ using Trarizon.Library.Collections.Extensions.Helpers.Queriers;
 namespace Trarizon.Library.Collections.Extensions;
 partial class EnumerableQuery
 {
-#if NET7_0_OR_GREATER
     /// <summary>
     /// Aggregate, and returns all values in process
     /// </summary>
     public static IEnumerable<T> AggregateSelect<T>(this IEnumerable<T> source, Func<T, T, T> func) where T : INumber<T>
         => source.AggregateSelect(T.Zero, func);
-#endif
 
     /// <summary>
     /// Aggregate, and returns all values in process

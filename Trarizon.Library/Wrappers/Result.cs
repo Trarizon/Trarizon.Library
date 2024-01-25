@@ -4,22 +4,29 @@ namespace Trarizon.Library.Wrappers;
 public static class Result
 {
     public static Result<T, TError> Success<T, TError>(T value) where TError : class
-        => new(value, null);
+        => new(value);
 
     public static Result<T, TError> Failed<T, TError>(TError error) where TError : class
-        => new(default, error);
+        => new(error);
 
     public static void ThrowIfFailed<T, TException>(this Result<T, TException> result) where TException : Exception
     {
         if (!result.Success)
             throw result.Error;
     }
+
+    #region Conversion
+
+    public static Optional<T> ToOptional<T, TError>(this Result<T, TError> result) where TError : class
+        => result.Success ? Optional.Of(result._value) : (Optional<T>)default;
+
+    #endregion
 }
 
 public readonly struct Result<T, TError> where TError : class
 {
-    private readonly T? _value;
-    private readonly TError? _error;
+    internal readonly T? _value;
+    internal readonly TError? _error;
 
     #region Accessor
 
@@ -51,8 +58,8 @@ public readonly struct Result<T, TError> where TError : class
     public readonly T? GetValueOrDefault() => _value;
     public readonly TError? GetErrorOrDefault() => _error;
 
-    [MemberNotNullWhen(true, nameof(Value))]
-    [MemberNotNullWhen(false, nameof(Error))]
+    [MemberNotNullWhen(true, nameof(_value), nameof(Value))]
+    [MemberNotNullWhen(false, nameof(_error), nameof(Error))]
     public bool TryGetValue([MaybeNullWhen(false)] out T value, [MaybeNullWhen(true)] out TError error)
     {
         value = _value;
@@ -76,7 +83,7 @@ public readonly struct Result<T, TError> where TError : class
 
     public Result(T value) : this(value, null) { }
 
-    public Result(TError? error) : this(default, error) { }
+    public Result(TError error) : this(default, error) { }
 
     public static implicit operator Result<T, TError>(T value) => new(value, null);
     public static implicit operator Result<T, TError>(TError error) => new(default, error);

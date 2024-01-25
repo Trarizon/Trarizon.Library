@@ -8,10 +8,6 @@ internal static partial class ThrowHelper
         => throw new InvalidOperationException(message);
 
     [DoesNotReturn]
-    public static void ThrowArgumentOutOfRange(string? paramName, string? message = null)
-        => throw new ArgumentOutOfRangeException(paramName, message);
-
-    [DoesNotReturn]
     public static void ThrowNotSupport(string? message = null)
         => throw new NotSupportedException(message);
 }

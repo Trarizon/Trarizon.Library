@@ -5,24 +5,37 @@ public static class Optional
 {
     public static Optional<T> Of<T>(T value) => new(value);
 
+    /// <summary>
+    /// In fact just use <c>default</c> is ok
+    /// </summary>
+    public static Optional<T> None<T>() => default;
+
     public static Optional<T> FromNullable<T>(T? value) where T : struct
         => value.HasValue ? value.GetValueOrDefault()! : default;
 
     public static T? ToNullable<T>(this Optional<T> value) where T : struct
         => value.HasValue ? value.GetValueOrDefault() : default;
+
+    #region Conversion
+
+    public static Result<T, TError> ToResult<T, TError>(this Optional<T> optional, TError error) where TError : class 
+        => optional.HasValue ? Result.Success<T, TError>(optional._value) : Result.Failed<T, TError>(error);
+
+    #endregion
+
 }
 
 public readonly struct Optional<T>(T value)
 {
-    private readonly bool _hasValue = true;
-    private readonly T _value = value;
+    internal readonly bool _hasValue = true;
+    internal readonly T? _value = value;
 
     #region Accessor
 
     [MemberNotNullWhen(true, nameof(_value), nameof(Value))]
-    public readonly bool HasValue => _hasValue;
+    public bool HasValue => _hasValue;
 
-    public readonly T Value
+    public T Value
     {
         get {
             if (!HasValue)
@@ -31,8 +44,9 @@ public readonly struct Optional<T>(T value)
         }
     }
 
-    public readonly T? GetValueOrDefault() => _value;
+    public T? GetValueOrDefault() => _value;
 
+    [MemberNotNullWhen(true, nameof(_value), nameof(Value))]
     public bool TryGetValue([MaybeNullWhen(false)] out T value)
     {
         value = _value;

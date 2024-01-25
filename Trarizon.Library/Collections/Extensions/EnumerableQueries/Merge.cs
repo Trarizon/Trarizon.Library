@@ -19,7 +19,6 @@ partial class EnumerableQuery
     public static IEnumerable<T> Merge<T>(this IEnumerable<T> first, IEnumerable<T> second, IComparer<T>? comparer = default, bool descending = false)
         => new MergeByComparerQuerier<T>(first, second, comparer ?? Comparer<T>.Default, descending);
 
-#if NET7_0_OR_GREATER
     /// <summary>
     /// Merge 2 ordered <see cref="IEnumerable{T}"/> into one
     /// </summary>
@@ -31,7 +30,7 @@ partial class EnumerableQuery
     private static bool _IsInOrderAsc<T>(T left, T right) where T : IComparisonOperators<T, T, bool> => QueryUtil.IsInOrder(left, right, true);
     [SuppressMessage("Style", "IDE1006")]
     private static bool _IsInOrderDesc<T>(T left, T right) where T : IComparisonOperators<T, T, bool> => QueryUtil.IsInOrder(left, right, false);
-#endif
+
 
     private abstract class MergeQuerier<T>(IEnumerable<T> first, IEnumerable<T> second) : EnumerationQuerier<T>
     {
