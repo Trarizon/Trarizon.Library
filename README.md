@@ -8,8 +8,6 @@ Private lib, Based on .NET 8, written in C#12
 
 Miscellaneous thing like `Optional<T>`, LinQ extensions, etc. 
 
-Partially support .NET Standard 2.0
-
 ## [GeneratorToolkit](./Trarizon.Library.GeneratorToolkit/README.md)
 
 Toolkit for source generator
