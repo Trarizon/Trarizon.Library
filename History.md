@@ -4,6 +4,7 @@
 
 - New
 	- Add conversion between wrappers
+	- Add `ArrayFiller`
 - Changes
 	- Use Exception static methods in .NET 8 to replace part of `ThrowHelper`
 - Breaking

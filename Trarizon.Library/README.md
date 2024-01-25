@@ -90,6 +90,7 @@ IFloatNumber|`Remap`<br/>`RemapInto`|将值映射到另一个范围
 
 `Type`|Remarks
 :-:|:--
+`ArrayFiller<>`|含一个`T[]`和一个`int`，提供定长数组填充行为的包装
 `Optional<>`|Optional
 `Result<,>`|Result, `TError`支持任意引用类型
 
