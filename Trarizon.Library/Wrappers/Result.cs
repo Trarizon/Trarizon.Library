@@ -18,7 +18,13 @@ public static class Result
     #region Conversion
 
     public static Optional<T> ToOptional<T, TError>(this Result<T, TError> result) where TError : class
-        => result.Success ? Optional.Of(result._value) : (Optional<T>)default;
+        => result.Success ? Optional.Of(result._value) : default;
+
+    public static Either<T, TError> AsEitherLeft<T, TError>(this Result<T, TError> result) where TError : class
+        => result.Success ? new(result._value) : new(result._error);
+
+    public static Either<TError, T> AsEitherRight<T, TError>(this Result<T, TError> result) where TError : class
+        => result.Failed ? new(result._error) : new(result._value);
 
     #endregion
 }
@@ -34,12 +40,14 @@ public readonly struct Result<T, TError> where TError : class
     [MemberNotNullWhen(false, nameof(_error), nameof(Error))]
     public readonly bool Success => _error is null;
 
+    [MemberNotNullWhen(false, nameof(_value), nameof(Value))]
+    [MemberNotNullWhen(true, nameof(_error), nameof(Error))]
     public readonly bool Failed => _error is not null;
 
     public readonly T Value
     {
         get {
-            if (!Success)
+            if (Failed)
                 ThrowHelper.ThrowInvalidOperation($"Result<> failed.");
             return _value;
         }
@@ -79,28 +87,30 @@ public readonly struct Result<T, TError> where TError : class
 
     #region Creator
 
-    internal Result(T? value, TError? error) { _value = value; _error = error; }
+    private Result(T? value, TError? error) { _value = value; _error = error; }
 
     public Result(T value) : this(value, null) { }
 
     public Result(TError error) : this(default, error) { }
 
-    public static implicit operator Result<T, TError>(T value) => new(value, null);
-    public static implicit operator Result<T, TError>(TError error) => new(default, error);
+    public static implicit operator Result<T, TError>(T value) => new(value);
+    public static implicit operator Result<T, TError>(TError error) => new(error);
 
     #endregion
 
-    #region Linq
+    #region Convertor
 
     public Result<TResult, TError> Select<TResult>(Func<T, TResult> selector)
-        => Success ? new(selector(_value), null) : new(default, _error);
+        => Success ? new(selector(_value)) : new(_error);
+
+    public Result<TResult, TNewError> Select<TResult, TNewError>(Func<T, TResult> valueSelector, Func<TError, TNewError> errorSelector) where TNewError : class
+        => Success ? new(valueSelector(_value)) : new(errorSelector(_error));
 
     public Result<TResult, TError> SelectWrapped<TResult>(Func<T, Result<TResult, TError>> selector)
-        => Success ? selector(_value) : new(default, _error);
+        => Success ? selector(_value) : new(_error);
 
     public Result<T, TNewError> SelectError<TNewError>(Func<TError, TNewError> selector) where TNewError : class
-        => Success ? new(_value, default) : new(default, selector(_error));
-
+        => Success ? new(_value) : new(selector(_error));
     #endregion
 
     public override string ToString() => Success ? $"Success: {_value}" : $"Failed: {_error}";

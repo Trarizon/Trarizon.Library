@@ -8,18 +8,33 @@ public static class Optional
     /// <summary>
     /// In fact just use <c>default</c> is ok
     /// </summary>
-    public static Optional<T> None<T>() => default;
+    public static Optional<T> None<T>() => Optional<T>.None;
 
     public static Optional<T> FromNullable<T>(T? value) where T : struct
         => value.HasValue ? value.GetValueOrDefault()! : default;
 
     public static T? ToNullable<T>(this Optional<T> value) where T : struct
-        => value.HasValue ? value.GetValueOrDefault() : default;
+        => value.HasValue ? value._value : default;
 
     #region Conversion
 
-    public static Result<T, TError> ToResult<T, TError>(this Optional<T> optional, TError error) where TError : class 
-        => optional.HasValue ? Result.Success<T, TError>(optional._value) : Result.Failed<T, TError>(error);
+    public static Result<T, TError> ToResult<T, TError>(this Optional<T> optional, TError error) where TError : class
+        => optional.HasValue ? new(optional._value) : new(error);
+
+    public static Result<T, TError> ToResult<T, TError>(this Optional<T> optional, Func<TError> errorSelector) where TError : class
+        => optional.HasValue ? new(optional._value) : new(errorSelector());
+
+    public static Either<T, TRight> ToEitherRight<T, TRight>(this Optional<T> optional, TRight right)
+        => optional.HasValue ? new(optional._value) : new(right);
+
+    public static Either<T, TRight> ToEitherRight<T, TRight>(this Optional<T> optional, Func<TRight> rightSelector)
+        => optional.HasValue ? new(optional._value) : new(rightSelector());
+
+    public static Either<TLeft, T> ToEitherLeft<T, TLeft>(this Optional<T> optional, TLeft left)
+        => optional.HasValue ? new(optional._value) : new(left);
+
+    public static Either<TLeft, T> ToEitherLeft<T, TLeft>(this Optional<T> optional, Func<TLeft> leftSelector)
+        => optional.HasValue ? new(optional._value) : new(leftSelector());
 
     #endregion
 
@@ -27,10 +42,15 @@ public static class Optional
 
 public readonly struct Optional<T>(T value)
 {
-    internal readonly bool _hasValue = true;
+    private readonly bool _hasValue = true;
     internal readonly T? _value = value;
 
     #region Accessor
+
+    /// <summary>
+    /// In fact just use <c>default</c> is ok
+    /// </summary>
+    public static Optional<T> None => default;
 
     [MemberNotNullWhen(true, nameof(_value), nameof(Value))]
     public bool HasValue => _hasValue;
@@ -61,7 +81,7 @@ public readonly struct Optional<T>(T value)
 
     #endregion
 
-    #region Linq
+    #region Convertor
 
     public Optional<TResult> Select<TResult>(Func<T, TResult> selector)
         => HasValue ? new(selector(_value)) : default;

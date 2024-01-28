@@ -1,4 +1,8 @@
-﻿using Trarizon.Library.Collections.Extensions.Helpers.Queriers;
+﻿// Extends Enumerable.Reverse which
+// - caches the items in list
+// https://source.dot.net/#System.Linq/System/Linq/Reverse.cs,3af306c560f8c669
+
+using Trarizon.Library.Collections.Extensions.Helpers.Queriers;
 using Trarizon.Library.Collections.Extensions.ListQueries.Helpers;
 
 namespace Trarizon.Library.Collections.Extensions;

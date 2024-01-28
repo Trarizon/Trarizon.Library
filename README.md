@@ -6,9 +6,7 @@ Private lib, Based on .NET 8, written in C#12
 
 ## [Library](./Trarizon.Library/README.md)
 
-Miscellaneous thing like `Optional<T>`, LinQ extensions, etc. 
-
-Partially support .NET Standard 2.0
+Miscellaneous thing like monads, extensions, etc.
 
 ## [GeneratorToolkit](./Trarizon.Library.GeneratorToolkit/README.md)
 
