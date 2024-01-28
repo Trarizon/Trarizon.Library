@@ -3,6 +3,8 @@
 namespace Trarizon.Library.Collections.Extensions;
 partial class EnumerableQuery
 {
+    // TODO?: PopFirst. When defaultValue is not null, firstElement is still nullable
+
     /// <summary>
     /// Pop specific number of elements, and return the rest,
     /// popped elements are cached in <paramref name="leadingElements"/>

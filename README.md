@@ -7,6 +7,7 @@ Private lib, Based on .NET 8, written in C#12
 ## [Library](./Trarizon.Library/README.md)
 
 Miscellaneous thing like monads, extensions, etc.
+There will be many breaking changes (orz.
 
 ## [GeneratorToolkit](./Trarizon.Library.GeneratorToolkit/README.md)
 
