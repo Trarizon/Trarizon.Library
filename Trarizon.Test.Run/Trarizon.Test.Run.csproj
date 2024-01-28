@@ -14,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Trarizon.Library\Trarizon.Library.csproj" />
     <ProjectReference Include="..\Trarizon.Test.UnitTest\Trarizon.Test.UnitTest.csproj" />
     <ProjectReference Include="..\Trarizon.Yieliception\Trarizon.Yieliception.csproj" />
   </ItemGroup>
