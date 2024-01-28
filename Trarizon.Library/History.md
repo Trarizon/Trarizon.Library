@@ -7,6 +7,7 @@
 	- Add `ArrayFiller<>`
 	- Add `Either<,>`
 	- Add `IList<>.TryAt()`£¬`IROList<>.TryAt()`
+	- Add `Optional<>.Unwrap`
 - Changes
 	- Use Exception static methods in .NET 8 to replace part of `ThrowHelper`
 - Breaking

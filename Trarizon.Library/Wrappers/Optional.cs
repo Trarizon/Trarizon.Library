@@ -16,6 +16,9 @@ public static class Optional
     public static T? ToNullable<T>(this Optional<T> value) where T : struct
         => value.HasValue ? value._value : default;
 
+    public static Optional<T> Unwrap<T>(this Optional<Optional<T>> optional) 
+        => optional.HasValue ? optional._value : Optional<T>.None;
+
     #region Conversion
 
     public static Result<T, TError> ToResult<T, TError>(this Optional<T> optional, TError error) where TError : class
