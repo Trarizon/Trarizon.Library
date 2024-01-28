@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Numerics;
+﻿using System.Numerics;
 using Trarizon.Library.Collections.Extensions.Helpers;
 using Trarizon.Library.Collections.Extensions.Helpers.Queriers;
 
@@ -9,28 +8,27 @@ partial class EnumerableQuery
     /// <summary>
     /// Merge 2 ordered <see cref="IEnumerable{T}"/> into one
     /// </summary>
-    /// <param name="order">Indicates the order, default is <c>l &lt; r</c></param>
-    public static IEnumerable<T> Merge<T>(this IEnumerable<T> first, IEnumerable<T> second, Func<T, T, bool> order) => new MergeByFuncQuerier<T>(first, second, order);
+    public static IEnumerable<T> Merge<T>(this IEnumerable<T> first, IEnumerable<T> second, Func<T, T, bool> order)
+        => new MergeByFuncQuerier<T>(first, second, order);
 
     /// <summary>
     /// Merge 2 ordered <see cref="IEnumerable{T}"/> into one
     /// </summary>
-    /// <param name="order">Indicates the order, default is <c>l &lt; r</c></param>
-    public static IEnumerable<T> Merge<T>(this IEnumerable<T> first, IEnumerable<T> second, IComparer<T>? comparer = default, bool descending = false)
-        => new MergeByComparerQuerier<T>(first, second, comparer ?? Comparer<T>.Default, descending);
+    public static IEnumerable<T> Merge<T>(this IEnumerable<T> first, IEnumerable<T> second, IComparer<T>? comparer)
+        => new MergeByComparerQuerier<T>(first, second, comparer ?? Comparer<T>.Default);
 
     /// <summary>
     /// Merge 2 ordered <see cref="IEnumerable{T}"/> into one
     /// </summary>
-    /// <param name="order">Indicates the order, default is <c>l &lt; r</c></param>
-    public static IEnumerable<T> Merge<T>(this IEnumerable<T> first, IEnumerable<T> second, bool descending) where T : IComparisonOperators<T, T, bool>
-        => new MergeByFuncQuerier<T>(first, second, descending ? _IsInOrderDesc<T> : _IsInOrderAsc<T>);
+    public static IEnumerable<T> Merge<T>(this IEnumerable<T> first, IEnumerable<T> second, bool descending = false) where T : IComparisonOperators<T, T, bool>
+    {
+        return new MergeByFuncQuerier<T>(first, second, descending ? IsInOrderDesc : IsInOrderAsc);
 
-    [SuppressMessage("Style", "IDE1006")]
-    private static bool _IsInOrderAsc<T>(T left, T right) where T : IComparisonOperators<T, T, bool> => QueryUtil.IsInOrder(left, right, true);
-    [SuppressMessage("Style", "IDE1006")]
-    private static bool _IsInOrderDesc<T>(T left, T right) where T : IComparisonOperators<T, T, bool> => QueryUtil.IsInOrder(left, right, false);
-
+        static bool IsInOrderAsc(T left, T right)
+            => QueryUtil.IsInOrder(left, right, true);
+        static bool IsInOrderDesc(T left, T right)
+            => QueryUtil.IsInOrder(left, right, false);
+    }
 
     private abstract class MergeQuerier<T>(IEnumerable<T> first, IEnumerable<T> second) : EnumerationQuerier<T>
     {
@@ -145,11 +143,10 @@ partial class EnumerableQuery
 
     private sealed class MergeByComparerQuerier<T>(
         IEnumerable<T> first, IEnumerable<T> second,
-        IComparer<T> comparer,
-        bool descending)
+        IComparer<T> comparer)
         : MergeQuerier<T>(first, second)
     {
-        protected override EnumerationQuerier<T> Clone() => new MergeByComparerQuerier<T>(_first, _second, comparer, descending);
-        protected override bool InOrder(T left, T right) => QueryUtil.IsInOrder(left, right, comparer, descending);
+        protected override EnumerationQuerier<T> Clone() => new MergeByComparerQuerier<T>(_first, _second, comparer);
+        protected override bool InOrder(T left, T right) => QueryUtil.IsInOrder(left, right, comparer, true);
     }
 }

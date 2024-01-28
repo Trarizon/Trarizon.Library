@@ -15,5 +15,6 @@
 	- `Span.Reverse` is moved to `SpanQuery`
 	- Remove `IList<>.AtOrDefault()`
 	- Rename `IReadOnlyList<>.AtOrDefault()` to `ElementAtOrDefault`
+	- Modified signature of `IEnumerable<>.Merge`
 - Bug fix
 	- Exception judge in `IEnumerable.CountsBetween`
