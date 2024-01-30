@@ -4,9 +4,10 @@
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<LangVersion>12</LangVersion>
 		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
-	
+
 	<ItemGroup>
 		<InternalsVisibleTo Include="Trarizon.Test.UnitTest" />
 	</ItemGroup>
@@ -39,10 +40,14 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 	</ItemGroup>
-	
+
 	<PropertyGroup Label="PolySharpSettings">
 		<PolySharpUsePublicAccessibilityForGeneratedTypes>true</PolySharpUsePublicAccessibilityForGeneratedTypes>
 		<PolySharpIncludeGeneratedTypes>
+			System.Index;
+			System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute;
+			System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute;
+			System.Diagnostics.CodeAnalysis.NotNullAttribute;
 			System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute;
 		</PolySharpIncludeGeneratedTypes>
 	</PropertyGroup>

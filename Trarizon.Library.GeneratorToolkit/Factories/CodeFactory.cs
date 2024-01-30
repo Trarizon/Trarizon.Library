@@ -12,18 +12,6 @@ namespace Trarizon.Library.GeneratorToolkit.Factories;
 /// </summary>
 public static class CodeFactory
 {
-    public static SyntaxTokenList Modifiers(ReadOnlySpan<SyntaxKind> modifiers)
-    {
-        var tokens = new SyntaxToken[modifiers.Length];
-        for (int i = 0; i < modifiers.Length; i++) {
-            tokens[i] = SyntaxFactory.Token(modifiers[i]);
-        }
-        return SyntaxFactory.TokenList(tokens);
-    }
-
-    public static SyntaxTokenList Modifiers(SyntaxKind modifier)
-        => SyntaxFactory.TokenList(SyntaxFactory.Token(modifier));
-
     #region Clone
 
     #region Clone partial declaration
@@ -52,7 +40,7 @@ public static class CodeFactory
         SyntaxList<MemberDeclarationSyntax> members)
         => SyntaxFactory.ClassDeclaration(
             attributeLists,
-            Modifiers(SyntaxKind.PartialKeyword),
+            SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PartialKeyword)),
             source.Identifier,
             source.TypeParameterList,
             baseList,
@@ -68,7 +56,7 @@ public static class CodeFactory
         SyntaxList<MemberDeclarationSyntax> members)
         => SyntaxFactory.StructDeclaration(
             attributeLists,
-            Modifiers(SyntaxKind.PartialKeyword),
+            SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PartialKeyword)),
             source.Identifier,
             source.TypeParameterList,
             baseList,
@@ -84,7 +72,7 @@ public static class CodeFactory
         SyntaxList<MemberDeclarationSyntax> members)
         => SyntaxFactory.InterfaceDeclaration(
             attributeLists,
-            Modifiers(SyntaxKind.PartialKeyword),
+            SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PartialKeyword)),
             source.Identifier,
             source.TypeParameterList,
             baseList,
@@ -100,7 +88,7 @@ public static class CodeFactory
         SyntaxList<MemberDeclarationSyntax> members)
         => SyntaxFactory.RecordDeclaration(
             attributeLists,
-            Modifiers(SyntaxKind.PartialKeyword),
+            SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PartialKeyword)),
             SyntaxFactory.Token(SyntaxKind.RecordKeyword),
             source.Identifier,
             source.TypeParameterList,
@@ -115,7 +103,7 @@ public static class CodeFactory
         ArrowExpressionClauseSyntax? expressionBody)
         => SyntaxFactory.MethodDeclaration(
             attributeLists,
-            Modifiers(SyntaxKind.PartialKeyword),
+            SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PartialKeyword)),
             source.ReturnType,
             source.ExplicitInterfaceSpecifier,
             source.Identifier,
