@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 
 namespace Trarizon.Library.Wrappers;
-public static class Result
+internal static class Result
 {
     public static Result<T, TError> Success<T, TError>(T value) where TError : class
         => new(value);
@@ -30,7 +30,7 @@ public static class Result
     #endregion
 }
 
-public readonly struct Result<T, TError> where TError : class
+internal readonly struct Result<T, TError> where TError : class
 {
     internal readonly T? _value;
     internal readonly TError? _error;

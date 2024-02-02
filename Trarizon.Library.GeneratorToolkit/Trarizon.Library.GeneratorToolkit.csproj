@@ -8,10 +8,6 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 
-	<ItemGroup>
-		<InternalsVisibleTo Include="Trarizon.Test.UnitTest" />
-	</ItemGroup>
-
 	<PropertyGroup Label="NugetProperties">
 		<Title>$(AssemblyName)</Title>
 		<Authors>Trarizon</Authors>
@@ -48,7 +44,9 @@
 			System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute;
 			System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute;
 			System.Diagnostics.CodeAnalysis.NotNullAttribute;
+			System.Diagnostics.CodeAnalysis.NotNullWhenAttribute;
 			System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute;
+			System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute;
 		</PolySharpIncludeGeneratedTypes>
 	</PropertyGroup>
 

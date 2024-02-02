@@ -3,6 +3,7 @@ using BenchmarkDotNet.Running;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Trarizon.Library.Collections.AllocOptimization;
 using Trarizon.Library.Collections.Creators;
 using Trarizon.Library.Collections.Extensions;
 using Trarizon.Library.Learn.SourceGenerator;
@@ -11,24 +12,16 @@ using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 using Trarizon.Test.UnitTest;
 
-Test<int>().Print();
-Test<string>().Print();
-Test<List<int>>().Print();
-
-"end".Print();
-
-static bool Test<T>()
-{
-    T[] res = new T[1];
-    return res[0] is null;
-}
+AllocOptList<int> list = [1, 2, 3];
+list.Insert(2, 3);
+list.AsSpan().Print();
 
 [Singleton(InstanceProperty = "Nam")]
 sealed partial class Si
 {
-    private Si() { }
+	private Si() { }
 
-    void Test()
-    {
-    }
+	void Test()
+	{
+	}
 }

@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 
 namespace Trarizon.Library.Wrappers;
-public static class Either
+internal static class Either
 {
     public static Either<TLeft, TRight> Left<TLeft, TRight>(TLeft leftValue)
         => new(leftValue);
@@ -39,7 +39,7 @@ public static class Either
     #endregion
 }
 
-public readonly struct Either<TLeft, TRight>
+internal readonly struct Either<TLeft, TRight>
 {
     private readonly bool _isLeft;
     internal readonly TLeft? _left;

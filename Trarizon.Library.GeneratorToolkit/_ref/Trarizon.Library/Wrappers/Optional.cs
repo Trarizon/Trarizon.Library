@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 
 namespace Trarizon.Library.Wrappers;
-public static class Optional
+internal static class Optional
 {
     public static Optional<T> Of<T>(T value) => new(value);
 

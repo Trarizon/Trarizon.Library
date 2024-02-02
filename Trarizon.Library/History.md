@@ -1,5 +1,11 @@
 # History
 
+## v0.2.1 (in progress)
+
+- New
+	- Add `AllocOptList<>`
+
+
 ## v0.2.0
 
 - New

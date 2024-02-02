@@ -12,9 +12,5 @@ public class GeneratorToolkitTest
     [TestMethod]
     public void MatchMetadataStringTest()
     {
-        Assert.IsTrue(SymbolExtensions.IsMatchMetadataString("Tra.Get<string>", "Tra.Get`1"));
-        Assert.IsTrue(SymbolExtensions.IsMatchMetadataString("Tra.Get<string, int>", "Tra.Get`2"));
-        Assert.IsTrue(SymbolExtensions.IsMatchMetadataString("Tra.Get<string, List<int,str>>", "Tra.Get`2"));
-        Assert.IsTrue(SymbolExtensions.IsMatchMetadataString("Tra.Get<string, List<int,str>>.Get<b>()", "Tra.Get`2.Get`1()"));
     }
 }

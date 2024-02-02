@@ -10,6 +10,11 @@ Contents:
 
 ## Collections
 
+### AllocOptimization
+
+Rewrite BCL collections in struct, to reduce alloc on heap
+- `AllocOptList<>` <- `List<>`
+
 ### Creators
 
 static classes for quickly creating collections
