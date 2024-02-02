@@ -3,7 +3,7 @@ using BenchmarkDotNet.Running;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Trarizon.Library.Collections.AllocOptimization;
+using Trarizon.Library.Collections.AllocOpt;
 using Trarizon.Library.Collections.Creators;
 using Trarizon.Library.Collections.Extensions;
 using Trarizon.Library.Learn.SourceGenerator;

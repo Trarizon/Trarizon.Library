@@ -4,7 +4,8 @@
 
 - New
 	- Add `AllocOptList<>`
-
+- Breaking
+	- Remove `ArrayFiller<>`, use `AllocOptList<>` instead
 
 ## v0.2.0
 

@@ -1,9 +1,10 @@
 ﻿using System.Collections;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using Trarizon.Library.Collections.AllocOpt;
 using Trarizon.Library.Collections.Extensions;
 
-namespace Trarizon.Library.Collections.AllocOptimization;
+namespace Trarizon.Library.Collections.AllocOpt;
 [CollectionBuilder(typeof(AllocOptCollectionBuilder), nameof(AllocOptCollectionBuilder.CreateList))]
 public struct AllocOptList<T> : IList<T>, IReadOnlyList<T>
 {

@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
+using Trarizon.Library.Collections.AllocOpt;
 
-namespace Trarizon.Library.Collections.AllocOptimization;
+namespace Trarizon.Library.Collections.AllocOpt;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class AllocOptCollectionBuilder
 {
