@@ -59,7 +59,7 @@ LinQ-like extensions
 </details>
 
 Impl Type|Method|Remarks
-:--|:-:|:--|:-:
+:--|:-:|:--
 ✔|`Adjacent`|返回相邻的两个值（按下标(0,1), (1,2), ...）
 ✔|`AggregateSelect`|类LinQ的`Aggregate`，返回执行至每一个元素的结果
 ⭕✔✔|`AsXXX`|返回自身
