@@ -4,6 +4,7 @@
 
 - New
 	- Add `AllocOptList<>`
+	- Add `RepeatForever()`
 - Breaking
 	- Remove `ArrayFiller<>`, use `AllocOptList<>` instead
 
