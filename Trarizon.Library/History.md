@@ -8,6 +8,7 @@
     - Add `Either<,>.ToString()`
 - Breaking
     - Remove `ArrayFiller<>`, use `AllocOptList<>` instead
+    - Adjust signature of `IEnumerable<>.Merge` and `IEnumerable.IsInOrder`
 - Changes
     - Change format of `Result<,>.ToString()`
 
