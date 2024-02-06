@@ -45,7 +45,9 @@ public struct AllocOptList<T> : IList<T>, IReadOnlyList<T>
         set => _items[index] = value;
     }
 
-    public readonly Span<T> Slice(int index, int length) => _items.AsSpan(index, length);
+    public readonly Span<T> AsSpan(int index, int length) => _items.AsSpan(index, length);
+
+    public readonly Span<T> AsSpan(int startIndex) => _items.AsSpan(startIndex);
 
     public readonly Span<T> AsSpan() => _items.AsSpan(0, _size);
 
