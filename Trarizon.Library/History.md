@@ -10,7 +10,9 @@
     - Remove `ArrayFiller<>`, use `AllocOptList<>` instead
     - Adjust signature of `IEnumerable<>.Merge` and `IEnumerable.IsInOrder`
 - Changes
-    - Change format of `Result<,>.ToString()`
+    - Change format of `Optional<>.ToString()`, `Result<,>.ToString()`, and they won't return `null` now
+- Bug fix
+    - Order judge in `IEnumerable<>.Merge`
 
 ## v0.2.0
 

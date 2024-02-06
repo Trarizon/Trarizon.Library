@@ -6,8 +6,16 @@ Private lib, Based on .NET 8, written in C#12
 
 ## [Library](./Trarizon.Library/README.md)
 
-Miscellaneous thing like monads, extensions, etc.
-There will be many breaking changes (orz.
+Miscellaneous thing. There will be many breaking changes (orz.
+
+<details>
+<summary>brief</summary>
+
+- Monads: `Optional<T>`, `Result<T, TError>`, `Either<TLeft, TRight>`
+- Queries: More Linq-like methods for `IEnumerable<>`, `IList<>`, `IReadOnlyList<>`
+- Extensions: miscellaneous extensions for BCL types
+
+</details>
 
 ## [GeneratorToolkit](./Trarizon.Library.GeneratorToolkit/README.md)
 
@@ -24,6 +32,9 @@ This mainly aims to extends `yield return`, provide communication capability to
 
 ## Deprecated
 
+<details>
+<summary>Expand</summary>
+
 ### TextCommanding
 
 > Use [`Trarizon.TextCommand`](https://github.com/Trarizon/Trarizon.TextCommand) instead
@@ -31,3 +42,5 @@ This mainly aims to extends `yield return`, provide communication capability to
 > Original project in [this branch](https://github.com/Trarizon/Trarizon.Library/tree/archive_textcommanding/Trarizon.TextCommanding)
 
 Parse text input command(CLI like).
+
+</details>
