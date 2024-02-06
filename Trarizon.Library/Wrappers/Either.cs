@@ -149,4 +149,6 @@ public readonly struct Either<TLeft, TRight>
         => IsLeft ? leftSelector(_left) : rightSelector(_right);
 
     #endregion
+
+    public override string? ToString() => IsLeft ? _left.ToString() : _right.ToString();
 }

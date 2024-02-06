@@ -113,5 +113,5 @@ public readonly struct Result<T, TError> where TError : class
         => Success ? new(_value) : new(selector(_error));
     #endregion
 
-    public override string ToString() => Success ? $"Success: {_value}" : $"Failed: {_error}";
+    public override string? ToString() => Success ? _value.ToString() : _error.ToString();
 }

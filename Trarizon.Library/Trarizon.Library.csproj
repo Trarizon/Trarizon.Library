@@ -1,28 +1,28 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFramework>net8.0</TargetFramework>
-		<LangVersion>12</LangVersion>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<Nullable>enable</Nullable>
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	</PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <LangVersion>12</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
 
-	<PropertyGroup Label="NugetProperties">
-		<Title>Trarizon.Library</Title>
-		<Authors>Trarizon</Authors>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<RepositoryUrl>https://github.com/Trarizon/Trarizon.Library</RepositoryUrl>
-		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-		<PackageLicenseFile>LICENSE</PackageLicenseFile>
-		<Version>0.2.0</Version>
-		<AssemblyVersion>0.2.0</AssemblyVersion>
-		<FileVersion>$(AssemblyVersion)</FileVersion>
-	</PropertyGroup>
+    <PropertyGroup Label="NugetProperties">
+        <Title>Trarizon.Library</Title>
+        <Authors>Trarizon</Authors>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <RepositoryUrl>https://github.com/Trarizon/Trarizon.Library</RepositoryUrl>
+        <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <Version>0.2.0</Version>
+        <AssemblyVersion>0.2.0</AssemblyVersion>
+        <FileVersion>$(AssemblyVersion)</FileVersion>
+    </PropertyGroup>
 
-	<ItemGroup Label="NugetItems">
-		<None Include="..\LICENSE" Pack="True" PackagePath="" />
-		<None Include="README.md" Pack="True" PackagePath="" />
-	</ItemGroup>
+    <ItemGroup Label="NugetItems">
+        <None Include="..\LICENSE" Pack="True" PackagePath="" />
+        <None Include="README.md" Pack="True" PackagePath="" />
+    </ItemGroup>
 
 </Project>
