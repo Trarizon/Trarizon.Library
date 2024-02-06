@@ -3,12 +3,14 @@
 ## v0.2.1 (in progress)
 
 - New
-    - Add `AllocOptList<>`
+    - Add `AllocOptList<>`, `AllocOptStack<>`
     - Add `RepeatForever()`
     - Add `Either<,>.ToString()`
+    - Add `ReversedSpanQuerier<>.Slice()` and `ToArray()`
 - Breaking
     - Remove `ArrayFiller<>`, use `AllocOptList<>` instead
     - Adjust signature of `IEnumerable<>.Merge` and `IEnumerable.IsInOrder`
+    - Rename `Span<>.Reverse` to `ReverseSpan`, to distinguish from `Reverse` method in BCL
 - Changes
     - Change format of `Optional<>.ToString()`, `Result<,>.ToString()`, and they won't return `null` now
 - Bug fix

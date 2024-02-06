@@ -10,4 +10,11 @@ public static class AllocOptCollectionBuilder
         list.AddRange(values);
         return list;
     }
+
+    public static AllocOptStack<T> CreateStack<T>(ReadOnlySpan<T> values)
+    {
+        var stack = new AllocOptStack<T>(values.Length);
+        stack.PushRange(values);
+        return stack;
+    }
 }

@@ -141,9 +141,10 @@ public static class CodeFactory
     {
         var topType = CloneContainingTypeDeclarations(sourceTypeSyntax, members);
 
-        string nsString = sourceMemberSymbol.ContainingNamespace.ToDisplayString();
-        if (nsString == Literals.GlobalNamespaceDisplayString)
+        if (sourceMemberSymbol.ContainingNamespace.IsGlobalNamespace)
             return topType;
+
+        string nsString = sourceMemberSymbol.ContainingNamespace.ToDisplayString();
 
         return SyntaxFactory.NamespaceDeclaration(
             SyntaxFactory.ParseName(nsString),

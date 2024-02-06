@@ -51,21 +51,13 @@ public struct AllocOptList<T> : IList<T>, IReadOnlyList<T>
 
     public readonly Span<T> AsSpan() => _items.AsSpan(0, _size);
 
-    public readonly T[] ToArray()
-    {
-        if (_size == 0)
-            return [];
-
-        T[] result = new T[_size];
-        Array.Copy(_items, result, _size);
-        return result;
-    }
+    public readonly T[] ToArray() => AsSpan().ToArray();
 
     public readonly T[] GetUnderlyingArray() => _items;
 
     #endregion
 
-    #region Building
+    #region Builders
 
     public void Add(T item)
     {
@@ -117,67 +109,71 @@ public struct AllocOptList<T> : IList<T>, IReadOnlyList<T>
         _size = newSize;
     }
 
-    public void Insert(int index, T item)
+    public void Insert(Index index, T item)
     {
-        ArgumentOutOfRangeException.ThrowIfGreaterThan(index, _size);
+        var offset = index.GetOffset(_size);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(offset, _size);
 
         if (_size == _items.Length) {
-            GrowForInsertion(index, 1);
+            GrowForInsertion(offset, 1);
         }
-        else if (index < _size) {
-            Array.Copy(_items, index, _items, index + 1, _size - index);
+        else if (offset < _size) {
+            Array.Copy(_items, offset, _items, offset + 1, _size - offset);
         }
-        _items[index] = item;
+        _items[offset] = item;
         _size++;
     }
 
-    public void InsertRange<TEnumerable>(int index, TEnumerable collection) where TEnumerable : IEnumerable<T>
+    public void InsertRange<TEnumerable>(Index index, TEnumerable collection) where TEnumerable : IEnumerable<T>
     {
-        ArgumentOutOfRangeException.ThrowIfGreaterThan(index, _size);
+        var offset = index.GetOffset(_size);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(offset, _size);
 
         if (collection is ICollection<T> c) {
-            InsertCollection(index, c);
+            InsertCollection(offset, c);
             return;
         }
 
         foreach (var item in collection) {
-            Insert(index++, item);
+            Insert(offset++, item);
         }
     }
 
-    public void InsertCollection<TCollection>(int index, TCollection collection) where TCollection : ICollection<T>
+    public void InsertCollection<TCollection>(Index index, TCollection collection) where TCollection : ICollection<T>
     {
         int count = collection.Count;
         if (count <= 0)
             return;
 
+        var offset = index.GetOffset(_size);
         var newSize = _size + count;
         if (newSize > _items.Length) {
-            GrowForInsertion(index, count);
+            GrowForInsertion(offset, count);
         }
-        else if (index < _size) {
-            Array.Copy(_items, index, _items, index + count, _size - index);
+        else if (offset < _size) {
+            Array.Copy(_items, offset, _items, offset + count, _size - offset);
         }
 
-        collection.CopyTo(_items, index);
+        collection.CopyTo(_items, offset);
         _size = newSize;
     }
 
-    public void InsertRange(int index, ReadOnlySpan<T> values)
+    public void InsertRange(Index index, ReadOnlySpan<T> values)
     {
         int count = values.Length;
         if (count <= 0)
             return;
 
+        var offset = index.GetOffset(_size);
         var newSize = _size + count;
         if (newSize > _items.Length) {
-            GrowForInsertion(index, count);
+            GrowForInsertion(offset, count);
         }
-        else if (index < _size) {
-            Array.Copy(_items, index, _items, index + count, _size - index);
+        else if (offset < _size) {
+            Array.Copy(_items, offset, _items, offset + count, _size - offset);
         }
 
-        values.CopyTo(_items.AsSpan(index));
+        values.CopyTo(_items.AsSpan(offset));
         _size = newSize;
     }
 
@@ -191,29 +187,37 @@ public struct AllocOptList<T> : IList<T>, IReadOnlyList<T>
         return true;
     }
 
-    public void RemoveAt(int index)
+    public void RemoveAt(Index index)
     {
-        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, _items.Length);
+        var offset = index.GetOffset(_size);
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(offset, _items.Length);
 
         _size--;
-        if (index < _size) {
-            Array.Copy(_items, index + 1, _items, index, _size - index);
+        if (offset < _size) {
+            Array.Copy(_items, offset + 1, _items, offset, _size - offset);
         }
     }
 
-    public void RemoveRange(int index, int count)
+    public void RemoveRange(Index index, int count)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(index, 0);
+        var offset = index.GetOffset(_size);
+        ArgumentOutOfRangeException.ThrowIfLessThan(offset, 0);
         ArgumentOutOfRangeException.ThrowIfLessThan(count, 0);
-        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index + count, _size);
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(offset + count, _size);
 
         if (count == 0)
             return;
 
         _size -= count;
-        if (index < _size) {
-            Array.Copy(_items, index + count, _items, index, _size - index);
+        if (offset < _size) {
+            Array.Copy(_items, offset + count, _items, offset, _size - offset);
         }
+    }
+
+    public void RemoveRange(Range range)
+    {
+        var (index, count) = range.GetOffsetAndLength(_size);
+        RemoveRange(index, count);
     }
 
     public int RemoveAll(Predicate<T> predicate)
@@ -240,8 +244,7 @@ public struct AllocOptList<T> : IList<T>, IReadOnlyList<T>
     }
 
     /// <remarks>
-    /// <see cref="AllocOptList{T}"/> is designed for stack, so this method
-    /// will not clear the element of underlying array.
+    /// This method won't clear elements in underlying array.
     /// Use <see cref="ClearTrailingReferences"/> if you need it.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -265,8 +268,6 @@ public struct AllocOptList<T> : IList<T>, IReadOnlyList<T>
             Clear();
         }
     }
-
-    #endregion
 
     public void EnsureCapacity(int capacity)
     {
@@ -316,10 +317,16 @@ public struct AllocOptList<T> : IList<T>, IReadOnlyList<T>
         return int.Max(newCapacity, expectedCapacity);
     }
 
+    #endregion
+
+    public readonly Enumerator GetEnumerator() => new(this);
+
     public readonly int IndexOf(T item) => Array.IndexOf(_items, item, 0, _size);
     public readonly bool Contains(T item) => _size > 0 && IndexOf(item) >= 0;
     public readonly void CopyTo(T[] array, int arrayIndex) => Array.Copy(_items, 0, array, arrayIndex, _size);
-    public readonly Enumerator GetEnumerator() => new(this);
+    
+    void IList<T>.Insert(int index, T item) => Insert(index, item);
+    void IList<T>.RemoveAt(int index) => RemoveAt(index);
     readonly IEnumerator<T> IEnumerable<T>.GetEnumerator() => new Enumerator.Wrapper(this);
     readonly IEnumerator IEnumerable.GetEnumerator() => new Enumerator.Wrapper(this);
 
@@ -350,15 +357,15 @@ public struct AllocOptList<T> : IList<T>, IReadOnlyList<T>
 
         internal sealed class Wrapper(AllocOptList<T> list) : IEnumerator<T>
         {
-            private Enumerator enumerator = list.GetEnumerator();
+            private Enumerator _enumerator = list.GetEnumerator();
 
-            public T Current => enumerator.Current;
+            public T Current => _enumerator.Current;
 
             object? IEnumerator.Current => Current;
 
             public void Dispose() { }
-            public bool MoveNext() => enumerator.MoveNext();
-            public void Reset() => enumerator._index = -1;
+            public bool MoveNext() => _enumerator.MoveNext();
+            public void Reset() => _enumerator._index = -1;
         }
     }
 }

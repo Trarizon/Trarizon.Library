@@ -3,9 +3,9 @@
 namespace Trarizon.Library.Collections.Extensions;
 partial class SpanQuery
 {
-    public static ReversedSpanQuerier<T> Reverse<T>(this Span<T> span) => new(span);
-   
-    public static ReversedReadOnlySpanQuerier<T> Reverse<T>(this ReadOnlySpan<T> span) => new(span);
+    public static ReversedSpanQuerier<T> ReverseSpan<T>(this Span<T> span) => new(span);
+
+    public static ReversedReadOnlySpanQuerier<T> ReverseSpan<T>(this ReadOnlySpan<T> span) => new(span);
 
 
     public readonly ref struct ReversedSpanQuerier<T>
@@ -16,15 +16,36 @@ partial class SpanQuery
         internal ReversedSpanQuerier(Span<T> span)
             => _span = span;
 
+        public static implicit operator ReversedReadOnlySpanQuerier<T>(ReversedSpanQuerier<T> span)
+            => new(span._span);
+
+        public Span<T> OriginalSpan => _span;
+
+        public int Length => _span.Length;
+
         public ref T this[int index]
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => ref _span[_span.Length - 1 - index];
         }
 
-        public Span<T> OriginalSpan => _span;
+        public ReversedSpanQuerier<T> Slice(int index, int length)
+            => new(_span.Slice(Length - index - length, length));
 
-        public int Length => _span.Length;
+        public ReversedSpanQuerier<T> Slice(int index)
+            => new(_span[..(Length - index)]);
+
+        public T[] ToArray()
+        {
+            if (_span.Length == 0)
+                return [];
+
+            T[] array = new T[Length];
+            for (int i = 0; i < Length; i++) {
+                array[i] = this[i];
+            }
+            return array;
+        }
 
         public Enumerator GetEnumerator() => new(_span);
 
@@ -67,15 +88,33 @@ partial class SpanQuery
         internal ReversedReadOnlySpanQuerier(ReadOnlySpan<T> span)
             => _span = span;
 
+        public ReadOnlySpan<T> OriginalSpan => _span;
+
+        public int Length => _span.Length;
+
         public readonly ref readonly T this[int index]
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => ref _span[_span.Length - 1 - index];
         }
 
-        public ReadOnlySpan<T> OriginalSpan => _span;
+        public ReversedReadOnlySpanQuerier<T> Slice(int index, int length)
+            => new(_span.Slice(Length - index - length, length));
 
-        public int Length => _span.Length;
+        public ReversedReadOnlySpanQuerier<T> Slice(int index)
+            => new(_span[..(Length - index)]);
+
+        public T[] ToArray()
+        {
+            if (_span.Length == 0)
+                return [];
+
+            T[] array = new T[Length];
+            for (int i = 0; i < Length; i++) {
+                array[i] = this[i];
+            }
+            return array;
+        }
 
         public Enumerator GetEnumerator() => new(_span);
 

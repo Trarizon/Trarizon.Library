@@ -1,55 +1,65 @@
 ﻿using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Running;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text;
 using Trarizon.Library.Collections.Extensions;
-using Trarizon.Library.Collections.Extensions;
+using RtnType = string;
 
 namespace Trarizon.Test.Run;
 [MemoryDiagnoser]
 public class Benchmarks
 {
-    public IEnumerable<object[]> ArgsSource()
-    {
-        int v = 1;
-        for (int i = 0; i < 2; i++)
-            yield return [v <<= 2, 5];
-    }
+	public IEnumerable<object> ArgsSource()
+	{
+		yield return Args().ToArray();
 
-    [Benchmark]
-    [ArgumentsSource(nameof(ArgsSource))]
-    public void MarshalInt(int count, int val)
-    {
-        var list = new List<int>();
-        CollectionsMarshal.SetCount(list, count);
-        list.Fill(val);
-    }
+		IEnumerable<object> Args()
+		{
+			yield return Enumerable.Range(0, 8).Select(i => $"{i}_string").ToArray();
+		}
+	}
 
-    [Benchmark]
-    [ArgumentsSource(nameof(ArgsSource))]
-    public void AddInt(int count, int val)
-    {
-        var list = new List<int>();
-        for (int i = 0; i < count; i++)
-            list.Add(val);
-    }
 
-    [Benchmark]
-    [ArgumentsSource(nameof(ArgsSource))]
-    public void MarshalObj(int count, object input)
-    {
-        var list = new List<object>();
-        CollectionsMarshal.SetCount(list, count);
-        list.Fill(input);
-    }
+	[Benchmark]
+	[ArgumentsSource(nameof(ArgsSource))]
+	public RtnType StackAndCacheLength(IEnumerable<string> strs)
+	{
+		var stack = new Stack<(char, string)>();
+		int strLength = 0;
 
-    [Benchmark]
-    [ArgumentsSource(nameof(ArgsSource))]
-    public void AddObj(int count, object input)
-    {
-        var list = new List<object>();
-        for (int i = 0; i < count; i++)
-            list.Add(input);
-    }
+		int i = 0;
+		foreach (var str in strs) {
+			stack.Push((i < 2 ? '+' : '.', str));
+			strLength += str.Length + 1;
+			i++;
+		}
+
+		var result = (stackalloc char[strLength]);
+		strLength = 0;
+		foreach (var (c, str) in stack) {
+			result[strLength++] = c;
+			str.CopyTo(result[strLength..]);
+			strLength += str.Length;
+		}
+		return result[1..].ToString();
+	}
+
+	[Benchmark]
+	[ArgumentsSource(nameof(ArgsSource))]
+	public RtnType StringBuilder(IEnumerable<string> strs)
+	{
+		var sb = new StringBuilder();
+
+		int i = 0;
+		foreach (var str in strs) {
+			if (i < 2) {
+				sb.Insert(0, '+');
+			}
+			else if (i != 7) {
+				sb.Insert(0, '.');
+			}
+			sb.Insert(0, str);
+			i++;
+		}
+		return sb.ToString();
+	}
 }
