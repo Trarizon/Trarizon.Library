@@ -5,9 +5,19 @@ using Trarizon.Library.Collections.Extensions;
 
 namespace Trarizon.Library.Collections.AllocOpt;
 [CollectionBuilder(typeof(AllocOptCollectionBuilder), nameof(AllocOptCollectionBuilder.CreateStack))]
-public struct AllocOptStack<T>(int capacity) : ICollection<T>, IReadOnlyCollection<T>
+public struct AllocOptStack<T> : ICollection<T>, IReadOnlyCollection<T>
 {
-    private AllocOptList<T> _list = new(capacity);
+    private AllocOptList<T> _list;
+
+    public AllocOptStack()
+    {
+        _list = [];
+    }
+
+    public AllocOptStack(int capacity)
+    {
+        _list = new AllocOptList<T>(capacity);
+    }
 
     public readonly int Count => _list.Count;
 
