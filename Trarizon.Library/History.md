@@ -7,6 +7,7 @@
     - Add `RepeatForever()`
     - Add `Either<,>.ToString()`
     - Add `ReversedSpanQuerier<>.Slice()` and `ToArray()`
+    - Add `T[].OffsetOf()`
 - Breaking
     - Remove `ArrayFiller<>`, use `AllocOptList<>` instead
     - Adjust signature of `IEnumerable<>.Merge` and `IEnumerable.IsInOrder`

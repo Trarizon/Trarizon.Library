@@ -1,7 +1,4 @@
-﻿using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using Trarizon.Library.Collections.Extensions.Helpers;
 
 namespace Trarizon.Library.Collections.Extensions;
@@ -15,7 +12,7 @@ public static partial class SpanExtensions
     /// </summary>
     /// <returns>Index of <paramref name="item"/></returns>
     public static int OffsetOf<T>(this ReadOnlySpan<T> span, ref readonly T item)
-        => Substract(in item, ref MemoryMarshal.GetReference(span));
+        => UnsafeUtil.SubstractRef(in item, in MemoryMarshal.GetReference(span));
 
     /// <summary>
     /// Get index of item by reference substraction.
@@ -23,7 +20,7 @@ public static partial class SpanExtensions
     /// </summary>
     /// <returns>Index of <paramref name="item"/></returns>
     public static int OffsetOf<T>(this Span<T> span, ref readonly T item)
-        => Substract(in item, ref MemoryMarshal.GetReference(span));
+        => UnsafeUtil.SubstractRef(in item, in MemoryMarshal.GetReference(span));
 
     /// <summary>
     /// Get index of the first element in <paramref name="subSpan"/> by reference substraction.
@@ -31,7 +28,7 @@ public static partial class SpanExtensions
     /// </summary>
     /// <returns>Index of first element in <paramref name="subSpan"/></returns>
     public static int OffsetOf<T>(this ReadOnlySpan<T> span, ReadOnlySpan<T> subSpan)
-        => Substract(in MemoryMarshal.GetReference(subSpan), ref MemoryMarshal.GetReference(span));
+        => UnsafeUtil.SubstractRef(in MemoryMarshal.GetReference(subSpan), in MemoryMarshal.GetReference(span));
 
     /// <summary>
     /// Get index of the first element in <paramref name="subSpan"/> by reference substraction.
@@ -39,18 +36,7 @@ public static partial class SpanExtensions
     /// </summary>
     /// <returns>Index of first element in <paramref name="subSpan"/></returns>
     public static int OffsetOf<T>(this Span<T> span, ReadOnlySpan<T> subSpan)
-        => Substract(in MemoryMarshal.GetReference(subSpan), ref MemoryMarshal.GetReference(span));
-
-    private static unsafe int Substract<T>(ref readonly T left, ref readonly T right)
-    {
-#pragma warning disable CS8500
-        fixed (T* rPtr = &right, lPtr = &left) {
-            var res = (int)((nuint)lPtr - (nuint)rPtr) / sizeof(T);
-            Debug.Assert(Unsafe.AreSame(in Unsafe.Subtract(ref Unsafe.AsRef(in left), res), in right));
-            return res;
-        }
-#pragma warning restore CS8500
-    }
+        => UnsafeUtil.SubstractRef(in MemoryMarshal.GetReference(subSpan), in MemoryMarshal.GetReference(span));
 
     #endregion
 

@@ -7,7 +7,7 @@ public class ListQueriesTest
 	[TestMethod]
 	public void AtOrDefaultTest()
 	{
-		var array = Array();
+		var array = ArrayInts();
 		Assert.IsTrue(array.TryAt(5, out var val));
 		Assert.AreEqual(val, 5);
 		Assert.IsFalse(array.TryAt(-1, out _));
