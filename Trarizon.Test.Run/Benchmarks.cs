@@ -1,65 +1,85 @@
 ﻿using BenchmarkDotNet.Attributes;
+using System.Collections;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using Trarizon.Library.Collections.AllocOpt;
 using Trarizon.Library.Collections.Extensions;
-using RtnType = string;
 
 namespace Trarizon.Test.Run;
 [MemoryDiagnoser]
 public class Benchmarks
 {
-	public IEnumerable<object> ArgsSource()
-	{
-		yield return Args().ToArray();
+    public IEnumerable<object> ArgsSource()
+    {
+        yield return new AllocOptList<int>();
+    }
 
-		IEnumerable<object> Args()
-		{
-			yield return Enumerable.Range(0, 8).Select(i => $"{i}_string").ToArray();
-		}
-	}
+    public IEnumerable<object> ArgsRefSource()
+    {
+        yield return new List<int>();
+    }
 
 
-	[Benchmark]
-	[ArgumentsSource(nameof(ArgsSource))]
-	public RtnType StackAndCacheLength(IEnumerable<string> strs)
-	{
-		var stack = new Stack<(char, string)>();
-		int strLength = 0;
+    [Benchmark]
+    [ArgumentsSource(nameof(ArgsSource))]
+    public int TestVal(AllocOptList<int> list)
+    {
+        return Test(list);
+    }
 
-		int i = 0;
-		foreach (var str in strs) {
-			stack.Push((i < 2 ? '+' : '.', str));
-			strLength += str.Length + 1;
-			i++;
-		}
+    [Benchmark]
+    [ArgumentsSource(nameof(ArgsSource))]
+    public int CallVal(AllocOptList<int> list)
+    {
+        return ((IList<int>)list).IndexOf(0);
+    }
 
-		var result = (stackalloc char[strLength]);
-		strLength = 0;
-		foreach (var (c, str) in stack) {
-			result[strLength++] = c;
-			str.CopyTo(result[strLength..]);
-			strLength += str.Length;
-		}
-		return result[1..].ToString();
-	}
+    [Benchmark]
+    [ArgumentsSource(nameof(ArgsSource))]
+    public int ConvertVal(AllocOptList<int> list)
+    {
+        return TestItf(list);
+    }
 
-	[Benchmark]
-	[ArgumentsSource(nameof(ArgsSource))]
-	public RtnType StringBuilder(IEnumerable<string> strs)
-	{
-		var sb = new StringBuilder();
+    [Benchmark]
+    [ArgumentsSource(nameof(ArgsRefSource))]
+    public int TestRef(List<int> list)
+    {
+        return Test(list);
+    }
 
-		int i = 0;
-		foreach (var str in strs) {
-			if (i < 2) {
-				sb.Insert(0, '+');
-			}
-			else if (i != 7) {
-				sb.Insert(0, '.');
-			}
-			sb.Insert(0, str);
-			i++;
-		}
-		return sb.ToString();
-	}
+    [Benchmark]
+    [ArgumentsSource(nameof(ArgsRefSource))]
+    public int CallRef(List<int> list)
+    {
+        return ((IList<int>)list).IndexOf(0);
+    }
+
+    [Benchmark]
+    [ArgumentsSource(nameof(ArgsRefSource))]
+    public int ConvertRef(List<int> list)
+    {
+        return TestItf(list);
+    }
+
+    private int Test<T>(T list) where T : IList<int>
+    {
+        return list.IndexOf(0);
+    }
+
+    private int TestItf(IList<int> list)
+    {
+        return list.IndexOf(0);
+    }
+}
+
+[DebuggerDisplay("{a}, {b}, {c}")]
+[StructLayout(LayoutKind.Sequential)]
+public struct Entry
+{
+    public int a;
+    public int b;
+    public object c;
 }

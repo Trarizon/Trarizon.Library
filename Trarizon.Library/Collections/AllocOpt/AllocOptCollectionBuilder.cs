@@ -17,4 +17,23 @@ public static class AllocOptCollectionBuilder
         stack.PushRange(values);
         return stack;
     }
+
+    // TODO
+    public static AllocOptSet<T> CreateSet<T>(ReadOnlySpan<T> values)
+    {
+        var set = new AllocOptSet<T>(values.Length);
+        foreach (var item in values) {
+            set.Add(item);
+        }
+        return set;
+    }
+
+    public static AllocOptDictionary<TKey, TValue> CreateDictionary<TKey, TValue>(ReadOnlySpan<KeyValuePair<TKey, TValue>> values)
+    {
+        var dict = new AllocOptDictionary<TKey, TValue>(values.Length);
+        foreach (var item in values) {
+            dict.Add(item.Key, item.Value);
+        }
+        return dict;
+    }
 }

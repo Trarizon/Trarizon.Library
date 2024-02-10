@@ -10,26 +10,16 @@ public struct AllocOptStack<T> : ICollection<T>, IReadOnlyCollection<T>
     private AllocOptList<T> _list;
 
     public AllocOptStack()
-    {
-        _list = [];
-    }
+        => _list = [];
 
     public AllocOptStack(int capacity)
-    {
-        _list = new AllocOptList<T>(capacity);
-    }
+        => _list = new AllocOptList<T>(capacity);
+
+    #region Accessors
 
     public readonly int Count => _list.Count;
 
-    public int Capacity
-    {
-        readonly get => _list.Capacity;
-        set => _list.Capacity = value;
-    }
-
-    readonly bool ICollection<T>.IsReadOnly => true;
-
-    #region Accessors
+    public readonly int Capacity => _list.Capacity;
 
     public readonly T Peek() => _list[^1];
 
@@ -50,6 +40,8 @@ public struct AllocOptStack<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public readonly T[] GetUnderlyingArray() => _list.GetUnderlyingArray();
 
+    public readonly Enumerator GetEnumerator() => new(this);
+
     #endregion
 
     #region Builders
@@ -61,8 +53,7 @@ public struct AllocOptStack<T> : ICollection<T>, IReadOnlyCollection<T>
     /// <summary>
     /// Unlike <see cref="Stack{T}"/>, this wont throw exception if stack is empty
     /// </summary>
-    public void Pop()
-        => _list.RemoveAt(^1);
+    public void Pop() => _list.RemoveAt(^1);
 
     public bool TryPop([MaybeNullWhen(false)] out T value)
     {
@@ -77,34 +68,41 @@ public struct AllocOptStack<T> : ICollection<T>, IReadOnlyCollection<T>
 
     /// <summary>
     /// This method won't clear elements in underlying array.
-    /// Use <see cref="ClearTrailingReferences"/> if you need it.
+    /// Use <see cref="ClearUnreferenced"/> if you need it.
     /// </summary>
     public void Clear() => _list.Clear();
 
-    public void ClearTrailingReferences() => _list.ClearTrailingReferences();
+    public void ClearUnreferenced() => _list.ClearUnreferenced();
+
+    public void EnsureCapacity(int capacity) => _list.EnsureCapacity(capacity);
 
     #endregion
 
-    public readonly Enumerator GetEnumerator() => new(this);
+    #region Interface methods
 
-    void ICollection<T>.Add(T item) => Push(item);
+    readonly bool ICollection<T>.IsReadOnly => false;
+
     public readonly bool Contains(T item) => _list.Contains(item);
     public readonly void CopyTo(T[] array, int arrayIndex)
     {
+        ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
         ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(arrayIndex, array.Length - Count);
 
         foreach (var item in this) {
             array[arrayIndex++] = item;
         }
     }
+
+    void ICollection<T>.Add(T item) => Push(item);
     readonly bool ICollection<T>.Remove(T item)
     {
         ThrowHelper.ThrowNotSupport("Cannot remove specific item from stack");
         return default;
     }
-
     readonly IEnumerator<T> IEnumerable<T>.GetEnumerator() => new Enumerator.Wrapper(this);
     readonly IEnumerator IEnumerable.GetEnumerator() => new Enumerator.Wrapper(this);
+
+    #endregion
 
     public struct Enumerator
     {

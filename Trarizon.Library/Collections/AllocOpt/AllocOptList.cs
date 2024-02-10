@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using Trarizon.Library.Collections.AllocOpt;
 using Trarizon.Library.Collections.Extensions;
 
 namespace Trarizon.Library.Collections.AllocOpt;
@@ -26,23 +25,22 @@ public struct AllocOptList<T> : IList<T>, IReadOnlyList<T>
             _items = new T[capacity];
     }
 
+    #region Accessors
+
     public readonly int Count => _size;
 
-    public int Capacity
-    {
-        readonly get => _items.Length;
-        // Unlike List<T>, this does not throw if _size < Capacity
-        set => EnsureCapacity(value);
-    }
-
-    readonly bool ICollection<T>.IsReadOnly => false;
-
-    #region Accessors
+    public readonly int Capacity => _items.Length;
 
     public readonly T this[int index]
     {
-        get => _items[index];
-        set => _items[index] = value;
+        get {
+            ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, _size);
+            return _items[index];
+        }
+        set {
+            ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, _size);
+            _items[index] = value;
+        }
     }
 
     public readonly Span<T> AsSpan(int index, int length) => _items.AsSpan(index, length);
@@ -54,6 +52,8 @@ public struct AllocOptList<T> : IList<T>, IReadOnlyList<T>
     public readonly T[] ToArray() => AsSpan().ToArray();
 
     public readonly T[] GetUnderlyingArray() => _items;
+
+    public readonly Enumerator GetEnumerator() => new(this);
 
     #endregion
 
@@ -245,7 +245,7 @@ public struct AllocOptList<T> : IList<T>, IReadOnlyList<T>
 
     /// <remarks>
     /// This method won't clear elements in underlying array.
-    /// Use <see cref="ClearTrailingReferences"/> if you need it.
+    /// Use <see cref="ClearUnreferenced"/> if you need it.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Clear()
@@ -256,19 +256,17 @@ public struct AllocOptList<T> : IList<T>, IReadOnlyList<T>
     /// <summary>
     /// Clear items from index _size to end
     /// </summary>
-    public void ClearTrailingReferences()
+    public void ClearUnreferenced()
     {
         if (RuntimeHelpers.IsReferenceOrContainsReferences<T>()) {
             if (_size > 0) {
-                Array.Clear(_items);
+                Array.Clear(_items, _size, _items.Length - _size);
                 _size = 0;
             }
         }
-        else {
-            Clear();
-        }
     }
 
+    // Unlike List<T>, this does not throw if _size < Capacity
     public void EnsureCapacity(int capacity)
     {
         if (capacity <= _items.Length)
@@ -319,16 +317,20 @@ public struct AllocOptList<T> : IList<T>, IReadOnlyList<T>
 
     #endregion
 
-    public readonly Enumerator GetEnumerator() => new(this);
+    #region Interface methods
 
     public readonly int IndexOf(T item) => Array.IndexOf(_items, item, 0, _size);
     public readonly bool Contains(T item) => _size > 0 && IndexOf(item) >= 0;
     public readonly void CopyTo(T[] array, int arrayIndex) => Array.Copy(_items, 0, array, arrayIndex, _size);
-    
+
+    readonly bool ICollection<T>.IsReadOnly => false;
+
     void IList<T>.Insert(int index, T item) => Insert(index, item);
     void IList<T>.RemoveAt(int index) => RemoveAt(index);
     readonly IEnumerator<T> IEnumerable<T>.GetEnumerator() => new Enumerator.Wrapper(this);
     readonly IEnumerator IEnumerable.GetEnumerator() => new Enumerator.Wrapper(this);
+
+    #endregion
 
     public struct Enumerator
     {

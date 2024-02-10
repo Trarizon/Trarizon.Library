@@ -3,7 +3,7 @@
 ## v0.2.1 (in progress)
 
 - New
-    - Add `AllocOptList<>`, `AllocOptStack<>`
+    - Add `AllocOptDictionary<,>`, `AllocOptList<>`, `AllocOptSet<>`, `AllocOptStack<>`
     - Add `RepeatForever()`
     - Add `Either<,>.ToString()`
     - Add `ReversedSpanQuerier<>.Slice()` and `ToArray()`

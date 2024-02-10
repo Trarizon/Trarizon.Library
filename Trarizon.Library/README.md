@@ -13,7 +13,10 @@ Contents:
 ### AllocOptimization
 
 Rewrite BCL collections in struct, to reduce alloc on heap
+- `AllocOptDictionary<,>` <- `Dictionary<,>`
 - `AllocOptList<>` <- `List<>`
+- `AllocOptSet` <- `HashSet<>`
+- `AllocOptStack<>` <- `Stack<>`
 
 ### Creators
 
