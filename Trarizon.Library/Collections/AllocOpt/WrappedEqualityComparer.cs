@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace Trarizon.Library.Collections;
+namespace Trarizon.Library.Collections.AllocOpt;
 public readonly struct WrappedEqualityComparer<T> : IEqualityComparer<T>
 {
     private readonly IEqualityComparer<T>? _comparer;
