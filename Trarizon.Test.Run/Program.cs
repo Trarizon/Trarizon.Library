@@ -14,15 +14,24 @@ using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 using Trarizon.Test.UnitTest;
 
-var dict = new AllocOptDictionary<string, string>(10);
-dict.TryAdd("str","d");
-dict.TryAdd("str2","de");
-dict.TryAdd("str3","df");
-dict.TryAdd("str4","dg");
-dict["str4"] = "dd";
-dict["str5"] = "gg";
-dict.Remove("str");
+if (ArrayInts().Select(i => i.ToString()).TrySingle(out var val))
+    Console.WriteLine(val.GetHashCode()); // no warn
+else
+    Console.WriteLine(val.GetHashCode()); // warn
 
-foreach (var item in dict) {
-    Console.WriteLine(item);
-}
+if (ArrayInts().Select(i => i.ToString()).TrySingle(out var val2, ""))
+    Console.WriteLine(val2.GetHashCode()); // no warn
+else
+    Console.WriteLine(val2.GetHashCode()); // no warn
+
+if (ArrayInts().Select<int, string?>(i => i.ToString()).TrySingle(out var val3, ""))
+    Console.WriteLine(val3.GetHashCode()); // warn
+else
+    Console.WriteLine(val3.GetHashCode()); // warn
+
+var rest = ArrayInts().Select(i => i.ToString()).PopFirst(out var first);
+Console.WriteLine(first.GetHashCode()); // warn
+var rest2 = ArrayInts().Select(i => i.ToString()).PopFirst(out var first2, "");
+Console.WriteLine(first.GetHashCode()); // no warn
+var rest3 = ArrayInts().Select<int, string?>(i => i.ToString()).PopFirst(out var first3);
+Console.WriteLine(first.GetHashCode()); // warn

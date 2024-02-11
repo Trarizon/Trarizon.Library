@@ -1,10 +1,9 @@
-﻿using Trarizon.Library.Collections.Extensions.Helpers.Queriers;
+﻿using System.Diagnostics.CodeAnalysis;
+using Trarizon.Library.Collections.Extensions.Helpers.Queriers;
 
 namespace Trarizon.Library.Collections.Extensions;
 partial class EnumerableQuery
 {
-    // TODO?: PopFirst. When defaultValue is not null, firstElement is still nullable
-
     /// <summary>
     /// Pop specific number of elements, and return the rest,
     /// popped elements are cached in <paramref name="leadingElements"/>
@@ -44,7 +43,12 @@ partial class EnumerableQuery
     /// If no element in <paramref name="source"/>,
     /// <paramref name="firstElement"/> is <paramref name="defaultValue"/>
     /// </summary>
-    public static IEnumerable<T> PopFirst<T>(this IEnumerable<T> source, out T? firstElement, T? defaultValue = default!)
+    /// <remarks>
+    /// About nullable analysis:
+    /// There's no warning if <typeparamref name="T"/> is nullable reference type.
+    /// More remarks at <see cref="TrySingle"/>
+    /// </remarks>
+    public static IEnumerable<T> PopFirst<T>(this IEnumerable<T> source, [NotNullIfNotNull(nameof(defaultValue))] out T? firstElement, T? defaultValue = default!)
     {
         if (source is IList<T> list) {
             return list.PopFirstList(out firstElement, defaultValue);

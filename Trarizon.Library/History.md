@@ -14,6 +14,7 @@
     - Rename `Span<>.Reverse` to `ReverseSpan`, to distinguish from `Reverse` method in BCL
 - Changes
     - Change format of `Optional<>.ToString()`, `Result<,>.ToString()`, and they won't return `null` now
+    - Optimize nullable analysis for `IEnumerable<>.TrySingle()`, `TrySingleOrNone()`, `PopFirst()`
 - Bug fix
     - Order judge in `IEnumerable<>.Merge`
 
