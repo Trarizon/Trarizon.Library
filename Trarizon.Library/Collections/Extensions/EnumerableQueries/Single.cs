@@ -47,6 +47,14 @@ partial class EnumerableQuery
     /// Try get first element in sequence or default,
     /// this method returns false when there are more than one element in sequence
     /// </summary>
+    /// <remarks>
+    /// About nullable analysis:<br/>
+    /// There's no warning if <typeparamref name="T"/> is nullable reference type.<br/>
+    /// It's hard to provide perfect in all conditions,
+    /// so I chose a least-used condition (IMO). At least
+    /// it provide correct analysis in most conditions where
+    /// <typeparamref name="T"/> is not null
+    /// </remarks>
     /// <param name="value">
     /// The only element in sequence,
     /// or <paramref name="defaultValue"/> if sequence is empty or contains more than 1 element.
@@ -59,6 +67,14 @@ partial class EnumerableQuery
     /// Try get first element satisfying specific condition in sequence or default,
     /// this method returns false when there are more than one element satisfying condition in sequence
     /// </summary>
+    /// <remarks>
+    /// About nullable analysis:<br/>
+    /// There's no warning if <typeparamref name="T"/> is nullable reference type.<br/>
+    /// It's hard to provide perfect in all conditions,
+    /// so I chose a least-used condition (IMO). At least
+    /// it provide correct analysis in most conditions where
+    /// <typeparamref name="T"/> is not null
+    /// </remarks>
     /// <param name="value">
     /// The only element in sequence,
     /// or <paramref name="defaultValue"/> if sequence is empty or contains more than 1 element.

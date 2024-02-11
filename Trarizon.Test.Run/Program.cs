@@ -14,17 +14,17 @@ using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 using Trarizon.Test.UnitTest;
 
-if (ArrayInts().Select(i => i.ToString()).TrySingle(out var val))
+if (ArrayInts().Select(i => i.ToString()).TrySingleOrNone(out var val))
     Console.WriteLine(val.GetHashCode()); // no warn
 else
     Console.WriteLine(val.GetHashCode()); // warn
 
-if (ArrayInts().Select(i => i.ToString()).TrySingle(out var val2, ""))
+if (ArrayInts().Select(i => i.ToString()).TrySingleOrNone(out var val2, ""))
     Console.WriteLine(val2.GetHashCode()); // no warn
 else
     Console.WriteLine(val2.GetHashCode()); // no warn
 
-if (ArrayInts().Select<int, string?>(i => i.ToString()).TrySingle(out var val3, ""))
+if (ArrayInts().Select<int, string?>(i => i.ToString()).TrySingleOrNone(out var val3, ""))
     Console.WriteLine(val3.GetHashCode()); // warn
 else
     Console.WriteLine(val3.GetHashCode()); // warn
