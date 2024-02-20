@@ -14,11 +14,12 @@ public static class AllocOptCollectionBuilder
     public static AllocOptStack<T> CreateStack<T>(ReadOnlySpan<T> values)
     {
         var stack = new AllocOptStack<T>(values.Length);
-        stack.PushRange(values);
+        foreach (var item in values) {
+            stack.Push(item);
+        }
         return stack;
     }
 
-    // TODO
     public static AllocOptSet<T> CreateSet<T>(ReadOnlySpan<T> values)
     {
         var set = new AllocOptSet<T>(values.Length);
@@ -28,7 +29,7 @@ public static class AllocOptCollectionBuilder
         return set;
     }
 
-    public static AllocOptDictionary<TKey, TValue> CreateDictionary<TKey, TValue>(ReadOnlySpan<KeyValuePair<TKey, TValue>> values)
+    public static AllocOptDictionary<TKey, TValue> CreateDictionary<TKey, TValue>(ReadOnlySpan<KeyValuePair<TKey, TValue>> values) where TKey : notnull
     {
         var dict = new AllocOptDictionary<TKey, TValue>(values.Length);
         foreach (var item in values) {

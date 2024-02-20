@@ -8,53 +8,63 @@ namespace Trarizon.Library.Collections.AllocOpt;
 public struct AllocOptSet<T, TComparer> : ISet<T>, IReadOnlySet<T>
     where TComparer : IEqualityComparer<T>
 {
-    private AllocOptDictionary<T, ValueTuple, TComparer> _dict;
+    private AllocOptHashSetProvider<T, T, Comparer> _provider;
 
-    public AllocOptSet(TComparer comparer)
-        => _dict = new(comparer);
+    public AllocOptSet(in TComparer comparer)
+        => _provider = new(Unsafe.As<TComparer, Comparer>(ref Unsafe.AsRef(in comparer)));
 
-    public AllocOptSet(int capacity, TComparer comparer)
-        => _dict = new(capacity, comparer);
+    public AllocOptSet(int capacity, in TComparer comparer)
+        => _provider = new(capacity, Unsafe.As<TComparer, Comparer>(ref Unsafe.AsRef(in comparer)));
 
     #region Accessors
 
-    public readonly int Count => _dict.Count;
+    public readonly int Count => _provider.Count;
 
-    public readonly int Capacity => _dict.Capacity;
+    public readonly int Capacity => _provider.Capacity;
 
-    public readonly bool Contains(T item) => _dict.ContainsKey(item);
+    public readonly bool Contains(T item)
+        => !Unsafe.IsNullRef(in _provider.GetItemRefOrNullRef(item));
 
     public readonly bool TryGetValue(T equalValue, [MaybeNullWhen(false)] out T value)
     {
-        ref readonly var entry = ref _dict._provider.GetEntryRefOrNullRef(equalValue);
-        if (Unsafe.IsNullRef(in entry)) {
+        ref readonly var val = ref _provider.GetItemRefOrNullRef(equalValue);
+        if (Unsafe.IsNullRef(in val)) {
             value = default;
             return false;
         }
 
-        value = entry.Key;
+        value = val;
         return true;
     }
 
-    public readonly AllocOptDictionary<T, ValueTuple, TComparer>.KeyCollection.Enumerator GetEnumerator() => _dict.Keys.GetEnumerator();
+    public readonly Enumerator GetEnumerator() => new(_provider);
 
     #endregion
 
     #region Builders
 
-    public bool Add(T item) => _dict.TryAdd(item, default);
+    public bool Add(T item)
+    {
+        ref var val = ref _provider.GetItemRefOrAddEntry(item, true);
+        if (Unsafe.IsNullRef(in val))
+            return false;
 
-    public bool Remove(T item) => _dict.Remove(item);
+        val = item;
+        return true;
+    }
+
+    public bool Remove(T item)
+        => !Unsafe.IsNullRef(in _provider.GetItemRefAndRemove(item));
 
     /// <remarks>
     /// This method won't clear elements in underlying array.
     /// Use <see cref="ClearUnreferenced"/> if you need it.
     /// </remarks>
-    public void Clear() => _dict.Clear();
+    public void Clear() => _provider.Clear();
 
-    public void ClearUnreferenced() => _dict.ClearUnreferenced();
+    public void ClearUnreferenced() => _provider.ClearUnreferenced();
 
-    public void EnsureCapacity(int capacity) => _dict.EnsureCapacity(capacity);
+    public void EnsureCapacity(int capacity) => _provider.EnsureCapacity(capacity);
 
     #endregion
 
@@ -63,7 +73,17 @@ public struct AllocOptSet<T, TComparer> : ISet<T>, IReadOnlySet<T>
     readonly bool ICollection<T>.IsReadOnly => false;
 
     public readonly void CopyTo(T[] array, int arrayIndex)
-        => _dict.Keys.CopyTo(array, arrayIndex);
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(arrayIndex, array.Length - Count);
+
+        if (Count == 0)
+            return;
+
+        foreach (ref readonly var val in _provider) {
+            array[arrayIndex++] = val;
+        }
+    }
 
     /// <summary>
     /// a -= b<br/>
@@ -93,19 +113,17 @@ public struct AllocOptSet<T, TComparer> : ISet<T>, IReadOnlySet<T>
         }
 
         // TODO: BitArray Opt
-        BitArray bitArray = new(_dict._provider.Size);
+        BitArray bitArray = new(_provider.Size);
 
         foreach (var key in other) {
-            ref readonly var entry = ref _dict._provider.GetEntryRefOrNullRef(key);
+            ref readonly var entry = ref _provider.GetItemRefOrNullRef(key);
             if (!Unsafe.IsNullRef(in entry))
-                bitArray[_dict._provider.GetInternalEntryIndex(in entry)] = true;
+                bitArray[_provider.GetInternalEntryIndex(in entry)] = true;
         }
 
-        var enumerator = new AllocOptHashMapProvider<T, ValueTuple, TComparer>.Enumerator(_dict._provider);
-        while (enumerator.MoveNext()) {
-            ref readonly var entry = ref enumerator.Current;
-            if (!bitArray[_dict._provider.GetInternalEntryIndex(in entry)])
-                Remove(entry.Key);
+        foreach (ref readonly var val in _provider) {
+            if (!bitArray[_provider.GetInternalEntryIndex(in val)])
+                Remove(val);
         }
     }
 
@@ -122,17 +140,17 @@ public struct AllocOptSet<T, TComparer> : ISet<T>, IReadOnlySet<T>
                 return otherCount > 0;
         }
 
-        BitArray bitArray = new(_dict._provider.Size);
+        BitArray bitArray = new(_provider.Size);
 
         int found = 0;
         bool isProper = false;
         foreach (var key in other) {
-            ref readonly var entry = ref _dict._provider.GetEntryRefOrNullRef(key);
+            ref readonly var entry = ref _provider.GetItemRefOrNullRef(key);
             // Found item not in other, result maybe proper
             if (Unsafe.IsNullRef(in entry))
                 isProper = true;
             else {
-                var index = _dict._provider.GetInternalEntryIndex(in entry);
+                var index = _provider.GetInternalEntryIndex(in entry);
                 if (!bitArray[index]) {
                     bitArray[index] = true;
                     found++;
@@ -157,16 +175,16 @@ public struct AllocOptSet<T, TComparer> : ISet<T>, IReadOnlySet<T>
                 return true;
         }
 
-        BitArray bitArray = new(_dict._provider.Size);
+        BitArray bitArray = new(_provider.Size);
 
         int found = 0;
         foreach (var key in other) {
-            ref readonly var entry = ref _dict._provider.GetEntryRefOrNullRef(key);
+            ref readonly var entry = ref _provider.GetItemRefOrNullRef(key);
             // found item not in set, other is not subset of set
             if (Unsafe.IsNullRef(in entry))
                 return false;
             else {
-                var index = _dict._provider.GetInternalEntryIndex(in entry);
+                var index = _provider.GetInternalEntryIndex(in entry);
                 if (!bitArray[index]) {
                     bitArray[index] = true;
                     found++;
@@ -186,13 +204,13 @@ public struct AllocOptSet<T, TComparer> : ISet<T>, IReadOnlySet<T>
         if (Count == 0)
             return true;
 
-        BitArray bitArray = new(_dict._provider.Size);
+        BitArray bitArray = new(_provider.Size);
 
         int found = 0;
         foreach (var key in other) {
-            ref readonly var entry = ref _dict._provider.GetEntryRefOrNullRef(key);
+            ref readonly var entry = ref _provider.GetItemRefOrNullRef(key);
             if (!Unsafe.IsNullRef(in entry)) {
-                var index = _dict._provider.GetInternalEntryIndex(in entry);
+                var index = _provider.GetInternalEntryIndex(in entry);
                 if (!bitArray[index]) {
                     bitArray[index] = true;
                     found++;
@@ -247,15 +265,15 @@ public struct AllocOptSet<T, TComparer> : ISet<T>, IReadOnlySet<T>
         if (Count == 0 && other.TryGetNonEnumeratedCount(out var otherCount) && otherCount > 0)
             return false;
 
-        BitArray bitArray = new(_dict._provider.Size);
+        BitArray bitArray = new(_provider.Size);
 
         int found = 0;
         foreach (var key in other) {
-            ref readonly var entry = ref _dict._provider.GetEntryRefOrNullRef(key);
+            ref readonly var entry = ref _provider.GetItemRefOrNullRef(key);
             if (Unsafe.IsNullRef(in entry))
                 return false;
             else {
-                var index = _dict._provider.GetInternalEntryIndex(in entry);
+                var index = _provider.GetInternalEntryIndex(in entry);
                 if (!bitArray[index]) {
                     bitArray[index] = true;
                     found++;
@@ -275,16 +293,16 @@ public struct AllocOptSet<T, TComparer> : ISet<T>, IReadOnlySet<T>
         if (Count == 0)
             UnionWith(other);
 
-        BitArray bitArray = new(_dict._provider.Size);
+        BitArray bitArray = new(_provider.Size);
 
         int found = 0;
         foreach (var key in other) {
-            ref readonly var entry = ref _dict._provider.GetEntryRefOrNullRef(key);
+            ref readonly var entry = ref _provider.GetItemRefOrNullRef(key);
             if (Unsafe.IsNullRef(in entry)) {
                 Add(key);
             }
             else {
-                var index = _dict._provider.GetInternalEntryIndex(in entry);
+                var index = _provider.GetInternalEntryIndex(in entry);
                 if (!bitArray[index]) {
                     bitArray[index] = true;
                     found++;
@@ -292,11 +310,9 @@ public struct AllocOptSet<T, TComparer> : ISet<T>, IReadOnlySet<T>
             }
         }
 
-        var enumerator = new AllocOptHashMapProvider<T, ValueTuple, TComparer>.Enumerator(_dict._provider);
-        while (enumerator.MoveNext()) {
-            ref readonly var entry = ref enumerator.Current;
-            if (bitArray[_dict._provider.GetInternalEntryIndex(in entry)])
-                Remove(entry.Key);
+        foreach (ref readonly var val in _provider) {
+            if (bitArray[_provider.GetInternalEntryIndex(in val)])
+                Remove(val);
         }
     }
 
@@ -311,10 +327,44 @@ public struct AllocOptSet<T, TComparer> : ISet<T>, IReadOnlySet<T>
     }
 
     void ICollection<T>.Add(T item) => Add(item);
-    readonly IEnumerator<T> IEnumerable<T>.GetEnumerator() => ((IEnumerable<T>)_dict.Keys).GetEnumerator();
-    readonly IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_dict.Keys).GetEnumerator();
+    readonly IEnumerator<T> IEnumerable<T>.GetEnumerator() => new Enumerator.Wrapper(_provider);
+    readonly IEnumerator IEnumerable.GetEnumerator() => new Enumerator.Wrapper(_provider);
 
     #endregion
+
+    public struct Enumerator
+    {
+        private AllocOptHashSetProvider<T, T, Comparer>.Enumerator _enumerator;
+
+        internal Enumerator(in AllocOptHashSetProvider<T, T, Comparer> provider)
+            => _enumerator = new(provider);
+
+        public readonly T Current => _enumerator.Current;
+
+        public bool MoveNext() => _enumerator.MoveNext();
+
+        internal sealed class Wrapper(in AllocOptHashSetProvider<T, T, Comparer> provider) : IEnumerator<T>
+        {
+            private AllocOptHashSetProvider<T, T, Comparer>.Enumerator _enumerator = new(provider);
+
+            public T Current => _enumerator.Current;
+
+            object? IEnumerator.Current => Current;
+
+            public void Dispose() { }
+            public bool MoveNext() => _enumerator.MoveNext();
+            public void Reset() => _enumerator.Reset();
+        }
+    }
+
+    internal readonly struct Comparer : IByKeyEqualityComparer<T, T>
+    {
+        private readonly TComparer _comparer;
+
+        public bool Equals(T val, T key) => _comparer.Equals(val, key);
+
+        public int GetHashCode([DisallowNull] T val) => _comparer.GetHashCode(val);
+    }
 }
 
 // This is a wrapper of AOSet<T, WrappedEqualityComparer<TK>>
@@ -345,7 +395,7 @@ public struct AllocOptSet<T> : ISet<T>, IReadOnlySet<T>
 
     public readonly bool TryGetValue(T equalValue, [MaybeNullWhen(false)] out T value) => _set.TryGetValue(equalValue, out value);
 
-    public readonly AllocOptDictionary<T, ValueTuple, WrappedEqualityComparer<T>>.KeyCollection.Enumerator GetEnumerator() => _set.GetEnumerator();
+    public readonly AllocOptSet<T, WrappedEqualityComparer<T>>.Enumerator GetEnumerator() => _set.GetEnumerator();
 
     #endregion
 

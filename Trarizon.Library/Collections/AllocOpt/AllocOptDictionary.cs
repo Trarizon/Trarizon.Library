@@ -5,15 +5,16 @@ using Trarizon.Library.Collections.AllocOpt.Providers;
 
 namespace Trarizon.Library.Collections.AllocOpt;
 public struct AllocOptDictionary<TKey, TValue, TComparer> : IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue>
+    where TKey : notnull
     where TComparer : IEqualityComparer<TKey>
 {
-    internal AllocOptHashMapProvider<TKey, TValue, TComparer> _provider;
+    private AllocOptHashSetProvider<(TKey Key, TValue Value), TKey, KeyValuePairComparer> _provider;
 
-    public AllocOptDictionary(TComparer comparer)
-        => _provider = new(comparer);
+    public AllocOptDictionary(in TComparer comparer)
+        => _provider = new(in Unsafe.As<TComparer, KeyValuePairComparer>(ref Unsafe.AsRef(in comparer)));
 
-    public AllocOptDictionary(int capacity, TComparer comparer)
-        => _provider = new(capacity, comparer);
+    public AllocOptDictionary(int capacity, in TComparer comparer)
+        => _provider = new(capacity, in Unsafe.As<TComparer, KeyValuePairComparer>(ref Unsafe.AsRef(in comparer)));
 
     #region Accessors
 
@@ -42,22 +43,22 @@ public struct AllocOptDictionary<TKey, TValue, TComparer> : IDictionary<TKey, TV
         => ref Unsafe.As<AllocOptDictionary<TKey, TValue, TComparer>, ValueCollection>(ref Unsafe.AsRef(in this));
 
     public readonly bool ContainsKey(TKey key)
-        => !Unsafe.IsNullRef(in _provider.GetEntryRefOrNullRef(key));
+        => !Unsafe.IsNullRef(in _provider.GetItemRefOrNullRef(key));
 
     public readonly bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value)
     {
-        ref readonly var entry = ref _provider.GetEntryRefOrNullRef(key);
-        if (Unsafe.IsNullRef(in entry)) {
+        ref readonly var val = ref GetValueRefOrNullRef(key);
+        if (Unsafe.IsNullRef(in val)) {
             value = default;
             return false;
         }
 
-        value = entry.Value;
+        value = val!;
         return true;
     }
 
     public readonly ref TValue? GetValueRefOrNullRef(TKey key)
-        => ref _provider.GetEntryRefOrNullRef(key).Value!;
+        => ref _provider.GetItemRefOrNullRef(key).Value!;
 
     public readonly Enumerator GetEnumerator() => new(this);
 
@@ -67,29 +68,27 @@ public struct AllocOptDictionary<TKey, TValue, TComparer> : IDictionary<TKey, TV
 
     public void Add(TKey key, TValue value)
     {
-        ref var entry = ref _provider.GetOrAddEntryRef(key, returnNullIfExisting: true);
-        if (Unsafe.IsNullRef(in entry))
+        if (!TryAdd(key, value))
             ThrowHelper.ThrowArgument("Key duplicated", nameof(key));
-
-        entry.Value = value;
+        return;
     }
 
     public bool TryAdd(TKey key, TValue value)
     {
-        ref var entry = ref _provider.GetOrAddEntryRef(key, returnNullIfExisting: true);
-        if (Unsafe.IsNullRef(in entry))
+        ref var item = ref _provider.GetItemRefOrAddEntry(key, returnNullIfExisting: true);
+        if (Unsafe.IsNullRef(in item))
             return false;
 
-        entry.Value = value;
+        item.Value = value;
         return true;
     }
 
     public bool Remove(TKey key)
-        => !Unsafe.IsNullRef(in _provider.GetAndRemoveEntryRef(key));
+        => !Unsafe.IsNullRef(in _provider.GetItemRefAndRemove(key));
 
     public bool Remove(TKey key, [MaybeNullWhen(false)] out TValue value)
     {
-        ref readonly var entry = ref _provider.GetAndRemoveEntryRef(key);
+        ref readonly var entry = ref _provider.GetItemRefAndRemove(key);
         if (Unsafe.IsNullRef(in entry)) {
             value = default;
             return false;
@@ -100,7 +99,7 @@ public struct AllocOptDictionary<TKey, TValue, TComparer> : IDictionary<TKey, TV
     }
 
     public ref TValue? GetValueRefOrAddDefault(TKey key)
-        => ref _provider.GetOrAddEntryRef(key, returnNullIfExisting: false).Value!;
+        => ref _provider.GetItemRefOrAddEntry(key, returnNullIfExisting: false).Value!;
 
     /// <remarks>
     /// This method won't clear elements in underlying array.
@@ -132,7 +131,18 @@ public struct AllocOptDictionary<TKey, TValue, TComparer> : IDictionary<TKey, TV
 
         return EqualityComparer<TValue>.Default.Equals(value, item.Value);
     }
-    readonly void ICollection<KeyValuePair<TKey, TValue>>.CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex) => _provider.CopyTo(array, arrayIndex);
+    readonly void ICollection<KeyValuePair<TKey, TValue>>.CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(arrayIndex, array.Length - Count);
+
+        if (Count == 0)
+            return;
+
+        foreach (ref readonly var item in _provider) {
+            array[arrayIndex++] = KeyValuePair.Create(item.Key, item.Value);
+        }
+    }
     bool ICollection<KeyValuePair<TKey, TValue>>.Remove(KeyValuePair<TKey, TValue> item)
     {
         ref readonly var val = ref GetValueRefOrNullRef(item.Key);
@@ -149,32 +159,30 @@ public struct AllocOptDictionary<TKey, TValue, TComparer> : IDictionary<TKey, TV
 
     public struct Enumerator
     {
-        private AllocOptHashMapProvider<TKey, TValue, TComparer>.Enumerator _enumerator;
+        private AllocOptHashSetProvider<(TKey, TValue), TKey, KeyValuePairComparer>.Enumerator _enumerator;
 
         internal Enumerator(in AllocOptDictionary<TKey, TValue, TComparer> dict)
-            => _enumerator = new(dict._provider);
+            => _enumerator = dict._provider.GetEnumerator();
 
         public readonly KeyValuePair<TKey, TValue> Current
         {
             get {
-                ref readonly var entry = ref _enumerator.Current;
-                return KeyValuePair.Create(entry.Key, entry.Value);
+                ref readonly var val = ref CurrentEntryValue;
+                return KeyValuePair.Create(val.Key, val.Value);
             }
         }
 
+        internal readonly ref readonly (TKey Key, TValue Value) CurrentEntryValue => ref _enumerator.Current;
+
         public bool MoveNext() => _enumerator.MoveNext();
+
+        public void Reset() => _enumerator.Reset();
 
         internal sealed class Wrapper(in AllocOptDictionary<TKey, TValue, TComparer> dict) : IEnumerator<KeyValuePair<TKey, TValue>>
         {
-            private AllocOptHashMapProvider<TKey, TValue, TComparer>.Enumerator _enumerator = new(dict._provider);
+            private Enumerator _enumerator = dict.GetEnumerator();
 
-            public KeyValuePair<TKey, TValue> Current
-            {
-                get {
-                    ref readonly var entry = ref _enumerator.Current;
-                    return KeyValuePair.Create(entry.Key, entry.Value);
-                }
-            }
+            public KeyValuePair<TKey, TValue> Current => _enumerator.Current;
 
             object? IEnumerator.Current => Current;
 
@@ -184,7 +192,7 @@ public struct AllocOptDictionary<TKey, TValue, TComparer> : IDictionary<TKey, TV
         }
     }
 
-    // Layout same as AllocOptDictionary<,,>
+    // Layout same as AllocOptDictionary`3
     public readonly struct KeyCollection : ICollection<TKey>, IReadOnlyCollection<TKey>
     {
         private readonly AllocOptDictionary<TKey, TValue, TComparer> _dict;
@@ -195,7 +203,18 @@ public struct AllocOptDictionary<TKey, TValue, TComparer> : IDictionary<TKey, TV
 
         public bool Contains(TKey item) => _dict.ContainsKey(item);
 
-        public void CopyTo(TKey[] array, int arrayIndex) => _dict._provider.CopyToKeyArray(array, arrayIndex);
+        public void CopyTo(TKey[] array, int arrayIndex)
+        {
+            ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
+            ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(arrayIndex, array.Length - Count);
+
+            if (Count == 0)
+                return;
+
+            foreach (ref readonly var item in _dict._provider) {
+                array[arrayIndex++] = item.Key;
+            }
+        }
 
         #region Explicit interface methods
 
@@ -216,21 +235,21 @@ public struct AllocOptDictionary<TKey, TValue, TComparer> : IDictionary<TKey, TV
 
         public struct Enumerator
         {
-            private AllocOptHashMapProvider<TKey, TValue, TComparer>.Enumerator _enumerator;
+            private AllocOptDictionary<TKey, TValue, TComparer>.Enumerator _enumerator;
 
             internal Enumerator(in KeyCollection keys)
-               => _enumerator = new(keys._dict._provider);
+               => _enumerator = keys._dict.GetEnumerator();
 
-            public readonly TKey Current => _enumerator.Current.Key;
-
+            public readonly TKey Current => _enumerator.CurrentEntryValue.Key;
             public bool MoveNext() => _enumerator.MoveNext();
+            public void Reset() => _enumerator.Reset();
 
             // Keep sync with Enumerator
             internal sealed class Wrapper(in KeyCollection keys) : IEnumerator<TKey>
             {
-                private AllocOptHashMapProvider<TKey, TValue, TComparer>.Enumerator _enumerator = new(keys._dict._provider);
+                private Enumerator _enumerator = keys.GetEnumerator();
 
-                public TKey Current => _enumerator.Current.Key;
+                public TKey Current => _enumerator.Current;
 
                 object? IEnumerator.Current => Current;
 
@@ -241,7 +260,7 @@ public struct AllocOptDictionary<TKey, TValue, TComparer> : IDictionary<TKey, TV
         }
     }
 
-    // Layout same as AllocOptDictionary<,,>
+    // Layout same as AllocOptDictionary`3
     public readonly struct ValueCollection : ICollection<TValue>, IReadOnlyCollection<TValue>
     {
         private readonly AllocOptDictionary<TKey, TValue, TComparer> _dict;
@@ -268,7 +287,18 @@ public struct AllocOptDictionary<TKey, TValue, TComparer> : IDictionary<TKey, TV
             return false;
         }
 
-        public void CopyTo(TValue[] array, int arrayIndex) => _dict._provider.CopyToValueArray(array, arrayIndex);
+        public void CopyTo(TValue[] array, int arrayIndex)
+        {
+            ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
+            ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(arrayIndex, array.Length - Count);
+
+            if (Count == 0)
+                return;
+
+            foreach (ref readonly var item in _dict._provider) {
+                array[arrayIndex++] = item.Value;
+            }
+        }
 
         #region Explicit interface methods
 
@@ -289,21 +319,21 @@ public struct AllocOptDictionary<TKey, TValue, TComparer> : IDictionary<TKey, TV
 
         public struct Enumerator
         {
-            private AllocOptHashMapProvider<TKey, TValue, TComparer>.Enumerator _enumerator;
+            private AllocOptDictionary<TKey, TValue, TComparer>.Enumerator _enumerator;
 
             internal Enumerator(in ValueCollection values)
-               => _enumerator = new(values._dict._provider);
+               => _enumerator = values._dict.GetEnumerator();
 
             public readonly TValue Current => _enumerator.Current.Value;
-
             public bool MoveNext() => _enumerator.MoveNext();
+            public void Reset() => _enumerator.Reset();
 
             // Keep sync with Enumerator
             internal sealed class Wrapper(in ValueCollection values) : IEnumerator<TValue>
             {
-                private AllocOptHashMapProvider<TKey, TValue, TComparer>.Enumerator _enumerator = new(values._dict._provider);
+                private Enumerator _enumerator = values.GetEnumerator();
 
-                public TValue Current => _enumerator.Current.Value;
+                public TValue Current => _enumerator.Current;
 
                 object? IEnumerator.Current => Current;
 
@@ -313,11 +343,26 @@ public struct AllocOptDictionary<TKey, TValue, TComparer> : IDictionary<TKey, TV
             }
         }
     }
+
+    private readonly struct KeyValuePairComparer : IByKeyEqualityComparer<(TKey, TValue), TKey>
+    {
+        private readonly TComparer _comparer;
+
+        public bool Equals((TKey, TValue) val, TKey key)
+            => _comparer.Equals(val.Item1, key);
+
+        public int GetHashCode([DisallowNull] (TKey, TValue) obj)
+            => _comparer.GetHashCode(obj.Item1);
+
+        public int GetHashCode([DisallowNull] TKey key)
+            => _comparer.GetHashCode(key);
+    }
 }
 
 // This is a wrapper of AODictionary<TK, TV, WrappedEqualityComparer<TK>>
 [CollectionBuilder(typeof(AllocOptCollectionBuilder), nameof(AllocOptCollectionBuilder.CreateDictionary))]
 public struct AllocOptDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue>
+    where TKey : notnull
 {
     internal AllocOptDictionary<TKey, TValue, WrappedEqualityComparer<TKey>> _dict;
 
@@ -395,7 +440,7 @@ public struct AllocOptDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IRea
     void ICollection<KeyValuePair<TKey, TValue>>.Add(KeyValuePair<TKey, TValue> item) => Add(item.Key, item.Value);
     readonly bool ICollection<KeyValuePair<TKey, TValue>>.Contains(KeyValuePair<TKey, TValue> item) => ((ICollection<KeyValuePair<TKey, TValue>>)_dict).Contains(item);
     readonly void ICollection<KeyValuePair<TKey, TValue>>.CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex) => ((ICollection<KeyValuePair<TKey, TValue>>)_dict).CopyTo(array, arrayIndex);
-    bool ICollection<KeyValuePair<TKey, TValue>>.Remove(KeyValuePair<TKey, TValue> item) => ((ICollection<KeyValuePair<TKey, TValue>>)_dict).Remove(item);
+    readonly bool ICollection<KeyValuePair<TKey, TValue>>.Remove(KeyValuePair<TKey, TValue> item) => ((ICollection<KeyValuePair<TKey, TValue>>)_dict).Remove(item);
     readonly IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_dict).GetEnumerator();
     readonly IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator() => ((IEnumerable<KeyValuePair<TKey, TValue>>)_dict).GetEnumerator();
 

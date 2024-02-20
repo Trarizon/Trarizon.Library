@@ -4,7 +4,8 @@ using System.Runtime.CompilerServices;
 using Trarizon.Library.Collections.Extensions;
 
 namespace Trarizon.Library.Collections.AllocOpt.Providers;
-internal struct AllocOptHashMapProvider<TKey, TValue, TComparer> where TComparer : IEqualityComparer<TKey>
+internal struct AllocOptHashSetProvider<T, TKey, TComparer>
+    where TComparer : IByKeyEqualityComparer<T, TKey>
 {
     private int[] _buckets;
     private Entry[] _entries;
@@ -14,7 +15,7 @@ internal struct AllocOptHashMapProvider<TKey, TValue, TComparer> where TComparer
 
     private readonly TComparer _comparer;
 
-    public AllocOptHashMapProvider(TComparer comparer)
+    public AllocOptHashSetProvider(in TComparer comparer)
     {
         _buckets = [];
         _entries = [];
@@ -22,7 +23,7 @@ internal struct AllocOptHashMapProvider<TKey, TValue, TComparer> where TComparer
         _comparer = comparer;
     }
 
-    public AllocOptHashMapProvider(int capacity, TComparer comparer)
+    public AllocOptHashSetProvider(int capacity, in TComparer comparer)
     {
         ArgumentOutOfRangeException.ThrowIfLessThan(capacity, 0);
         if (capacity == 0) {
@@ -43,28 +44,32 @@ internal struct AllocOptHashMapProvider<TKey, TValue, TComparer> where TComparer
 
     public readonly int Capacity => _entries.Length;
 
-    public readonly ref Entry GetEntryRefOrNullRef(TKey key)
+    public readonly ref T GetItemRefOrNullRef(TKey key)
     {
         if (_entries.Length == 0)
-            return ref Unsafe.NullRef<Entry>();
+            return ref Unsafe.NullRef<T>();
 
         uint hashCode = GetHashCode(key);
         int index = GetBucketRef(hashCode) - 1;
 
         while (index >= 0) {
             ref Entry entry = ref _entries[index];
-            if (entry.HashCode == hashCode && _comparer.Equals(entry.Key, key)) {
-                return ref entry;
+            if (entry.HashCode == hashCode && _comparer.Equals(entry.Item, key)) {
+                return ref entry.Item;
             }
             index = entry.Next;
         }
-        return ref Unsafe.NullRef<Entry>();
+        return ref Unsafe.NullRef<T>();
     }
 
-    public readonly int GetInternalEntryIndex(ref readonly Entry entry)
+    public readonly int GetInternalEntryIndex(ref readonly T value)
     {
-        return _entries.AsSpan().OffsetOf(in entry);
+        // The result of OffsetOf will be rounded down,
+        // so the returned value is equals to GetEntryIndex(value.Entry)
+        return _entries.AsSpan().OffsetOf(in Unsafe.As<T, Entry>(ref Unsafe.AsRef(in value)));
     }
+
+    public readonly Enumerator GetEnumerator() => new(this);
 
     #endregion
 
@@ -86,8 +91,7 @@ internal struct AllocOptHashMapProvider<TKey, TValue, TComparer> where TComparer
 
     public void ClearUnreferenced()
     {
-        if (RuntimeHelpers.IsReferenceOrContainsReferences<TKey>() ||
-            RuntimeHelpers.IsReferenceOrContainsReferences<TValue>()) {
+        if (RuntimeHelpers.IsReferenceOrContainsReferences<T>()) {
             if (_size > 0) {
                 Array.Clear(_entries, _size, _entries.Length - _size);
                 _size = 0;
@@ -97,8 +101,7 @@ internal struct AllocOptHashMapProvider<TKey, TValue, TComparer> where TComparer
                     int index = _freeListHead;
                     while (index >= 0) {
                         ref Entry entry = ref _entries[index];
-                        entry.Key = default!;
-                        entry.Value = default!;
+                        entry.Item = default!;
                         index = entry.Next;
                     }
                 }
@@ -120,10 +123,10 @@ internal struct AllocOptHashMapProvider<TKey, TValue, TComparer> where TComparer
         return;
     }
 
-    public ref readonly Entry GetAndRemoveEntryRef(TKey key)
+    public ref readonly T GetItemRefAndRemove(TKey key)
     {
         if (_entries.Length == 0)
-            return ref Unsafe.NullRef<Entry>();
+            return ref Unsafe.NullRef<T>();
 
         uint hashCode = GetHashCode(key);
         ref int bucket = ref GetBucketRef(hashCode);
@@ -132,7 +135,7 @@ internal struct AllocOptHashMapProvider<TKey, TValue, TComparer> where TComparer
 
         while (index >= 0) {
             ref Entry entry = ref _entries[index];
-            if (entry.HashCode == hashCode && _comparer.Equals(entry.Key, key)) {
+            if (entry.HashCode == hashCode && _comparer.Equals(entry.Item, key)) {
                 if (prev < 0) {
                     bucket = entry.Next + 1;
                 }
@@ -142,15 +145,15 @@ internal struct AllocOptHashMapProvider<TKey, TValue, TComparer> where TComparer
                 entry.NextAsInFreeList = _freeListHead;
                 _freeListHead = index;
                 _freeListCount++;
-                return ref entry;
+                return ref entry.Item;
             }
             prev = index;
             index = entry.Next;
         }
-        return ref Unsafe.NullRef<Entry>();
+        return ref Unsafe.NullRef<T>();
     }
 
-    public ref Entry GetOrAddEntryRef(TKey key, bool returnNullIfExisting)
+    public ref T GetItemRefOrAddEntry(TKey key, bool returnNullIfExisting)
     {
         if (_entries.Length == 0)
             Initialize(1);
@@ -161,10 +164,10 @@ internal struct AllocOptHashMapProvider<TKey, TValue, TComparer> where TComparer
 
         while (index >= 0) {
             ref Entry entry = ref _entries[index];
-            if (entry.HashCode == hashCode && _comparer.Equals(entry.Key, key)) {
+            if (entry.HashCode == hashCode && _comparer.Equals(entry.Item, key)) {
                 return ref returnNullIfExisting
-                    ? ref Unsafe.NullRef<Entry>()
-                    : ref entry;
+                    ? ref Unsafe.NullRef<T>()
+                    : ref entry.Item;
             }
             index = entry.Next;
         }
@@ -187,10 +190,9 @@ internal struct AllocOptHashMapProvider<TKey, TValue, TComparer> where TComparer
         ref Entry result = ref _entries[index];
         result.HashCode = hashCode;
         result.Next = bucket - 1;
-        result.Key = key;
         bucket = index + 1;
 
-        return ref result;
+        return ref result.Item;
     }
 
     private void Grow(int newSize)
@@ -229,64 +231,11 @@ internal struct AllocOptHashMapProvider<TKey, TValue, TComparer> where TComparer
     private readonly uint GetHashCode(TKey key)
         => key is null ? 0u : (uint)_comparer.GetHashCode(key);
 
-    #region Interface method helpers
-
-    public readonly void CopyToKeyArray(TKey[] array, int arrayIndex)
-    {
-        ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
-        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(arrayIndex, array.Length - Count);
-
-        if (_size == 0)
-            return;
-
-        for (int i = 0; i < _size; i++) {
-            ref Entry entry = ref _entries[i];
-            if (entry.IsActive) {
-                array[arrayIndex++] = entry.Key;
-            }
-        }
-    }
-
-    public readonly void CopyToValueArray(TValue[] array, int arrayIndex)
-    {
-        ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
-        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(arrayIndex, array.Length - Count);
-
-        if (_size == 0)
-            return;
-
-        for (int i = 0; i < _size; i++) {
-            ref Entry entry = ref _entries[i];
-            if (entry.IsActive) {
-                array[arrayIndex++] = entry.Value;
-            }
-        }
-    }
-
-    public readonly void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
-    {
-        ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
-        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(arrayIndex, array.Length - Count);
-
-        if (_size == 0)
-            return;
-
-        for (int i = 0; i < _size; i++) {
-            ref Entry entry = ref _entries[i];
-            if (entry.IsActive) {
-                array[arrayIndex++] = entry.ToKeyValuePair();
-            }
-        }
-    }
-
-    #endregion
-
-    internal struct Entry
+    private struct Entry
     {
         public uint HashCode;
         public int Next;
-        public TKey Key;
-        public TValue Value;
+        public T Item;
 
         public readonly bool IsActive => Next >= -1;
         public int NextAsInFreeList
@@ -294,18 +243,15 @@ internal struct AllocOptHashMapProvider<TKey, TValue, TComparer> where TComparer
             readonly get => -3 - Next;
             set => Next = -3 - value;
         }
-
-        public readonly KeyValuePair<TKey, TValue> ToKeyValuePair()
-            => KeyValuePair.Create(Key, Value);
     }
 
-    public struct Enumerator(in AllocOptHashMapProvider<TKey, TValue, TComparer> provider)
+    public struct Enumerator(in AllocOptHashSetProvider<T, TKey, TComparer> provider)
     {
         private readonly Entry[] _entries = provider._entries;
         private readonly int _size = provider._size;
         private int _index = -1;
 
-        public readonly ref readonly Entry Current => ref _entries[_index];
+        public readonly ref readonly T Current => ref _entries[_index].Item;
 
         public bool MoveNext()
         {

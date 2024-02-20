@@ -15,18 +15,6 @@ using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 using Trarizon.Test.UnitTest;
 
-
-IFilter<int> filter = default!;
-
-filter.Predicate([
-    default!,
-    default!,
-])
-    .Predicate(default(Func<int, FilterResult>)!);
-
-List<int> list;
-
-
 static class FilterCreate
 {
     public static FilterResult Success(string? err = default) => new() { Success = true, };

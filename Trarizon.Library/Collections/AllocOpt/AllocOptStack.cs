@@ -34,7 +34,7 @@ public struct AllocOptStack<T> : ICollection<T>, IReadOnlyCollection<T>
         return true;
     }
 
-    public readonly SpanQuery.ReversedReadOnlySpanQuerier<T> AsSpan() => _list.AsSpan().ReverseSpan();
+    public readonly SpanExtensions.ReversedReadOnlySpanQuerier<T> AsSpan() => _list.AsSpan().ToReversedSpan();
 
     public readonly T[] ToArray() => AsSpan().ToArray();
 
@@ -47,8 +47,6 @@ public struct AllocOptStack<T> : ICollection<T>, IReadOnlyCollection<T>
     #region Builders
 
     public void Push(T item) => _list.Add(item);
-
-    internal void PushRange(ReadOnlySpan<T> values) => _list.AddRange(values);
 
     /// <summary>
     /// Unlike <see cref="Stack{T}"/>, this wont throw exception if stack is empty
