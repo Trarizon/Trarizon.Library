@@ -34,12 +34,13 @@ static classes for quickly creating collections
 
 `this`|Method|Remarks
 --:|:--|:--
+`IEnumerable<>`|`ForEach`|`foreach`
 `T[]`<br/>`List<>`|`Fill`|Fill the collection with specific value
 `Dictionary<,>`<br/>`IDictionary<,>`|`GetOrAdd`|获取键的值，否则添加并返回值
-||`AddOrUpdate`|Add or Update
-`Span<>`<br/>`ReadOnlySpan<>`<br/>`T[]`|`OffsetOf`|通过指针计算元素/子数组的下标值
-||`IndexOf`|重载了从指定下标值开始查找的功能
-||`Reverse`|反转span
+`Dictionary<,>`<br/>`IDictionary<,>`|`AddOrUpdate`|Add or Update
+`(ReadOnly)Span<>`<br/>`T[]`|`OffsetOf`|通过指针计算元素/子数组的下标值
+`(ReadOnly)Span<>`|`IndexOf`|重载了从指定下标值开始查找的功能
+`(ReadOnly)Span<>`|`ToReversedSpan`|获取翻转后的Span的视图
 `T[]`<br/>`List<>`<br/>`Span<>`|`SortStably`|使用内置`Sort`实现的稳定排序
 `T[,]`|`AsSpan`<br/>`AsReadOnlySpan`|将二维数组中的一行转为`Span<>`/`ROS<>`
 
@@ -82,13 +83,6 @@ Impl Type|Method|Remarks
 ✔|`StartsWith`|扩展了从指定位置开始判定的方法
 ⭕✔✔|`Take`|-
 ✔|`WhereSelect`|合并了LinQ的`Where`和`Select`，以此可以利用中间值
-
-以下方法适用`IList<>`与`IReadOnlyList`
-
-`List`|Remarks
-:-:|:--
-`AsList`|返回自身
-`TryAt`|
 
 </details>
 

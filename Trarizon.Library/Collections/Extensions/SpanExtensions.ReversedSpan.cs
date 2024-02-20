@@ -1,13 +1,8 @@
 ﻿using System.Runtime.CompilerServices;
 
 namespace Trarizon.Library.Collections.Extensions;
-partial class SpanQuery
+partial class SpanExtensions
 {
-    public static ReversedSpanQuerier<T> ReverseSpan<T>(this Span<T> span) => new(span);
-
-    public static ReversedReadOnlySpanQuerier<T> ReverseSpan<T>(this ReadOnlySpan<T> span) => new(span);
-
-
     public readonly ref struct ReversedSpanQuerier<T>
     {
         private readonly Span<T> _span;

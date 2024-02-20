@@ -8,10 +8,12 @@
     - Add `Either<,>.ToString()`
     - Add `ReversedSpanQuerier<>.Slice()` and `ToArray()`
     - Add `T[].OffsetOf()`
+    - Add `IEnumerable<>.ForEach()`
 - Breaking
     - Remove `ArrayFiller<>`, use `AllocOptList<>` instead
     - Adjust signature of `IEnumerable<>.Merge` and `IEnumerable.IsInOrder`
-    - Rename `Span<>.Reverse` to `ReverseSpan`, to distinguish from `Reverse` method in BCL
+    - Rename `Span<>.Reverse` to `ToReversedSpan`
+    - Move `Span<>.Reverse` to `SpanExtensions`
 - Changes
     - Change format of `Optional<>.ToString()`, `Result<,>.ToString()`, and they won't return `null` now
     - Optimize nullable analysis for `IEnumerable<>.TrySingle()`, `TrySingleOrNone()`, `PopFirst()`
