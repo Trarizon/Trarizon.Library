@@ -9,6 +9,7 @@
     - Add `ReversedSpanQuerier<>.Slice()` and `ToArray()`
     - Add `T[].OffsetOf()`
     - Add `IEnumerable<>.ForEach()`
+    - Add `StackAllocBitArray`
 - Breaking
     - Remove `ArrayFiller<>`, use `AllocOptList<>` instead
     - Adjust signature of `IEnumerable<>.Merge` and `IEnumerable.IsInOrder`
