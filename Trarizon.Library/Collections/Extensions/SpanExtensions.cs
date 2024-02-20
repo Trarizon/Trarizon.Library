@@ -62,9 +62,9 @@ public static partial class SpanExtensions
 
     #region Reverse
 
-    public static ReversedSpanQuerier<T> ToReversedSpan<T>(this Span<T> span) => new(span);
+    public static ReversedSpan<T> ToReversedSpan<T>(this Span<T> span) => new(span);
 
-    public static ReversedReadOnlySpanQuerier<T> ToReversedSpan<T>(this ReadOnlySpan<T> span) => new(span);
+    public static ReversedReadOnlySpan<T> ToReversedSpan<T>(this ReadOnlySpan<T> span) => new(span);
 
     #endregion
 }

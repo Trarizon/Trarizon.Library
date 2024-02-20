@@ -3,15 +3,15 @@
 namespace Trarizon.Library.Collections.Extensions;
 partial class SpanExtensions
 {
-    public readonly ref struct ReversedSpanQuerier<T>
+    public readonly ref struct ReversedSpan<T>
     {
         private readonly Span<T> _span;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal ReversedSpanQuerier(Span<T> span)
+        internal ReversedSpan(Span<T> span)
             => _span = span;
 
-        public static implicit operator ReversedReadOnlySpanQuerier<T>(ReversedSpanQuerier<T> span)
+        public static implicit operator ReversedReadOnlySpan<T>(ReversedSpan<T> span)
             => new(span._span);
 
         public Span<T> OriginalSpan => _span;
@@ -24,10 +24,10 @@ partial class SpanExtensions
             get => ref _span[_span.Length - 1 - index];
         }
 
-        public ReversedSpanQuerier<T> Slice(int index, int length)
+        public ReversedSpan<T> Slice(int index, int length)
             => new(_span.Slice(Length - index - length, length));
 
-        public ReversedSpanQuerier<T> Slice(int index)
+        public ReversedSpan<T> Slice(int index)
             => new(_span[..(Length - index)]);
 
         public T[] ToArray()
@@ -75,12 +75,12 @@ partial class SpanExtensions
         }
     }
 
-    public readonly ref struct ReversedReadOnlySpanQuerier<T>
+    public readonly ref struct ReversedReadOnlySpan<T>
     {
         private readonly ReadOnlySpan<T> _span;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal ReversedReadOnlySpanQuerier(ReadOnlySpan<T> span)
+        internal ReversedReadOnlySpan(ReadOnlySpan<T> span)
             => _span = span;
 
         public ReadOnlySpan<T> OriginalSpan => _span;
@@ -93,10 +93,10 @@ partial class SpanExtensions
             get => ref _span[_span.Length - 1 - index];
         }
 
-        public ReversedReadOnlySpanQuerier<T> Slice(int index, int length)
+        public ReversedReadOnlySpan<T> Slice(int index, int length)
             => new(_span.Slice(Length - index - length, length));
 
-        public ReversedReadOnlySpanQuerier<T> Slice(int index)
+        public ReversedReadOnlySpan<T> Slice(int index)
             => new(_span[..(Length - index)]);
 
         public T[] ToArray()

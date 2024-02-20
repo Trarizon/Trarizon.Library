@@ -34,7 +34,7 @@ public struct AllocOptStack<T> : ICollection<T>, IReadOnlyCollection<T>
         return true;
     }
 
-    public readonly SpanExtensions.ReversedReadOnlySpanQuerier<T> AsSpan() => _list.AsSpan().ToReversedSpan();
+    public readonly SpanExtensions.ReversedReadOnlySpan<T> AsSpan() => _list.AsSpan().ToReversedSpan();
 
     public readonly T[] ToArray() => AsSpan().ToArray();
 
