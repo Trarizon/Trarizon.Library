@@ -116,9 +116,9 @@ public struct AllocOptSet<T, TComparer> : ISet<T>, IReadOnlySet<T>
         BitArray bitArray = new(_provider.Size);
 
         foreach (var key in other) {
-            ref readonly var entry = ref _provider.GetItemRefOrNullRef(key);
-            if (!Unsafe.IsNullRef(in entry))
-                bitArray[_provider.GetInternalEntryIndex(in entry)] = true;
+            ref readonly var val = ref _provider.GetItemRefOrNullRef(key);
+            if (!Unsafe.IsNullRef(in val))
+                bitArray[_provider.GetInternalEntryIndex(in val)] = true;
         }
 
         foreach (ref readonly var val in _provider) {
