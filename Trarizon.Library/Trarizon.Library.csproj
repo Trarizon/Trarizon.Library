@@ -15,8 +15,8 @@
         <RepositoryUrl>https://github.com/Trarizon/Trarizon.Library</RepositoryUrl>
         <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
-        <Version>0.2.1</Version>
-        <AssemblyVersion>0.2.1</AssemblyVersion>
+        <Version>0.2.2</Version>
+        <AssemblyVersion>0.2.2</AssemblyVersion>
         <FileVersion>$(AssemblyVersion)</FileVersion>
     </PropertyGroup>
 

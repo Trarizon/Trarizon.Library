@@ -1,6 +1,15 @@
 # History
 
-## v0.2.1 (in progress)
+## v0.2.2
+- New
+    - Add more collection members to `StackAllocBitArray`
+    - Add `ReversedSpan<>.CopyTo`
+    - Add overload method `IEnumerable<>.StartWith()` for `T[]`
+- Changes
+    - Optimize `AllocOptSet<>` with `StackAllocBitArray`
+    - Optimize `IEnumerable<>.TrySingle()`, `TryFirst()`
+
+## v0.2.1
 
 - New
     - Add `AllocOptDictionary<,>`, `AllocOptList<>`, `AllocOptSet<>`, `AllocOptStack<>`

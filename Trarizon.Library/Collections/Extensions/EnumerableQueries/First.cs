@@ -3,16 +3,21 @@ partial class EnumerableQuery
 {
     public static bool TryFirst<T>(this IEnumerable<T> source, out T value, T defaultValue = default!)
     {
-        if (source is IList<T> list) {
-            if (list.Count > 0) {
-                value = list[0];
-                return true;
+        if (source.TryGetNonEnumeratedCount(out var count)) {
+            if (count > 0) {
+                if (source is IList<T> list) {
+                    value = list[0];
+                    return true;
+                }
+                goto ByEnumerate;
             }
             else {
                 value = defaultValue;
                 return false;
             }
         }
+
+    ByEnumerate:
 
         using var enumerator = source.GetEnumerator();
 

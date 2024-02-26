@@ -30,6 +30,16 @@ partial class SpanExtensions
         public ReversedSpan<T> Slice(int index)
             => new(_span[..(Length - index)]);
 
+        public void CopyTo(Span<T> span)
+        {
+            if (span.Length < Length)
+                ThrowHelper.ThrowArgument("Size of destination span should not small than source", nameof(span));
+
+            for (int i = 0; i < Length; i++) {
+                span[i] = this[i];
+            }
+        }
+
         public T[] ToArray()
         {
             if (_span.Length == 0)
@@ -98,6 +108,16 @@ partial class SpanExtensions
 
         public ReversedReadOnlySpan<T> Slice(int index)
             => new(_span[..(Length - index)]);
+
+        public void CopyTo(Span<T> span)
+        {
+            if (span.Length < Length)
+                ThrowHelper.ThrowArgument("Size of destination span should not small than source", nameof(span));
+
+            for (int i = 0; i < Length; i++) {
+                span[i] = this[i];
+            }
+        }
 
         public T[] ToArray()
         {

@@ -39,6 +39,15 @@ partial class EnumerableQuery
     /// <exception cref="ArgumentOutOfRangeException">
     /// <paramref name="offset"/> is out of range
     /// </exception>
+    public static bool StartsWith<T>(this IEnumerable<T> source, int offset, T[] value)
+        => source.StartsWith(offset, value.AsSpan());
+
+    /// <summary>
+    /// Determines whether the sequence after offsetting by <paramref name="offset"/> is start with <paramref name="value"/>
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// <paramref name="offset"/> is out of range
+    /// </exception>
     public static bool StartsWith<T>(this IEnumerable<T> source, int offset, IEnumerable<T> value)
     {
         if (source is IList<T> list) {

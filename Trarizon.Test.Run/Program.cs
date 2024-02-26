@@ -15,20 +15,12 @@ using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 using Trarizon.Test.UnitTest;
 
-ulong val = 0x8040201008040201;
+Span<byte> bytes = stackalloc byte[16];
+bytes[0] = 1;
+bytes[8] = 2;
+var ints = MemoryMarshal.Cast<byte, int>(bytes);
 
-var bytes = MemoryMarshal.Cast<ulong, byte>(MemoryMarshal.CreateSpan(ref val, 1));
-    bytes.Print();
-
-ulong val2 = ~val;
-var bytes2 = MemoryMarshal.Cast<ulong, byte>(MemoryMarshal.CreateSpan(ref val2, 1));
-    bytes2.Print();
-for (int i = 0; i < bytes.Length; i++)
-    bytes[i] |= bytes2[i];
-
-bytes.Print();
-
-
+ints.ToArray().StartsWith(0, ArrayInts());
 
 
 static class FilterCreate

@@ -85,19 +85,27 @@ partial class EnumerableQuery
 
     private static bool TrySingleInternal<T>(this IEnumerable<T> source, out T? value, T? defaultValue, bool resultWhenZero)
     {
-        if (source is IList<T> list) {
-            switch (list.Count) {
+        if (source.TryGetNonEnumeratedCount(out var count)) {
+            switch (count) {
                 case 0:
                     value = defaultValue;
                     return resultWhenZero;
                 case 1:
-                    value = list[0];
+                    if (source is IList<T> list) {
+                        value = list[0];
+                    }
+                    else {
+                        using var e = source.GetEnumerator();
+                        e.MoveNext();
+                        value = e.Current;
+                    }
                     return true;
                 default:
                     value = defaultValue;
                     return false;
             }
         }
+
         using var enumerator = source.GetEnumerator();
 
         // Zero

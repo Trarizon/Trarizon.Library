@@ -5,6 +5,8 @@ public ref struct StackAllocBitArray(Span<byte> allocatedSpace)
 
     public const int BitSizeOfByte = 8;
 
+    public readonly int Length => _bytes.Length * BitSizeOfByte;
+
     public readonly bool this[int index]
     {
         get {
@@ -24,4 +26,31 @@ public ref struct StackAllocBitArray(Span<byte> allocatedSpace)
 
     public static int GetArrayLength(int bitLength)
         => bitLength > 0 ? (bitLength - 1) / BitSizeOfByte + 1 : 0;
+
+    public readonly Enumerator GetEnumerator() => new(this);
+
+    public ref struct Enumerator
+    {
+        private readonly StackAllocBitArray _array;
+        private int _index;
+
+        internal Enumerator(StackAllocBitArray bitArray)
+        {
+            _array = bitArray;
+            _index = -1;
+        }
+
+
+        public readonly bool Current => _array[_index];
+
+        public bool MoveNext()
+        {
+            var index = _index + 1;
+            if (index < _array.Length) {
+                _index = index;
+                return true;
+            }
+            return false;
+        }
+    }
 }

@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Trarizon.Library.Collections.AllocOpt.Providers;
+using Trarizon.Library.Collections.StackAlloc;
 
 namespace Trarizon.Library.Collections.AllocOpt;
 // Unlike HashSet<>, this collection doesn't check collision count
@@ -112,8 +113,8 @@ public struct AllocOptSet<T, TComparer> : ISet<T>, IReadOnlySet<T>
             return;
         }
 
-        // TODO: BitArray Opt
-        BitArray bitArray = new(_provider.Size);
+        var bitArray = new StackAllocBitArray(
+            stackalloc byte[StackAllocBitArray.GetArrayLength(_provider.Size)]);
 
         foreach (var key in other) {
             ref readonly var val = ref _provider.GetItemRefOrNullRef(key);
@@ -140,7 +141,8 @@ public struct AllocOptSet<T, TComparer> : ISet<T>, IReadOnlySet<T>
                 return otherCount > 0;
         }
 
-        BitArray bitArray = new(_provider.Size);
+        var bitArray = new StackAllocBitArray(
+            stackalloc byte[StackAllocBitArray.GetArrayLength(_provider.Size)]);
 
         int found = 0;
         bool isProper = false;
@@ -175,7 +177,8 @@ public struct AllocOptSet<T, TComparer> : ISet<T>, IReadOnlySet<T>
                 return true;
         }
 
-        BitArray bitArray = new(_provider.Size);
+        var bitArray = new StackAllocBitArray(
+            stackalloc byte[StackAllocBitArray.GetArrayLength(_provider.Size)]);
 
         int found = 0;
         foreach (var key in other) {
@@ -204,7 +207,8 @@ public struct AllocOptSet<T, TComparer> : ISet<T>, IReadOnlySet<T>
         if (Count == 0)
             return true;
 
-        BitArray bitArray = new(_provider.Size);
+        var bitArray = new StackAllocBitArray(
+            stackalloc byte[StackAllocBitArray.GetArrayLength(_provider.Size)]);
 
         int found = 0;
         foreach (var key in other) {
@@ -265,7 +269,8 @@ public struct AllocOptSet<T, TComparer> : ISet<T>, IReadOnlySet<T>
         if (Count == 0 && other.TryGetNonEnumeratedCount(out var otherCount) && otherCount > 0)
             return false;
 
-        BitArray bitArray = new(_provider.Size);
+        var bitArray = new StackAllocBitArray(
+            stackalloc byte[StackAllocBitArray.GetArrayLength(_provider.Size)]);
 
         int found = 0;
         foreach (var key in other) {
@@ -293,7 +298,8 @@ public struct AllocOptSet<T, TComparer> : ISet<T>, IReadOnlySet<T>
         if (Count == 0)
             UnionWith(other);
 
-        BitArray bitArray = new(_provider.Size);
+        var bitArray = new StackAllocBitArray(
+            stackalloc byte[StackAllocBitArray.GetArrayLength(_provider.Size)]);
 
         int found = 0;
         foreach (var key in other) {
