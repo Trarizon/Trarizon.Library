@@ -1,7 +1,7 @@
 using Trarizon.Library.Collections.Extensions;
 using Trarizon.Library.Wrappers;
 
-namespace Trarizon.Test.UnitTest;
+namespace Trarizon.Test.UnitTest.Collections;
 [TestClass]
 public class EnumerableQueriesTest
 {
@@ -38,9 +38,9 @@ public class EnumerableQueriesTest
     public void RepeatTest()
     {
         var array = EnumerateInts(5);
-        AssertSequenceEqual<int>(array.Repeat(2), [.. array, .. array]);
-        
+        AssertSequenceEqual(array.Repeat(2), [.. array, .. array]);
+
         array = ArrayInts(5);
-        AssertSequenceEqual<int>(array.Repeat(2), [.. array, .. array]);
+        AssertSequenceEqual(array.Repeat(2), [.. array, .. array]);
     }
 }

@@ -1,8 +1,8 @@
 ﻿using Trarizon.Library.Collections.Extensions;
 
-namespace Trarizon.Test.UnitTest;
+namespace Trarizon.Test.UnitTest.Collections;
 [TestClass]
-public class CollectionExtensionsTest
+public class ExtensionsTest
 {
     [TestMethod]
     public void OffsetOfTest()

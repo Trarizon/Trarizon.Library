@@ -9,15 +9,16 @@ internal static class GlobalUsings
         => Assert.IsTrue(source.SequenceEqual(compare), $"{id}: [{string.Join(", ", source)}] != [{string.Join(", ", compare)}]");
 
     public static int[] ArrayInts(int count = 8)
-    {
-        int[] array = new int[count];
-        for (int i = 0; i < count; i++) array[i] = i;
-        return array;
-    }
+        => new int[count].Select((_, i) => i).ToArray();
+
+    public static T[] ArrayValues<T>(Func<int, T> factory, int count = 8)
+        => ArrayInts(count).Select(factory).ToArray();
 
     public static IEnumerable<int> EnumerateInts(int count = 8)
     {
-        for (int i = 0; i < count; i++)
-            yield return i;
+        for (int i = 0; i < count; i++) yield return i;
     }
+
+    public static IEnumerable<T> EnumerateValues<T>(Func<int, T> factory, int count = 8)
+        => EnumerateInts(count).Select(factory);
 }
