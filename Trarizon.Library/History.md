@@ -8,6 +8,7 @@
 - Changes
     - Optimize `AllocOptSet<>` with `StackAllocBitArray`
     - Optimize `IEnumerable<>.TrySingle()`, `TryFirst()`
+    - Remove unused method in `IKeyedEqualityComparer`(internal)
 
 ## v0.2.1
 

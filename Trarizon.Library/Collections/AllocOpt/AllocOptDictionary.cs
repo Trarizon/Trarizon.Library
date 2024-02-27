@@ -351,9 +351,6 @@ public struct AllocOptDictionary<TKey, TValue, TComparer> : IDictionary<TKey, TV
         public bool Equals((TKey, TValue) val, TKey key)
             => _comparer.Equals(val.Item1, key);
 
-        public int GetHashCode([DisallowNull] (TKey, TValue) obj)
-            => _comparer.GetHashCode(obj.Item1);
-
         public int GetHashCode([DisallowNull] TKey key)
             => _comparer.GetHashCode(key);
     }
