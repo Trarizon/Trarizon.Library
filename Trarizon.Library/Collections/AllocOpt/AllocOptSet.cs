@@ -38,7 +38,7 @@ public struct AllocOptSet<T, TComparer> : ISet<T>, IReadOnlySet<T>
         return true;
     }
 
-    public readonly Enumerator GetEnumerator() => new(_provider);
+    public readonly Enumerator GetEnumerator() => new(this);
 
     #endregion
 
@@ -333,8 +333,8 @@ public struct AllocOptSet<T, TComparer> : ISet<T>, IReadOnlySet<T>
     }
 
     void ICollection<T>.Add(T item) => Add(item);
-    readonly IEnumerator<T> IEnumerable<T>.GetEnumerator() => new Enumerator.Wrapper(_provider);
-    readonly IEnumerator IEnumerable.GetEnumerator() => new Enumerator.Wrapper(_provider);
+    readonly IEnumerator<T> IEnumerable<T>.GetEnumerator() => new Enumerator.Wrapper(this);
+    readonly IEnumerator IEnumerable.GetEnumerator() => new Enumerator.Wrapper(this);
 
     #endregion
 
@@ -342,16 +342,18 @@ public struct AllocOptSet<T, TComparer> : ISet<T>, IReadOnlySet<T>
     {
         private AllocOptHashSetProvider<T, T, Comparer>.Enumerator _enumerator;
 
-        internal Enumerator(in AllocOptHashSetProvider<T, T, Comparer> provider)
-            => _enumerator = new(provider);
+        internal Enumerator(in AllocOptSet<T, TComparer> set)
+            => _enumerator = new(set._provider);
 
         public readonly T Current => _enumerator.Current;
 
         public bool MoveNext() => _enumerator.MoveNext();
 
-        internal sealed class Wrapper(in AllocOptHashSetProvider<T, T, Comparer> provider) : IEnumerator<T>
+        public void Reset() => _enumerator.Reset();
+
+        internal sealed class Wrapper(in AllocOptSet<T, TComparer> set) : IEnumerator<T>
         {
-            private AllocOptHashSetProvider<T, T, Comparer>.Enumerator _enumerator = new(provider);
+            private Enumerator _enumerator = set.GetEnumerator();
 
             public T Current => _enumerator.Current;
 
@@ -364,7 +366,7 @@ public struct AllocOptSet<T, TComparer> : ISet<T>, IReadOnlySet<T>
     }
 
     // Layout same as TComperer
-    internal readonly struct Comparer(TComparer comparer) : IByKeyEqualityComparer<T, T>
+    private readonly struct Comparer(TComparer comparer) : IByKeyEqualityComparer<T, T>
     {
         public bool Equals(T val, T key) => comparer.Equals(val, key);
 
