@@ -25,7 +25,7 @@ internal struct AllocOptHashSetProvider<T, TKey, TComparer>
 
     public AllocOptHashSetProvider(int capacity, in TComparer comparer)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(capacity, 0);
+        ArgumentOutOfRangeException.ThrowIfNegative(capacity);
         if (capacity == 0) {
             _buckets = [];
             _entries = [];

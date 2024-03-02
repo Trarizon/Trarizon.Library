@@ -1,7 +1,9 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using Trarizon.Library.Collections.Extensions.ListQueries.Helpers;
 
 namespace Trarizon.Library.Collections.Extensions;
+[SuppressMessage("Style", "IDE0301")] // Use explicit on Empty<T>(), collection will alloc new List<T> in some conditions
 public static partial class ListQuery
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

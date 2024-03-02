@@ -17,7 +17,7 @@ public struct AllocOptList<T> : IList<T>, IReadOnlyList<T>
 
     public AllocOptList(int capacity)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(capacity, 0);
+        ArgumentOutOfRangeException.ThrowIfNegative(capacity);
 
         if (capacity == 0)
             _items = [];
@@ -201,8 +201,8 @@ public struct AllocOptList<T> : IList<T>, IReadOnlyList<T>
     public void RemoveRange(Index index, int count)
     {
         var offset = index.GetOffset(_size);
-        ArgumentOutOfRangeException.ThrowIfLessThan(offset, 0);
-        ArgumentOutOfRangeException.ThrowIfLessThan(count, 0);
+        ArgumentOutOfRangeException.ThrowIfNegative(offset);
+        ArgumentOutOfRangeException.ThrowIfNegative(count);
         ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(offset + count, _size);
 
         if (count == 0)

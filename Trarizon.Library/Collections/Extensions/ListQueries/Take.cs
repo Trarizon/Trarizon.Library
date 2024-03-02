@@ -64,7 +64,7 @@ partial class ListQuery
         public override T this[int index]
         {
             get {
-                ArgumentOutOfRangeException.ThrowIfLessThan(index, 0);
+                ArgumentOutOfRangeException.ThrowIfNegative(index);
                 ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, Count);
 
                 return _list[index + start];

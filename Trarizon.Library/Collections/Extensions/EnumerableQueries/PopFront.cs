@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Trarizon.Library.Collections.AllocOpt;
 using Trarizon.Library.Collections.Extensions.Helpers.Queriers;
 
 namespace Trarizon.Library.Collections.Extensions;
@@ -8,7 +9,7 @@ partial class EnumerableQuery
     /// Pop specific number of elements, and return the rest,
     /// popped elements are cached in <paramref name="leadingElements"/>
     /// </summary>
-    public static IEnumerable<T> PopFront<T>(this IEnumerable<T> source, int count, out IList<T> leadingElements)
+    public static IEnumerable<T> PopFront<T>(this IEnumerable<T> source, int count, out IReadOnlyList<T> leadingElements)
     {
         if (source is IList<T> list) {
             return list.PopFrontList(count, out leadingElements);
@@ -20,19 +21,17 @@ partial class EnumerableQuery
         }
 
         var enumerator = source.GetEnumerator();
-        var array = new T[count];
-        var len = 0;
-        while (len < count && enumerator.MoveNext()) {
-            array[len] = enumerator.Current;
-            len++;
+        var buffer = new AllocOptList<T>(count);
+        while (buffer.Count < count && enumerator.MoveNext()) {
+            buffer.Add(enumerator.Current);
         }
 
-        if (len < count) {
-            leadingElements = array.TakeList(..len);
+        if (buffer.Count < count) {
+            leadingElements = buffer.GetUnderlyingArray().TakeROList(..buffer.Count);
             return Enumerable.Empty<T>();
         }
         else {
-            leadingElements = array;
+            leadingElements = buffer.GetUnderlyingArray();
             return new PopFrontQuerier<T>(source, enumerator, count);
         }
     }
@@ -69,14 +68,14 @@ partial class EnumerableQuery
     /// Pop elements until <paramref name="predicate"/> failed.
     /// popped elements are cached in <paramref name="leadingElements"/>
     /// </summary>
-    public static IEnumerable<T> PopFrontWhile<T>(this IEnumerable<T> source, out IList<T> leadingElements, Func<T, bool> predicate)
+    public static IEnumerable<T> PopFrontWhile<T>(this IEnumerable<T> source, out IReadOnlyList<T> leadingElements, Func<T, bool> predicate)
     {
         if (source is IList<T> list) {
             return list.PopFrontWhileList(out leadingElements, predicate);
         }
 
         var enumerator = source.GetEnumerator();
-        List<T> tmpList = new();
+        List<T> tmpList = [];
         while (enumerator.MoveNext()) {
             var current = enumerator.Current;
             if (predicate(enumerator.Current)) {

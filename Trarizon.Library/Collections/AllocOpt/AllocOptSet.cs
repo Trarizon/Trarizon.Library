@@ -363,9 +363,12 @@ public struct AllocOptSet<T, TComparer> : ISet<T>, IReadOnlySet<T>
         }
     }
 
+    // Layout same as TComperer
     internal readonly struct Comparer : IByKeyEqualityComparer<T, T>
     {
+#nullable disable
         private readonly TComparer _comparer;
+#nullable restore
 
         public bool Equals(T val, T key) => _comparer.Equals(val, key);
 

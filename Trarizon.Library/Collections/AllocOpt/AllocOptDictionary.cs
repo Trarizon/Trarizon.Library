@@ -344,9 +344,12 @@ public struct AllocOptDictionary<TKey, TValue, TComparer> : IDictionary<TKey, TV
         }
     }
 
+    // Layout same as TComparer
     private readonly struct KeyValuePairComparer : IByKeyEqualityComparer<(TKey, TValue), TKey>
     {
+#nullable disable
         private readonly TComparer _comparer;
+#nullable restore
 
         public bool Equals((TKey, TValue) val, TKey key)
             => _comparer.Equals(val.Item1, key);
