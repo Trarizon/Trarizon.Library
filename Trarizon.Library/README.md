@@ -71,7 +71,7 @@ Impl Type|Method|Remarks
 ✔|`Adjacent`|返回相邻的两个值（按下标(0,1), (1,2), ...）
 ✔|`AggregateSelect`|类LinQ的`Aggregate`，返回执行至每一个元素的结果
 ⭕✔✔|`AsXXX`|返回自身
-✔|`ChunkPair`<br/>`ChunkTriple`|类LinQ的`Chunk`，返回结果为`ValueTuple`
+✔✔✔|`ChunkPair`<br/>`ChunkTriple`|类LinQ的`Chunk`，返回结果为`ValueTuple`
 ✔|`CountsMoreThan`<br/>`CountsLessThan`<br/>`CountsAtLeast`<br/>`CountsAtMost`<br/>`CountsEqualsTo`<br/>`CountsBetween`|比较序列大小，可选out参数在小于指定值时返回当前序列大小
 ⭕⭕✔<br/>❌✔✔|`ElementAtOrDefault`<br/>`TryAt`|以安全方式按下标获取值
 ✔|`EmptyIfNull`|序列为`null`时返回空序列，否则返回自身

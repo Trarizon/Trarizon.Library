@@ -15,12 +15,6 @@ using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 using Trarizon.Test.UnitTest;
 
-Span<byte> bytes = stackalloc byte[16];
-bytes[0] = 1;
-bytes[8] = 2;
-var ints = MemoryMarshal.Cast<byte, int>(bytes);
-
-ints.ToArray().StartsWith(0, ArrayInts());
 
 
 static class FilterCreate
