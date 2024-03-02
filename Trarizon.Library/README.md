@@ -84,7 +84,7 @@ Impl Type|Method|Remarks
 ⭕✔✔|`Reverse`|-
 ✔✔✔|`Rotate`|交换序列前后两个部分
 ✔|`TrySingle`<br/>`TrySingleOrNone`|判断序列是否仅含有1个值（或为空），并返回该值（或指定默认值）
-✔|`StartsWith`|扩展了从指定位置开始判定的方法
+✔⭕✔|`StartsWith`|扩展了从指定位置开始判定的方法
 ⭕✔✔|`Take`|-
 ✔|`WhereSelect`|合并了LinQ的`Where`和`Select`，以此可以利用中间值
 
