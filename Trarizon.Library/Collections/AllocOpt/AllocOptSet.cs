@@ -12,10 +12,10 @@ public struct AllocOptSet<T, TComparer> : ISet<T>, IReadOnlySet<T>
     private AllocOptHashSetProvider<T, T, Comparer> _provider;
 
     public AllocOptSet(in TComparer comparer)
-        => _provider = new(Unsafe.As<TComparer, Comparer>(ref Unsafe.AsRef(in comparer)));
+        => _provider = new(new Comparer(comparer));
 
     public AllocOptSet(int capacity, in TComparer comparer)
-        => _provider = new(capacity, Unsafe.As<TComparer, Comparer>(ref Unsafe.AsRef(in comparer)));
+        => _provider = new(capacity, new Comparer(comparer));
 
     #region Accessors
 
@@ -364,35 +364,25 @@ public struct AllocOptSet<T, TComparer> : ISet<T>, IReadOnlySet<T>
     }
 
     // Layout same as TComperer
-    internal readonly struct Comparer : IByKeyEqualityComparer<T, T>
+    internal readonly struct Comparer(TComparer comparer) : IByKeyEqualityComparer<T, T>
     {
-#nullable disable
-        private readonly TComparer _comparer;
-#nullable restore
+        public bool Equals(T val, T key) => comparer.Equals(val, key);
 
-        public bool Equals(T val, T key) => _comparer.Equals(val, key);
-
-        public int GetHashCode([DisallowNull] T val) => _comparer.GetHashCode(val);
+        public int GetHashCode([DisallowNull] T val) => comparer.GetHashCode(val);
     }
 }
 
-// This is a wrapper of AOSet<T, WrappedEqualityComparer<TK>>
+// This is a wrapper of AOSet<T, IEqualityComparer<TK>>
 [CollectionBuilder(typeof(AllocOptCollectionBuilder), nameof(AllocOptCollectionBuilder.CreateSet))]
 public struct AllocOptSet<T> : ISet<T>, IReadOnlySet<T>
 {
-    private AllocOptSet<T, WrappedEqualityComparer<T>> _set;
+    private AllocOptSet<T, IEqualityComparer<T>> _set;
 
-    public AllocOptSet()
-        => _set = new(default);
+    public AllocOptSet(IEqualityComparer<T>? comparer = null)
+        => _set = new(comparer ?? EqualityComparer<T>.Default);
 
-    public AllocOptSet(int capacity)
-        => _set = new(capacity, default);
-
-    public AllocOptSet(IEqualityComparer<T> comparer)
-        => _set = new(Unsafe.As<IEqualityComparer<T>, WrappedEqualityComparer<T>>(ref comparer));
-
-    public AllocOptSet(int capacity, IEqualityComparer<T> comparer)
-        => _set = new(capacity, Unsafe.As<IEqualityComparer<T>, WrappedEqualityComparer<T>>(ref comparer));
+    public AllocOptSet(int capacity, IEqualityComparer<T>? comparer = null)
+        => _set = new(capacity, comparer ?? EqualityComparer<T>.Default);
 
     #region Accessors
 
@@ -404,7 +394,7 @@ public struct AllocOptSet<T> : ISet<T>, IReadOnlySet<T>
 
     public readonly bool TryGetValue(T equalValue, [MaybeNullWhen(false)] out T value) => _set.TryGetValue(equalValue, out value);
 
-    public readonly AllocOptSet<T, WrappedEqualityComparer<T>>.Enumerator GetEnumerator() => _set.GetEnumerator();
+    public readonly AllocOptSet<T, IEqualityComparer<T>>.Enumerator GetEnumerator() => _set.GetEnumerator();
 
     #endregion
 

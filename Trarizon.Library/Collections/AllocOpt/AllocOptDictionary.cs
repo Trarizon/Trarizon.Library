@@ -8,13 +8,13 @@ public struct AllocOptDictionary<TKey, TValue, TComparer> : IDictionary<TKey, TV
     where TKey : notnull
     where TComparer : IEqualityComparer<TKey>
 {
-    private AllocOptHashSetProvider<(TKey Key, TValue Value), TKey, KeyValuePairComparer> _provider;
+    private AllocOptHashSetProvider<(TKey Key, TValue Value), TKey, ByKeyComparer> _provider;
 
     public AllocOptDictionary(in TComparer comparer)
-        => _provider = new(in Unsafe.As<TComparer, KeyValuePairComparer>(ref Unsafe.AsRef(in comparer)));
+        => _provider = new(new ByKeyComparer(comparer));
 
     public AllocOptDictionary(int capacity, in TComparer comparer)
-        => _provider = new(capacity, in Unsafe.As<TComparer, KeyValuePairComparer>(ref Unsafe.AsRef(in comparer)));
+        => _provider = new(capacity, new ByKeyComparer(comparer));
 
     #region Accessors
 
@@ -159,7 +159,7 @@ public struct AllocOptDictionary<TKey, TValue, TComparer> : IDictionary<TKey, TV
 
     public struct Enumerator
     {
-        private AllocOptHashSetProvider<(TKey, TValue), TKey, KeyValuePairComparer>.Enumerator _enumerator;
+        private AllocOptHashSetProvider<(TKey, TValue), TKey, ByKeyComparer>.Enumerator _enumerator;
 
         internal Enumerator(in AllocOptDictionary<TKey, TValue, TComparer> dict)
             => _enumerator = dict._provider.GetEnumerator();
@@ -345,38 +345,26 @@ public struct AllocOptDictionary<TKey, TValue, TComparer> : IDictionary<TKey, TV
     }
 
     // Layout same as TComparer
-    private readonly struct KeyValuePairComparer : IByKeyEqualityComparer<(TKey, TValue), TKey>
+    private struct ByKeyComparer(TComparer comparer) : IByKeyEqualityComparer<(TKey, TValue), TKey>
     {
-#nullable disable
-        private readonly TComparer _comparer;
-#nullable restore
+        public bool Equals((TKey, TValue) val, TKey key) => comparer.Equals(val.Item1, key);
 
-        public bool Equals((TKey, TValue) val, TKey key)
-            => _comparer.Equals(val.Item1, key);
-
-        public int GetHashCode([DisallowNull] TKey key)
-            => _comparer.GetHashCode(key);
+        public int GetHashCode([DisallowNull] TKey key) => comparer.GetHashCode(key);
     }
 }
 
-// This is a wrapper of AODictionary<TK, TV, WrappedEqualityComparer<TK>>
+// This is a wrapper of AODictionary<TK, TV, IEqualityComparer<TK>>
 [CollectionBuilder(typeof(AllocOptCollectionBuilder), nameof(AllocOptCollectionBuilder.CreateDictionary))]
 public struct AllocOptDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue>
     where TKey : notnull
 {
-    internal AllocOptDictionary<TKey, TValue, WrappedEqualityComparer<TKey>> _dict;
+    internal AllocOptDictionary<TKey, TValue, IEqualityComparer<TKey>> _dict;
 
-    public AllocOptDictionary()
-        => _dict = new(default);
+    public AllocOptDictionary(IEqualityComparer<TKey>? comparer = null)
+        => _dict = new(comparer ?? EqualityComparer<TKey>.Default);
 
-    public AllocOptDictionary(int capacity)
-        => _dict = new(capacity, default);
-
-    public AllocOptDictionary(IEqualityComparer<TKey> comparer)
-        => _dict = new(Unsafe.As<IEqualityComparer<TKey>, WrappedEqualityComparer<TKey>>(ref comparer));
-
-    public AllocOptDictionary(int capacity, IEqualityComparer<TKey> comparer)
-        => _dict = new(capacity, Unsafe.As<IEqualityComparer<TKey>, WrappedEqualityComparer<TKey>>(ref comparer));
+    public AllocOptDictionary(int capacity, IEqualityComparer<TKey>? comparer = null)
+        => _dict = new(capacity, comparer ?? EqualityComparer<TKey>.Default);
 
     #region Accessors
 
@@ -390,9 +378,9 @@ public struct AllocOptDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IRea
         set => _dict[key] = value;
     }
 
-    public readonly ref readonly AllocOptDictionary<TKey, TValue, WrappedEqualityComparer<TKey>>.KeyCollection Keys => ref _dict.Keys;
+    public readonly ref readonly AllocOptDictionary<TKey, TValue, IEqualityComparer<TKey>>.KeyCollection Keys => ref _dict.Keys;
 
-    public readonly ref readonly AllocOptDictionary<TKey, TValue, WrappedEqualityComparer<TKey>>.ValueCollection Values => ref _dict.Values;
+    public readonly ref readonly AllocOptDictionary<TKey, TValue, IEqualityComparer<TKey>>.ValueCollection Values => ref _dict.Values;
 
     public readonly bool ContainsKey(TKey key) => _dict.ContainsKey(key);
 
@@ -400,7 +388,7 @@ public struct AllocOptDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IRea
 
     public readonly ref TValue? GetValueRefOrNullRef(TKey key) => ref _dict.GetValueRefOrNullRef(key);
 
-    public readonly AllocOptDictionary<TKey, TValue, WrappedEqualityComparer<TKey>>.Enumerator GetEnumerator() => _dict.GetEnumerator();
+    public readonly AllocOptDictionary<TKey, TValue, IEqualityComparer<TKey>>.Enumerator GetEnumerator() => _dict.GetEnumerator();
 
     #endregion
 
