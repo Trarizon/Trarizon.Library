@@ -1,8 +1,9 @@
 ﻿using Microsoft.CodeAnalysis;
+using System;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Trarizon.Library.Wrappers;
-internal static class Result
+namespace Trarizon.Library.GeneratorToolkit.Wrappers;
+public static class Result
 {
     public static Result<T, TError> Success<T, TError>(T value) where TError : class
         => new(value);
@@ -30,7 +31,7 @@ internal static class Result
     #endregion
 }
 
-internal readonly struct Result<T, TError> where TError : class
+public readonly struct Result<T, TError> where TError : class
 {
     internal readonly T? _value;
     internal readonly TError? _error;
@@ -47,7 +48,8 @@ internal readonly struct Result<T, TError> where TError : class
 
     public readonly T Value
     {
-        get {
+        get
+        {
             return _value!;
         }
     }
@@ -55,7 +57,8 @@ internal readonly struct Result<T, TError> where TError : class
     [NotNull]
     public readonly TError Error
     {
-        get {
+        get
+        {
             return _error!;
         }
     }

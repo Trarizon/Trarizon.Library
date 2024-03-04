@@ -1,8 +1,9 @@
 ﻿using Microsoft.CodeAnalysis;
+using System;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Trarizon.Library.Wrappers;
-internal static class Either
+namespace Trarizon.Library.GeneratorToolkit.Wrappers;
+public static class Either
 {
     public static Either<TLeft, TRight> Left<TLeft, TRight>(TLeft leftValue)
         => new(leftValue);
@@ -39,7 +40,7 @@ internal static class Either
     #endregion
 }
 
-internal readonly struct Either<TLeft, TRight>
+public readonly struct Either<TLeft, TRight>
 {
     private readonly bool _isLeft;
     internal readonly TLeft? _left;
@@ -57,14 +58,16 @@ internal readonly struct Either<TLeft, TRight>
 
     public TLeft LeftValue
     {
-        get {
+        get
+        {
             return _left!;
         }
     }
 
     public TRight RightValue
     {
-        get {
+        get
+        {
             return _right!;
         }
     }

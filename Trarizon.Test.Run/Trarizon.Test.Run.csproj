@@ -10,11 +10,11 @@
 
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.13.9" />
-    <PackageReference Include="Trarizon.Library.Learn.SourceGenerator" Version="1.0.8" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Trarizon.Library\Trarizon.Library.csproj" />
+    <ProjectReference Include="..\Trarizon.Library.SourceGenerator\Trarizon.Library.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\Trarizon.Test.UnitTest\Trarizon.Test.UnitTest.csproj" />
     <ProjectReference Include="..\Trarizon.Yieliception\Trarizon.Yieliception.csproj" />
   </ItemGroup>

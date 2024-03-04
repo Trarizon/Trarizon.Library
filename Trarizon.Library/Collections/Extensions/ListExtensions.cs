@@ -6,6 +6,13 @@ public static partial class ListExtensions
     public static void Fill<T>(this List<T> list, T item)
         => CollectionsMarshal.AsSpan(list).Fill(item);
 
+    #region SortStably
+
     public static void SortStably<T>(this List<T> list, Comparison<T>? comparison = null)
         => CollectionsMarshal.AsSpan(list).SortStably(comparison);
+
+    public static void SortStably<T>(this List<T> list, StableSortComparer<T>? comparer = null)
+        => CollectionsMarshal.AsSpan(list).SortStably(comparer);
+
+    #endregion
 }

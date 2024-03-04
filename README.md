@@ -11,9 +11,13 @@ Miscellaneous thing. There will be many breaking changes (orz.
 <details>
 <summary>brief</summary>
 
+- CodeAnalysis
+	- `FriendAttribute`: on behalf of `friend` in c++
 - Monads: `Optional<T>`, `Result<T, TError>`, `Either<TLeft, TRight>`
-- Queries: More Linq-like methods for `IEnumerable<>`, `IList<>`, `IReadOnlyList<>`
-- AllocOpt: Rewrite BCL basic collection types in `struct`, designed for one-time use in method 
+- Collections:
+	- Queries: More Linq-like methods for `IEnumerable<>`, `IList<>`, `IReadOnlyList<>`
+	- Extensions: more extensions for BCL collection types.
+	- AllocOpt: Rewrite BCL basic collection types in `struct`, designed for one-time use in method 
 - Extensions: miscellaneous extensions for BCL types
 
 </details>

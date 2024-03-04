@@ -1,6 +1,11 @@
-﻿namespace Trarizon.Library.Collections.Extensions;
-partial class EnumerableQuery
+﻿using System;
+using System.Collections.Generic;
+
+namespace Trarizon.Library.GeneratorToolkit.Extensions;
+public static class EnumerableExtensions
 {
+    #region TryFirst
+
     public static bool TryFirst<T>(this IEnumerable<T> source, out T value, T defaultValue = default!)
     {
         if (source is IList<T> list) {
@@ -40,4 +45,6 @@ partial class EnumerableQuery
         value = defaultValue;
         return false;
     }
+
+    #endregion
 }

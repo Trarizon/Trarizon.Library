@@ -1,8 +1,9 @@
 ﻿using Microsoft.CodeAnalysis;
+using System;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Trarizon.Library.Wrappers;
-internal static class Optional
+namespace Trarizon.Library.GeneratorToolkit.Wrappers;
+public static class Optional
 {
     public static Optional<T> Of<T>(T value) => new(value);
 

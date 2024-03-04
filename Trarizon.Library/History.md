@@ -5,6 +5,9 @@
     - Add more collection members to `StackAllocBitArray`
     - Add `ReversedSpan<>.CopyTo`
     - Add overload method `IEnumerable<>.StartWith()` for `T[]`
+    - Add `IEnumerable<>.CartesianProduct`
+    - Add `FriendAttribute`
+    - public `StableSortComparer<>` and provide new overloads
 - Changes
     - Optimize `AllocOptSet<>` with `StackAllocBitArray`
     - Optimize `IEnumerable<>.TrySingle()`, `TryFirst()`

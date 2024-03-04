@@ -4,9 +4,18 @@ Miscellaneous
 
 Contents:
 
+- [Code analysis by source generator](#CodeAnalysis)
 - [Collection extensions](#Collections)
 - [Extensions for BCL type](#Extensions)
 - [Simple wrapper types](#Wrappers)
+
+## CodeAnalysis
+
+Analyers are in [Trarizon.Library.SourceGenerator](../Trarizon.Library.SourceGenerator)
+
+Attribute|Analyzer|Remark
+:-:|:-:|:--
+`Friend`|`FriendAnalyzer`| friend in c++，限制可访问该成员的类
 
 ## Collections
 
@@ -71,6 +80,7 @@ Impl Type|Method|Remarks
 ✔|`Adjacent`|返回相邻的两个值（按下标(0,1), (1,2), ...）
 ✔|`AggregateSelect`|类LinQ的`Aggregate`，返回执行至每一个元素的结果
 ⭕✔✔|`AsXXX`|返回自身
+✔|`CartesianProduct`|返回两个序列的笛卡尔积
 ✔✔✔|`ChunkPair`<br/>`ChunkTriple`|类LinQ的`Chunk`，返回结果为`ValueTuple`
 ✔|`CountsMoreThan`<br/>`CountsLessThan`<br/>`CountsAtLeast`<br/>`CountsAtMost`<br/>`CountsEqualsTo`<br/>`CountsBetween`|比较序列大小，可选out参数在小于指定值时返回当前序列大小
 ⭕⭕✔<br/>❌✔✔|`ElementAtOrDefault`<br/>`TryAt`|以安全方式按下标获取值

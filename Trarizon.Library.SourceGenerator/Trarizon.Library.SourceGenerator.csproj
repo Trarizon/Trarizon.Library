@@ -12,11 +12,6 @@
 		<EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
 	</PropertyGroup>
 
-	<ItemGroup Label="Nuget Configs">
-		<None Include="$(OutputPath)\$(AssemblyName).dll" 
-			  Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-	</ItemGroup>
-
 	<PropertyGroup>
 		<!--It means use this lib only as analyzer -->
 		<IncludeBuildOutput>false</IncludeBuildOutput>
@@ -33,8 +28,24 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" />
+		<PackageReference Include="PolySharp" Version="1.14.1">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 	</ItemGroup>
 	
 	<!-- Nuget Reference End -->
+	
+	<!-- PolySharp -->
+
+	<PropertyGroup Label="PolySharpSettings">
+		<PolySharpUsePublicAccessibilityForGeneratedTypes>true</PolySharpUsePublicAccessibilityForGeneratedTypes>
+		<PolySharpIncludeGeneratedTypes>
+			System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute;
+			System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute;
+			System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute;
+		</PolySharpIncludeGeneratedTypes>
+	</PropertyGroup>	
+	<!-- PolySharp End-->
 	
 </Project>

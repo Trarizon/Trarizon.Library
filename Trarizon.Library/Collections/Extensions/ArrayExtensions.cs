@@ -27,8 +27,15 @@ public static partial class ArrayExtensions
     public static void Fill<T>(this T[] array, T item)
         => array.AsSpan().Fill(item);
 
+    #region SortStably
+
     public static void SortStably<T>(this T[] values, Comparison<T>? comparison = null)
         => values.AsSpan().SortStably(comparison);
+
+    public static void SortStably<T>(this T[] values, StableSortComparer<T>? comparer = null)
+        => values.AsSpan().SortStably(comparer);
+
+    #endregion
 
     public static Span<T> AsSpan<T>(this T[,] values, int row)
         => MemoryMarshal.CreateSpan(ref values[row, 0], values.GetLength(1));

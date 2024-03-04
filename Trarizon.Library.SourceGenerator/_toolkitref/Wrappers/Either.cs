@@ -1,7 +1,7 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Trarizon.Library.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
-namespace Trarizon.Library.Wrappers;
+namespace Trarizon.Library.GeneratorToolkit.Wrappers;
 public static class Either
 {
     public static Either<TLeft, TRight> Left<TLeft, TRight>(TLeft leftValue)
@@ -9,46 +9,15 @@ public static class Either
 
     public static Either<TLeft, TRight> Right<TLeft, TRight>(TRight rightValue)
         => new(rightValue);
-
-    #region Conversion
-
-    public static Optional<TLeft> ToOptionalLeft<TLeft, TRight>(this Either<TLeft, TRight> either)
-        => either.IsLeft ? Optional.Of(either._left) : default;
-
-    public static Optional<TRight> ToOptionalRight<TLeft, TRight>(this Either<TLeft, TRight> either)
-        => either.IsRight ? Optional.Of(either._right) : default;
-
-    public static Result<TLeft, TError> ToResultLeft<TLeft, TRight, TError>(this Either<TLeft, TRight> either, TError error) where TError : class
-        => either.IsLeft ? new(either._left) : new(error);
-
-    public static Result<TLeft, TError> ToResultLeft<TLeft, TRight, TError>(this Either<TLeft, TRight> either, Func<TRight, TError> errorSelector) where TError : class
-        => either.IsLeft ? new(either._left) : new(errorSelector(either._right));
-
-    public static Result<TRight, TError> ToResultRight<TLeft, TRight, TError>(this Either<TLeft, TRight> either, TError error) where TError : class
-        => either.IsRight ? new(either._right) : new(error);
-
-    public static Result<TRight, TError> ToResultRight<TLeft, TRight, TError>(this Either<TLeft, TRight> either, Func<TLeft, TError> errorSelector) where TError : class
-        => either.IsRight ? new(either._right) : new(errorSelector(either._left));
-
-    public static Result<TLeft, TRight> AsResultLeft<TLeft, TRight>(this Either<TLeft, TRight> either) where TRight : class
-        => either.IsLeft ? new(either._left) : new(either._right);
-
-    public static Result<TRight, TLeft> AsResultRight<TLeft, TRight>(this Either<TLeft, TRight> either) where TLeft : class
-        => either.IsRight ? new(either._right) : new(either._left);
-
-    #endregion
 }
 
 public readonly struct Either<TLeft, TRight>
 {
     private readonly bool _isLeft;
-    [Friend(typeof(Either))]
     internal readonly TLeft? _left;
-    [Friend(typeof(Either))]
     internal readonly TRight? _right;
 
     #region Accessor
-
     [MemberNotNullWhen(true, nameof(_left), nameof(LeftValue))]
     [MemberNotNullWhen(false, nameof(_right), nameof(RightValue))]
     public bool IsLeft => _isLeft;
@@ -59,19 +28,17 @@ public readonly struct Either<TLeft, TRight>
 
     public TLeft LeftValue
     {
-        get {
-            if (IsRight)
-                ThrowHelper.ThrowInvalidOperation("Either<> has no left value");
-            return _left;
+        get
+        {
+            return _left!;
         }
     }
 
     public TRight RightValue
     {
-        get {
-            if (IsLeft)
-                ThrowHelper.ThrowInvalidOperation("Either<> has no right value");
-            return _right;
+        get
+        {
+            return _right!;
         }
     }
 
@@ -152,6 +119,4 @@ public readonly struct Either<TLeft, TRight>
         => IsLeft ? leftSelector(_left) : rightSelector(_right);
 
     #endregion
-
-    public override string ToString() => (IsLeft ? _left.ToString() : _right.ToString()) ?? string.Empty;
 }

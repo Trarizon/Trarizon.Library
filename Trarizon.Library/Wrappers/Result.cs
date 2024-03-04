@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Trarizon.Library.CodeAnalysis;
 
 namespace Trarizon.Library.Wrappers;
 public static class Result
@@ -12,7 +13,7 @@ public static class Result
     public static void ThrowIfFailed<T, TException>(this Result<T, TException> result) where TException : Exception
     {
         if (!result.Success)
-            throw result.Error;
+            throw result._error;
     }
 
     #region Conversion
@@ -31,7 +32,9 @@ public static class Result
 
 public readonly struct Result<T, TError> where TError : class
 {
+    [Friend(typeof(Result))]
     internal readonly T? _value;
+    [Friend(typeof(Result))]
     internal readonly TError? _error;
 
     #region Accessor

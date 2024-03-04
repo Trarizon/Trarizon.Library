@@ -1,10 +1,13 @@
-﻿namespace Trarizon.Library.Collections.Extensions;
+﻿using Trarizon.Library.CodeAnalysis;
+
+namespace Trarizon.Library.Collections.Extensions;
 partial class ListQuery
 {
-    // Public use EnumerableQuery.StartsWith()
+    [Friend(typeof(EnumerableQuery))]
     internal static bool StartsWithList<T>(this IList<T> list, int offset, ReadOnlySpan<T> values)
         => StartsWithOpt(list.Wrap(), offset, values);
 
+    [Friend(typeof(EnumerableQuery))]
     internal static bool StartsWithList<T>(this IList<T> list, int offset, IEnumerable<T> values)
         => StartsWithOpt(list.Wrap(), offset, values);
 

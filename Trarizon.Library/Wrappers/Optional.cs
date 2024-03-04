@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Trarizon.Library.CodeAnalysis;
 
 namespace Trarizon.Library.Wrappers;
 public static class Optional
@@ -40,12 +41,12 @@ public static class Optional
         => optional.HasValue ? new(optional._value) : new(leftSelector());
 
     #endregion
-
 }
 
 public readonly struct Optional<T>(T value)
 {
     private readonly bool _hasValue = true;
+    [Friend(typeof(Optional))]
     internal readonly T? _value = value;
 
     #region Accessor

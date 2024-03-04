@@ -1,28 +1,36 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
-        <LangVersion>12</LangVersion>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<LangVersion>12</LangVersion>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	</PropertyGroup>
 
-    <PropertyGroup Label="NugetProperties">
-        <Title>Trarizon.Library</Title>
-        <Authors>Trarizon</Authors>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
-        <RepositoryUrl>https://github.com/Trarizon/Trarizon.Library</RepositoryUrl>
-        <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-        <PackageLicenseFile>LICENSE</PackageLicenseFile>
-        <Version>0.2.2</Version>
-        <AssemblyVersion>0.2.2</AssemblyVersion>
-        <FileVersion>$(AssemblyVersion)</FileVersion>
-    </PropertyGroup>
+	<PropertyGroup Label="NugetProperties">
+		<Title>Trarizon.Library</Title>
+		<Authors>Trarizon</Authors>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<RepositoryUrl>https://github.com/Trarizon/Trarizon.Library</RepositoryUrl>
+		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<AssemblyVersion>0.2.2.2</AssemblyVersion>
+		<Version>$(AssemblyVersion)</Version>
+		<FileVersion>$(AssemblyVersion)</FileVersion>
+	</PropertyGroup>
 
-    <ItemGroup Label="NugetItems">
-        <None Include="..\LICENSE" Pack="True" PackagePath="" />
-        <None Include="README.md" Pack="True" PackagePath="" />
-    </ItemGroup>
+	<ItemGroup Label="NugetItems">
+		<None Include="..\LICENSE" Pack="True" PackagePath="" />
+		<None Include="README.md" Pack="True" PackagePath="" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Trarizon.Library.SourceGenerator\Trarizon.Library.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\Trarizon.Library.SourceGenerator\bin\$(Configuration)\Trarizon.Library.SourceGenerator.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+	</ItemGroup>
 
 </Project>

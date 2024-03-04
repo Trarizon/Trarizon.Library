@@ -44,21 +44,26 @@ public static partial class SpanExtensions
 
     public static int IndexOf<T>(this Span<T> span, T value, int startIndex) where T : IEquatable<T>?
         => span[startIndex..].IndexOf(value) + startIndex;
-    
+
     public static int IndexOf<T>(this ReadOnlySpan<T> span, T value, int startIndex) where T : IEquatable<T>?
         => span[startIndex..].IndexOf(value) + startIndex;
 
     #endregion
 
+    #region SortStably
+
     public static void SortStably<T>(this Span<T> span, Comparison<T>? comparison = null)
+        => span.SortStably(comparison is null ? null : new StableSortComparer<T>(comparison));
+
+    public static void SortStably<T>(this Span<T> span, StableSortComparer<T>? comparer = null)
     {
         Span<(int, T)> keys = new (int, T)[span.Length];
         for (int i = 0; i < span.Length; i++)
             keys[i] = (i, span[i]);
-        keys.Sort(span, comparison is null
-            ? StableSortComparer<T>.Default
-            : new StableSortComparer<T>(comparison));
+        keys.Sort(span, comparer ?? StableSortComparer<T>.Default);
     }
+
+    #endregion
 
     #region Reverse
 
