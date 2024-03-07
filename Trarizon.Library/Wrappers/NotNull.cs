@@ -40,13 +40,13 @@ public readonly struct NotNull<T>(T value) where T : class
     [MemberNotNullWhen(true, nameof(_value))]
     public bool HasValue => _value is not null;
 
-    public T Value
+    public T Value => _value!;
+
+    public T GetValidValue()
     {
-        get {
-            if (!HasValue)
-                ThrowHelper.ThrowInvalidOperation($"NotNull<T> has no value");
-            return _value;
-        }
+        if (!HasValue)
+            ThrowHelper.ThrowInvalidOperation($"Value in NotNull<T> is null");
+        return _value;
     }
 
     public T? GetValueOrNull() => _value;

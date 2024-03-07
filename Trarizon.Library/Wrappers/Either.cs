@@ -81,26 +81,24 @@ public readonly struct Either<TLeft, TRight>
     [MemberNotNullWhen(true, nameof(_right))]
     public bool IsRight => !_isLeft;
 
-    public TLeft LeftValue
+    public TLeft LeftValue => _left!;
+    public TRight RightValue => _right!;
+
+    public TLeft GetValidLeftValue()
     {
-        get {
-            if (IsRight)
-                ThrowHelper.ThrowInvalidOperation("Either<> has no left value");
-            return _left;
-        }
+        if (IsRight)
+            ThrowHelper.ThrowInvalidOperation("Either<> has no left value");
+        return _left;
+    }
+    public TRight GetValidRightValue()
+    {
+        if (IsLeft)
+            ThrowHelper.ThrowInvalidOperation("Either<> has no right value");
+        return _right;
     }
 
-    public TRight RightValue
-    {
-        get {
-            if (IsLeft)
-                ThrowHelper.ThrowInvalidOperation("Either<> has no right value");
-            return _right;
-        }
-    }
-
-    public readonly TLeft? GetLeftValueOrDefault() => _left;
-    public readonly TRight? GetRightValueOrDefault() => _right;
+    public TLeft? GetLeftValueOrDefault() => _left;
+    public TRight? GetRightValueOrDefault() => _right;
 
     [MemberNotNullWhen(true, nameof(_left))]
     [MemberNotNullWhen(false, nameof(_right))]

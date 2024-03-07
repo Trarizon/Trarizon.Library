@@ -74,13 +74,13 @@ public readonly struct Optional<T>(T value)
     [MemberNotNullWhen(true, nameof(_value))]
     public bool HasValue => _hasValue;
 
-    public T Value
+    public T Value => _value!;
+
+    public T GetValidValue()
     {
-        get {
-            if (!HasValue)
-                ThrowHelper.ThrowInvalidOperation($"Optional<> has no value.");
-            return _value;
-        }
+        if (!HasValue)
+            ThrowHelper.ThrowInvalidOperation($"Optional<> has no value.");
+        return _value;
     }
 
     public T? GetValueOrDefault() => _value;

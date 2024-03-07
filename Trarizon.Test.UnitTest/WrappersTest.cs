@@ -15,10 +15,10 @@ public class WrappersTest
     public void Optional_Flattern()
     {
         var opt = Optional.Of(Optional.Of(1));
-        Assert.IsTrue(opt.GetValueOrDefault().HasValue);
+        Assert.IsTrue(opt.Value.HasValue);
         opt = Optional.Of(default(Optional<int>));
-        Assert.IsFalse(opt.GetValueOrDefault().HasValue);
+        Assert.IsFalse(opt.Value.HasValue);
         opt = default(Optional<Optional<int>>);
-        Assert.IsFalse(opt.GetValueOrDefault().HasValue);
+        Assert.IsFalse(opt.Value.HasValue);
     }
 }

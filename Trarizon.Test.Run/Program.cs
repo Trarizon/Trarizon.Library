@@ -18,6 +18,12 @@ using Trarizon.Test.UnitTest;
 
 string? str = null;
 
+Optional<string?> optional = null;
+str = optional.Value;
+
+Result<string?, string?> res;
+
+
 NotNull<string> nstr = str;
 
 Console.WriteLine(nstr.HasValue);

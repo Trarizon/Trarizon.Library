@@ -44,33 +44,26 @@ public readonly struct Result<T, TError> where TError : class
 
     [MemberNotNullWhen(true, nameof(_value))]
     [MemberNotNullWhen(false, nameof(_error))]
-    public readonly bool Success => _error is null;
+    public bool Success => _error is null;
 
     [MemberNotNullWhen(false, nameof(_value))]
     [MemberNotNullWhen(true, nameof(_error))]
-    public readonly bool Failed => _error is not null;
+    public bool Failed => !Success;
 
-    public readonly T Value
+
+    public T Value => _value!;
+
+    public NotNull<TError> Error => _error;
+
+    public T GetValidValue()
     {
-        get {
-            if (Failed)
-                ThrowHelper.ThrowInvalidOperation($"Result<> failed.");
-            return _value;
-        }
+        if (Failed)
+            ThrowHelper.ThrowInvalidOperation($"Result<> failed.");
+        return _value;
     }
 
-    [NotNull]
-    public readonly TError Error
-    {
-        get {
-            if (Success)
-                ThrowHelper.ThrowInvalidOperation($"Cannot get error, Result<> is success.");
-            return _error;
-        }
-    }
-
-    public readonly T? GetValueOrDefault() => _value;
-    public readonly TError? GetErrorOrDefault() => _error;
+    public T? GetValueOrDefault() => _value;
+    public TError? GetErrorOrDefault() => _error;
 
     [MemberNotNullWhen(true, nameof(_value))]
     [MemberNotNullWhen(false, nameof(_error))]
