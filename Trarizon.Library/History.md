@@ -1,6 +1,13 @@
 # History
 
+## v0.3.0
+
+- New
+    - Add Monad.`GetValueRefOrDefaultRef()`
+    - Add `NotNull<T>`
+
 ## v0.2.2
+
 - New
     - Add more collection members to `StackAllocBitArray`
     - Add `ReversedSpan<>.CopyTo`

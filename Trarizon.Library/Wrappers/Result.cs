@@ -10,21 +10,24 @@ public static class Result
     public static Result<T, TError> Failed<T, TError>(TError error) where TError : class
         => new(error);
 
-    public static void ThrowIfFailed<T, TException>(this Result<T, TException> result) where TException : Exception
+    public static void ThrowIfFailed<T, TException>(this in Result<T, TException> result) where TException : Exception
     {
         if (!result.Success)
             throw result._error;
     }
 
+    public static ref readonly T? GetValueRefOrDefaultRef<T, TError>(this in Result<T, TError> result) where TError : class
+        => ref result._value;
+
     #region Conversion
 
-    public static Optional<T> ToOptional<T, TError>(this Result<T, TError> result) where TError : class
+    public static Optional<T> ToOptional<T, TError>(this in Result<T, TError> result) where TError : class
         => result.Success ? Optional.Of(result._value) : default;
 
-    public static Either<T, TError> AsEitherLeft<T, TError>(this Result<T, TError> result) where TError : class
+    public static Either<T, TError> AsEitherLeft<T, TError>(this in Result<T, TError> result) where TError : class
         => result.Success ? new(result._value) : new(result._error);
 
-    public static Either<TError, T> AsEitherRight<T, TError>(this Result<T, TError> result) where TError : class
+    public static Either<TError, T> AsEitherRight<T, TError>(this in Result<T, TError> result) where TError : class
         => result.Failed ? new(result._error) : new(result._value);
 
     #endregion
@@ -39,12 +42,12 @@ public readonly struct Result<T, TError> where TError : class
 
     #region Accessor
 
-    [MemberNotNullWhen(true, nameof(_value), nameof(Value))]
-    [MemberNotNullWhen(false, nameof(_error), nameof(Error))]
+    [MemberNotNullWhen(true, nameof(_value))]
+    [MemberNotNullWhen(false, nameof(_error))]
     public readonly bool Success => _error is null;
 
-    [MemberNotNullWhen(false, nameof(_value), nameof(Value))]
-    [MemberNotNullWhen(true, nameof(_error), nameof(Error))]
+    [MemberNotNullWhen(false, nameof(_value))]
+    [MemberNotNullWhen(true, nameof(_error))]
     public readonly bool Failed => _error is not null;
 
     public readonly T Value
@@ -69,8 +72,8 @@ public readonly struct Result<T, TError> where TError : class
     public readonly T? GetValueOrDefault() => _value;
     public readonly TError? GetErrorOrDefault() => _error;
 
-    [MemberNotNullWhen(true, nameof(_value), nameof(Value))]
-    [MemberNotNullWhen(false, nameof(_error), nameof(Error))]
+    [MemberNotNullWhen(true, nameof(_value))]
+    [MemberNotNullWhen(false, nameof(_error))]
     public bool TryGetValue([MaybeNullWhen(false)] out T value, [MaybeNullWhen(true)] out TError error)
     {
         value = _value;
@@ -78,8 +81,8 @@ public readonly struct Result<T, TError> where TError : class
         return Success;
     }
 
-    [MemberNotNullWhen(true, nameof(Value))]
-    [MemberNotNullWhen(false, nameof(Error))]
+    [MemberNotNullWhen(true, nameof(_value))]
+    [MemberNotNullWhen(false, nameof(_error))]
     public bool TryGetValue([MaybeNullWhen(false)] out T value)
     {
         value = _value;

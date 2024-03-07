@@ -10,31 +10,55 @@ public static class Either
     public static Either<TLeft, TRight> Right<TLeft, TRight>(TRight rightValue)
         => new(rightValue);
 
+    public static ref readonly TLeft? GetLeftRefOrDefaultRef<TLeft, TRight>(this in Either<TLeft, TRight> either)
+        => ref either._left;
+
+    public static ref readonly TRight? GetRightRefOrDefaultRef<TLeft, TRight>(this in Either<TLeft, TRight> either)
+        => ref either._right;
+
     #region Conversion
 
-    public static Optional<TLeft> ToOptionalLeft<TLeft, TRight>(this Either<TLeft, TRight> either)
+    #region NotNull
+
+    public static NotNull<TLeft> ToNotNullLeft<TLeft, TRight>(this in Either<TLeft, TRight> either) where TLeft : class
+        => either.IsLeft ? NotNull.Of(either._left) : default;
+
+    public static NotNull<TRight> ToNotNullRight<TLeft, TRight>(this in Either<TLeft, TRight> either) where TRight : class
+        => either.IsRight ? NotNull.Of(either._right) : default;
+
+    #endregion
+
+    #region Optional
+
+    public static Optional<TLeft> ToOptionalLeft<TLeft, TRight>(this in Either<TLeft, TRight> either)
         => either.IsLeft ? Optional.Of(either._left) : default;
 
-    public static Optional<TRight> ToOptionalRight<TLeft, TRight>(this Either<TLeft, TRight> either)
+    public static Optional<TRight> ToOptionalRight<TLeft, TRight>(this in Either<TLeft, TRight> either)
         => either.IsRight ? Optional.Of(either._right) : default;
 
-    public static Result<TLeft, TError> ToResultLeft<TLeft, TRight, TError>(this Either<TLeft, TRight> either, TError error) where TError : class
+    #endregion
+
+    #region Result
+
+    public static Result<TLeft, TError> ToResultLeft<TLeft, TRight, TError>(this in Either<TLeft, TRight> either, TError error) where TError : class
         => either.IsLeft ? new(either._left) : new(error);
 
-    public static Result<TLeft, TError> ToResultLeft<TLeft, TRight, TError>(this Either<TLeft, TRight> either, Func<TRight, TError> errorSelector) where TError : class
+    public static Result<TLeft, TError> ToResultLeft<TLeft, TRight, TError>(this in Either<TLeft, TRight> either, Func<TRight, TError> errorSelector) where TError : class
         => either.IsLeft ? new(either._left) : new(errorSelector(either._right));
 
-    public static Result<TRight, TError> ToResultRight<TLeft, TRight, TError>(this Either<TLeft, TRight> either, TError error) where TError : class
+    public static Result<TRight, TError> ToResultRight<TLeft, TRight, TError>(this in Either<TLeft, TRight> either, TError error) where TError : class
         => either.IsRight ? new(either._right) : new(error);
 
-    public static Result<TRight, TError> ToResultRight<TLeft, TRight, TError>(this Either<TLeft, TRight> either, Func<TLeft, TError> errorSelector) where TError : class
+    public static Result<TRight, TError> ToResultRight<TLeft, TRight, TError>(this in Either<TLeft, TRight> either, Func<TLeft, TError> errorSelector) where TError : class
         => either.IsRight ? new(either._right) : new(errorSelector(either._left));
 
-    public static Result<TLeft, TRight> AsResultLeft<TLeft, TRight>(this Either<TLeft, TRight> either) where TRight : class
+    public static Result<TLeft, TRight> AsResultLeft<TLeft, TRight>(this in Either<TLeft, TRight> either) where TRight : class
         => either.IsLeft ? new(either._left) : new(either._right);
 
-    public static Result<TRight, TLeft> AsResultRight<TLeft, TRight>(this Either<TLeft, TRight> either) where TLeft : class
+    public static Result<TRight, TLeft> AsResultRight<TLeft, TRight>(this in Either<TLeft, TRight> either) where TLeft : class
         => either.IsRight ? new(either._right) : new(either._left);
+
+    #endregion
 
     #endregion
 }
@@ -49,12 +73,12 @@ public readonly struct Either<TLeft, TRight>
 
     #region Accessor
 
-    [MemberNotNullWhen(true, nameof(_left), nameof(LeftValue))]
-    [MemberNotNullWhen(false, nameof(_right), nameof(RightValue))]
+    [MemberNotNullWhen(true, nameof(_left))]
+    [MemberNotNullWhen(false, nameof(_right))]
     public bool IsLeft => _isLeft;
 
-    [MemberNotNullWhen(false, nameof(_left), nameof(LeftValue))]
-    [MemberNotNullWhen(true, nameof(_right), nameof(RightValue))]
+    [MemberNotNullWhen(false, nameof(_left))]
+    [MemberNotNullWhen(true, nameof(_right))]
     public bool IsRight => !_isLeft;
 
     public TLeft LeftValue
@@ -78,8 +102,8 @@ public readonly struct Either<TLeft, TRight>
     public readonly TLeft? GetLeftValueOrDefault() => _left;
     public readonly TRight? GetRightValueOrDefault() => _right;
 
-    [MemberNotNullWhen(true, nameof(_left), nameof(LeftValue))]
-    [MemberNotNullWhen(false, nameof(_right), nameof(RightValue))]
+    [MemberNotNullWhen(true, nameof(_left))]
+    [MemberNotNullWhen(false, nameof(_right))]
     public bool TryGetLeftValue([MaybeNullWhen(false)] out TLeft left, [MaybeNullWhen(true)] out TRight right)
     {
         left = _left;
@@ -87,21 +111,21 @@ public readonly struct Either<TLeft, TRight>
         return IsLeft;
     }
 
-    [MemberNotNullWhen(true, nameof(_left), nameof(LeftValue))]
-    [MemberNotNullWhen(false, nameof(_right), nameof(RightValue))]
+    [MemberNotNullWhen(true, nameof(_left))]
+    [MemberNotNullWhen(false, nameof(_right))]
     public bool TryGetLeftValue([MaybeNullWhen(false)] out TLeft left)
     {
         left = _left;
         return IsLeft;
     }
 
-    [MemberNotNullWhen(false, nameof(_left), nameof(LeftValue))]
-    [MemberNotNullWhen(true, nameof(_right), nameof(RightValue))]
+    [MemberNotNullWhen(false, nameof(_left))]
+    [MemberNotNullWhen(true, nameof(_right))]
     public bool TryGetRightValue([MaybeNullWhen(false)] out TRight right, [MaybeNullWhen(true)] out TLeft left)
         => !TryGetLeftValue(out left, out right);
 
-    [MemberNotNullWhen(false, nameof(_left), nameof(LeftValue))]
-    [MemberNotNullWhen(true, nameof(_right), nameof(RightValue))]
+    [MemberNotNullWhen(false, nameof(_left))]
+    [MemberNotNullWhen(true, nameof(_right))]
     public bool TryGetRightValue([MaybeNullWhen(false)] out TRight right)
     {
         right = _right;

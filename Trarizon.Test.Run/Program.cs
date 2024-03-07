@@ -16,11 +16,5 @@ using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 using Trarizon.Test.UnitTest;
 
-Console.WriteLine();
 
-[My(Either = 1)]
-[System.AttributeUsage(AttributeTargets.All, Inherited = false, AllowMultiple = true)]
-sealed class MyAttribute : Attribute
-{
-    public int Either { get; set; }
-}
+RunBenchmarks();
