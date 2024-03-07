@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Trarizon.Library.Collections.Extensions;
+using Trarizon.Library.Collections.StackAlloc;
 
 namespace Trarizon.Library.Collections.AllocOpt;
 [CollectionBuilder(typeof(AllocOptCollectionBuilder), nameof(AllocOptCollectionBuilder.CreateStack))]
@@ -34,7 +35,7 @@ public struct AllocOptStack<T> : ICollection<T>, IReadOnlyCollection<T>
         return true;
     }
 
-    public readonly SpanExtensions.ReversedReadOnlySpan<T> AsSpan() => _list.AsSpan().ToReversedSpan();
+    public readonly ReversedReadOnlySpan<T> AsSpan() => _list.AsSpan().ToReversedSpan();
 
     public readonly T[] ToArray() => AsSpan().ToArray();
 

@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using Trarizon.Library.Collections.Extensions.Helpers;
+using Trarizon.Library.Collections.StackAlloc;
 
 namespace Trarizon.Library.Collections.Extensions;
 public static partial class SpanExtensions

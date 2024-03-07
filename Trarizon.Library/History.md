@@ -2,6 +2,11 @@
 
 ## v0.2.3 (in progress)
 
+- Breaking
+    - Add `GetValidValue` for monads
+    - Monad.`Value`s will not throw if unset now
+    - Moved `ReversedSpan`
+    - Replace `ReversedSpan.OriginalSpan` with `Reverse()`
 - New
     - Add Monad.`GetValueRefOrDefaultRef()`
     - Add `NotNull<T>`

@@ -16,25 +16,6 @@ using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 using Trarizon.Test.UnitTest;
 
-string? str = null;
-
-Optional<string?> optional = null;
-str = optional.Value;
-
-Result<string?, string?> res;
-
-
-NotNull<string> nstr = str;
-
-Console.WriteLine(nstr.HasValue);
-Console.WriteLine(Unsafe.IsNullRef(ref str));
-
-
-[StructLayout(LayoutKind.Sequential)]
-class RefType : IEnumerable<int>
-{
-    private readonly IEnumerable<int> _ints;
-
-    public IEnumerator<int> GetEnumerator() => _ints.GetEnumerator();
-    IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_ints).GetEnumerator();
-}
+var span = ArrayInts().AsSpan().ToReversedSpan();
+span.ToArray().Print();
+span[1..^3].ToArray().Print();

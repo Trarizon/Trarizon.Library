@@ -50,7 +50,6 @@ public readonly struct Result<T, TError> where TError : class
     [MemberNotNullWhen(true, nameof(_error))]
     public bool Failed => !Success;
 
-
     public T Value => _value!;
 
     public NotNull<TError> Error => _error;
