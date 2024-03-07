@@ -10,14 +10,8 @@ internal abstract class EnumerationQuerier<T> : IEnumerator<T>, IEnumerable<T>
     /// This value is -1 before first MoveNext(),
     /// -2 is preserved state, do not use it.
     /// </summary>
-    protected int _state;
-    private readonly int _threadId;
-
-    protected EnumerationQuerier()
-    {
-        _state = -2;
-        _threadId = Environment.CurrentManagedThreadId;
-    }
+    protected int _state = -2;
+    private readonly int _threadId = Environment.CurrentManagedThreadId;
 
     public abstract T Current { get; }
 

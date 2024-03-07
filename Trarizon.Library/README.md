@@ -77,7 +77,7 @@ LinQ-like extensions
 
 Impl Type|Method|Remarks
 :--|:-:|:--
-✔|`Adjacent`|返回相邻的两个值（按下标(0,1), (1,2), ...）
+✔✔✔|`Adjacent`|返回相邻的两个值（按下标(0,1), (1,2), ...）
 ✔|`AggregateSelect`|类LinQ的`Aggregate`，返回执行至每一个元素的结果
 ⭕✔✔|`AsXXX`|返回自身
 ✔|`CartesianProduct`|返回两个序列的笛卡尔积

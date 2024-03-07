@@ -1,4 +1,8 @@
-﻿using Trarizon.Library.Collections.Extensions.Helpers.Queriers;
+﻿// Extends Enumerable.Select which
+// does not implement IList<>
+// https://source.dot.net/#System.Linq/System/Linq/Select.cs,c669c338f82e311e
+
+using Trarizon.Library.Collections.Extensions.Helpers.Queriers;
 using Trarizon.Library.Collections.Extensions.ListQueries.Helpers;
 using Trarizon.Library.Wrappers;
 

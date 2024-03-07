@@ -16,5 +16,19 @@ using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 using Trarizon.Test.UnitTest;
 
+string? str = null;
 
-RunBenchmarks();
+NotNull<string> nstr = str;
+
+Console.WriteLine(nstr.HasValue);
+Console.WriteLine(Unsafe.IsNullRef(ref str));
+
+
+[StructLayout(LayoutKind.Sequential)]
+class RefType : IEnumerable<int>
+{
+    private readonly IEnumerable<int> _ints;
+
+    public IEnumerator<int> GetEnumerator() => _ints.GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_ints).GetEnumerator();
+}

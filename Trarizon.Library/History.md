@@ -1,10 +1,11 @@
 # History
 
-## v0.3.0
+## v0.2.3 (in progress)
 
 - New
     - Add Monad.`GetValueRefOrDefaultRef()`
     - Add `NotNull<T>`
+    - Add `IList<>.Adjacent()`
 
 ## v0.2.2
 

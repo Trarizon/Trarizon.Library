@@ -6,7 +6,13 @@ partial class EnumerableQuery
     /// <summary>
     /// return an element and its next element each time.
     /// </summary>
-    public static IEnumerable<(T, T)> Adjacent<T>(this IEnumerable<T> source) => new AdjacentQuerier<T>(source);
+    public static IEnumerable<(T, T)> Adjacent<T>(this IEnumerable<T> source)
+    {
+        if (source is IList<T> list)
+            return list.AdjacentList();
+      
+        return new AdjacentQuerier<T>(source);
+    }
 
 
     private sealed class AdjacentQuerier<T>(IEnumerable<T> source) : SimpleEnumerationQuerier<T, (T, T)>(source)

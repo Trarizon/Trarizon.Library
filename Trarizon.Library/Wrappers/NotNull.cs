@@ -9,6 +9,8 @@ public static class NotNull
 
     public static NotNull<T> Null<T>() where T : class => NotNull<T>.Null;
 
+    public static NotNull<T> As<T>(T? value) where T : class => Unsafe.As<T?, NotNull<T>>(ref value);
+
     #region Conversion
 
     #region Optional
@@ -47,7 +49,7 @@ public readonly struct NotNull<T>(T value) where T : class
         }
     }
 
-    public T? GetValueOrDefault() => _value;
+    public T? GetValueOrNull() => _value;
 
     [MemberNotNullWhen(true, nameof(_value))]
     public bool TryGetValue([NotNullWhen(true)] out T? value)
@@ -60,7 +62,9 @@ public readonly struct NotNull<T>(T value) where T : class
 
     #region Creator
 
-    public static implicit operator NotNull<T>(T value) => NotNull.Of(value);
+    public static implicit operator NotNull<T>(T? value) => NotNull.As(value);
+
+    public static implicit operator T?(NotNull<T> notNull) => notNull._value;
 
     #endregion
 

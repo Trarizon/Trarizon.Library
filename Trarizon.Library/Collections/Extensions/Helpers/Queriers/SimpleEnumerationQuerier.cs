@@ -1,13 +1,11 @@
 ﻿namespace Trarizon.Library.Collections.Extensions.Helpers.Queriers;
-internal abstract class SimpleEnumerationQuerier<TIn, TOut> : EnumerationQuerier<TOut>
+internal abstract class SimpleEnumerationQuerier<TIn, TOut>(IEnumerable<TIn> source) : EnumerationQuerier<TOut>
 {
-    protected readonly IEnumerable<TIn> _source;
+    protected readonly IEnumerable<TIn> _source = source;
     protected IEnumerator<TIn>? _enumerator;
     protected TOut _current = default!;
 
-    protected SimpleEnumerationQuerier(IEnumerable<TIn> source) => _source = source;
-
-    public override TOut Current => _current;
+    public sealed override TOut Current => _current;
 
     protected override void DisposeInternal() => _enumerator?.Dispose();
 }
