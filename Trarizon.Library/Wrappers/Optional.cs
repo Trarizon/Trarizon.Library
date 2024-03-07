@@ -79,7 +79,6 @@ public readonly struct Optional<T>(T value)
         get {
             if (!HasValue)
                 ThrowHelper.ThrowInvalidOperation($"Optional<> has no value.");
-            var v = NotNull.Null<string>()._value;
             return _value;
         }
     }
