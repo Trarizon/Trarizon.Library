@@ -77,20 +77,20 @@ internal partial class FriendAccessAnalyzer : DiagnosticAnalyzer
         // Check calls
         context.RegisterSyntaxNodeAction(context =>
         {
-            var accessExprSyntax = (ExpressionSyntax)context.Node;
-            var accessExprSymbol = context.SemanticModel.GetSymbolInfo(accessExprSyntax).Symbol;
+            var memberAccessExprSyntax = (ExpressionSyntax)context.Node;
+            var memberSymbol = context.SemanticModel.GetSymbolInfo(memberAccessExprSyntax).Symbol;
 
-            var friendAttr = accessExprSymbol?.GetAttributes()
+            var friendAttr = memberSymbol?.GetAttributes()
                 .FirstOrDefault(attr => attr.AttributeClass.MatchDisplayString(Literals.FriendAttribute_TypeName));
             if (friendAttr is null)
                 return;
 
-            bool isFriend = accessExprSyntax.Ancestors()
+            bool isFriend = memberAccessExprSyntax.Ancestors()
                 .OfType<TypeDeclarationSyntax>()
                 .Select(syntax => context.SemanticModel.GetDeclaredSymbol(syntax)!)
                 .SelectMany(
                     symbol => friendAttr.GetConstructorArguments<ITypeSymbol>(Literals.FriendAttribute_FriendTypes_ConstructorIndex)
-                        .Prepend(symbol),
+                        .Prepend(memberSymbol!.ContainingType),
                     (symbol, friend) => (symbol, friend))
                 .Any(tuple => SymbolEqualityComparer.Default.Equals(tuple.symbol?.OriginalDefinition, tuple.friend?.OriginalDefinition));
             if (isFriend)
@@ -98,10 +98,10 @@ internal partial class FriendAccessAnalyzer : DiagnosticAnalyzer
 
             context.ReportDiagnostic(
                 Literals.Diagnostic_FriendMemberCannotBeAccessed,
-                accessExprSyntax switch {
+                memberAccessExprSyntax switch {
                     MemberAccessExpressionSyntax memberAccess => memberAccess.Name,
                     IdentifierNameSyntax identifierName => identifierName,
-                    _ => accessExprSyntax,
+                    _ => memberAccessExprSyntax,
                 });
         },
         SyntaxKind.SimpleMemberAccessExpression, SyntaxKind.IdentifierName);
