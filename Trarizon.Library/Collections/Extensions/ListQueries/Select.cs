@@ -45,7 +45,7 @@ partial class ListQuery
                     outVal = selector(inVal);
                 }
 
-                return outVal.Value;
+                return outVal.GetValueRefOrDefaultRef()!;
             }
         }
 

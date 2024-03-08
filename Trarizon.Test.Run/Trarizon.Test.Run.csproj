@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.13.9" />
+    <!--<PackageReference Include="Trarizon.Library" Version="0.3.0" />-->
   </ItemGroup>
 
   <ItemGroup>

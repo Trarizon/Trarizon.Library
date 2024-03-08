@@ -4,21 +4,20 @@
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<LangVersion>12</LangVersion>
 		<Nullable>enable</Nullable>
-		<IsRoslynComponent>true</IsRoslynComponent>
-	</PropertyGroup>
-
-	<PropertyGroup Label="Source Generator Configs">
-		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-		<EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<!--It means use this lib only as analyzer -->
+		<IsRoslynComponent>true</IsRoslynComponent>
+		<EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+	</PropertyGroup>
+
+	<!--<PropertyGroup>
+		--><!--It means use this lib only as analyzer --><!--
 		<IncludeBuildOutput>false</IncludeBuildOutput>
 		
 		<AnalysisLevel>none</AnalysisLevel>
 		<EnableNETAnalyzers>False</EnableNETAnalyzers>
-	</PropertyGroup>
+	</PropertyGroup>-->
 	
 	<!-- Nuget Reference -->
 
@@ -39,7 +38,6 @@
 	<!-- PolySharp -->
 
 	<PropertyGroup Label="PolySharpSettings">
-		<PolySharpUsePublicAccessibilityForGeneratedTypes>true</PolySharpUsePublicAccessibilityForGeneratedTypes>
 		<PolySharpIncludeGeneratedTypes>
 			System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute;
 			System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute;
