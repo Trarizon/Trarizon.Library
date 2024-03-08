@@ -37,6 +37,11 @@ public static partial class AsyncExtensions
     /// </summary>
     public static NullableValueTaskAwaiter GetAwaiter(this ValueTask? valueTask) => new(valueTask);
 
+    /// <summary>
+    /// Provide <see langword="await"/> feature support for nullable <see cref="ValueTask"/>
+    /// </summary>
+    public static NullableValueTaskAwaiter<T> GetAwaiter<T>(this ValueTask<T>? valueTask) => new(valueTask);
+
     #endregion
 
     #region Select

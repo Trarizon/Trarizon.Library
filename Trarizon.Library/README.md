@@ -105,7 +105,7 @@ Impl Type|Method|Remarks
 `this`|Method|Remarks
 :-:|:-:|:--
 `Task`<br/>`Task<>`<br/>`ValueTask`<br/>`ValueTask<>`|`Sync`|`GetAwaiter().GetResult()`
-`ValueTask?`|`GetAwaiter`|为`ValueTask?`提供`await`语法支持
+`ValueTask?`<br/>`Task<>?`|`GetAwaiter`|为`ValueTask?`提供`await`语法支持，泛型返回`Optional<>`
 `Task<>`<br/>`ValueTask<>`|`Select`|Monad
 IFloatNumber|`Remap`<br/>`RemapInto`|将值映射到另一个范围
 `Random`|`SelectWeighted`|按权重随机，返回结果下标
@@ -119,6 +119,7 @@ IFloatNumber|`Remap`<br/>`RemapInto`|将值映射到另一个范围
 `Type`|Remarks
 :-:|:--
 `Either<,>`|Monad Either
+`NotNull<>`|Monad Optional for notnull reference type
 `Optional<>`|Monad Optional
 `Result<,>`|Monad Result, `TError`支持任意引用类型
 

@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using Trarizon.Library.Wrappers;
 
 namespace Trarizon.Library.Extensions;
 partial class AsyncExtensions
@@ -13,14 +14,12 @@ partial class AsyncExtensions
         public void UnsafeOnCompleted(Action continuation) => _valueTaskAwaiter?.UnsafeOnCompleted(continuation);
     }
 
-#if false
     public readonly struct NullableValueTaskAwaiter<T> : INotifyCompletion
     {
         private readonly ValueTaskAwaiter<T>? _valueTaskAwaiter;
         internal NullableValueTaskAwaiter(ValueTask<T>? valueTask) => _valueTaskAwaiter = valueTask?.GetAwaiter();
         public bool IsCompleted => _valueTaskAwaiter?.IsCompleted ?? true;
         public void OnCompleted(Action continuation) => _valueTaskAwaiter?.OnCompleted(continuation);
-        public T? GetResult() => _valueTaskAwaiter.HasValue ? _valueTaskAwaiter.Value.GetResult() : default;
+        public Optional<T> GetResult() => _valueTaskAwaiter.HasValue ? _valueTaskAwaiter.Value.GetResult() : Optional.None<T>();
     }
-#endif
 }
