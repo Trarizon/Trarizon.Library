@@ -8,7 +8,7 @@ namespace Trarizon.Library.CodeAnalysis;
     AttributeTargets.Field |
     AttributeTargets.Event)]
 [Conditional("CODE_ANALYSIS")]
-public sealed class FriendAttribute(params Type[] friendTypes) : Attribute
+public sealed class FriendAccessAttribute(params Type[] friendTypes) : Attribute
 {
     public Type[] FriendTypes { get; } = friendTypes;
 }

@@ -66,9 +66,9 @@ public static class Either
 public readonly struct Either<TLeft, TRight>
 {
     private readonly bool _isLeft;
-    [Friend(typeof(Either))]
+    [FriendAccess(typeof(Either))]
     internal readonly TLeft? _left;
-    [Friend(typeof(Either))]
+    [FriendAccess(typeof(Either))]
     internal readonly TRight? _right;
 
     #region Accessor

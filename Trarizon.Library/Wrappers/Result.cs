@@ -35,9 +35,9 @@ public static class Result
 
 public readonly struct Result<T, TError> where TError : class
 {
-    [Friend(typeof(Result))]
+    [FriendAccess(typeof(Result))]
     internal readonly T? _value;
-    [Friend(typeof(Result))]
+    [FriendAccess(typeof(Result))]
     internal readonly TError? _error;
 
     #region Accessor

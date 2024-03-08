@@ -2,14 +2,13 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Trarizon.Library.GeneratorToolkit.Extensions;
 
 namespace Trarizon.Library.SourceGenerator.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
-internal partial class FriendAnalyzer : DiagnosticAnalyzer
+internal partial class FriendAccessAnalyzer : DiagnosticAnalyzer
 {
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(
         Literals.Diagnostic_FriendMemberCannotBeAccessed,
@@ -20,7 +19,7 @@ internal partial class FriendAnalyzer : DiagnosticAnalyzer
         context.EnableConcurrentExecution();
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.Analyze | GeneratedCodeAnalysisFlags.ReportDiagnostics);
 
-        // Warning, member with [Friend] should be internal
+        // Warning, member with [FriendAccess] should be internal
         context.RegisterSyntaxNodeAction(context =>
         {
             var syntax = (MemberDeclarationSyntax)context.Node;

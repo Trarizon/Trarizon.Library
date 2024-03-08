@@ -3,11 +3,11 @@
 namespace Trarizon.Library.Collections.Extensions;
 partial class ListQuery
 {
-    [Friend(typeof(EnumerableQuery))]
+    [FriendAccess(typeof(EnumerableQuery))]
     internal static bool StartsWithList<T>(this IList<T> list, int offset, ReadOnlySpan<T> values)
         => StartsWithOpt(list.Wrap(), offset, values);
 
-    [Friend(typeof(EnumerableQuery))]
+    [FriendAccess(typeof(EnumerableQuery))]
     internal static bool StartsWithList<T>(this IList<T> list, int offset, IEnumerable<T> values)
         => StartsWithOpt(list.Wrap(), offset, values);
 

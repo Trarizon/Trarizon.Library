@@ -30,7 +30,7 @@ public static class NotNull
 /// </summary>
 public readonly struct NotNull<T>(T value) where T : class
 {
-    [Friend(typeof(NotNull))]
+    [FriendAccess(typeof(NotNull))]
     internal readonly T? _value = value;
 
     #region Accessor

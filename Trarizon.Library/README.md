@@ -15,7 +15,7 @@ Analyers are in [Trarizon.Library.SourceGenerator](../Trarizon.Library.SourceGen
 
 Attribute|Analyzer|Remark
 :-:|:-:|:--
-`Friend`|`FriendAnalyzer`| friend in c++，限制可访问该成员的类
+`FriendAccess`|`FriendAnalyzer`| friend in c++，限制可访问该成员的类
 
 ## Collections
 

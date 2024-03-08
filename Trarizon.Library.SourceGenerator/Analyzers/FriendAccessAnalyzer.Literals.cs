@@ -1,11 +1,11 @@
 ﻿using Microsoft.CodeAnalysis;
 
 namespace Trarizon.Library.SourceGenerator.Analyzers;
-partial class FriendAnalyzer
+partial class FriendAccessAnalyzer
 {
     private static class Literals
     {
-        public const string FriendAttribute_TypeName = "Trarizon.Library.CodeAnalysis.FriendAttribute";
+        public const string FriendAttribute_TypeName = "Trarizon.Library.CodeAnalysis.FriendAccessAttribute";
         public const int FriendAttribute_FriendTypes_ConstructorIndex = 0;
 
         public readonly static DiagnosticDescriptor Diagnostic_FriendMemberCannotBeAccessed = new(

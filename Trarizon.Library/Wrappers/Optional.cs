@@ -61,7 +61,7 @@ public static class Optional
 public readonly struct Optional<T>(T value)
 {
     private readonly bool _hasValue = true;
-    [Friend(typeof(Optional))]
+    [FriendAccess(typeof(Optional))]
     internal readonly T? _value = value;
 
     #region Accessor

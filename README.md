@@ -12,7 +12,7 @@ Miscellaneous thing. There will be many breaking changes (orz.
 <summary>brief</summary>
 
 - CodeAnalysis
-	- `FriendAttribute`: on behalf of `friend` in c++
+	- [Use generator] `FriendAccessAttribute`: like `friend` in c++
 - Monads: `Optional<T>`, `Result<T, TError>`, `Either<TLeft, TRight>`
 - Collections:
 	- Queries: More Linq-like methods for `IEnumerable<>`, `IList<>`, `IReadOnlyList<>`
