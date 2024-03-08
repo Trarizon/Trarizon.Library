@@ -19,91 +19,97 @@ internal partial class FriendAccessAnalyzer : DiagnosticAnalyzer
         context.EnableConcurrentExecution();
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.Analyze | GeneratedCodeAnalysisFlags.ReportDiagnostics);
 
-        // Warning, member with [FriendAccess] should be internal
-        context.RegisterSyntaxNodeAction(context =>
+        context.RegisterSyntaxNodeAction(
+            FriendShouldBeInternal,
+            SyntaxKind.MethodDeclaration, SyntaxKind.FieldDeclaration, SyntaxKind.PropertyDeclaration, SyntaxKind.EventDeclaration, SyntaxKind.ConstructorDeclaration);
+
+        context.RegisterSyntaxNodeAction(
+            CheckIfCalledFromFriendOrSelf,
+            SyntaxKind.SimpleMemberAccessExpression); // Removed IdentifierName, directly access in type is always allow
+    }
+
+    private static void FriendShouldBeInternal(SyntaxNodeAnalysisContext context)
+    {
+        var syntax = (MemberDeclarationSyntax)context.Node;
+        var symbol = context.SemanticModel.GetDeclaredSymbol(syntax is FieldDeclarationSyntax field ? field.Declaration.Variables[0] : syntax);
+
+        if (true != symbol?.GetAttributes().Any(attr => attr.AttributeClass.MatchDisplayString(Literals.FriendAttribute_TypeName)))
+            return;
+
+        // One of ancestors' modifier should be internal
+        bool isInternal = syntax.AncestorsAndSelf().OfType<MemberDeclarationSyntax>().Any(syntax =>
         {
-            var syntax = (MemberDeclarationSyntax)context.Node;
-            var symbol = context.SemanticModel.GetDeclaredSymbol(syntax is FieldDeclarationSyntax field ? field.Declaration.Variables[0] : syntax);
-
-            if (true != symbol?.GetAttributes().Any(attr => attr.AttributeClass.MatchDisplayString(Literals.FriendAttribute_TypeName)))
-                return;
-
-            // One of ancestors' modifier should be internal
-            bool isInternal = syntax.AncestorsAndSelf().OfType<MemberDeclarationSyntax>().Any(syntax =>
-            {
-                // internal
-                // internal protected (x
-                // private 
-                // private protected
-                const int Internal = 1, Protected = 2;
-                int mod = 0;
-                foreach (var modifier in syntax.Modifiers) {
-                    if (modifier.IsKind(SyntaxKind.InternalKeyword)) {
-                        if (mod == Protected) // internal protected
-                            return false;
-                        mod = Internal;
-                    }
-                    else if (modifier.IsKind(SyntaxKind.ProtectedKeyword)) {
-                        if (mod == Internal) // internal protected
-                            return false;
-                        mod = Protected;
-                    }
-                    else if (modifier.IsKind(SyntaxKind.PrivateKeyword))
-                        return true; // private (protected)
-                    else if (modifier.IsKind(SyntaxKind.PublicKeyword))
-                        return false; // public
+            // internal
+            // internal protected (x
+            // private 
+            // private protected
+            const int Internal = 1, Protected = 2;
+            int mod = 0;
+            foreach (var modifier in syntax.Modifiers) {
+                if (modifier.IsKind(SyntaxKind.InternalKeyword)) {
+                    if (mod == Protected) // internal protected
+                        return false;
+                    mod = Internal;
                 }
-                return mod switch {
-                    Internal => true,
-                    Protected => false,
-                    _ => true, // no access modifier
-                };
+                else if (modifier.IsKind(SyntaxKind.ProtectedKeyword)) {
+                    if (mod == Internal) // internal protected
+                        return false;
+                    mod = Protected;
+                }
+                else if (modifier.IsKind(SyntaxKind.PrivateKeyword))
+                    return true; // private (protected)
+                else if (modifier.IsKind(SyntaxKind.PublicKeyword))
+                    return false; // public
+            }
+            return mod switch {
+                Internal => true,
+                Protected => false,
+                _ => true, // no access modifier
+            };
+        });
+        if (isInternal)
+            return;
+
+        context.ReportDiagnostic(
+            Literals.Diagnostic_FriendMayBeAccessedByOtherAssembly,
+            syntax switch {
+                MethodDeclarationSyntax meth => meth.Identifier,
+                FieldDeclarationSyntax fie => fie.Declaration,
+                PropertyDeclarationSyntax prop => prop.Identifier,
+                EventDeclarationSyntax ev => ev.Identifier,
+                ConstructorDeclarationSyntax ctor => ctor.Identifier,
+                _ => syntax,
             });
-            if (isInternal)
-                return;
+    }
 
-            context.ReportDiagnostic(
-                Literals.Diagnostic_FriendMayBeAccessedByOtherAssembly,
-                syntax switch {
-                    MethodDeclarationSyntax meth => meth.Identifier,
-                    FieldDeclarationSyntax fie => fie.Declaration,
-                    PropertyDeclarationSyntax prop => prop.Identifier,
-                    EventDeclarationSyntax ev => ev.Identifier,
-                    ConstructorDeclarationSyntax ctor => ctor.Identifier,
-                    _ => syntax,
-                });
-        }, SyntaxKind.MethodDeclaration, SyntaxKind.FieldDeclaration, SyntaxKind.PropertyDeclaration, SyntaxKind.EventDeclaration, SyntaxKind.ConstructorDeclaration);
+    private static void CheckIfCalledFromFriendOrSelf(SyntaxNodeAnalysisContext context)
+    {
+        var memberAccessExprSyntax = (ExpressionSyntax)context.Node;
+        var memberSymbol = context.SemanticModel.GetSymbolInfo(memberAccessExprSyntax).Symbol;
 
-        // Check calls
-        context.RegisterSyntaxNodeAction(context =>
-        {
-            var memberAccessExprSyntax = (ExpressionSyntax)context.Node;
-            var memberSymbol = context.SemanticModel.GetSymbolInfo(memberAccessExprSyntax).Symbol;
+        var friendAttr = memberSymbol?.GetAttributes()
+            .FirstOrDefault(attr => attr.AttributeClass.MatchDisplayString(Literals.FriendAttribute_TypeName));
+        if (friendAttr is null)
+            return;
 
-            var friendAttr = memberSymbol?.GetAttributes()
-                .FirstOrDefault(attr => attr.AttributeClass.MatchDisplayString(Literals.FriendAttribute_TypeName));
-            if (friendAttr is null)
-                return;
+        var friendTypes = friendAttr.GetConstructorArguments<INamedTypeSymbol>(Literals.FriendAttribute_FriendTypes_ConstructorIndex);
 
-            bool isFriend = memberAccessExprSyntax.Ancestors()
-                .OfType<TypeDeclarationSyntax>()
-                .Select(syntax => context.SemanticModel.GetDeclaredSymbol(syntax)!)
-                .SelectMany(
-                    symbol => friendAttr.GetConstructorArguments<ITypeSymbol>(Literals.FriendAttribute_FriendTypes_ConstructorIndex)
-                        .Prepend(memberSymbol!.ContainingType),
-                    (symbol, friend) => (symbol, friend))
-                .Any(tuple => SymbolEqualityComparer.Default.Equals(tuple.symbol?.OriginalDefinition, tuple.friend?.OriginalDefinition));
-            if (isFriend)
-                return;
+        bool isFriend = memberAccessExprSyntax.Ancestors()
+            .OfType<TypeDeclarationSyntax>()
+            .Select(syntax => context.SemanticModel.GetDeclaredSymbol(syntax)!)
+            .SelectMany(
+                symbol => friendTypes.Prepend(memberSymbol!.ContainingType),
+                (symbol, friend) => (symbol, friend))
+            .Any(tuple => SymbolEqualityComparer.Default.Equals(tuple.symbol?.OriginalDefinition, tuple.friend?.OriginalDefinition));
+        if (isFriend)
+            return;
 
-            context.ReportDiagnostic(
-                Literals.Diagnostic_FriendMemberCannotBeAccessed,
-                memberAccessExprSyntax switch {
-                    MemberAccessExpressionSyntax memberAccess => memberAccess.Name,
-                    IdentifierNameSyntax identifierName => identifierName,
-                    _ => memberAccessExprSyntax,
-                });
-        },
-        SyntaxKind.SimpleMemberAccessExpression, SyntaxKind.IdentifierName);
+        context.ReportDiagnostic(
+            Literals.Diagnostic_FriendMemberCannotBeAccessed,
+            memberAccessExprSyntax switch {
+                MemberAccessExpressionSyntax memberAccess => memberAccess.Name,
+                IdentifierNameSyntax identifierName => identifierName,
+                _ => memberAccessExprSyntax,
+            });
     }
 }
