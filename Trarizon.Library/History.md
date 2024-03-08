@@ -1,12 +1,13 @@
 # History
 
-## v0.2.3 (in progress)
+## v0.3.0 (in progress)
 
 - Breaking
     - Add `GetValidValue` for monads
     - Monad.`Value`s will not throw if unset now
     - Moved `ReversedSpan`
     - Replace `ReversedSpan.OriginalSpan` with `Reverse()`
+    - Rename `FriendAttribute` to `FriendAccessAttribute`
 - New
     - Add Monad.`GetValueRefOrDefaultRef()`
     - Add `NotNull<T>`
