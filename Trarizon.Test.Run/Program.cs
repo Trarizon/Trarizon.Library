@@ -1,6 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using BenchmarkDotNet.Running;
 using System.Collections;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
@@ -16,6 +17,4 @@ using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 using Trarizon.Test.UnitTest;
 
-var span = ArrayInts().AsSpan().ToReversedSpan();
-span.ToArray().Print();
-span[1..^3].ToArray().Print();
+Console.WriteLine(Unsafe.SizeOf<ImmutableArray<int>>());

@@ -1,6 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 
 namespace Trarizon.Library.GeneratorToolkit.Extensions;
 public static class AttributeDataExtensions
@@ -22,11 +23,8 @@ public static class AttributeDataExtensions
         if (attribute.NamedArguments.TryFirst(kv => kv.Key == parameterName, out var first)) {
             var arr = first.Value.Values;
             if (arr.Length == 0)
-                return [];
-            var result = new T[arr.Length];
-            for (int i = 0; i < arr.Length; i++)
-                result[i] = (T)arr[i].Value!;
-            return result;
+                return ImmutableArray<T>.Empty;
+            return arr.Select(arg => (T)arg.Value!).ToImmutableArray();
         }
         return default;
     }
@@ -36,11 +34,8 @@ public static class AttributeDataExtensions
         if (attribute.ConstructorArguments is var args && index >= 0 && index < args.Length) {
             var arr = args[index].Values;
             if (arr.Length == 0)
-                return [];
-            var result = new T[arr.Length];
-            for (int i = 0; i < arr.Length; i++)
-                result[i] = (T)arr[i].Value!;
-            return result;
+                return ImmutableArray<T>.Empty;
+            return arr.Select(arg => (T)arg.Value!).ToImmutableArray();
         }
         return default;
     }
