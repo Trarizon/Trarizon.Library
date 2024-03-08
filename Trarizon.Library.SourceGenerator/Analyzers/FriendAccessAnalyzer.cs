@@ -22,7 +22,7 @@ internal partial class FriendAccessAnalyzer : DiagnosticAnalyzer
         context.RegisterSyntaxNodeAction(
             FriendShouldBeInternal,
             SyntaxKind.MethodDeclaration, SyntaxKind.FieldDeclaration, SyntaxKind.PropertyDeclaration, SyntaxKind.EventDeclaration, SyntaxKind.ConstructorDeclaration);
-
+        
         context.RegisterSyntaxNodeAction(
             CheckIfCalledFromFriendOrSelf,
             SyntaxKind.SimpleMemberAccessExpression); // Removed IdentifierName, directly access in type is always allow

@@ -17,4 +17,3 @@ using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 using Trarizon.Test.UnitTest;
 
-Console.WriteLine(Unsafe.SizeOf<ImmutableArray<int>>());

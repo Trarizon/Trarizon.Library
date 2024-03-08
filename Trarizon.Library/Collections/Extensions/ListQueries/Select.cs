@@ -2,9 +2,10 @@
 // does not implement IList<>
 // https://source.dot.net/#System.Linq/System/Linq/Select.cs,c669c338f82e311e
 
+using System.Diagnostics;
 using Trarizon.Library.Collections.Extensions.Helpers.Queriers;
 using Trarizon.Library.Collections.Extensions.ListQueries.Helpers;
-using Trarizon.Library.Wrappers;
+using Trarizon.Library.Collections.StackAlloc;
 
 namespace Trarizon.Library.Collections.Extensions;
 partial class ListQuery
@@ -32,20 +33,25 @@ partial class ListQuery
 
     private sealed class CachedSelectQuerier<TList, TIn, TOut>(TList list, Func<TIn, TOut> selector) : SimpleListQuerier<TList, TIn, TOut>(list) where TList : IReadOnlyList<TIn>
     {
-        private Optional<TOut>[]? _cache;
+        private TOut[] _cache = null!;
+        private byte[]? _isCachedMarks;
 
         public override TOut this[int index]
         {
             get {
-                var inVal = _list[index];
-                _cache ??= new Optional<TOut>[Count];
-
-                ref var outVal = ref _cache[index];
-                if (!outVal.HasValue) {
-                    outVal = selector(inVal);
+                if (_isCachedMarks is null) {
+                    var count = Count;
+                    _isCachedMarks = new byte[StackAllocBitArray.GetArrayLength(count)];
+                    _cache = new TOut[count];
                 }
 
-                return outVal.GetValueRefOrDefaultRef()!;
+                Debug.Assert(_cache is not null);
+                var bits = new StackAllocBitArray(_isCachedMarks);
+                if (bits[index])
+                    return _cache[index];
+
+                bits[index] = true;
+                return _cache[index] = selector(_list[index]);
             }
         }
 
