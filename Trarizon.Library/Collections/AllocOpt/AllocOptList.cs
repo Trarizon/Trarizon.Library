@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using Trarizon.Library.Collections.Extensions;
+using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections.AllocOpt;
 [CollectionBuilder(typeof(AllocOptCollectionBuilder), nameof(AllocOptCollectionBuilder.CreateList))]

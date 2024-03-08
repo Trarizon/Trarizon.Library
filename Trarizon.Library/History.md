@@ -8,6 +8,7 @@
     - Moved `ReversedSpan`
     - Replace `ReversedSpan.OriginalSpan` with `Reverse()`
     - Rename `FriendAttribute` to `FriendAccessAttribute`
+    - Combine namespace `Collections.Creator` and `Collections.Extensions` to `Collections.Helpers`
 - New
     - Add Monad.`GetValueRefOrDefaultRef()`
     - Add `NotNull<T>`

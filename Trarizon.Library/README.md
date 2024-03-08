@@ -31,14 +31,12 @@ Rewrite BCL collections in struct, to reduce alloc on heap
 
 - `StackAllocBitArray`
 
-### Creators
+### Helpers
 
 static classes for quickly creating collections
 
 - `ArrayCreator`
 - `ListCreator`
-
-### Extensions
 
 扩展方法
 

@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using Trarizon.Library.Collections.Extensions;
+using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections.AllocOpt.Providers;
 internal struct AllocOptHashSetProvider<T, TKey, TComparer>

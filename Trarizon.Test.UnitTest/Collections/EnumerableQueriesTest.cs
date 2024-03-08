@@ -1,4 +1,4 @@
-using Trarizon.Library.Collections.Extensions;
+using Trarizon.Library.Collections.Helpers;
 using Trarizon.Library.Wrappers;
 
 namespace Trarizon.Test.UnitTest.Collections;
