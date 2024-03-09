@@ -16,3 +16,12 @@ using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 using Trarizon.Test.UnitTest;
 
+var list = ListInts();
+
+var selected = ArrayInts().SelectMany(i =>
+{
+    list.Add(1);
+    return list;
+});
+
+selected.Print();
