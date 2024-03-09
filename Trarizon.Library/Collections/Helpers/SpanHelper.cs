@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Buffers;
+using System.Runtime.InteropServices;
 using Trarizon.Library.Collections.Helpers.Utilities;
 using Trarizon.Library.Collections.StackAlloc;
 
@@ -58,10 +59,14 @@ public static partial class SpanHelper
 
     public static void SortStably<T>(this Span<T> span, StableSortComparer<T>? comparer = null)
     {
-        Span<(int, T)> keys = new (int, T)[span.Length];
-        for (int i = 0; i < span.Length; i++)
-            keys[i] = (i, span[i]);
-        keys.Sort(span, comparer ?? StableSortComparer<T>.Default);
+        var keys = ArrayPool<(int, T)>.Shared.Rent(span.Length);
+        try {
+            for (int i = 0; i < span.Length; i++)
+                keys[i] = (i, span[i]);
+            keys.AsSpan(0, span.Length).Sort(span, comparer ?? StableSortComparer<T>.Default);
+        } finally {
+            ArrayPool<(int, T)>.Shared.Return(keys);
+        }
     }
 
     #endregion
