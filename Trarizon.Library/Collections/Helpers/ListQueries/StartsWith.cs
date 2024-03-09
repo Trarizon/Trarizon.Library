@@ -7,15 +7,17 @@ partial class ListQuery
     internal static bool StartsWithList<T>(this IList<T> list, int offset, ReadOnlySpan<T> values)
         => StartsWithOpt(list.Wrap(), offset, values);
 
+    public static bool StartsWithROList<T>(this IReadOnlyList<T> list, int offset, ReadOnlySpan<T> values)
+        => StartsWithOpt(list, offset, values);
+
+
     [FriendAccess(typeof(EnumerableQuery))]
     internal static bool StartsWithList<T>(this IList<T> list, int offset, IEnumerable<T> values)
         => StartsWithOpt(list.Wrap(), offset, values);
 
-    public static bool StartsWithROList<T>(this IReadOnlyList<T> list, int offset, ReadOnlySpan<T> values)
-        => StartsWithOpt(list, offset, values);
-
     public static bool StartsWithROList<T>(this IReadOnlyList<T> list, int offset, IEnumerable<T> values)
         => StartsWithOpt(list, offset, values);
+
 
     private static bool StartsWithOpt<TList, T>(this TList list, int offset, ReadOnlySpan<T> values) where TList : IReadOnlyList<T>
     {

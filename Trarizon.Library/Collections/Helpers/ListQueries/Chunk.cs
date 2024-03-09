@@ -11,7 +11,11 @@ partial class ListQuery
     /// Append to the sequence if the last pair cannot be perfectly filled.
     /// </param>
     public static IList<(T, T)> ChunkPairList<T>(this IList<T> list, T paddingElement)
-        => new ChunkPairQuerier<ListWrapper<T>, T>(list.Wrap(), paddingElement)!;
+    {
+        if (list.Count == 0)
+            return Array.Empty<(T, T)>();
+        return new ChunkPairQuerier<ListWrapper<T>, T>(list.Wrap(), paddingElement)!;
+    }
 
     /// <summary>
     /// Split elements sequence into pairs
@@ -20,7 +24,33 @@ partial class ListQuery
     /// Append to the sequence if the last pair cannot be perfectly filled.
     /// </param>
     public static IReadOnlyList<(T, T)> ChunkPairROList<T>(this IReadOnlyList<T> list, T paddingElement)
-        => new ChunkPairQuerier<IReadOnlyList<T>, T>(list, paddingElement)!;
+    {
+        if (list.Count == 0)
+            return Array.Empty<(T, T)>();
+        return new ChunkPairQuerier<IReadOnlyList<T>, T>(list, paddingElement)!;
+    }
+
+
+    /// <summary>
+    /// Split elements sequence into pairs
+    /// </summary>
+    public static IList<(T, T?)> ChunkPairList<T>(this IList<T> list)
+    {
+        if (list.Count == 0)
+            return Array.Empty<(T, T?)>();
+        return new ChunkPairQuerier<ListWrapper<T>, T>(list.Wrap(), default)!;
+    }
+
+    /// <summary>
+    /// Split elements sequence into pairs
+    /// </summary>
+    public static IReadOnlyList<(T, T?)> ChunkPairROList<T>(this IReadOnlyList<T> list)
+    {
+        if (list.Count == 0)
+            return Array.Empty<(T, T?)>();
+        return new ChunkPairQuerier<IReadOnlyList<T>, T>(list, default)!;
+    }
+
 
     /// <summary>
     /// Split elements sequence into triples
@@ -29,7 +59,11 @@ partial class ListQuery
     /// Append to the sequence if the last pair cannot be perfectly filled.
     /// </param>
     public static IList<(T, T, T)> ChunkTripleList<T>(this IList<T> list, T paddingElement)
-        => new ChunkTripleQuerier<ListWrapper<T>, T>(list.Wrap(), paddingElement)!;
+    {
+        if (list.Count == 0)
+            return Array.Empty<(T, T, T)>();
+        return new ChunkTripleQuerier<ListWrapper<T>, T>(list.Wrap(), paddingElement)!;
+    }
 
     /// <summary>
     /// Split elements sequence into triples
@@ -38,31 +72,32 @@ partial class ListQuery
     /// Append to the sequence if the last pair cannot be perfectly filled.
     /// </param>
     public static IReadOnlyList<(T, T, T)> ChunkTripleROList<T>(this IReadOnlyList<T> list, T paddingElement)
-        => new ChunkTripleQuerier<IReadOnlyList<T>, T>(list, paddingElement)!;
+    {
+        if (list.Count == 0)
+            return Array.Empty<(T, T, T)>();
+        return new ChunkTripleQuerier<IReadOnlyList<T>, T>(list, paddingElement)!;
+    }
 
-    /// <summary>
-    /// Split elements sequence into pairs
-    /// </summary>
-    public static IList<(T, T?)> ChunkPairList<T>(this IList<T> list)
-        => new ChunkPairQuerier<ListWrapper<T>, T>(list.Wrap(), default)!;
-
-    /// <summary>
-    /// Split elements sequence into pairs
-    /// </summary>
-    public static IReadOnlyList<(T, T?)> ChunkPairROList<T>(this IReadOnlyList<T> list)
-        => new ChunkPairQuerier<IReadOnlyList<T>, T>(list, default)!;
 
     /// <summary>
     /// Split elements sequence into triples
     /// </summary>
     public static IList<(T, T?, T?)> ChunkTripleList<T>(this IList<T> list)
-        => new ChunkTripleQuerier<ListWrapper<T>, T>(list.Wrap(), default)!;
+    {
+        if (list.Count == 0)
+            return Array.Empty<(T, T?, T?)>();
+        return new ChunkTripleQuerier<ListWrapper<T>, T>(list.Wrap(), default)!;
+    }
 
     /// <summary>
     /// Split elements sequence into triples
     /// </summary>
-    public static IReadOnlyList<(T, T?, T?)> ChunkTripleList<T>(this IReadOnlyList<T> list)
-        => new ChunkTripleQuerier<IReadOnlyList<T>, T>(list, default)!;
+    public static IReadOnlyList<(T, T?, T?)> ChunkTripleROList<T>(this IReadOnlyList<T> list)
+    {
+        if (list.Count == 0)
+            return Array.Empty<(T, T?, T?)>();
+        return new ChunkTripleQuerier<IReadOnlyList<T>, T>(list, default)!;
+    }
 
 
     private sealed class ChunkPairQuerier<TList, T>(TList list, T? paddingElement) : SimpleListQuerier<TList, T, (T, T?)>(list) where TList : IReadOnlyList<T>

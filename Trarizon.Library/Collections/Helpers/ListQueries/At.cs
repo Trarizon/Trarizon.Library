@@ -15,6 +15,7 @@ partial class ListQuery
     public static T ElementAtOrDefaultROList<T>(this IReadOnlyList<T> list, Index index, T defaultValue = default!)
         => ElementAtOrDefaultOpt(list, index, defaultValue);
 
+
     /// <summary>
     /// Try get the item at <paramref name="index"/>
     /// </summary>
@@ -26,6 +27,7 @@ partial class ListQuery
     /// </summary>
     public static bool TryAtROList<T>(this IReadOnlyList<T> list, Index index, [MaybeNullWhen(false)] out T value)
         => TryAtOpt(list, index, out value);
+
 
     #region Internal
 

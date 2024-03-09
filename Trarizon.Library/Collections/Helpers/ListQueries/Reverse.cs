@@ -11,12 +11,22 @@ partial class ListQuery
     /// <summary>
     /// Reverse the list
     /// </summary>
-    public static IList<T> ReverseList<T>(this IList<T> list) => new ReverseQuerier<ListWrapper<T>, T>(list.Wrap());
+    public static IList<T> ReverseList<T>(this IList<T> list)
+    {
+        if (list.Count <= 1)
+            return list;
+        return new ReverseQuerier<ListWrapper<T>, T>(list.Wrap());
+    }
 
     /// <summary>
     /// Reverse the list
     /// </summary>
-    public static IReadOnlyList<T> ReverseROList<T>(this IReadOnlyList<T> list) => new ReverseQuerier<IReadOnlyList<T>, T>(list);
+    public static IReadOnlyList<T> ReverseROList<T>(this IReadOnlyList<T> list)
+    {
+        if (list.Count <= 1)
+            return list;
+        return new ReverseQuerier<IReadOnlyList<T>, T>(list);
+    }
 
 
     private sealed class ReverseQuerier<TList, T>(TList list) : SimpleListQuerier<TList, T, T>(list) where TList : IReadOnlyList<T>

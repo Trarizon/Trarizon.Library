@@ -16,6 +16,18 @@ partial class ListQuery
         => list.TakeList(start..);
 
     /// <summary>
+    /// Iterate from specific <paramref name="start"/> to end
+    /// </summary>
+    /// <param name="backward">Reversing iteration</param>
+    /// <param name="indexFromEnd">
+    /// true if <paramref name="start"/> is binded to <paramref name="list"/>.Count,
+    /// similar to IsFromEnd of System.Index
+    /// </param>
+    public static IReadOnlyList<T> TakeROList<T>(this IReadOnlyList<T> list, Index start)
+        => list.TakeROList(start..);
+
+
+    /// <summary>
     /// Iterate items in specific <paramref name="range"/>.
     /// Iteration contains <paramref name="range"/>.Start and doesn't contains <paramref name="range"/>.End,
     /// irrelevant to <paramref name="reverse"/>
@@ -29,17 +41,6 @@ partial class ListQuery
         var (start, length) = range.GetOffsetAndLength(list.Count);
         return new TakeRangeQuerier<ListWrapper<T>, T>(list.Wrap(), start, length);
     }
-
-    /// <summary>
-    /// Iterate from specific <paramref name="start"/> to end
-    /// </summary>
-    /// <param name="backward">Reversing iteration</param>
-    /// <param name="indexFromEnd">
-    /// true if <paramref name="start"/> is binded to <paramref name="list"/>.Count,
-    /// similar to IsFromEnd of System.Index
-    /// </param>
-    public static IReadOnlyList<T> TakeROList<T>(this IReadOnlyList<T> list, Index start)
-        => list.TakeROList(start..);
 
     /// <summary>
     /// Iterate items in specific <paramref name="range"/>.

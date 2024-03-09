@@ -16,12 +16,6 @@ using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 using Trarizon.Test.UnitTest;
 
-var list = ListInts();
+ArrayInts(4).CartesianProduct(ArrayInts(3)).Print();
 
-var selected = ArrayInts().SelectMany(i =>
-{
-    list.Add(1);
-    return list;
-});
-
-selected.Print();
+ArrayInts(4).CartesianProductList(ArrayInts(3)).Print();

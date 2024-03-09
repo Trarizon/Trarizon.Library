@@ -26,6 +26,7 @@ partial class ListQuery
             return new RepeatQuerier<IReadOnlyList<T>, T>(list, count);
     }
 
+
     /// <summary>
     /// Repeat the list forever, The returned collection has size <see cref="int.MaxValue"/> unless the source collection is empty
     /// </summary>

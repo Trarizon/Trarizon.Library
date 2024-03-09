@@ -13,6 +13,11 @@
     - Add Monad.`GetValueRefOrDefaultRef()`
     - Add `NotNull<T>`
     - Add `IList<>.Adjacent()`
+    - Add `IList<>.Select()` indexed version
+    - Add `IList<>.CartesianProduct()`
+- Changes
+    - Optimize `IEnumerable<>.CartesianProduct()`
+    - Add zero-length check for some list queries
 
 ## v0.2.2
 
