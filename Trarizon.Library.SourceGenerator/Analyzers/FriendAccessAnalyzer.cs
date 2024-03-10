@@ -97,10 +97,8 @@ internal partial class FriendAccessAnalyzer : DiagnosticAnalyzer
         bool isFriend = memberAccessExprSyntax.Ancestors()
             .OfType<TypeDeclarationSyntax>()
             .Select(syntax => context.SemanticModel.GetDeclaredSymbol(syntax)!)
-            .SelectMany(
-                symbol => friendTypes.Prepend(memberSymbol!.ContainingType),
-                (symbol, friend) => (symbol, friend))
-            .Any(tuple => SymbolEqualityComparer.Default.Equals(tuple.symbol?.OriginalDefinition, tuple.friend?.OriginalDefinition));
+            .CartesianProduct(friendTypes.Prepend(memberSymbol!.ContainingType))
+            .Any(tuple => SymbolEqualityComparer.Default.Equals(tuple.Item1.OriginalDefinition, tuple.Item2.OriginalDefinition));
         if (isFriend)
             return;
 
