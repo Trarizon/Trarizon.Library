@@ -12,8 +12,8 @@ Miscellaneous thing. There will be many breaking changes (orz.
 <summary>brief</summary>
 
 - CodeAnalysis
-	- [Use generator] `FriendAccessAttribute`: like `friend` in c++
-- Monads: `Optional<T>`, `Result<T, TError>`, `Either<TLeft, TRight>`
+	- [Use generator] `FriendAccessAttribute`: restrict access of member to specified several types
+- Wrappers: Monads, `Optional<T>`, `Result<T, TError>`, `Either<TLeft, TRight>`
 - Collections:
 	- Queries: More Linq-like methods for `IEnumerable<>`, `IList<>`, `IReadOnlyList<>`
 	- Helpers: more extensions for BCL collection types.
