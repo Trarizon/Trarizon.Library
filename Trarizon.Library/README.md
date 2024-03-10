@@ -24,6 +24,7 @@ Attribute|Analyzer|Remark
 Rewrite BCL collections in struct, to reduce alloc on heap
 - `AllocOptDictionary<,>` <- `Dictionary<,>`
 - `AllocOptList<>` <- `List<>`
+- `AllocOptQueue<>` <- `Queue<>`
 - `AllocOptSet<>` <- `HashSet<>`
 - `AllocOptStack<>` <- `Stack<>`
 

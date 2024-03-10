@@ -17,7 +17,7 @@ Miscellaneous thing. There will be many breaking changes (orz.
 - Collections:
 	- Queries: More Linq-like methods for `IEnumerable<>`, `IList<>`, `IReadOnlyList<>`
 	- Helpers: more extensions for BCL collection types.
-	- AllocOpt: Rewrite BCL basic collection types in `struct`, designed for one-time use in method 
+	- AllocOpt: Rewrite BCL basic collection types in `struct` as light-weighted version
 - Helpers: miscellaneous extensions for BCL types
 
 </details>

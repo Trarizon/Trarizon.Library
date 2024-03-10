@@ -31,7 +31,7 @@ public struct AllocOptStack<T> : ICollection<T>, IReadOnlyCollection<T>
             return false;
         }
 
-        value = _list[^1];
+        value = Peek();
         return true;
     }
 
@@ -71,7 +71,7 @@ public struct AllocOptStack<T> : ICollection<T>, IReadOnlyCollection<T>
     /// </summary>
     public void Clear() => _list.Clear();
 
-    public void ClearUnreferenced() => _list.ClearUnreferenced();
+    public readonly void ClearUnreferenced() => _list.ClearUnreferenced();
 
     public void EnsureCapacity(int capacity) => _list.EnsureCapacity(capacity);
 

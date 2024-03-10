@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using Trarizon.Library.CodeAnalysis;
 using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections.AllocOpt;
@@ -256,13 +257,13 @@ public struct AllocOptList<T> : IList<T>, IReadOnlyList<T>
     /// <summary>
     /// Clear items from index _size to end
     /// </summary>
-    public void ClearUnreferenced()
+    public readonly void ClearUnreferenced()
     {
-        if (RuntimeHelpers.IsReferenceOrContainsReferences<T>()) {
-            if (_size > 0) {
-                Array.Clear(_items, _size, _items.Length - _size);
-                _size = 0;
-            }
+        if (!RuntimeHelpers.IsReferenceOrContainsReferences<T>())
+            return;
+
+        if (_size < _items.Length) {
+            Array.Clear(_items, _size, _items.Length - _size);
         }
     }
 
@@ -277,9 +278,15 @@ public struct AllocOptList<T> : IList<T>, IReadOnlyList<T>
 
     private void Grow(int expectedCapacity)
     {
-        T[] newItems = new T[GetNewCapacity(expectedCapacity)];
-        Array.Copy(_items, newItems, _size);
-        _items = newItems;
+        GrowEmptyArray(expectedCapacity, out var originalArray);
+        Array.Copy(originalArray, _items, _size);
+    }
+
+    [FriendAccess(typeof(AllocOptQueue<>))]
+    internal void GrowEmptyArray(int expectedCapacity, out T[] originalArray)
+    {
+        originalArray = _items;
+        _items = new T[GetNewCapacity(expectedCapacity)];
     }
 
     private void GrowForInsertion(int insertIndex, int count)

@@ -19,6 +19,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Trarizon.Library.GeneratorToolkit\Trarizon.Library.GeneratorToolkit.csproj" />
     <ProjectReference Include="..\Trarizon.Library\Trarizon.Library.csproj" />
+    <ProjectReference Include="..\Trarizon.Test.Run\Trarizon.Test.Run.csproj" />
     <ProjectReference Include="..\Trarizon.Yieliception\Trarizon.Yieliception.csproj" />
   </ItemGroup>
 

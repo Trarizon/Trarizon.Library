@@ -1,14 +1,16 @@
-﻿global using static GlobalUsings;
+﻿global using static Trarizon.Test.Run.GlobalUsings;
 
 using BenchmarkDotNet.Running;
 using System.Collections;
 using System.Runtime.InteropServices;
 using System.Text;
-using Trarizon.Test.Run;
 
-internal static class GlobalUsings
+namespace Trarizon.Test.Run;
+public static class GlobalUsings
 {
     public static void RunBenchmarks() => BenchmarkRunner.Run<Benchmarks>();
+
+    #region Collections
 
     public static int[] ArrayInts(int length = 8)
     {
@@ -33,14 +35,23 @@ internal static class GlobalUsings
             yield return i;
     }
 
+    public static T[] ArrayValues<T>(Func<int, T> factory, int count = 8)
+        => ArrayInts(count).Select(factory).ToArray();
+
+    public static List<T> ListValues<T>(Func<int, T> factory, int count = 8)
+        => ArrayInts(count).Select(factory).ToList();
+
+    public static IEnumerable<T> EnumerateValues<T>(Func<int, T> factory, int count = 8)
+        => EnumerateInts(count).Select(factory);
+
+    #endregion
+
     #region Print
 
-    public static void Print(this string? value)
-        => Console.WriteLine(value ?? "<null>");
-    public static void Print<T>(this T value) => Print(PrintValue(value));
-    public static void Print<T>(this IEnumerable<T> values) => Print(PrintValue(values));
-    public static void Print<T>(this Span<T> values) => Print(PrintValue((ReadOnlySpan<T>)values));
-    public static void Print<T>(this ReadOnlySpan<T> values) => Print(PrintValue(values));
+    public static void Print(this string? value) => Console.WriteLine(value ?? "<null>");
+    public static void Print<T>(this T value) => PrintValue(value).Print();
+    public static void Print<T>(this Span<T> values) => PrintValue((ReadOnlySpan<T>)values).Print();
+    public static void Print<T>(this ReadOnlySpan<T> values) => PrintValue(values).Print();
 
     private static string? PrintValue<T>(T value)
     {

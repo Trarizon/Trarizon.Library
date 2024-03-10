@@ -15,30 +15,33 @@ using Trarizon.Library.Collections.Helpers;
 using Trarizon.Library.RunTest.Examples;
 using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
-using Trarizon.Test.UnitTest;
 
-ArrayInts(4).CartesianProduct(ArrayInts(3)).Print();
-
-ArrayInts(4).CartesianProductList(ArrayInts(3)).Print();
-
-class A : IEnumerable<int>
-{
-    [FriendAccess(typeof(B))]
-    internal static int _i;
-
-    [FriendAccess()]
-    IEnumerator<int> IEnumerable<int>.GetEnumerator() => throw new NotImplementedException();
-    IEnumerator IEnumerable.GetEnumerator() => throw new NotImplementedException();
-}
-
-class B
-{
-    public int I
-    {
-        get {
-            new A().AsEnumerable().GetEnumerator();
-        }
-    }
-}
-
-class C { public int I => A._i; }
+AllocOptQueue<object> queue = new(4);
+queue.Enqueue(1);
+queue.Enqueue(2);
+queue.Enqueue(3);
+queue.Dequeue();
+queue.Enqueue(4);
+queue.Print();
+queue.GetUnderlyingArray().Print();
+queue.Enqueue(5);
+queue.Print();
+queue.GetUnderlyingArray().Print();
+queue.Dequeue();
+queue.Dequeue();
+queue.Print();
+queue.GetUnderlyingArray().Print();
+queue.Enqueue(6);
+queue.Enqueue(7);
+queue.Dequeue();
+queue.Dequeue();
+queue.Print();
+queue.GetUnderlyingArray().Print();
+queue.Enqueue(8);
+queue.Enqueue(9);
+queue.Print();
+queue.GetUnderlyingArray().Print();
+queue.Enqueue(0);
+queue.Enqueue(1);
+queue.Print();
+queue.GetUnderlyingArray().Print();

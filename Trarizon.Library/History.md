@@ -18,11 +18,13 @@
     - Add `IList<>.CartesianProduct()`
     - Add `ValueTask<>?.GetAwaiter()`
     - Add `ValueTask<>?.Sync()`
+    - Add `AllocOptQueue<T>`
 - Changes
     - Optimize `IEnumerable<>.CartesianProduct()`
     - Add zero-length check for some list queries
 - Bugs
     - Fix bug when use array type in `[FriendAccess]`, analyzer will crash. (though maybe nobody will do this
+    - Fix bug on `AllocOptList.ClearUnreferenced()`
 
 ## v0.2.2
 

@@ -20,6 +20,15 @@ public static class AllocOptCollectionBuilder
         return stack;
     }
 
+    public static AllocOptQueue<T> CreateQueue<T>(ReadOnlySpan<T> values)
+    {
+        var queue = new AllocOptQueue<T>(values.Length);
+        foreach (var item in values) {
+            queue.Enqueue(item);
+        }
+        return queue;
+    }
+
     public static AllocOptSet<T> CreateSet<T>(ReadOnlySpan<T> values)
     {
         var set = new AllocOptSet<T>(values.Length);

@@ -36,10 +36,6 @@
 		</PackageReference>
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="_ref\Trarizon.Library\Wrappers\" />
-	</ItemGroup>
-
 	<PropertyGroup Label="PolySharpSettings">
 		<PolySharpUsePublicAccessibilityForGeneratedTypes>true</PolySharpUsePublicAccessibilityForGeneratedTypes>
 		<PolySharpIncludeGeneratedTypes>

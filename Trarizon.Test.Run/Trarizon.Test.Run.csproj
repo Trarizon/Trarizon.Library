@@ -1,23 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.13.9" />
-    <!--<PackageReference Include="Trarizon.Library" Version="0.3.0" />-->
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="BenchmarkDotNet" Version="0.13.9" />
+		<!--<PackageReference Include="Trarizon.Library" Version="0.3.0" />-->
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Trarizon.Library\Trarizon.Library.csproj" />
-    <ProjectReference Include="..\Trarizon.Library.SourceGenerator\Trarizon.Library.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-    <ProjectReference Include="..\Trarizon.Test.UnitTest\Trarizon.Test.UnitTest.csproj" />
-    <ProjectReference Include="..\Trarizon.Yieliception\Trarizon.Yieliception.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Trarizon.Library\Trarizon.Library.csproj" />
+		<ProjectReference Include="..\Trarizon.Library.SourceGenerator\Trarizon.Library.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+		<ProjectReference Include="..\Trarizon.Yieliception\Trarizon.Yieliception.csproj" />
+	</ItemGroup>
 
 </Project>
