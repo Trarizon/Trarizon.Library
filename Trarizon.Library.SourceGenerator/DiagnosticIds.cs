@@ -5,5 +5,5 @@ using System.Text;
 namespace Trarizon.Library.SourceGenerator;
 internal static class DiagnosticIds
 {
-    public const string FriendAnalyzer = "FRI";
+    public const string FriendAccessAnalyzer = "FA";
 }

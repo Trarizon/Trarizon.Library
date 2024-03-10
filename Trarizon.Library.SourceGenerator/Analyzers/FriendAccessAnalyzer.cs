@@ -33,7 +33,7 @@ internal partial class FriendAccessAnalyzer : DiagnosticAnalyzer
         var syntax = (MemberDeclarationSyntax)context.Node;
         var symbol = context.SemanticModel.GetDeclaredSymbol(syntax is FieldDeclarationSyntax field ? field.Declaration.Variables[0] : syntax);
 
-        if (true != symbol?.GetAttributes().Any(attr => attr.AttributeClass.MatchDisplayString(Literals.FriendAttribute_TypeName)))
+        if (true != symbol?.GetAttributes().Any(attr => attr.AttributeClass.MatchDisplayString(Literals.FriendAccessAttribute_TypeName)))
             return;
 
         // One of ancestors' modifier should be internal
@@ -88,11 +88,11 @@ internal partial class FriendAccessAnalyzer : DiagnosticAnalyzer
         var memberSymbol = context.SemanticModel.GetSymbolInfo(memberAccessExprSyntax).Symbol;
 
         var friendAttr = memberSymbol?.GetAttributes()
-            .FirstOrDefault(attr => attr.AttributeClass.MatchDisplayString(Literals.FriendAttribute_TypeName));
+            .FirstOrDefault(attr => attr.AttributeClass.MatchDisplayString(Literals.FriendAccessAttribute_TypeName));
         if (friendAttr is null)
             return;
 
-        var friendTypes = friendAttr.GetConstructorArguments<ITypeSymbol>(Literals.FriendAttribute_FriendTypes_ConstructorIndex);
+        var friendTypes = friendAttr.GetConstructorArguments<ITypeSymbol>(Literals.FriendAccessAttribute_FriendTypes_ConstructorIndex);
 
         bool isFriend = memberAccessExprSyntax.Ancestors()
             .OfType<TypeDeclarationSyntax>()

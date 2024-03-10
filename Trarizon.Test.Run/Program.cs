@@ -23,15 +23,10 @@ ArrayInts(4).CartesianProductList(ArrayInts(3)).Print();
 
 class A
 {
-    [FriendAccess(typeof(B), typeof(int), typeof(int[]))]
-    public static int _i;
+    [FriendAccess(typeof(B))]
+    internal static int _i;
 }
 
-public class B
-{
-    private protected int I { get; }
-
-
-}
+class B { public int I => A._i; }
 
 class C { public int I => A._i; }
