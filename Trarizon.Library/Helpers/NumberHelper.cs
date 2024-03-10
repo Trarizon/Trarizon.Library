@@ -1,8 +1,8 @@
 ﻿using System.Numerics;
 using System.Runtime.CompilerServices;
 
-namespace Trarizon.Library.Extensions;
-public static partial class NumberExtensions
+namespace Trarizon.Library.Helpers;
+public static partial class NumberHelper
 {
     #region Float.Remap
 

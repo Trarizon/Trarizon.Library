@@ -1,8 +1,8 @@
 ﻿using System.Runtime.CompilerServices;
 using Trarizon.Library.Wrappers;
 
-namespace Trarizon.Library.Extensions;
-partial class AsyncExtensions
+namespace Trarizon.Library.Helpers;
+partial class AsyncHelper
 {
     public readonly struct NullableValueTaskAwaiter : INotifyCompletion, ICriticalNotifyCompletion
     {

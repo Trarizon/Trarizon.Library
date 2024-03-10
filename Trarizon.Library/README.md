@@ -98,14 +98,14 @@ Impl Type|Method|Remarks
 
 </details>
 
-## Extensions
+## Helpers
 
 杂七杂八的扩展方法
 
 `this`|Method|Remarks
 :-:|:-:|:--
-`Task`<br/>`Task<>`<br/>`ValueTask`<br/>`ValueTask<>`|`Sync`|`GetAwaiter().GetResult()`
-`ValueTask?`<br/>`Task<>?`|`GetAwaiter`|为`ValueTask?`提供`await`语法支持，泛型返回`Optional<>`
+`Task`<br/>`Task<>`<br/>`ValueTask`<br/>`ValueTask<>`<br/>`ValueTask?`<br/>`ValueTask<>?`|`Sync`|`GetAwaiter().GetResult()`
+`ValueTask?`<br/>`ValueTask<>?`|`GetAwaiter`|为`ValueTask?`提供`await`语法支持，泛型返回`Optional<>`
 `Task<>`<br/>`ValueTask<>`|`Select`|Monad
 IFloatNumber|`Remap`<br/>`RemapInto`|将值映射到另一个范围
 `Random`|`SelectWeighted`|按权重随机，返回结果下标

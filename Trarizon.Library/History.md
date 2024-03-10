@@ -9,12 +9,15 @@
     - Replace `ReversedSpan.OriginalSpan` with `Reverse()`
     - Rename `FriendAttribute` to `FriendAccessAttribute`
     - Combine namespace `Collections.Creator` and `Collections.Extensions` to `Collections.Helpers`
+    - Rename `Extension`s to `Helper`s
 - New
     - Add Monad.`GetValueRefOrDefaultRef()`
     - Add `NotNull<T>`
     - Add `IList<>.Adjacent()`
     - Add `IList<>.Select()` indexed version
     - Add `IList<>.CartesianProduct()`
+    - Add `ValueTask<>?.GetAwaiter()`
+    - Add `ValueTask<>?.Sync()`
 - Changes
     - Optimize `IEnumerable<>.CartesianProduct()`
     - Add zero-length check for some list queries

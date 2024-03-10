@@ -16,9 +16,9 @@ Miscellaneous thing. There will be many breaking changes (orz.
 - Monads: `Optional<T>`, `Result<T, TError>`, `Either<TLeft, TRight>`
 - Collections:
 	- Queries: More Linq-like methods for `IEnumerable<>`, `IList<>`, `IReadOnlyList<>`
-	- Extensions: more extensions for BCL collection types.
+	- Helpers: more extensions for BCL collection types.
 	- AllocOpt: Rewrite BCL basic collection types in `struct`, designed for one-time use in method 
-- Extensions: miscellaneous extensions for BCL types
+- Helpers: miscellaneous extensions for BCL types
 
 </details>
 

@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace Trarizon.Library.Extensions;
-public static partial class RandomExtensions
+namespace Trarizon.Library.Helpers;
+public static partial class RandomHelper
 {
     #region SelectWeighted
 

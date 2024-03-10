@@ -1,5 +1,7 @@
-﻿namespace Trarizon.Library.Extensions;
-public static partial class AsyncExtensions
+﻿using Trarizon.Library.Wrappers;
+
+namespace Trarizon.Library.Helpers;
+public static partial class AsyncHelper
 {
     #region Sync
 
@@ -27,6 +29,11 @@ public static partial class AsyncExtensions
     /// Run synchronously by call GetAwaiter().GetResult()
     /// </summary>
     public static void Sync<T>(this in ValueTask? task) => task.GetAwaiter().GetResult();
+
+    /// <summary>
+    /// Run synchronously by call GetAwaiter().GetResult()
+    /// </summary>
+    public static Optional<T> Sync<T>(this in ValueTask<T>? task) => task.GetAwaiter().GetResult();
 
     #endregion
 
