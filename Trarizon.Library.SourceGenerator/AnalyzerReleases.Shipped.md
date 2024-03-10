@@ -9,4 +9,4 @@ Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
 TRAFA0001 | Trarizon.Library.SourceGenerator | Error | Literals
 TRAFA0002 | Trarizon.Library.SourceGenerator | Warning | Literals
-
+TRAFA0003 | Trarizon.Library.SourceGenerator | Warning | Literals

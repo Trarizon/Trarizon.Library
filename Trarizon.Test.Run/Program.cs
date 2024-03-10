@@ -21,12 +21,24 @@ ArrayInts(4).CartesianProduct(ArrayInts(3)).Print();
 
 ArrayInts(4).CartesianProductList(ArrayInts(3)).Print();
 
-class A
+class A : IEnumerable<int>
 {
     [FriendAccess(typeof(B))]
     internal static int _i;
+
+    [FriendAccess()]
+    IEnumerator<int> IEnumerable<int>.GetEnumerator() => throw new NotImplementedException();
+    IEnumerator IEnumerable.GetEnumerator() => throw new NotImplementedException();
 }
 
-class B { public int I => A._i; }
+class B
+{
+    public int I
+    {
+        get {
+            new A().AsEnumerable().GetEnumerator();
+        }
+    }
+}
 
 class C { public int I => A._i; }

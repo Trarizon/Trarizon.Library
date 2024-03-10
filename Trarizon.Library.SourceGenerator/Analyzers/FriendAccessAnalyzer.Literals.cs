@@ -23,5 +23,13 @@ partial class FriendAccessAnalyzer
             "Trarizon.Library.SourceGenerator",
             DiagnosticSeverity.Warning,
             true);
+
+        public readonly static DiagnosticDescriptor Diagnostic_FriendOnExplicitInterfaceMemberMakeNoSense = new(
+            $"TRA{DiagnosticIds.FriendAccessAnalyzer}0003",
+            nameof(Diagnostic_FriendOnExplicitInterfaceMemberMakeNoSense),
+            "[FriendAccess] on explicit interface member make no sense",
+            "Trarizon.Library.SourceGenerator",
+            DiagnosticSeverity.Warning,
+            true);
     }
 }

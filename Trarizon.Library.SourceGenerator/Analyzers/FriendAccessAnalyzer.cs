@@ -12,7 +12,8 @@ internal partial class FriendAccessAnalyzer : DiagnosticAnalyzer
 {
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(
         Literals.Diagnostic_FriendMemberCannotBeAccessed,
-        Literals.Diagnostic_FriendMayBeAccessedByOtherAssembly);
+        Literals.Diagnostic_FriendMayBeAccessedByOtherAssembly,
+        Literals.Diagnostic_FriendOnExplicitInterfaceMemberMakeNoSense);
 
     public override void Initialize(AnalysisContext context)
     {
@@ -22,7 +23,7 @@ internal partial class FriendAccessAnalyzer : DiagnosticAnalyzer
         context.RegisterSyntaxNodeAction(
             FriendShouldBeInternal,
             SyntaxKind.MethodDeclaration, SyntaxKind.FieldDeclaration, SyntaxKind.PropertyDeclaration, SyntaxKind.EventDeclaration, SyntaxKind.ConstructorDeclaration);
-        
+
         context.RegisterSyntaxNodeAction(
             CheckIfCalledFromFriendOrSelf,
             SyntaxKind.SimpleMemberAccessExpression); // Removed IdentifierName, directly access in type is always allow
@@ -36,7 +37,22 @@ internal partial class FriendAccessAnalyzer : DiagnosticAnalyzer
         if (true != symbol?.GetAttributes().Any(attr => attr.AttributeClass.MatchDisplayString(Literals.FriendAccessAttribute_TypeName)))
             return;
 
-        // One of ancestors' modifier should be internal
+        // Not explicit interface member
+        if (syntax is BasePropertyDeclarationSyntax { ExplicitInterfaceSpecifier: { } }
+            or MethodDeclarationSyntax { ExplicitInterfaceSpecifier: { } }
+        ) {
+            context.ReportDiagnostic(
+                Literals.Diagnostic_FriendOnExplicitInterfaceMemberMakeNoSense,
+                syntax switch {
+                    MethodDeclarationSyntax meth => meth.Identifier,
+                    PropertyDeclarationSyntax prop => prop.Identifier,
+                    EventDeclarationSyntax ev => ev.Identifier,
+                    _ => syntax,
+                });
+            return;
+        }
+
+        // Ensure this member will not accessed by other assembly
         bool isInternal = syntax.AncestorsAndSelf().OfType<MemberDeclarationSyntax>().Any(syntax =>
         {
             // internal
@@ -84,7 +100,7 @@ internal partial class FriendAccessAnalyzer : DiagnosticAnalyzer
 
     private static void CheckIfCalledFromFriendOrSelf(SyntaxNodeAnalysisContext context)
     {
-        var memberAccessExprSyntax = (ExpressionSyntax)context.Node;
+        var memberAccessExprSyntax = (MemberAccessExpressionSyntax)context.Node;
         var memberSymbol = context.SemanticModel.GetSymbolInfo(memberAccessExprSyntax).Symbol;
 
         var friendAttr = memberSymbol?.GetAttributes()
@@ -104,10 +120,6 @@ internal partial class FriendAccessAnalyzer : DiagnosticAnalyzer
 
         context.ReportDiagnostic(
             Literals.Diagnostic_FriendMemberCannotBeAccessed,
-            memberAccessExprSyntax switch {
-                MemberAccessExpressionSyntax memberAccess => memberAccess.Name,
-                IdentifierNameSyntax identifierName => identifierName,
-                _ => memberAccessExprSyntax,
-            });
+            memberAccessExprSyntax.Name);
     }
 }
