@@ -92,7 +92,7 @@ internal partial class FriendAccessAnalyzer : DiagnosticAnalyzer
         if (friendAttr is null)
             return;
 
-        var friendTypes = friendAttr.GetConstructorArguments<INamedTypeSymbol>(Literals.FriendAttribute_FriendTypes_ConstructorIndex);
+        var friendTypes = friendAttr.GetConstructorArguments<ITypeSymbol>(Literals.FriendAttribute_FriendTypes_ConstructorIndex);
 
         bool isFriend = memberAccessExprSyntax.Ancestors()
             .OfType<TypeDeclarationSyntax>()

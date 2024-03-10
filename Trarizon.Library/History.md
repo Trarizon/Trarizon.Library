@@ -18,6 +18,8 @@
 - Changes
     - Optimize `IEnumerable<>.CartesianProduct()`
     - Add zero-length check for some list queries
+- Bugs
+    - Fix bug when use array type in `[FriendAccess]`, analyzer will crash. (though maybe nobody will do this
 
 ## v0.2.2
 

@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using Trarizon.Library;
 using Trarizon.Library.CodeAnalysis;
 using Trarizon.Library.Collections.AllocOpt;
 using Trarizon.Library.Collections.Helpers;
@@ -19,3 +20,18 @@ using Trarizon.Test.UnitTest;
 ArrayInts(4).CartesianProduct(ArrayInts(3)).Print();
 
 ArrayInts(4).CartesianProductList(ArrayInts(3)).Print();
+
+class A
+{
+    [FriendAccess(typeof(B), typeof(int), typeof(int[]))]
+    public static int _i;
+}
+
+public class B
+{
+    private protected int I { get; }
+
+
+}
+
+class C { public int I => A._i; }
