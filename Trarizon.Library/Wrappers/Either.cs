@@ -1,18 +1,23 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using Trarizon.Library.CodeAnalysis;
 
 namespace Trarizon.Library.Wrappers;
 public static class Either
 {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Either<TLeft, TRight> Left<TLeft, TRight>(TLeft leftValue)
         => new(leftValue);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Either<TLeft, TRight> Right<TLeft, TRight>(TRight rightValue)
         => new(rightValue);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ref readonly TLeft? GetLeftRefOrDefaultRef<TLeft, TRight>(this in Either<TLeft, TRight> either)
         => ref either._left;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ref readonly TRight? GetRightRefOrDefaultRef<TLeft, TRight>(this in Either<TLeft, TRight> either)
         => ref either._right;
 

@@ -1,22 +1,28 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using Trarizon.Library.CodeAnalysis;
 
 namespace Trarizon.Library.Wrappers;
 public static class Optional
 {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Optional<T> Of<T>(T value) => new(value);
 
     /// <summary>
     /// In fact just use <c>default</c> is ok
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Optional<T> None<T>() => Optional<T>.None;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Optional<T> FromNullable<T>(T? value) where T : struct
         => value.HasValue ? value.GetValueOrDefault()! : default;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T? ToNullable<T>(this in Optional<T> optional) where T : struct
         => optional.HasValue ? optional._value : null;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ref readonly T? GetValueRefOrDefaultRef<T>(this in Optional<T> optional)
         => ref optional._value;
 

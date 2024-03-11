@@ -1,21 +1,26 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using Trarizon.Library.CodeAnalysis;
 
 namespace Trarizon.Library.Wrappers;
 public static class Result
 {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Result<T, TError> Success<T, TError>(T value) where TError : class
         => new(value);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Result<T, TError> Failed<T, TError>(TError error) where TError : class
         => new(error);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ThrowIfFailed<T, TException>(this in Result<T, TException> result) where TException : Exception
     {
         if (!result.Success)
-            throw result._error;
+            ThrowHelper.Throw(result._error);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ref readonly T? GetValueRefOrDefaultRef<T, TError>(this in Result<T, TError> result) where TError : class
         => ref result._value;
 

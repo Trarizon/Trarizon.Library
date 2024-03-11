@@ -5,10 +5,13 @@ using Trarizon.Library.CodeAnalysis;
 namespace Trarizon.Library.Wrappers;
 public static class NotNull
 {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static NotNull<T> Of<T>(T value) where T : class => Unsafe.As<T, NotNull<T>>(ref value);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static NotNull<T> Null<T>() where T : class => NotNull<T>.Null;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static NotNull<T> As<T>(T? value) where T : class => Unsafe.As<T?, NotNull<T>>(ref value);
 
     #region Conversion
