@@ -10,6 +10,7 @@
     - Rename `FriendAttribute` to `FriendAccessAttribute`
     - Combine namespace `Collections.Creator` and `Collections.Extensions` to `Collections.Helpers`
     - Rename `Extension`s to `Helper`s
+    - Unify parameter name in `AllocOptStack<>`
 - New
     - Add Monad.`GetValueRefOrDefaultRef()`
     - Add `NotNull<T>`
@@ -19,6 +20,7 @@
     - Add `ValueTask<>?.GetAwaiter()`
     - Add `ValueTask<>?.Sync()`
     - Add `AllocOptQueue<T>`
+    - Add `PushRange` and multi-`Pop` to `AllocOptStack<T>`
 - Changes
     - Optimize `IEnumerable<>.CartesianProduct()`
     - Add zero-length check for some list queries

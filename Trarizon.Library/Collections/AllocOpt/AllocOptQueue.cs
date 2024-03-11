@@ -1,11 +1,21 @@
 ﻿using System.Collections;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Trarizon.Library.Collections.AllocOpt;
 [CollectionBuilder(typeof(AllocOptCollectionBuilder), nameof(AllocOptCollectionBuilder.CreateQueue))]
 public struct AllocOptQueue<T> : ICollection<T>, IReadOnlyCollection<T>
 {
+    // |  <----->  |
+    //    ^head ^tail
+    // when _list.Count == _tail, parts after _tail are invalid, and _list.Add means same as Enqueue
+    // when _head == _tail, queue is empty, always reset _head, _tail, _list
+    // 
+    // |-->     <--|
+    //    ^tail ^head
+    // when _head == _tail, queue is full
     private AllocOptList<T> _list;
     private int _head;
     private int _tail;
@@ -44,13 +54,13 @@ public struct AllocOptQueue<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public readonly T Peek() => _list[_head];
 
-    public readonly bool TryPeek([MaybeNullWhen(false)] out T value)
+    public readonly bool TryPeek([MaybeNullWhen(false)] out T item)
     {
         if (IsEmpty) {
-            value = default;
+            item = default;
             return false;
         }
-        value = Peek();
+        item = Peek();
         return true;
     }
 
@@ -90,6 +100,140 @@ public struct AllocOptQueue<T> : ICollection<T>, IReadOnlyCollection<T>
         Increment(ref _tail);
     }
 
+    public void EnqueueRange<TEnumerable>(TEnumerable collection) where TEnumerable : IEnumerable<T>
+    {
+        if (collection is ICollection<T> c) {
+            EnqueueCollection(c);
+            return;
+        }
+
+        foreach (var item in collection) {
+            Enqueue(item);
+        }
+    }
+
+    public void EnqueueCollection<TCollection>(TCollection collection) where TCollection : ICollection<T>
+    {
+        int count = collection.Count;
+        if (count <= 0)
+            return;
+
+        if (collection is T[] array) {
+            EnqueueRange(array.AsSpan());
+        }
+        else if (collection is List<T> list) {
+            EnqueueRange(CollectionsMarshal.AsSpan(list));
+        }
+
+        var oldCount = Count;
+        var newCount = oldCount + count;
+        // Grow required
+        if (newCount > Capacity) {
+            Grow(newCount);
+            goto InnerListAdd;
+        }
+        // Underlying array never full-filled
+        else if (_tail == _list.Count) {
+            // Directly add
+            if (_tail + count < Capacity)
+                goto InnerListAdd;
+            else
+                goto Enumerate;
+        }
+        // |  -->  |
+        else if (_tail > _head) {
+            // |  -->==>  |
+            if (_tail + count < Capacity)
+                goto AppendTail;
+            // |==>  -->==|
+            else
+                goto Enumerate;
+        }
+        // |-->  --|
+        else {
+            goto AppendTail;
+        }
+
+#pragma warning disable CS0162
+        Debug.Assert(false);
+#pragma warning restore CS0162
+
+    InnerListAdd:
+        _list.OverwriteCollectionNonGrow(oldCount, collection);
+        _tail = newCount;
+        return;
+
+    Enumerate:
+        foreach (var item in collection)
+            Enqueue(item);
+        return;
+
+    AppendTail:
+        _list.OverwriteCollectionNonGrow(_tail, collection);
+        _tail += count;
+        return;
+    }
+
+    public void EnqueueRange(ReadOnlySpan<T> items)
+    {
+        if (items.Length == 0)
+            return;
+
+        // Grow required
+        var oldCount = Count;
+        var newCount = oldCount + items.Length;
+        if (newCount > Capacity) {
+            Grow(newCount);
+            goto InnerListAdd;
+        }
+        // Underlying array never full-filled
+        else if (_tail == _list.Count) {
+            // |  -->==>  |
+            // Can directly add
+            if (_tail + items.Length < Capacity) {
+                goto InnerListAdd;
+            }
+            // |==>  -->==|
+            // Add to full and copy rest part to first
+            else
+                goto TwoPartsAdd;
+        }
+        // |  -->  |
+        else if (_tail > _head) {
+            // |  -->==>  |
+            if (_tail + items.Length < Capacity)
+                goto AppendTail;
+            // |==>  -->==|
+            else
+                goto TwoPartsAdd;
+        }
+        // |-->  --|
+        else {
+            goto AppendTail;
+        }
+
+#pragma warning disable CS0162
+        Debug.Assert(false);
+#pragma warning restore CS0162
+
+    InnerListAdd:
+        _list.OverwriteRangeNonGrow(oldCount, items);
+        _tail = newCount;
+        return;
+
+    TwoPartsAdd:
+        var mid = Capacity - _tail;
+        _list.OverwriteRangeNonGrow(_tail, items[..mid]);
+        _tail = items.Length - mid;
+        _list.OverwriteRangeNonGrow(0, items.Slice(mid, _tail));
+        return;
+
+    AppendTail:
+        _list.OverwriteRangeNonGrow(_tail, items);
+        _tail += items.Length;
+        return;
+    }
+
     public void Dequeue()
     {
         if (IsEmpty)
@@ -100,6 +244,44 @@ public struct AllocOptQueue<T> : ICollection<T>, IReadOnlyCollection<T>
         // Empty
         if (_head == _tail) {
             Clear();
+        }
+    }
+
+    /// <summary>
+    /// This wont throw exception if stack is empty
+    /// </summary>
+    public void Dequeue(int count)
+    {
+        if (count <= 0)
+            return;
+
+        if (_tail > _head) {
+            var newHead = _head + count;
+            if (_tail > newHead) {
+                _head = newHead;
+                return;
+            }
+            else {
+                Clear();
+                return;
+            }
+        }
+        else {
+            var newHead = _head + count;
+            if (newHead < Capacity) {
+                _head = newHead;
+                return;
+            }
+
+            newHead -= Capacity;
+            if (_tail > newHead) {
+                _head = newHead;
+                return;
+            }
+            else {
+                Clear();
+                return;
+            }
         }
     }
 
@@ -153,17 +335,18 @@ public struct AllocOptQueue<T> : ICollection<T>, IReadOnlyCollection<T>
 
     private void Grow(int expectedCapacity)
     {
+        var count = Count;
         _list.GrowEmptyArray(expectedCapacity, out var oriArray);
         if (_tail > _head) {
-            Array.Copy(oriArray, _head, GetUnderlyingArray(), 0, _tail - _head);
+            _list.OverwriteRangeNonGrow(0, oriArray.AsSpan(_head, _tail - _head));
         }
         else {
-            var length = oriArray.Length - _head;
-            Array.Copy(oriArray, _head, GetUnderlyingArray(), 0, length);
-            Array.Copy(oriArray, 0, GetUnderlyingArray(), length, _tail);
+            var mid = oriArray.Length - _head;
+            _list.OverwriteRangeNonGrow(0, oriArray.AsSpan(_head, mid));
+            _list.OverwriteRangeNonGrow(mid, oriArray.AsSpan(0, _tail));
         }
         _head = 0;
-        _tail = oriArray.Length;
+        _tail = count;
     }
 
     private readonly void Increment(ref int index)
@@ -214,43 +397,20 @@ public struct AllocOptQueue<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public struct Enumerator
     {
-        private readonly AllocOptList<T> _underlyingList;
-        private readonly int _tail;
-        private int _index;
+        // As value type, change indexes in _queue will not affect
+        // the original queue, so we use _queue._head as moving index
+        // of this Enumerator
+        private AllocOptQueue<T> _queue;
+        private T? _current;
 
         internal Enumerator(in AllocOptQueue<T> queue)
         {
-            _underlyingList = queue._list;
-            _tail = queue._tail;
-            _index = ~queue._head;
+            _queue = queue;
         }
 
-        public readonly T Current => _underlyingList[_index];
+        public readonly T Current => _current!;
 
-        public bool MoveNext()
-        {
-            if (_underlyingList.Count == 0)
-                return false;
-
-            // First
-            if (_index < 0) {
-                _index = ~_index;
-                return true;
-            }
-
-            var index = _index + 1;
-            if (index >= _underlyingList.Capacity) {
-                index = 0;
-            }
-
-            // Last
-            if (index == _tail) {
-                return false;
-            }
-
-            _index = index;
-            return true;
-        }
+        public bool MoveNext() => _queue.TryDequeue(out _current!);
 
         internal sealed class Wrapper(in AllocOptQueue<T> queue) : IEnumerator<T>
         {
@@ -263,7 +423,7 @@ public struct AllocOptQueue<T> : ICollection<T>, IReadOnlyCollection<T>
 
             public void Dispose() { }
             public bool MoveNext() => _enumerator.MoveNext();
-            public void Reset() => _enumerator._index = ~_head;
+            public void Reset() => _enumerator._queue._head = _head;
         }
     }
 }

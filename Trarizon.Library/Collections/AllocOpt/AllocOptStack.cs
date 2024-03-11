@@ -24,14 +24,14 @@ public struct AllocOptStack<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public readonly T Peek() => _list[^1];
 
-    public readonly bool TryPeek([MaybeNullWhen(false)] out T value)
+    public readonly bool TryPeek([MaybeNullWhen(false)] out T item)
     {
         if (Count == 0) {
-            value = default;
+            item = default;
             return false;
         }
 
-        value = Peek();
+        item = Peek();
         return true;
     }
 
@@ -49,10 +49,31 @@ public struct AllocOptStack<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public void Push(T item) => _list.Add(item);
 
-    /// <summary>
-    /// Unlike <see cref="Stack{T}"/>, this wont throw exception if stack is empty
-    /// </summary>
+    public void PushRange<TEnumerable>(TEnumerable collection) where TEnumerable : IEnumerable<T>
+        => _list.AddRange(collection);
+
+    public void PushCollection<TCollection>(TCollection collection) where TCollection : ICollection<T>
+        => _list.AddCollection(collection);
+
+    public void PushRange(ReadOnlySpan<T> items)
+        => _list.AddRange(items);
+
     public void Pop() => _list.RemoveAt(^1);
+
+    /// <summary>
+    /// This wont throw exception if stack is empty
+    /// </summary>
+    public void Pop(int count)
+    {
+        if (count <= 0)
+            return;
+
+        if (count >= Count) {
+            _list.Clear();
+            return;
+        }
+        _list.RemoveRange(^count, count);
+    }
 
     public bool TryPop([MaybeNullWhen(false)] out T value)
     {

@@ -44,9 +44,13 @@ public struct AllocOptList<T> : IList<T>, IReadOnlyList<T>
         }
     }
 
-    public readonly Span<T> AsSpan(int index, int length) => _items.AsSpan(index, length);
+    public readonly Span<T> AsSpan(int index, int length)
+    {
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(length, _size - index);
+        return _items.AsSpan(index, length);
+    }
 
-    public readonly Span<T> AsSpan(int startIndex) => _items.AsSpan(startIndex);
+    public readonly Span<T> AsSpan(int startIndex) => _items.AsSpan(startIndex, _size - startIndex);
 
     public readonly Span<T> AsSpan() => _items.AsSpan(0, _size);
 
@@ -96,9 +100,9 @@ public struct AllocOptList<T> : IList<T>, IReadOnlyList<T>
         _size = newSize;
     }
 
-    public void AddRange(ReadOnlySpan<T> values)
+    public void AddRange(ReadOnlySpan<T> items)
     {
-        int count = values.Length;
+        int count = items.Length;
         if (count <= 0)
             return;
 
@@ -106,7 +110,7 @@ public struct AllocOptList<T> : IList<T>, IReadOnlyList<T>
         if (newSize > _items.Length) {
             Grow(newSize);
         }
-        values.CopyTo(_items.AsSpan(_size));
+        items.CopyTo(_items.AsSpan(_size));
         _size = newSize;
     }
 
@@ -159,9 +163,9 @@ public struct AllocOptList<T> : IList<T>, IReadOnlyList<T>
         _size = newSize;
     }
 
-    public void InsertRange(Index index, ReadOnlySpan<T> values)
+    public void InsertRange(Index index, ReadOnlySpan<T> items)
     {
-        int count = values.Length;
+        int count = items.Length;
         if (count <= 0)
             return;
 
@@ -174,8 +178,22 @@ public struct AllocOptList<T> : IList<T>, IReadOnlyList<T>
             Array.Copy(_items, offset, _items, offset + count, _size - offset);
         }
 
-        values.CopyTo(_items.AsSpan(offset));
+        items.CopyTo(_items.AsSpan(offset));
         _size = newSize;
+    }
+
+    [FriendAccess(typeof(AllocOptQueue<>))]
+    internal void OverwriteCollectionNonGrow<TCollection>(int index, TCollection collection) where TCollection : ICollection<T>
+    {
+        collection.CopyTo(_items, index);
+        _size = int.Max(_size, index + collection.Count);
+    }
+
+    [FriendAccess(typeof(AllocOptQueue<>))]
+    internal void OverwriteRangeNonGrow(int index, ReadOnlySpan<T> items)
+    {
+        items.CopyTo(_items.AsSpan(index, items.Length));
+        _size = int.Max(_size, index + items.Length);
     }
 
     public bool Remove(T item)
