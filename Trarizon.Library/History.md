@@ -21,6 +21,7 @@
     - Add `ValueTask<>?.Sync()`
     - Add `AllocOptQueue<T>`
     - Add `PushRange` and multi-`Pop` to `AllocOptStack<T>`
+    - Add `List<>.AtRef()`
 - Changes
     - Optimize `IEnumerable<>.CartesianProduct()`
     - Add zero-length check for some list queries

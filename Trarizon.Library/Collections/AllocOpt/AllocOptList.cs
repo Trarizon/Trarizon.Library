@@ -44,6 +44,12 @@ public struct AllocOptList<T> : IList<T>, IReadOnlyList<T>
         }
     }
 
+    public readonly Span<T> AsSpan(Range range)
+    {
+        var (offset, len) = range.GetOffsetAndLength(_size);
+        return AsSpan(offset, len);
+    }
+
     public readonly Span<T> AsSpan(int index, int length)
     {
         ArgumentOutOfRangeException.ThrowIfGreaterThan(length, _size - index);

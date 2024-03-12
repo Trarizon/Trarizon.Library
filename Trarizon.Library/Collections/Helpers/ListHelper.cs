@@ -15,4 +15,7 @@ public static partial class ListHelper
         => CollectionsMarshal.AsSpan(list).SortStably(comparer);
 
     #endregion
+
+    public static ref T AtRef<T>(this List<T> list, int index)
+        => ref CollectionsMarshal.AsSpan(list)[index];
 }

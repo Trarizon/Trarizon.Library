@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Trarizon.Library.Collections.StackAlloc;
 
 namespace Trarizon.Library.Collections.AllocOpt;
 [CollectionBuilder(typeof(AllocOptCollectionBuilder), nameof(AllocOptCollectionBuilder.CreateQueue))]
@@ -63,6 +64,8 @@ public struct AllocOptQueue<T> : ICollection<T>, IReadOnlyCollection<T>
         item = Peek();
         return true;
     }
+
+    public readonly QueueSpan<T> AsSpan() => new(GetUnderlyingArray(), _head, _tail);
 
     public readonly T[] ToArray()
     {

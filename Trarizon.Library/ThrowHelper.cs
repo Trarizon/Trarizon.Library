@@ -26,6 +26,11 @@ internal static partial class ThrowHelper
 
     [DoesNotReturn]
     [MethodImpl(MethodImplOptions.NoInlining)]
+    public static void ThrowArgumentOutOfRange(string? message = null, string? paramName = null, object? value = null)
+        => throw new ArgumentOutOfRangeException(message, value, paramName);
+
+    [DoesNotReturn]
+    [MethodImpl(MethodImplOptions.NoInlining)]
     public static void Throw(Exception exception)
         => throw exception;
 }
