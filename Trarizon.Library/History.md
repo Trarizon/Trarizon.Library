@@ -7,7 +7,7 @@
     - Monad.`Value`s will not throw if unset now
     - Moved `ReversedSpan`
     - Replace `ReversedSpan.OriginalSpan` with `Reverse()`
-    - Rename `FriendAttribute` to `FriendAccessAttribute`
+    - Rename `FriendAttribute` to `FriendAccessAttribute`, and moved to namespace `CodeAnalysis.MemberAccess`
     - Combine namespace `Collections.Creator` and `Collections.Extensions` to `Collections.Helpers`
     - Rename `Extension`s to `Helper`s
     - Unify parameter name in `AllocOptStack<>`
@@ -22,6 +22,9 @@
     - Add `AllocOptQueue<T>`
     - Add `PushRange` and multi-`Pop` to `AllocOptStack<T>`
     - Add `List<>.AtRef()`
+    - Add `BackingFieldAccessAttribute`
+    - `FriendAccessAttribute` now works on pointer access
+    - Add `SingletonAttribute`
 - Changes
     - Optimize `IEnumerable<>.CartesianProduct()`
     - Add zero-length check for some list queries

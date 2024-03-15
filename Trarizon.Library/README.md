@@ -15,7 +15,16 @@ Analyers are in [Trarizon.Library.SourceGenerator](../Trarizon.Library.SourceGen
 
 Attribute|Analyzer|Remark
 :-:|:-:|:--
-`FriendAccess`|`FriendAnalyzer`| friend in c++，限制可访问该成员的类
+`FriendAccess`|`FriendAccessAnalyzer`| friend in c++，限制可访问该成员的类
+`BackingField`|`BackingFieldAnalyzer`| 代替working field，限制可访问该字段的成员
+
+## CodeTemplating
+
+Generators are in [Trarizon.Library.SourceGenerator](../Trarizon.Library.SourceGenerator)
+
+Attribute|Generator|Remark
+:-:|:-:|:--
+`Singleton`|`SingletonGenerator`| generate singleton template
 
 ## Collections
 

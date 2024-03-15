@@ -1,8 +1,8 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using Trarizon.Library.CodeAnalysis.MemberAccess;
 
-namespace Trarizon.Library.Wrappers;
+namespace Trarizon.Library.SourceGenerator.Toolkit.Wrappers;
 public static class NotNull
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -18,8 +18,8 @@ public static class NotNull
 
     #region Optional
 
-    public static Optional<T> ToOptional<T>(this NotNull<T> notNull) where T : class
-        => notNull.HasValue ? Optional.Of(notNull.Value) : default;
+    //public static Optional<T> ToOptional<T>(this NotNull<T> notNull) where T : class
+    //    => notNull.HasValue ? Optional.Of(notNull.Value) : default;
 
     #endregion
 
@@ -33,7 +33,6 @@ public static class NotNull
 /// </summary>
 public readonly struct NotNull<T>(T value) where T : class
 {
-    [FriendAccess(typeof(NotNull))]
     internal readonly T? _value = value;
 
     #region Accessor
@@ -48,7 +47,7 @@ public readonly struct NotNull<T>(T value) where T : class
     public T GetValidValue()
     {
         if (!HasValue)
-            ThrowHelper.ThrowInvalidOperation($"Value in NotNull<T> is null");
+            throw new InvalidOperationException($"Value in NotNull<T> is null");
         return _value;
     }
 

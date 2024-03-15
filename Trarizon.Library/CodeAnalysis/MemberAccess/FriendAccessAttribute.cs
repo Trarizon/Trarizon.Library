@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace Trarizon.Library.CodeAnalysis;
+namespace Trarizon.Library.CodeAnalysis.MemberAccess;
 [AttributeUsage(
     AttributeTargets.Constructor |
     AttributeTargets.Method |

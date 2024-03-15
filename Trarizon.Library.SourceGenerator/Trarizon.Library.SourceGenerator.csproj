@@ -39,9 +39,15 @@
 
 	<PropertyGroup Label="PolySharpSettings">
 		<PolySharpIncludeGeneratedTypes>
+			System.Index;
+			System.Range;
+			
 			System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute;
-			System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute;
+			System.Diagnostics.CodeAnalysis.NotNullWhenAttribute;
 			System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute;
+			System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute;
+			
+			System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute;
 		</PolySharpIncludeGeneratedTypes>
 	</PropertyGroup>	
 	<!-- PolySharp End-->

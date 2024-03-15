@@ -4,7 +4,8 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
 using System.Linq;
-using Trarizon.Library.GeneratorToolkit.Extensions;
+using Trarizon.Library.SourceGenerator.Toolkit;
+using Trarizon.Library.SourceGenerator.Toolkit.Extensions;
 
 namespace Trarizon.Library.SourceGenerator.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -26,7 +27,7 @@ internal partial class FriendAccessAnalyzer : DiagnosticAnalyzer
 
         context.RegisterSyntaxNodeAction(
             CheckIfCalledFromFriendOrSelf,
-            SyntaxKind.SimpleMemberAccessExpression); // Removed IdentifierName, directly access in type is always allow
+            SyntaxKind.SimpleMemberAccessExpression, SyntaxKind.PointerMemberAccessExpression); // Removed IdentifierName, directly access in type is always allow
     }
 
     private static void FriendShouldBeInternal(SyntaxNodeAnalysisContext context)
@@ -34,7 +35,7 @@ internal partial class FriendAccessAnalyzer : DiagnosticAnalyzer
         var syntax = (MemberDeclarationSyntax)context.Node;
         var symbol = context.SemanticModel.GetDeclaredSymbol(syntax is FieldDeclarationSyntax field ? field.Declaration.Variables[0] : syntax);
 
-        if (true != symbol?.GetAttributes().Any(attr => attr.AttributeClass.MatchDisplayString(Literals.FriendAccessAttribute_TypeName)))
+        if (true != symbol?.GetAttributes().Any(attr => attr.AttributeClass.MatchDisplayString(Literals.Attribute_TypeName)))
             return;
 
         // Not explicit interface member
@@ -53,36 +54,14 @@ internal partial class FriendAccessAnalyzer : DiagnosticAnalyzer
         }
 
         // Ensure this member will not accessed by other assembly
-        bool isInternal = syntax.AncestorsAndSelf().OfType<MemberDeclarationSyntax>().Any(syntax =>
-        {
-            // internal
-            // internal protected (x
-            // private 
-            // private protected
-            const int Internal = 1, Protected = 2;
-            int mod = 0;
-            foreach (var modifier in syntax.Modifiers) {
-                if (modifier.IsKind(SyntaxKind.InternalKeyword)) {
-                    if (mod == Protected) // internal protected
-                        return false;
-                    mod = Internal;
-                }
-                else if (modifier.IsKind(SyntaxKind.ProtectedKeyword)) {
-                    if (mod == Internal) // internal protected
-                        return false;
-                    mod = Protected;
-                }
-                else if (modifier.IsKind(SyntaxKind.PrivateKeyword))
-                    return true; // private (protected)
-                else if (modifier.IsKind(SyntaxKind.PublicKeyword))
-                    return false; // public
-            }
-            return mod switch {
-                Internal => true,
-                Protected => false,
-                _ => true, // no access modifier
-            };
-        });
+        bool isInternal = syntax.AncestorsAndSelf()
+            .OfType<MemberDeclarationSyntax>()
+            .Any(syntax => syntax.GetAccessModifiers() is
+                AccessModifiers.None or
+                AccessModifiers.Internal or
+                AccessModifiers.Private or
+                AccessModifiers.PrivateProtected);
+
         if (isInternal)
             return;
 
@@ -104,11 +83,11 @@ internal partial class FriendAccessAnalyzer : DiagnosticAnalyzer
         var memberSymbol = context.SemanticModel.GetSymbolInfo(memberAccessExprSyntax).Symbol;
 
         var friendAttr = memberSymbol?.GetAttributes()
-            .FirstOrDefault(attr => attr.AttributeClass.MatchDisplayString(Literals.FriendAccessAttribute_TypeName));
+            .FirstOrDefault(attr => attr.AttributeClass.MatchDisplayString(Literals.Attribute_TypeName));
         if (friendAttr is null)
             return;
 
-        var friendTypes = friendAttr.GetConstructorArguments<ITypeSymbol>(Literals.FriendAccessAttribute_FriendTypes_ConstructorIndex);
+        var friendTypes = friendAttr.GetConstructorArguments<ITypeSymbol>(Literals.Attribute_FriendTypes_ConstructorIndex);
 
         bool isFriend = memberAccessExprSyntax.Ancestors()
             .OfType<TypeDeclarationSyntax>()

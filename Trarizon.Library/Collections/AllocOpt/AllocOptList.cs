@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using Trarizon.Library.CodeAnalysis;
+using Trarizon.Library.CodeAnalysis.MemberAccess;
 using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections.AllocOpt;

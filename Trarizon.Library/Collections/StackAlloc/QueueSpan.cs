@@ -1,4 +1,4 @@
-﻿using Trarizon.Library.CodeAnalysis;
+﻿using Trarizon.Library.CodeAnalysis.MemberAccess;
 using Trarizon.Library.Collections.AllocOpt;
 
 namespace Trarizon.Library.Collections.StackAlloc;

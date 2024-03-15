@@ -5,31 +5,35 @@ partial class FriendAccessAnalyzer
 {
     private static class Literals
     {
-        public const string FriendAccessAttribute_TypeName = "Trarizon.Library.CodeAnalysis.FriendAccessAttribute";
-        public const int FriendAccessAttribute_FriendTypes_ConstructorIndex = 0;
+        public const string Attribute_TypeName = $"{Constants.Namespace_CodeAnalysis}.MemberAccess.FriendAccessAttribute";
+        public const int Attribute_FriendTypes_ConstructorIndex = 0;
+
+        #region Diagnostics
 
         public readonly static DiagnosticDescriptor Diagnostic_FriendMemberCannotBeAccessed = new(
-            $"TRA{DiagnosticIds.FriendAccessAnalyzer}0001",
+            $"TRA{Constants.FriendAccessAnalyzer_Id}0001",
             nameof(Diagnostic_FriendMemberCannotBeAccessed),
             "Cannot access a friend member here",
-            "Trarizon.Library.SourceGenerator",
+            Constants.Category,
             DiagnosticSeverity.Error,
             true);
 
         public readonly static DiagnosticDescriptor Diagnostic_FriendMayBeAccessedByOtherAssembly = new(
-            $"TRA{DiagnosticIds.FriendAccessAnalyzer}0002",
+            $"TRA{Constants.FriendAccessAnalyzer_Id}0002",
             nameof(Diagnostic_FriendMayBeAccessedByOtherAssembly),
             "Friend member may be accessed by other assembly if not internal",
-            "Trarizon.Library.SourceGenerator",
+            Constants.Category,
             DiagnosticSeverity.Warning,
             true);
 
         public readonly static DiagnosticDescriptor Diagnostic_FriendOnExplicitInterfaceMemberMakeNoSense = new(
-            $"TRA{DiagnosticIds.FriendAccessAnalyzer}0003",
+            $"TRA{Constants.FriendAccessAnalyzer_Id}0003",
             nameof(Diagnostic_FriendOnExplicitInterfaceMemberMakeNoSense),
             "[FriendAccess] on explicit interface member make no sense",
-            "Trarizon.Library.SourceGenerator",
+            Constants.Category,
             DiagnosticSeverity.Warning,
             true);
+
+        #endregion
     }
 }

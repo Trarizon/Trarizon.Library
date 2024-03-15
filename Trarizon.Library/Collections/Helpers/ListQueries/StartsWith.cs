@@ -1,4 +1,4 @@
-﻿using Trarizon.Library.CodeAnalysis;
+﻿using Trarizon.Library.CodeAnalysis.MemberAccess;
 
 namespace Trarizon.Library.Collections.Helpers;
 partial class ListQuery
