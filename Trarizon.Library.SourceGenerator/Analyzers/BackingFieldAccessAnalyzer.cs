@@ -77,8 +77,7 @@ internal partial class BackingFieldAccessAnalyzer : DiagnosticAnalyzer
         var accessableMembers = accessAttr.GetConstructorArguments<string>(Literals.Attribute_AccessableMembers_ConstructorIndex);
 
         bool accessable = identifierNameSyntax.Ancestors()
-            .OfType<MemberDeclarationSyntax>()
-            .TakeWhile(decl => decl is not TypeDeclarationSyntax)
+            .OfTypeUntil<MemberDeclarationSyntax, TypeDeclarationSyntax>()
             .Select(syntax => context.SemanticModel.GetDeclaredSymbol(syntax))
             .CartesianProduct(accessableMembers)
             .Any(tuple => tuple.Item1?.Name == tuple.Item2);

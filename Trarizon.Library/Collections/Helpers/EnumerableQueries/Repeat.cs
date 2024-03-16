@@ -13,6 +13,8 @@ partial class EnumerableQuery
 
         if (count == 0)
             return Enumerable.Empty<T>();
+        else if (source.TryGetNonEnumeratedCount(out var colCount) && colCount == 0)
+            return Enumerable.Empty<T>();
         else
             return new RepeatQuerier<T>(source, count);
     }

@@ -28,11 +28,11 @@ public struct AllocOptDictionary<TKey, TValue, TComparer> : IDictionary<TKey, TV
             ref readonly var val = ref GetValueRefOrNullRef(key);
             if (Unsafe.IsNullRef(in val))
                 ThrowHelper.ThrowKeyNotFound(key?.ToString() ?? string.Empty);
-
+            
             return val!;
         }
         set {
-            GetValueRefOrAddDefault(key) = value;
+            GetValueRefOrAddDefault(key, out _) = value;
         }
     }
 
@@ -75,8 +75,8 @@ public struct AllocOptDictionary<TKey, TValue, TComparer> : IDictionary<TKey, TV
 
     public bool TryAdd(TKey key, TValue value)
     {
-        ref var item = ref _provider.GetItemRefOrAddEntry(key, returnNullIfExisting: true);
-        if (Unsafe.IsNullRef(in item))
+        ref var item = ref _provider.GetItemRefOrAddEntry(key, out var exist);
+        if (exist)
             return false;
 
         item = (key, value);
@@ -98,8 +98,15 @@ public struct AllocOptDictionary<TKey, TValue, TComparer> : IDictionary<TKey, TV
         return true;
     }
 
-    public ref TValue? GetValueRefOrAddDefault(TKey key)
-        => ref _provider.GetItemRefOrAddEntry(key, returnNullIfExisting: false).Value!;
+    public ref TValue GetValueRefOrAddDefault(TKey key) => ref GetValueRefOrAddDefault(key, out _);
+
+    public ref TValue GetValueRefOrAddDefault(TKey key, out bool exist)
+    {
+        ref var item = ref _provider.GetItemRefOrAddEntry(key, out exist);
+        if (!exist)
+            item.Key = key;
+        return ref item.Value;
+    }
 
     /// <remarks>
     /// This method won't clear elements in underlying array.
@@ -404,7 +411,9 @@ public struct AllocOptDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IRea
 
     public bool Remove(TKey key, [MaybeNullWhen(false)] out TValue value) => _dict.Remove(key, out value);
 
-    public ref TValue? GetValueRefOrAddDefault(TKey key) => ref _dict.GetValueRefOrAddDefault(key);
+    public ref TValue GetValueRefOrAddDefault(TKey key) => ref _dict.GetValueRefOrAddDefault(key);
+
+    public ref TValue GetValueRefOrAddDefault(TKey key, out bool exist) => ref _dict.GetValueRefOrAddDefault(key, out exist);
 
     /// <remarks>
     /// This method won't clear elements in underlying array.

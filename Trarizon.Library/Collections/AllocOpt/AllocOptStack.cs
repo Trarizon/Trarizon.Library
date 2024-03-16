@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using Trarizon.Library.CodeAnalysis.MemberAccess;
 using Trarizon.Library.Collections.Helpers;
 using Trarizon.Library.Collections.StackAlloc;
 
@@ -15,6 +16,10 @@ public struct AllocOptStack<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public AllocOptStack(int capacity)
         => _list = new AllocOptList<T>(capacity);
+
+    [FriendAccess(typeof(AllocOptCollectionBuilder))]
+    internal AllocOptStack(T[] items, int size)
+        => _list = AllocOptCollectionBuilder.AsList(items, size);
 
     #region Accessors
 

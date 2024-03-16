@@ -8,8 +8,12 @@ partial class EnumerableQuery
     /// Combine Where and Select, so you can use intermediate variables
     /// </summary>
     public static IEnumerable<TResult> WhereSelect<T, TResult>(this IEnumerable<T> source, Func<T, Optional<TResult>> whereSelector)
-        => new WhereSelectQuerier<T, TResult>(source, whereSelector);
+    {
+        if (source.TryGetNonEnumeratedCount(out var count) && count == 0)
+            return Enumerable.Empty<TResult>();
 
+        return new WhereSelectQuerier<T, TResult>(source, whereSelector);
+    }
 
     private sealed class WhereSelectQuerier<T, TResult>(IEnumerable<T> source, Func<T, Optional<TResult>> whereSelector) : SimpleEnumerationQuerier<T, TResult>(source)
     {

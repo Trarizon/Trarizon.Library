@@ -19,13 +19,10 @@ using Trarizon.Library.RunTest.Examples;
 using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 
-AllocOptDictionary<string, string> dict = new();
+AllocOptQueue<int> que = [1, 2, 3, 4, 5, 6];
 
-dict.Add("str", "ing");
+que.Print();
 
-foreach (var item in dict) {
-    item.Print();
-}
 
 namespace A.A2
 {

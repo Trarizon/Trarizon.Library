@@ -26,6 +26,13 @@ public struct AllocOptList<T> : IList<T>, IReadOnlyList<T>
             _items = new T[capacity];
     }
 
+    [FriendAccess(typeof(AllocOptCollectionBuilder))]
+    internal AllocOptList(T[] items, int size)
+    {
+        _items = items;
+        _size = size;
+    }
+
     #region Accessors
 
     public readonly int Count => _size;

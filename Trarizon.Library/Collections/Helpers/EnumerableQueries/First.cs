@@ -1,7 +1,12 @@
-﻿namespace Trarizon.Library.Collections.Helpers;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Trarizon.Library.Collections.Helpers;
 partial class EnumerableQuery
 {
-    public static bool TryFirst<T>(this IEnumerable<T> source, out T value, T defaultValue = default!)
+    public static bool TryFirst<T>(this IEnumerable<T> source, [MaybeNullWhen(false)] out T value)
+        => source.TryFirst(out value, default!);
+
+    public static bool TryFirst<T>(this IEnumerable<T> source, out T value, T defaultValue)
     {
         if (source.TryGetNonEnumeratedCount(out var count)) {
             if (count > 0) {
@@ -31,7 +36,10 @@ partial class EnumerableQuery
         }
     }
 
-    public static bool TryFirst<T>(this IEnumerable<T> source, Func<T, bool> predicate, out T value, T defaultValue = default!)
+    public static bool TryFirst<T>(this IEnumerable<T> source, Func<T, bool> predicate, [MaybeNullWhen(false)] out T value)
+        => source.TryFirst(predicate, out value, default!);
+
+    public static bool TryFirst<T>(this IEnumerable<T> source, Func<T, bool> predicate, out T value, T defaultValue)
     {
         using var enumerator = source.GetEnumerator();
 

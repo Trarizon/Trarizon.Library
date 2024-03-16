@@ -10,7 +10,14 @@ partial class EnumerableQuery
     /// Append to the sequence if the last pair cannot be perfectly filled.
     /// </param>
     public static IEnumerable<(T, T)> ChunkPair<T>(this IEnumerable<T> source, T paddingElement)
-        => source is IList<T> list ? list.ChunkPairList(paddingElement) : new ChunkPairQuerier<T>(source, paddingElement)!;
+    {
+        if (source is IList<T> list)
+            return list.ChunkPairList(paddingElement);
+        if (source.TryGetNonEnumeratedCount(out var count) && count == 0)
+            return Enumerable.Empty<(T, T)>();
+
+        return new ChunkPairQuerier<T>(source, paddingElement)!;
+    }
 
     /// <summary>
     /// Split elements sequence into triples
@@ -19,19 +26,37 @@ partial class EnumerableQuery
     /// Append to the sequence if the last pair cannot be perfectly filled.
     /// </param>
     public static IEnumerable<(T, T, T)> ChunkTriple<T>(this IEnumerable<T> source, T paddingElement)
-        => source is IList<T> list ? list.ChunkTripleList(paddingElement) : new ChunkTripleQuerier<T>(source, paddingElement)!;
+    {
+        if (source is IList<T> list)
+            return list.ChunkTripleList(paddingElement);
+        if (source.TryGetNonEnumeratedCount(out var count) && count == 0)
+            return Enumerable.Empty<(T, T, T)>();
+        return new ChunkTripleQuerier<T>(source, paddingElement)!;
+    }
 
     /// <summary>
     /// Split elements sequence into pairs
     /// </summary>
     public static IEnumerable<(T, T?)> ChunkPair<T>(this IEnumerable<T> source)
-        => source is IList<T> list ? list.ChunkPairList() : new ChunkPairQuerier<T>(source, default);
+    {
+        if (source is IList<T> list)
+            return list.ChunkPairList();
+        if (source.TryGetNonEnumeratedCount(out var count) && count == 0)
+            return Enumerable.Empty<(T, T?)>();
+        return new ChunkPairQuerier<T>(source, default);
+    }
 
     /// <summary>
     /// Split elements sequence into triples
     /// </summary>
     public static IEnumerable<(T, T?, T?)> ChunkTriple<T>(this IEnumerable<T> source)
-        => source is IList<T> list ? list.ChunkTripleList() : new ChunkTripleQuerier<T>(source, default);
+    {
+        if (source is IList<T> list)
+            return list.ChunkTripleList();
+        if (source.TryGetNonEnumeratedCount(out var count) && count == 0)
+            return Enumerable.Empty<(T, T?, T?)>();
+        return new ChunkTripleQuerier<T>(source, default);
+    }
 
 
     private sealed class ChunkPairQuerier<T>(IEnumerable<T> source, T? paddingElement) : SimpleEnumerationQuerier<T, (T, T?)>(source)

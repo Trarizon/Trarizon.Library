@@ -46,16 +46,41 @@ public struct AllocOptSet<T, TComparer> : ISet<T>, IReadOnlySet<T>
 
     public bool Add(T item)
     {
-        ref var val = ref _provider.GetItemRefOrAddEntry(item, true);
-        if (Unsafe.IsNullRef(in val))
+        ref var val = ref _provider.GetItemRefOrAddEntry(item, out var exist);
+        if (exist)
             return false;
 
         val = item;
         return true;
     }
 
+    /// <summary>
+    /// a |= b
+    /// Unlike BCL, this method doesn't check condition that other is this
+    /// </summary>
+    public void UnionWith<TEnumerable>(TEnumerable collection) where TEnumerable : IEnumerable<T>
+    {
+        foreach (var item in collection) {
+            Add(item);
+        }
+    }
+
     public bool Remove(T item)
         => !Unsafe.IsNullRef(in _provider.GetItemRefAndRemove(item));
+
+    /// <summary>
+    /// a -= b<br/>
+    /// Unlike BCL, this method doesn't check condition that other is this
+    /// </summary>
+    public void ExceptWith<TEnumerable>(TEnumerable collection) where TEnumerable : IEnumerable<T>
+    {
+        if (Count == 0)
+            return;
+
+        foreach (var item in collection) {
+            Remove(item);
+        }
+    }
 
     /// <remarks>
     /// This method won't clear elements in underlying array.
@@ -81,27 +106,20 @@ public struct AllocOptSet<T, TComparer> : ISet<T>, IReadOnlySet<T>
         if (Count == 0)
             return;
 
-        foreach (ref readonly var val in _provider) {
+        foreach (var val in _provider) {
             array[arrayIndex++] = val;
         }
     }
 
     /// <summary>
     /// a -= b<br/>
-    /// Unlike BCL, this method doesn't check condition of except self
+    /// Unlike BCL, this method doesn't check condition that other is this
     /// </summary>
-    public void ExceptWith(IEnumerable<T> other)
-    {
-        if (Count == 0)
-            return;
-
-        foreach (var item in other)
-            Remove(item);
-    }
+    void ISet<T>.ExceptWith(IEnumerable<T> other) => ExceptWith(other);
 
     /// <summary>
-    /// a &= b<br/>
-    /// Unlike BCL, this method doesn't check condition of except self
+    /// a &amp;= b<br/>
+    /// Unlike BCL, this method doesn't check condition that other is this
     /// </summary>
     public void IntersectWith(IEnumerable<T> other)
     {
@@ -130,7 +148,7 @@ public struct AllocOptSet<T, TComparer> : ISet<T>, IReadOnlySet<T>
 
     /// <summary>
     /// a &lt; b<br/>
-    /// Unlike BCL, this method doesn't check condition of except self
+    /// Unlike BCL, this method doesn't check condition that other is this
     /// </summary>
     public readonly bool IsProperSubsetOf(IEnumerable<T> other)
     {
@@ -165,7 +183,7 @@ public struct AllocOptSet<T, TComparer> : ISet<T>, IReadOnlySet<T>
 
     /// <summary>
     /// a &gt; b<br/>
-    /// Unlike BCL, this method doesn't check condition of except self
+    /// Unlike BCL, this method doesn't check condition that other is this
     /// </summary>
     public readonly bool IsProperSupersetOf(IEnumerable<T> other)
     {
@@ -200,7 +218,7 @@ public struct AllocOptSet<T, TComparer> : ISet<T>, IReadOnlySet<T>
 
     /// <summary>
     /// a &lt;= b<br/>
-    /// Unlike BCL, this method doesn't check condition of except self
+    /// Unlike BCL, this method doesn't check condition that other is this
     /// </summary>
     public readonly bool IsSubsetOf(IEnumerable<T> other)
     {
@@ -227,7 +245,7 @@ public struct AllocOptSet<T, TComparer> : ISet<T>, IReadOnlySet<T>
 
     /// <summary>
     /// a &gt;= b<br/>
-    /// Unlike BCL, this method doesn't check condition of except self
+    /// Unlike BCL, this method doesn't check condition that other is this
     /// </summary>
     public readonly bool IsSupersetOf(IEnumerable<T> other)
     {
@@ -245,8 +263,8 @@ public struct AllocOptSet<T, TComparer> : ISet<T>, IReadOnlySet<T>
     }
 
     /// <summary>
-    /// a & b &gt; 0<br/>
-    /// Unlike BCL, this method doesn't check condition of except self
+    /// a &amp; b &gt; 0<br/>
+    /// Unlike BCL, this method doesn't check condition that other is this
     /// </summary>
     public readonly bool Overlaps(IEnumerable<T> other)
     {
@@ -262,7 +280,7 @@ public struct AllocOptSet<T, TComparer> : ISet<T>, IReadOnlySet<T>
 
     /// <summary>
     /// a == b<br/>
-    /// Unlike BCL, this method doesn't check condition of except self
+    /// Unlike BCL, this method doesn't check condition that other is this
     /// </summary>
     public readonly bool SetEquals(IEnumerable<T> other)
     {
@@ -290,13 +308,13 @@ public struct AllocOptSet<T, TComparer> : ISet<T>, IReadOnlySet<T>
     }
 
     /// <summary>
-    /// (a | b) - (a & b)
+    /// (a | b) - (a &amp; b)
+    /// Unlike BCL, this method doesn't check condition that other is this
     /// </summary>
-    /// <param name="other"></param>
     public void SymmetricExceptWith(IEnumerable<T> other)
     {
         if (Count == 0)
-            UnionWith(other);
+            ((ISet<T>)this).UnionWith(other);
 
         var bitArray = new StackAllocBitArray(
             stackalloc byte[StackAllocBitArray.GetArrayLength(_provider.Size)]);
@@ -324,13 +342,9 @@ public struct AllocOptSet<T, TComparer> : ISet<T>, IReadOnlySet<T>
 
     /// <summary>
     /// a |= b
+    /// Unlike BCL, this method doesn't check condition that other is this
     /// </summary>
-    public void UnionWith(IEnumerable<T> other)
-    {
-        foreach (var item in other) {
-            Add(item);
-        }
-    }
+    void ISet<T>.UnionWith(IEnumerable<T> other) => UnionWith(other);
 
     void ICollection<T>.Add(T item) => Add(item);
     readonly IEnumerator<T> IEnumerable<T>.GetEnumerator() => new Enumerator.Wrapper(this);
@@ -430,7 +444,7 @@ public struct AllocOptSet<T> : ISet<T>, IReadOnlySet<T>
     /// a -= b<br/>
     /// Unlike BCL, this method doesn't check condition of except self
     /// </summary>
-    public void ExceptWith(IEnumerable<T> other) => _set.ExceptWith(other);
+    public void ExceptWith(IEnumerable<T> other) => ((ISet<T>)_set).ExceptWith(other);
 
     /// <summary>
     /// a &= b<br/>
@@ -483,7 +497,7 @@ public struct AllocOptSet<T> : ISet<T>, IReadOnlySet<T>
     /// <summary>
     /// a |= b
     /// </summary>
-    public void UnionWith(IEnumerable<T> other) => _set.UnionWith(other);
+    public void UnionWith(IEnumerable<T> other) => ((ISet<T>)_set).UnionWith(other);
 
     void ICollection<T>.Add(T item) => Add(item);
     readonly IEnumerator<T> IEnumerable<T>.GetEnumerator() => ((IEnumerable<T>)_set).GetEnumerator();

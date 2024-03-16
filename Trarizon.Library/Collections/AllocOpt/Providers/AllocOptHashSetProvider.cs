@@ -153,7 +153,7 @@ internal struct AllocOptHashSetProvider<T, TKey, TComparer>
         return ref Unsafe.NullRef<T>();
     }
 
-    public ref T GetItemRefOrAddEntry(TKey key, bool returnNullIfExisting)
+    public ref T GetItemRefOrAddEntry(TKey key, out bool exist)
     {
         if (_entries.Length == 0)
             Initialize(1);
@@ -165,9 +165,8 @@ internal struct AllocOptHashSetProvider<T, TKey, TComparer>
         while (index >= 0) {
             ref Entry entry = ref _entries[index];
             if (entry.HashCode == hashCode && _comparer.Equals(entry.Item, key)) {
-                return ref returnNullIfExisting
-                    ? ref Unsafe.NullRef<T>()
-                    : ref entry.Item;
+                exist = true;
+                return ref entry.Item;
             }
             index = entry.Next;
         }
@@ -187,6 +186,7 @@ internal struct AllocOptHashSetProvider<T, TKey, TComparer>
             _size++;
         }
 
+        exist = false;
         ref Entry result = ref _entries[index];
         result.HashCode = hashCode;
         result.Next = bucket - 1;

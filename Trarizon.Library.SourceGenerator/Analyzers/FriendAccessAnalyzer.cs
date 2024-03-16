@@ -27,7 +27,7 @@ internal partial class FriendAccessAnalyzer : DiagnosticAnalyzer
 
         context.RegisterSyntaxNodeAction(
             CheckIfCalledFromFriendOrSelf,
-            SyntaxKind.SimpleMemberAccessExpression, SyntaxKind.PointerMemberAccessExpression); // Removed IdentifierName, directly access in type is always allow
+            SyntaxKind.SimpleMemberAccessExpression, SyntaxKind.PointerMemberAccessExpression, SyntaxKind.ObjectCreationExpression, SyntaxKind.ImplicitObjectCreationExpression); // Removed IdentifierName, directly access in type is always allow
     }
 
     private static void FriendShouldBeInternal(SyntaxNodeAnalysisContext context)
@@ -55,7 +55,7 @@ internal partial class FriendAccessAnalyzer : DiagnosticAnalyzer
 
         // Ensure this member will not accessed by other assembly
         bool isInternal = syntax.AncestorsAndSelf()
-            .OfType<MemberDeclarationSyntax>()
+            .OfTypeUntil<MemberDeclarationSyntax, BaseNamespaceDeclarationSyntax>()
             .Any(syntax => syntax.GetAccessModifiers() is
                 AccessModifiers.None or
                 AccessModifiers.Internal or
@@ -79,8 +79,11 @@ internal partial class FriendAccessAnalyzer : DiagnosticAnalyzer
 
     private static void CheckIfCalledFromFriendOrSelf(SyntaxNodeAnalysisContext context)
     {
-        var memberAccessExprSyntax = (MemberAccessExpressionSyntax)context.Node;
-        var memberSymbol = context.SemanticModel.GetSymbolInfo(memberAccessExprSyntax).Symbol;
+        // MemberAccessExpr
+        // ObjectCreationExpr
+        // ImplicitObjectCreationExpr
+        var accessExprSyntax = (ExpressionSyntax)context.Node;
+        var memberSymbol = context.SemanticModel.GetSymbolInfo(accessExprSyntax).Symbol;
 
         var friendAttr = memberSymbol?.GetAttributes()
             .FirstOrDefault(attr => attr.AttributeClass.MatchDisplayString(Literals.Attribute_TypeName));
@@ -89,7 +92,7 @@ internal partial class FriendAccessAnalyzer : DiagnosticAnalyzer
 
         var friendTypes = friendAttr.GetConstructorArguments<ITypeSymbol>(Literals.Attribute_FriendTypes_ConstructorIndex);
 
-        bool isFriend = memberAccessExprSyntax.Ancestors()
+        bool isFriend = accessExprSyntax.Ancestors()
             .OfType<TypeDeclarationSyntax>()
             .Select(syntax => context.SemanticModel.GetDeclaredSymbol(syntax)!)
             .CartesianProduct(friendTypes.Prepend(memberSymbol!.ContainingType))
@@ -99,6 +102,10 @@ internal partial class FriendAccessAnalyzer : DiagnosticAnalyzer
 
         context.ReportDiagnostic(
             Literals.Diagnostic_FriendMemberCannotBeAccessed,
-            memberAccessExprSyntax.Name);
+            accessExprSyntax switch {
+                MemberAccessExpressionSyntax memberAccess => memberAccess.Name,
+                BaseObjectCreationExpressionSyntax => accessExprSyntax,
+                _ => accessExprSyntax,
+            });
     }
 }

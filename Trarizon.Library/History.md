@@ -11,6 +11,7 @@
     - Combine namespace `Collections.Creator` and `Collections.Extensions` to `Collections.Helpers`
     - Rename `Extension`s to `Helper`s
     - Unify parameter name in `AllocOptStack<>`
+    - Optimize design of `TrySingle`
 - New
     - Add Monad.`GetValueRefOrDefaultRef()`
     - Add `NotNull<T>`
@@ -25,15 +26,21 @@
     - Add `BackingFieldAccessAttribute`
     - `FriendAccessAttribute` now works on pointer access
     - Add `SingletonAttribute`
+    - Add a overload of `AllocOptDictionary<>.GetOrAddRef()`
+    - Add `AllocOptCollectionBuilder.AsXXX()`
 - Changes
     - Optimize `IEnumerable<>.CartesianProduct()`
     - Add zero-length check for some list queries
     - Implement `ICriticalNotifyCompletion` for `NullableValueTaskAwaiter<>`
+    - Adjust method in c#, no breaking for caller
+    - Optimize collection expression creation of `AllocOptStack/Queue`
+    - Optimize many details in `EnumerableQuery`
 - Bugs
     - Fix bug when use array type in `[FriendAccess]`, analyzer will crash. (though maybe nobody will do this
     - Fix bug on `AllocOptList.ClearUnreferenced()`
     - Fix bug on non-param ctor on `AllocOptSet/Dictionary`
     - Fix bug on `AllocOptDictionary.Add`
+    - MemberAccess analyzers are now works on constructor
 
 ## v0.2.2
 

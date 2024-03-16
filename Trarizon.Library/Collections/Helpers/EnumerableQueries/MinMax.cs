@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using Trarizon.Library.Wrappers;
 
 namespace Trarizon.Library.Collections.Helpers;
 partial class EnumerableQuery
@@ -6,7 +7,7 @@ partial class EnumerableQuery
     /// <summary>
     /// Get the minimun and maximun value in one enumeration
     /// </summary>
-    public static (T Min, T Max) MinMax<T>(this IEnumerable<T> source, IComparer<T>? comparer = default)
+    public static Optional<(T Min, T Max)> MinMax<T>(this IEnumerable<T> source, IComparer<T>? comparer = default)
     {
         T min, max;
 
@@ -14,7 +15,6 @@ partial class EnumerableQuery
         if (enumerator.MoveNext())
             min = max = enumerator.Current;
         else {
-            ThrowHelper.ThrowInvalidOperation(ThrowConstants.SequenceContainsNoElement);
             return default;
         }
 
@@ -33,7 +33,7 @@ partial class EnumerableQuery
     /// <summary>
     /// Invoke a transform on each element and et the minimun and maximun value in one enumeration
     /// </summary>
-    public static (TResult Min, TResult Max) MinMax<T, TResult>(this IEnumerable<T> source, Func<T, TResult> selector, IComparer<TResult>? comparer = default)
+    public static Optional<(TResult Min, TResult Max)> MinMax<T, TResult>(this IEnumerable<T> source, Func<T, TResult> selector, IComparer<TResult>? comparer = default)
     {
         TResult min, max;
 
@@ -41,7 +41,6 @@ partial class EnumerableQuery
         if (enumerator.MoveNext())
             min = max = selector(enumerator.Current);
         else {
-            ThrowHelper.ThrowInvalidOperation(ThrowConstants.SequenceContainsNoElement);
             return default;
         }
 
@@ -60,7 +59,7 @@ partial class EnumerableQuery
     /// <summary>
     /// Get the minimun and maximun value according to a specific key in one enumeration
     /// </summary>
-    public static (T Min, T Max) MinMaxBy<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector, IComparer<TKey>? comparer = default)
+    public static Optional<(T Min, T Max)> MinMaxBy<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector, IComparer<TKey>? comparer = default)
     {
         T min, max;
         TKey minKey, maxKey;
@@ -71,7 +70,6 @@ partial class EnumerableQuery
             minKey = maxKey = keySelector(min);
         }
         else {
-            ThrowHelper.ThrowInvalidOperation(ThrowConstants.SequenceContainsNoElement);
             return default;
         }
 
@@ -91,7 +89,7 @@ partial class EnumerableQuery
     /// <summary>
     /// Get the minimun and maximun value in one enumeration
     /// </summary>
-    public static (T Min, T Max) MinMax<T>(this IEnumerable<T> source) where T : IComparisonOperators<T, T, bool>
+    public static Optional<(T Min, T Max)> MinMax<T>(this IEnumerable<T> source) where T : IComparisonOperators<T, T, bool>
     {
         T min, max;
 
@@ -99,7 +97,6 @@ partial class EnumerableQuery
         if (enumerator.MoveNext())
             min = max = enumerator.Current;
         else {
-            ThrowHelper.ThrowInvalidOperation(ThrowConstants.SequenceContainsNoElement);
             return default;
         }
 
@@ -114,7 +111,7 @@ partial class EnumerableQuery
     /// <summary>
     /// Invoke a transform on each element and et the minimun and maximun value in one enumeration
     /// </summary>
-    public static (TResult Min, TResult Max) MinMax<T, TResult>(this IEnumerable<T> source, Func<T, TResult> selector) where TResult : IComparisonOperators<TResult, TResult, bool>
+    public static Optional<(TResult Min, TResult Max)> MinMax<T, TResult>(this IEnumerable<T> source, Func<T, TResult> selector) where TResult : IComparisonOperators<TResult, TResult, bool>
     {
         TResult min, max;
 
@@ -122,7 +119,6 @@ partial class EnumerableQuery
         if (enumerator.MoveNext())
             min = max = selector(enumerator.Current);
         else {
-            ThrowHelper.ThrowInvalidOperation(ThrowConstants.SequenceContainsNoElement);
             return default;
         }
 
@@ -138,7 +134,7 @@ partial class EnumerableQuery
     /// <summary>
     /// Get the minimun and maximun value according to a specific key in one enumeration
     /// </summary>
-    public static (T Min, T Max) MinMaxBy<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector) where TKey : IComparisonOperators<TKey, TKey, bool>
+    public static Optional<(T Min, T Max)> MinMaxBy<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector) where TKey : IComparisonOperators<TKey, TKey, bool>
     {
         T min, max;
         TKey minKey, maxKey;
@@ -149,7 +145,6 @@ partial class EnumerableQuery
             minKey = maxKey = keySelector(min);
         }
         else {
-            ThrowHelper.ThrowInvalidOperation(ThrowConstants.SequenceContainsNoElement);
             return default;
         }
 

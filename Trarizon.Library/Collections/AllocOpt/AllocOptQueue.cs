@@ -3,19 +3,20 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Trarizon.Library.CodeAnalysis.MemberAccess;
 using Trarizon.Library.Collections.StackAlloc;
 
 namespace Trarizon.Library.Collections.AllocOpt;
 [CollectionBuilder(typeof(AllocOptCollectionBuilder), nameof(AllocOptCollectionBuilder.CreateQueue))]
 public struct AllocOptQueue<T> : ICollection<T>, IReadOnlyCollection<T>
 {
-    // |  <----->  |
-    //    ^head ^tail
+    // |  -------  |
+    //    ^head  ^tail
     // when _list.Count == _tail, parts after _tail are invalid, and _list.Add means same as Enqueue
     // when _head == _tail, queue is empty, always reset _head, _tail, _list
     // 
-    // |-->     <--|
-    //    ^tail ^head
+    // |---      ---|
+    //     ^tail ^head
     // when _head == _tail, queue is full
     private AllocOptList<T> _list;
     private int _head;
@@ -31,6 +32,23 @@ public struct AllocOptQueue<T> : ICollection<T>, IReadOnlyCollection<T>
     {
         _list = new AllocOptList<T>(capacity);
         _head = 0;
+    }
+
+    /// <remarks>
+    /// This ctor wont create empty queue
+    /// </remarks>
+    [FriendAccess(typeof(AllocOptCollectionBuilder))]
+    internal AllocOptQueue(T[] items, int head, int tail)
+    {
+        // when tail == head, means collection full
+        if (tail <= head) {
+            _list = AllocOptCollectionBuilder.AsList(items, items.Length);
+        }
+        else {
+            _list = AllocOptCollectionBuilder.AsList(items, tail);
+        }
+        _head = head;
+        _tail = tail;
     }
 
     #region Accessors

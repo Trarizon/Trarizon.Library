@@ -116,19 +116,23 @@ internal sealed partial class SingletonGenerator : IIncrementalGenerator
             if (TypeSyntax.ParameterList is not null)
                 goto ReportDiagnostic;
 
-            bool hasSingleOrNoneCtor = TypeSyntax.ChildNodes()
+           var ctorOpt = TypeSyntax.ChildNodes()
                 .OfType<ConstructorDeclarationSyntax>()
                 // Exclude static ctors
                 .Where(ctor => !ctor.Modifiers.Any(SyntaxKind.StaticKeyword))
-                .TrySingleOrNone(out var ctor);
-            if (!hasSingleOrNoneCtor)
-                goto ReportDiagnostic;
+                .TrySingle();
 
-            if (ctor is null) {
-                HasPrivateCtor = false;
-                return null;
+            switch (ctorOpt.ResultKind) {
+                case EnumerableExtensions.SingleOptionalKind.None:
+                    HasPrivateCtor = false;
+                    return null;
+                case EnumerableExtensions.SingleOptionalKind.Single:
+                    break;
+                default: //multiple
+                    goto ReportDiagnostic;
             }
 
+            var ctor = ctorOpt.GetValueOrDefault()!;
             if (ctor.GetAccessModifiers() is not AccessModifiers.None and not AccessModifiers.Private) {
                 // Is non-private
                 goto ReportDiagnostic;

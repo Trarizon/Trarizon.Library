@@ -1,4 +1,5 @@
-﻿using Trarizon.Library.Collections.Helpers.Utilities.Queriers;
+﻿using Trarizon.Library.Collections.AllocOpt;
+using Trarizon.Library.Collections.Helpers.Utilities.Queriers;
 
 namespace Trarizon.Library.Collections.Helpers;
 partial class EnumerableQuery
@@ -14,14 +15,16 @@ partial class EnumerableQuery
         if (source is IList<T> list)
             return list.RotateList(splitPosition);
 
+        if (source.TryGetNonEnumeratedCount(out var count) && splitPosition >= count)
+            return source;
+
         return new RotateQuerier<T>(source, splitPosition);
     }
 
 
     private sealed class RotateQuerier<T>(IEnumerable<T> source, int splitPosition) : SimpleEnumerationQuerier<T, T>(source)
     {
-        private readonly T[] _firstPart = new T[splitPosition];
-        private int _length;
+        private AllocOptList<T> _firstPart;
 
         public override bool MoveNext()
         {
@@ -31,17 +34,25 @@ partial class EnumerableQuery
                 case -1:
                     _enumerator = _source.GetEnumerator();
                     _state = 0;
-                    for (_length = 0; _length < _firstPart.Length; _length++) {
+                    // Initialize first part cache
+                    if (_source.TryGetNonEnumeratedCount(out _))
+                        _firstPart = new(splitPosition);
+                    else
+                        _firstPart = [];
+
+                    for (int length = 0; length < splitPosition; length++) {
                         // splitPosition > _source.Count, iterate cache.
-                        if (!_enumerator.MoveNext()) {
-                            _length++;
+                        if (_enumerator.MoveNext()) {
+                            // Cache
+                            _firstPart.Add(_enumerator.Current);
+                            continue;
+                        }
+                        else {
+                            // Do not has 2nd part
                             // _state as index
                             _state = -1;
                             goto default;
                         }
-
-                        // Cache
-                        _firstPart[_length] = _enumerator.Current;
                     }
                     _state = IterateSecondPart;
                     goto case IterateSecondPart;
@@ -59,14 +70,14 @@ partial class EnumerableQuery
 
                 // Iterate first part
                 default:
-                    if (++_state >= _firstPart.Length)
+                    if (++_state >= _firstPart.Count)
                         return false;
 
                     _current = _firstPart[_state];
                     return true;
             }
         }
-        protected override EnumerationQuerier<T> Clone() => new RotateQuerier<T>(_source, _firstPart.Length);
+        protected override EnumerationQuerier<T> Clone() => new RotateQuerier<T>(_source, splitPosition);
     }
 
 }

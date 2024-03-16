@@ -20,8 +20,12 @@ partial class EnumerableQuery
     /// Aggregate, and returns all values in process
     /// </summary>
     public static IEnumerable<TResult> AggregateSelect<T, TAccumulate, TResult>(this IEnumerable<T> source, TAccumulate seed, Func<TAccumulate, T, TAccumulate> func, Func<TAccumulate, TResult> resultSelector)
-        => new AggregateSelectQuerier<T, TAccumulate, TResult>(source, seed, func, resultSelector);
+    {
+        if (source.TryGetNonEnumeratedCount(out var count) && count == 0)
+            return Enumerable.Empty<TResult>();
 
+        return new AggregateSelectQuerier<T, TAccumulate, TResult>(source, seed, func, resultSelector);
+    }
 
     private sealed class AggregateSelectQuerier<T, TAcc, TResult>(
         IEnumerable<T> source,

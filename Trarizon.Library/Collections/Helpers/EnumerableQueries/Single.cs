@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Trarizon.Library.CodeAnalysis.MemberAccess;
 
 namespace Trarizon.Library.Collections.Helpers;
 partial class EnumerableQuery
@@ -7,102 +8,37 @@ partial class EnumerableQuery
     /// Try get first element in sequence,
     /// this method returns false when there is not exactly one element in sequence
     /// </summary>
-    /// <remarks>
-    /// About nullable analysis:<br/>
-    /// There's no warning if <typeparamref name="T"/> is nullable reference type.<br/>
-    /// It's hard to provide perfect in all conditions,
-    /// so I chose a least-used condition (IMO). At least
-    /// it provide correct analysis in most conditions where
-    /// <typeparamref name="T"/> is not null
-    /// </remarks>
-    /// <param name="value">
-    /// The only element in sequence,
-    /// or <paramref name="defaultValue"/> if sequence is empty or contains more than 1 element.
-    /// </param>
-    /// <returns><see langword="true"/> if there is exactly one elements in sequence</returns>
-    public static bool TrySingle<T>(this IEnumerable<T> source, [NotNullWhen(true), NotNullIfNotNull(nameof(defaultValue))] out T? value, T? defaultValue = default!)
-        => source.TrySingleInternal(out value, defaultValue, false);
-
-    /// <summary>
-    /// Try get first element satisfying specific condition in sequence,
-    /// this method returns false when there is not exactly one element satisfying condition in sequence
-    /// </summary>
-    /// <remarks>
-    /// About nullable analysis:<br/>
-    /// There's no warning if <typeparamref name="T"/> is nullable reference type.<br/>
-    /// It's hard to provide perfect in all conditions,
-    /// so I chose a least-used condition (IMO). At least
-    /// it provide correct analysis in most conditions where
-    /// <typeparamref name="T"/> is not null
-    /// </remarks>
-    /// <param name="value">
-    /// The only element in sequence,
-    /// or <paramref name="defaultValue"/> if sequence is empty or contains more than 1 element.
-    /// </param>
-    /// <returns><see langword="true"/> if there is exactly one elements satisfying condition in sequence</returns>
-    public static bool TrySingle<T>(this IEnumerable<T> source, Func<T, bool> predicate, [NotNullWhen(true), NotNullIfNotNull(nameof(defaultValue))] out T? value, T? defaultValue = default!)
-        => source.TryPredicateSingleInternal(predicate, out value, defaultValue, false);
-
-    /// <summary>
-    /// Try get first element in sequence or default,
-    /// this method returns false when there are more than one element in sequence
-    /// </summary>
-    /// <remarks>
-    /// About nullable analysis:<br/>
-    /// There's no warning if <typeparamref name="T"/> is nullable reference type.<br/>
-    /// It's hard to provide perfect in all conditions,
-    /// so I chose a least-used condition (IMO). At least
-    /// it provide correct analysis in most conditions where
-    /// <typeparamref name="T"/> is not null
-    /// </remarks>
-    /// <param name="value">
-    /// The only element in sequence,
-    /// or <paramref name="defaultValue"/> if sequence is empty or contains more than 1 element.
-    /// </param>
-    /// <returns><see langword="true"/> if there is one or zero elements in sequence</returns>
-    public static bool TrySingleOrNone<T>(this IEnumerable<T> source, [NotNullIfNotNull(nameof(defaultValue))] out T? value, T? defaultValue = default!)
-        => source.TrySingleInternal(out value, defaultValue, true);
+    public static bool TrySingle<T>(this IEnumerable<T> source, [MaybeNullWhen(false)] out T value)
+        => source.TrySingle().TryGetValue(out value);
 
     /// <summary>
     /// Try get first element satisfying specific condition in sequence or default,
     /// this method returns false when there are more than one element satisfying condition in sequence
     /// </summary>
-    /// <remarks>
-    /// About nullable analysis:<br/>
-    /// There's no warning if <typeparamref name="T"/> is nullable reference type.<br/>
-    /// It's hard to provide perfect in all conditions,
-    /// so I chose a least-used condition (IMO). At least
-    /// it provide correct analysis in most conditions where
-    /// <typeparamref name="T"/> is not null
-    /// </remarks>
-    /// <param name="value">
-    /// The only element in sequence,
-    /// or <paramref name="defaultValue"/> if sequence is empty or contains more than 1 element.
-    /// </param>
-    /// <returns><see langword="true"/> if there is one or zero elements satisfying condition in sequence</returns>
-    public static bool TrySingleOrNone<T>(this IEnumerable<T> source, Func<T, bool> predicate, [NotNullIfNotNull(nameof(defaultValue))] out T? value, T? defaultValue = default!)
-        => source.TryPredicateSingleInternal(predicate, out value, defaultValue, true);
+    public static bool TrySingle<T>(this IEnumerable<T> source, Func<T, bool> predicate, [MaybeNullWhen(false)] out T value)
+        => source.TrySingle(predicate, out value);
 
-    private static bool TrySingleInternal<T>(this IEnumerable<T> source, out T? value, T? defaultValue, bool resultWhenZero)
+    /// <summary>
+    /// Try get first element in sequence,
+    /// this method returns false when there is not exactly one element in sequence
+    /// </summary>
+    public static SingleOptional<T> TrySingle<T>(this IEnumerable<T> source)
     {
         if (source.TryGetNonEnumeratedCount(out var count)) {
             switch (count) {
                 case 0:
-                    value = defaultValue;
-                    return resultWhenZero;
+                    return new(default, SingleOptionalKind.None);
                 case 1:
                     if (source is IList<T> list) {
-                        value = list[0];
+                        return new(list[0], SingleOptionalKind.Single);
                     }
                     else {
                         using var e = source.GetEnumerator();
                         e.MoveNext();
-                        value = e.Current;
+                        return new(e.Current, SingleOptionalKind.Single);
                     }
-                    return true;
                 default:
-                    value = defaultValue;
-                    return false;
+                    return new(default, SingleOptionalKind.Multiple);
             }
         }
 
@@ -110,47 +46,93 @@ partial class EnumerableQuery
 
         // Zero
         if (!enumerator.MoveNext()) {
-            value = defaultValue;
-            return resultWhenZero;
+            return new(default, SingleOptionalKind.None);
         }
 
         // 1
-        value = enumerator.Current;
+        var value = enumerator.Current;
         if (!enumerator.MoveNext())
-            return true;
+            return new(value, SingleOptionalKind.Single);
 
         // More than 1
-        value = defaultValue;
-        return false;
+        return new(default, SingleOptionalKind.Multiple);
     }
 
-    private static bool TryPredicateSingleInternal<T>(this IEnumerable<T> source, Func<T, bool> predicate, out T? value, T? defaultValue, bool resultWhenNotFound)
+    /// <summary>
+    /// Try get first element satisfying specific condition in sequence or default,
+    /// this method returns false when there are more than one element satisfying condition in sequence
+    /// </summary>
+    public static SingleOptional<T> TrySingle<T>(this IEnumerable<T> source, Func<T, bool> predicate)
     {
         using var enumerator = source.GetEnumerator();
 
-        bool find = false;
+        bool found = false;
         T current = default!;
         while (enumerator.MoveNext()) {
             current = enumerator.Current;
             if (predicate(current)) {
-                if (find) {
+                if (found) {
                     // Multiple
-                    value = defaultValue;
-                    return false;
+                    return new(default, SingleOptionalKind.Multiple);
                 }
-                find = true;
+                found = true;
             }
         }
 
         // Single
-        if (find) {
-            value = current;
-            return true;
+        if (found) {
+            return new(current, SingleOptionalKind.Single);
         }
         // Not found
         else {
-            value = defaultValue;
-            return resultWhenNotFound;
+            return new(default, SingleOptionalKind.None);
         }
+    }
+
+
+    public readonly struct SingleOptional<T>
+    {
+        private readonly SingleOptionalKind _kind;
+        private readonly T? _value;
+
+        [FriendAccess(typeof(EnumerableQuery))]
+        internal SingleOptional(T? value, SingleOptionalKind kind)
+        {
+            _kind = kind;
+            _value = value;
+        }
+
+        public bool HasValue => _kind is SingleOptionalKind.Single;
+
+        public SingleOptionalKind ResultKind => _kind;
+
+        public bool TryGetValue([MaybeNullWhen(false)] out T value)
+        {
+            value = _value;
+            return HasValue;
+        }
+
+        public bool TryGetValue(out T value, T defaultValue)
+        {
+            var rtn = _kind is SingleOptionalKind.Single;
+            value = rtn ? _value! : defaultValue;
+            return rtn;
+        }
+
+        public bool TryGetValueOrNone(out T? value, T? defaultValue = default)
+        {
+            var rtn = _kind is not SingleOptionalKind.Multiple;
+            value = rtn ? _value! : defaultValue;
+            return rtn;
+        }
+
+        public T? GetValueOrDefault() => _value;
+    }
+
+    public enum SingleOptionalKind
+    {
+        None,
+        Single,
+        Multiple,
     }
 }
