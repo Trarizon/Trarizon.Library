@@ -380,7 +380,9 @@ public struct AllocOptSet<T> : ISet<T>, IReadOnlySet<T>
 {
     private AllocOptSet<T, IEqualityComparer<T>> _set;
 
-    public AllocOptSet(IEqualityComparer<T>? comparer = null)
+    public AllocOptSet() : this(null) { }
+
+    public AllocOptSet(IEqualityComparer<T>? comparer)
         => _set = new(comparer ?? EqualityComparer<T>.Default);
 
     public AllocOptSet(int capacity, IEqualityComparer<T>? comparer = null)

@@ -32,6 +32,8 @@
 - Bugs
     - Fix bug when use array type in `[FriendAccess]`, analyzer will crash. (though maybe nobody will do this
     - Fix bug on `AllocOptList.ClearUnreferenced()`
+    - Fix bug on non-param ctor on `AllocOptSet/Dictionary`
+    - Fix bug on `AllocOptDictionary.Add`
 
 ## v0.2.2
 

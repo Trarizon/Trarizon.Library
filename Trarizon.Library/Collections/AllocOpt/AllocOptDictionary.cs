@@ -79,7 +79,7 @@ public struct AllocOptDictionary<TKey, TValue, TComparer> : IDictionary<TKey, TV
         if (Unsafe.IsNullRef(in item))
             return false;
 
-        item.Value = value;
+        item = (key, value);
         return true;
     }
 
@@ -360,7 +360,9 @@ public struct AllocOptDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IRea
 {
     internal AllocOptDictionary<TKey, TValue, IEqualityComparer<TKey>> _dict;
 
-    public AllocOptDictionary(IEqualityComparer<TKey>? comparer = null)
+    public AllocOptDictionary() : this(null) { }
+
+    public AllocOptDictionary(IEqualityComparer<TKey>? comparer)
         => _dict = new(comparer ?? EqualityComparer<TKey>.Default);
 
     public AllocOptDictionary(int capacity, IEqualityComparer<TKey>? comparer = null)

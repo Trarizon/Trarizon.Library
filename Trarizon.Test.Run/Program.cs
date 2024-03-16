@@ -19,6 +19,13 @@ using Trarizon.Library.RunTest.Examples;
 using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 
+AllocOptDictionary<string, string> dict = new();
+
+dict.Add("str", "ing");
+
+foreach (var item in dict) {
+    item.Print();
+}
 
 namespace A.A2
 {
