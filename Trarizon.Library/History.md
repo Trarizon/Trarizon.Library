@@ -28,6 +28,7 @@
 - Changes
     - Optimize `IEnumerable<>.CartesianProduct()`
     - Add zero-length check for some list queries
+    - Implement `ICriticalNotifyCompletion` for `NullableValueTaskAwaiter<>`
 - Bugs
     - Fix bug when use array type in `[FriendAccess]`, analyzer will crash. (though maybe nobody will do this
     - Fix bug on `AllocOptList.ClearUnreferenced()`
