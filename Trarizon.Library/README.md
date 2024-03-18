@@ -43,29 +43,23 @@ Rewrite BCL collections in struct, to reduce alloc on heap
 
 ### Helpers
 
-static classes for quickly creating collections
+static classes for BCL collections
 
-- `ArrayCreator`
-- `ListCreator`
-
-扩展方法
-
-<details>
-<summary>展开</summary>
-
-`this`|Method|Remarks
+Target Type|Method|Remarks
 --:|:--|:--
-`IEnumerable<>`|`ForEach`|`foreach`
+`T[]`<br/>`List<>`|s_`Repeat`|
+`IEnumerable<>`|s_`SelectNextUntil`<br/>s_`SelectNextUntilNull`|
+`T[]`<br/>`(ReadOnly)Span<>`|`OffsetOf`|通过指针计算元素/子数组的下标值
 `T[]`<br/>`List<>`|`Fill`|Fill the collection with specific value
-`Dictionary<,>`<br/>`IDictionary<,>`|`GetOrAdd`|获取键的值，否则添加并返回值
-`Dictionary<,>`<br/>`IDictionary<,>`|`AddOrUpdate`|Add or Update
-`(ReadOnly)Span<>`<br/>`T[]`|`OffsetOf`|通过指针计算元素/子数组的下标值
-`(ReadOnly)Span<>`|`IndexOf`|重载了从指定下标值开始查找的功能
-`(ReadOnly)Span<>`|`ToReversedSpan`|获取翻转后的Span的视图
 `T[]`<br/>`List<>`<br/>`Span<>`|`SortStably`|使用内置`Sort`实现的稳定排序
-`T[,]`|`AsSpan`<br/>`AsReadOnlySpan`|将二维数组中的一行转为`Span<>`/`ROS<>`
+`T[]`|`AsSpan`<br/>`AsReadOnlySpan`|将二维数组中的一行转为`Span<>`/`ROS<>`
+`Dictionary<,>`<br/>`IDictionary<,>`|`GetOrAdd`|获取键的值，否则添加并返回值
+`IEnumerable<>`|`ForEach`|
+`List<>`|`AtRef`|获取下标的Ref值
+`(ReadOnly)Span<>`|`IndexOf`|重载了从指定下标值开始查找的功能
+`(ReadOnly)Span<>`|`Reverse`|获取翻转后的Span的视图
 
-LinQ-like extensions
+#### Query - LinQ-like extensions
 
 
 <details>
@@ -94,9 +88,11 @@ Impl Type|Method|Remarks
 ⭕⭕✔<br/>❌✔✔|`ElementAtOrDefault`<br/>`TryAt`|以安全方式按下标获取值
 ✔|`EmptyIfNull`|序列为`null`时返回空序列，否则返回自身
 ✔|`TryFirst`|判断序列是否有值，若有，返回第一个值
+✔|`Index`|返回index和值的元组序列
 ✔|`IsInOrder`<br/>`IsInOrderBy`|判断序列是否有序
 ✔|`Merge`|合并两个有序序列
 ✔|`MinMax`<br/>`MinMaxBy`|一次遍历返回序列中的最小值与最大值
+✔|`OfTypeUntil`|`OfType<T>().TakeWhile(t is not TExcept)`
 ✔✔✔|`PopFront`<br/>`PopFirst`<br/>`PopFrontWhile`|取出开头指定数量的元素（*非延迟加载*），并返回剩下的元素
 ✔✔✔|`Repeat`<br/>`RepeatForever`|将序列重复
 ⭕✔✔|`Reverse`|-

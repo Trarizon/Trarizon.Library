@@ -16,4 +16,9 @@ public static partial class EnumerableQuery
         }
         return false;
     }
+
+    private static bool IsCheapEmpty<T>(this IEnumerable<T> source)
+    {
+        return source.TryGetNonEnumeratedCount(out var count) && count == 0;
+    }
 }

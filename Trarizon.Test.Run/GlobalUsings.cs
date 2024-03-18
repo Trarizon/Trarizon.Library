@@ -56,7 +56,7 @@ public static class GlobalUsings
     private static string? PrintValue<T>(T value)
     {
         switch (value) {
-            case IEnumerable collection:
+            case IEnumerable collection and not string:
                 var sb = new StringBuilder();
                 foreach (var val in collection) {
                     sb.Append(PrintValue(val)).Append(", ");

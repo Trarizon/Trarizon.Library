@@ -19,9 +19,7 @@ using Trarizon.Library.RunTest.Examples;
 using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 
-AllocOptQueue<int> que = [1, 2, 3, 4, 5, 6];
-
-que.Print();
+EnumerateInts();
 
 
 namespace A.A2

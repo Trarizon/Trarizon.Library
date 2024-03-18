@@ -1,5 +1,5 @@
 ﻿namespace Trarizon.Library.Collections.Helpers;
-public static class EnumerableHelper
+public static partial class EnumerableHelper
 {
     public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
     {

@@ -28,6 +28,10 @@
     - Add `SingletonAttribute`
     - Add a overload of `AllocOptDictionary<>.GetOrAddRef()`
     - Add `AllocOptCollectionBuilder.AsXXX()`
+    - Add `Enumerable.OfTypeUntil()`
+    - Add more creator for `Optional<>`
+    - Add `EnumerableHelper.SelectNextUntil()`
+    - Add `Enumerable.Index()` which will provided in Linq in .NET 9
 - Changes
     - Optimize `IEnumerable<>.CartesianProduct()`
     - Add zero-length check for some list queries

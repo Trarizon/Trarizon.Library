@@ -8,11 +8,25 @@ public static class Optional
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Optional<T> Of<T>(T value) => new(value);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Optional<T> Of<T>(T value, Func<T, bool> predicate) => predicate(value) ? Of(value) : default;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Optional<T> OfNotNull<T>(T? value) where T : class => NotNull.As(value).ToOptional();
+
     /// <summary>
     /// In fact just use <c>default</c> is ok
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Optional<T> None<T>() => Optional<T>.None;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ref readonly T? GetValueRefOrDefaultRef<T>(this in Optional<T> optional)
+        => ref optional._value;
+
+    #region Conversion
+
+    #region Nullable
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Optional<T> FromNullable<T>(T? value) where T : struct
@@ -22,11 +36,7 @@ public static class Optional
     public static T? ToNullable<T>(this in Optional<T> optional) where T : struct
         => optional.HasValue ? optional._value : null;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ref readonly T? GetValueRefOrDefaultRef<T>(this in Optional<T> optional)
-        => ref optional._value;
-
-    #region Conversion
+    #endregion
 
     #region Either
 
