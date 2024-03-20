@@ -36,9 +36,11 @@ partial class SingletonGenerator : DiagnosticAnalyzer
                 FieldDeclarationSyntax field => context.SemanticModel.GetDeclaredSymbol(field.Declaration.Variables[0]),
                 _ => context.SemanticModel.GetDeclaredSymbol(accessorMemberSyntax),
             };
+            if (accessorMemberSymbol is null)
+                return;
 
             // 排除singleton provider的调用
-            if (true == accessorMemberSymbol?.TryGetGeneratedCodeAttribute(out var attributeData) &&
+            if (accessorMemberSymbol.TryGetGeneratedCodeAttribute(out var attributeData) &&
                 attributeData.GetConstructorArgument<string>(GlobalLiterals.GeneratedCodeAttribute_Tool_ConstructorIndex) is Literals.GeneratedCodeAttribute_Tool_Argument
                 ) {
                 return;

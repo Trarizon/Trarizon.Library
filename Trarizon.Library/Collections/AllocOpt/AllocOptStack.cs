@@ -29,6 +29,8 @@ public struct AllocOptStack<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public readonly T Peek() => _list[^1];
 
+    public readonly ReversedReadOnlySpan<T> Peek(int count) => _list.AsSpan(^count..).ToReversedSpan();
+
     public readonly bool TryPeek([MaybeNullWhen(false)] out T item)
     {
         if (Count == 0) {
@@ -37,6 +39,16 @@ public struct AllocOptStack<T> : ICollection<T>, IReadOnlyCollection<T>
         }
 
         item = Peek();
+        return true;
+    }
+
+    public readonly bool TryPeek(int count, out ReversedReadOnlySpan<T> items)
+    {
+        if (Count < count) {
+            items = default;
+            return false;
+        }
+        items = Peek(count);
         return true;
     }
 
@@ -93,11 +105,11 @@ public struct AllocOptStack<T> : ICollection<T>, IReadOnlyCollection<T>
 
     /// <summary>
     /// This method won't clear elements in underlying array.
-    /// Use <see cref="ClearUnreferenced"/> if you need it.
+    /// Use <see cref="FreeUnreferenced"/> if you need it.
     /// </summary>
     public void Clear() => _list.Clear();
 
-    public readonly void ClearUnreferenced() => _list.ClearUnreferenced();
+    public readonly void FreeUnreferenced() => _list.FreeUnreferenced();
 
     public void EnsureCapacity(int capacity) => _list.EnsureCapacity(capacity);
 
@@ -119,11 +131,15 @@ public struct AllocOptStack<T> : ICollection<T>, IReadOnlyCollection<T>
     }
 
     void ICollection<T>.Add(T item) => Push(item);
-    readonly bool ICollection<T>.Remove(T item)
+    bool ICollection<T>.Remove(T item)
     {
-        ThrowHelper.ThrowNotSupport("Cannot remove specific item from stack");
-        return default;
+        if (TryPeek(out var val) && EqualityComparer<T>.Default.Equals(val, item)) {
+            Pop(1);
+            return true;
+        }
+        return false;
     }
+
     readonly IEnumerator<T> IEnumerable<T>.GetEnumerator() => new Enumerator.Wrapper(this);
     readonly IEnumerator IEnumerable.GetEnumerator() => new Enumerator.Wrapper(this);
 

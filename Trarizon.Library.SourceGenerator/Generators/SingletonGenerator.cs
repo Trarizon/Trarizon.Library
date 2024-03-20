@@ -42,8 +42,8 @@ internal sealed partial class SingletonGenerator : IIncrementalGenerator
 
     private class ValidationContext(GeneratorAttributeSyntaxContext context)
     {
-        [MemberNotNullWhen(true, nameof(TypeSyntax))]
-        public bool IsGeneratable { get; } = true;
+        [MemberNotNullWhen(true, nameof(_typeSyntax), nameof(TypeSyntax))]
+        public bool IsGeneratable { get; private set; } = true;
 
         private ClassDeclarationSyntax? _typeSyntax;
         public ClassDeclarationSyntax TypeSyntax
@@ -61,11 +61,27 @@ internal sealed partial class SingletonGenerator : IIncrementalGenerator
 
         private AttributeData Attribute => context.Attributes[0];
 
-        private string? _instancePropertyIdentifier;
-        public string? InstancePropertyIdentifier => _instancePropertyIdentifier ??= Attribute.GetNamedArgument<string>(Literals.Attribute_InstancePropertyName_PropertyIdentifier);
+        private Optional<string?> _instancePropertyIdentifier;
+        public string? InstancePropertyIdentifier
+        {
+            get {
+                if (!_instancePropertyIdentifier.HasValue) {
+                    _instancePropertyIdentifier = Attribute.GetNamedArgument<string>(Literals.Attribute_InstancePropertyName_PropertyIdentifier);
+                }
+                return _instancePropertyIdentifier.Value;
+            }
+        }
 
-        private string? _singletonProviderIdentifier;
-        public string? SingletonProviderIdentifier => _singletonProviderIdentifier ??= Attribute.GetNamedArgument<string>(Literals.Attribute_SingletonProviderName_PropertyIdentifier);
+        private Optional<string?> _singletonProviderIdentifier;
+        public string? SingletonProviderIdentifier
+        {
+            get {
+                if (!_singletonProviderIdentifier.HasValue) {
+                    _singletonProviderIdentifier = Attribute.GetNamedArgument<string>(Literals.Attribute_SingletonProviderName_PropertyIdentifier);
+                }
+                return _singletonProviderIdentifier.Value;
+            }
+        }
 
         public SingletonOptions Options => Attribute.GetNamedArgument<SingletonOptions>(Literals.Attribute_Options_PropertyIdentifier);
 
@@ -83,6 +99,10 @@ internal sealed partial class SingletonGenerator : IIncrementalGenerator
             /// type will be initialized.
             /// </remarks>
             NoProvider = 1 << 0,
+            /// <summary>
+            /// Mark Instance property internal
+            /// </summary>
+            IsInternalInstance = 1 << 1,
         }
 
         #endregion
@@ -95,6 +115,7 @@ internal sealed partial class SingletonGenerator : IIncrementalGenerator
                 return null;
             }
 
+            IsGeneratable = false;
             return DiagnosticFactory.Create(
                 Literals.Diagnostic_SingletonIsClassOnly,
                 targetNode.Identifier);
@@ -102,6 +123,9 @@ internal sealed partial class SingletonGenerator : IIncrementalGenerator
 
         public Diagnostic? ValidateIsSealed()
         {
+            if (!IsGeneratable)
+                return null;
+
             if (TypeSyntax.Modifiers.Any(SyntaxKind.SealedKeyword))
                 return null;
 
@@ -112,18 +136,21 @@ internal sealed partial class SingletonGenerator : IIncrementalGenerator
 
         public Diagnostic? ValidateHasSinglePrivateNonParamCtor()
         {
+            if (!IsGeneratable)
+                return null;
+
             // No primary constructor // primary constructor is never private
             if (TypeSyntax.ParameterList is not null)
                 goto ReportDiagnostic;
 
-           var ctorOpt = TypeSyntax.ChildNodes()
-                .OfType<ConstructorDeclarationSyntax>()
-                // Exclude static ctors
-                .Where(ctor => !ctor.Modifiers.Any(SyntaxKind.StaticKeyword))
-                .TrySingle();
+            var ctorOpt = TypeSyntax.ChildNodes()
+                 .OfType<ConstructorDeclarationSyntax>()
+                 // Exclude static ctors
+                 .Where(ctor => !ctor.Modifiers.Any(SyntaxKind.StaticKeyword))
+                 .TrySingle();
 
             switch (ctorOpt.ResultKind) {
-                case EnumerableExtensions.SingleOptionalKind.None:
+                case EnumerableExtensions.SingleOptionalKind.Empty:
                     HasPrivateCtor = false;
                     return null;
                 case EnumerableExtensions.SingleOptionalKind.Single:
@@ -240,7 +267,10 @@ internal sealed partial class SingletonGenerator : IIncrementalGenerator
                 SyntaxFactory.SingletonList(
                     Literals.Syntax_GeneratedCodeAttribute_AttributeList),
                 SyntaxFactory.TokenList(
-                    SyntaxFactory.Token(SyntaxKind.PublicKeyword),
+                    SyntaxFactory.Token(
+                        validation.Options.HasFlag(ValidationContext.SingletonOptions.IsInternalInstance)
+                        ? SyntaxKind.InternalKeyword
+                        : SyntaxKind.PublicKeyword),
                     SyntaxFactory.Token(SyntaxKind.StaticKeyword)),
                 Type_IdentifierName,
                 explicitInterfaceSpecifier: null,

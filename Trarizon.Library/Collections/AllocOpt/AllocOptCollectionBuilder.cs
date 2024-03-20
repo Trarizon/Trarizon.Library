@@ -1,11 +1,17 @@
-﻿using Microsoft.VisualBasic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 
 namespace Trarizon.Library.Collections.AllocOpt;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class AllocOptCollectionBuilder
 {
     #region Create
+
+    public static AllocOptDeque<T> CreateDeque<T>(ReadOnlySpan<T> values)
+    {
+        var queue = new AllocOptDeque<T>(values.Length);
+        queue.EnqueueRangeLast(values);
+        return queue;
+    }
 
     public static AllocOptList<T> CreateList<T>(ReadOnlySpan<T> values)
     {
@@ -49,6 +55,22 @@ public static class AllocOptCollectionBuilder
     #endregion
 
     #region As
+
+    /// <summary>
+    /// Create a deque using <paramref name="array"/> as underlying array,
+    /// from <paramref name="headIndex"/>(contains) to <paramref name="tailIndex"/>
+    /// </summary>
+    /// <param name="headIndex">Index of the value to be dequeue</param>
+    /// <param name="tailIndex">Index of the new enqueued value</param>
+    public static AllocOptDeque<T> AsDeque<T>(T[] array, Index headIndex, Index tailIndex)
+    {
+        var head = headIndex.GetOffset(array.Length);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(head, array.Length, nameof(headIndex));
+        var tail = tailIndex.GetOffset(array.Length);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(tail, array.Length, nameof(tailIndex));
+
+        return new(array, headIndex.GetOffset(array.Length), tailIndex.GetOffset(array.Length));
+    }
 
     /// <summary>
     /// Create a list using <paramref name="array"/> as underlying array,

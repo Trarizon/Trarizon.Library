@@ -114,7 +114,7 @@ public struct AllocOptDictionary<TKey, TValue, TComparer> : IDictionary<TKey, TV
     /// </remarks>
     public void Clear() => _provider.Clear();
 
-    public void ClearUnreferenced() => _provider.ClearUnreferenced();
+    public void ClearUnreferenced() => _provider.FreeUnreferenced();
 
     public void EnsureCapacity(int capacity) => _provider.EnsureCapacity(capacity);
 

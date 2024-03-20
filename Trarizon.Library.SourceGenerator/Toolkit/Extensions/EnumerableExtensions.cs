@@ -93,7 +93,7 @@ public static class EnumerableExtensions
         if (source.TryGetNonEnumeratedCount(out var count)) {
             switch (count) {
                 case 0:
-                    return new(default, SingleOptionalKind.None);
+                    return new(default, SingleOptionalKind.Empty);
                 case 1:
                     if (source is IList<T> list) {
                         return new(list[0], SingleOptionalKind.Single);
@@ -112,7 +112,7 @@ public static class EnumerableExtensions
 
         // Zero
         if (!enumerator.MoveNext()) {
-            return new(default, SingleOptionalKind.None);
+            return new(default, SingleOptionalKind.Empty);
         }
 
         // 1
@@ -151,7 +151,7 @@ public static class EnumerableExtensions
         }
         // Not found
         else {
-            return new(default, SingleOptionalKind.None);
+            return new(default, SingleOptionalKind.Empty);
         }
     }
 
@@ -196,7 +196,7 @@ public static class EnumerableExtensions
 
     public enum SingleOptionalKind
     {
-        None,
+        Empty,
         Single,
         Multiple,
     }

@@ -77,7 +77,7 @@ internal struct AllocOptHashSetProvider<T, TKey, TComparer>
 
     /// <remarks>
     /// This method won't clear elements in underlying array.
-    /// Use <see cref="ClearUnreferenced"/> if you need it.
+    /// Use <see cref="FreeUnreferenced"/> if you need it.
     /// </remarks>
     public void Clear()
     {
@@ -89,7 +89,7 @@ internal struct AllocOptHashSetProvider<T, TKey, TComparer>
         Array.Clear(_buckets);
     }
 
-    public void ClearUnreferenced()
+    public void FreeUnreferenced()
     {
         if (RuntimeHelpers.IsReferenceOrContainsReferences<T>()) {
             if (_size > 0) {

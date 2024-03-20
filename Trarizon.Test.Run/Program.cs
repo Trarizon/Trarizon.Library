@@ -19,7 +19,15 @@ using Trarizon.Library.RunTest.Examples;
 using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 
-EnumerateInts();
+
+AllocOptDeque<int> deque = [];
+
+void Display() 
+{
+    deque.Print();
+    deque.GetUnderlyingArray().Print();
+    Console.WriteLine();
+}
 
 
 namespace A.A2
@@ -29,7 +37,7 @@ namespace A.A2
         partial class W<T, T2> : Collection<T>
             where T : List<T>
         {
-            [Singleton(SingletonProviderName = "S")]
+            [Singleton(SingletonProviderName = "S",Options = SingletonOptions.IsInternalInstance)]
             sealed partial class A
             {
                 // private A(int a) { }

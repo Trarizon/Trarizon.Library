@@ -14,6 +14,7 @@ TRABFA0001 | Trarizon.Library.SourceGenerator | Error | Literals
 TRABFA0002 | Trarizon.Library.SourceGenerator | Error | Literals
 TRABFA0003 | Trarizon.Library.SourceGenerator | Error | Literals
 TRASiglt0001 | Trarizon.Library.SourceGenerator | Error | Literals
-TRASiglt0002 | Trarizon.Library.SourceGenerator | Warning | Literals
+TRASiglt0002 | Trarizon.Library.SourceGenerator | Error | Literals
 TRASiglt0003 | Trarizon.Library.SourceGenerator | Error | Literals
 TRASiglt0004 | Trarizon.Library.SourceGenerator | Error | Literals
+TRASiglt1001 | Trarizon.Library.SourceGenerator | Error | Literals

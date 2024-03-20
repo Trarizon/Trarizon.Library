@@ -39,7 +39,7 @@ partial class SingletonGenerator
             nameof(Diagnostic_SingletonIsSealed),
             "Singleton class should be sealed to avoid multiple instances",
             Constants.Category,
-            DiagnosticSeverity.Warning,
+            DiagnosticSeverity.Error,
             true);
 
         public static readonly DiagnosticDescriptor Diagnostic_SingletonCannotContainsNonPrivateCtor = new(

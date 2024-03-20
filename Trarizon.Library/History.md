@@ -12,6 +12,7 @@
     - Rename `Extension`s to `Helper`s
     - Unify parameter name in `AllocOptStack<>`
     - Optimize design of `TrySingle`
+    - Rename `AllocOptCol.ClearUnreferenced` to `FreeUnreferenced`
 - New
     - Add Monad.`GetValueRefOrDefaultRef()`
     - Add `NotNull<T>`
@@ -32,6 +33,7 @@
     - Add more creator for `Optional<>`
     - Add `EnumerableHelper.SelectNextUntil()`
     - Add `Enumerable.Index()` which will provided in Linq in .NET 9
+    - Add `AllocOptDeque<>`, `Deque<>`
 - Changes
     - Optimize `IEnumerable<>.CartesianProduct()`
     - Add zero-length check for some list queries
@@ -39,6 +41,7 @@
     - Adjust method in c#, no breaking for caller
     - Optimize collection expression creation of `AllocOptStack/Queue`
     - Optimize many details in `EnumerableQuery`
+    - Optimize internal impl in `AllocOpt`
 - Bugs
     - Fix bug when use array type in `[FriendAccess]`, analyzer will crash. (though maybe nobody will do this
     - Fix bug on `AllocOptList.ClearUnreferenced()`

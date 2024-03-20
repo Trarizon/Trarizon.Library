@@ -51,6 +51,19 @@ public struct AllocOptList<T> : IList<T>, IReadOnlyList<T>
         }
     }
 
+    public readonly ref T AtRef(int index)
+    {
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, _size);
+        return ref _items[index];
+    }
+
+    public readonly ref T AtRefOrNullRef(int index)
+    {
+        if (index >= _size || index < 0)
+            return ref Unsafe.NullRef<T>();
+        return ref _items[index];
+    }
+
     public readonly Span<T> AsSpan(Range range)
     {
         var (offset, len) = range.GetOffsetAndLength(_size);
@@ -76,6 +89,34 @@ public struct AllocOptList<T> : IList<T>, IReadOnlyList<T>
     #endregion
 
     #region Builders
+
+    /// <summary>
+    /// This allows <paramref name="count"/> less than current <see cref="Count"/>
+    /// </summary>
+    public void SetCount(int count)
+    {
+        if (count <= Capacity) {
+            _size = count;
+            return;
+        }
+        else {
+            Grow(count);
+        }
+    }
+
+    [FriendAccess(typeof(AllocOptDeque<>))]
+    internal void SetCountNonMove(int count, out T[] originalArray)
+    {
+        if (count <= Capacity) {
+            _size = count;
+            originalArray = _items;
+            return;
+        }
+        else {
+            GrowNonMove(count, out originalArray);
+            return;
+        }
+    }
 
     public void Add(T item)
     {
@@ -195,20 +236,6 @@ public struct AllocOptList<T> : IList<T>, IReadOnlyList<T>
         _size = newSize;
     }
 
-    [FriendAccess(typeof(AllocOptQueue<>))]
-    internal void OverwriteCollectionNonGrow<TCollection>(int index, TCollection collection) where TCollection : ICollection<T>
-    {
-        collection.CopyTo(_items, index);
-        _size = int.Max(_size, index + collection.Count);
-    }
-
-    [FriendAccess(typeof(AllocOptQueue<>))]
-    internal void OverwriteRangeNonGrow(int index, ReadOnlySpan<T> items)
-    {
-        items.CopyTo(_items.AsSpan(index, items.Length));
-        _size = int.Max(_size, index + items.Length);
-    }
-
     public bool Remove(T item)
     {
         var index = IndexOf(item);
@@ -277,7 +304,7 @@ public struct AllocOptList<T> : IList<T>, IReadOnlyList<T>
 
     /// <remarks>
     /// This method won't clear elements in underlying array.
-    /// Use <see cref="ClearUnreferenced"/> if you need it.
+    /// Use <see cref="FreeUnreferenced"/> if you need it.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Clear()
@@ -288,7 +315,7 @@ public struct AllocOptList<T> : IList<T>, IReadOnlyList<T>
     /// <summary>
     /// Clear items from index _size to end
     /// </summary>
-    public readonly void ClearUnreferenced()
+    public readonly void FreeUnreferenced()
     {
         if (!RuntimeHelpers.IsReferenceOrContainsReferences<T>())
             return;
@@ -309,12 +336,11 @@ public struct AllocOptList<T> : IList<T>, IReadOnlyList<T>
 
     private void Grow(int expectedCapacity)
     {
-        GrowEmptyArray(expectedCapacity, out var originalArray);
+        GrowNonMove(expectedCapacity, out var originalArray);
         Array.Copy(originalArray, _items, _size);
     }
 
-    [FriendAccess(typeof(AllocOptQueue<>))]
-    internal void GrowEmptyArray(int expectedCapacity, out T[] originalArray)
+    private void GrowNonMove(int expectedCapacity, out T[] originalArray)
     {
         originalArray = _items;
         _items = new T[GetNewCapacity(expectedCapacity)];

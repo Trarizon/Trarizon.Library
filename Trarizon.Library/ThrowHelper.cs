@@ -10,27 +10,22 @@ internal static partial class ThrowHelper
         => throw new InvalidOperationException(message);
 
     [DoesNotReturn]
-    [MethodImpl(MethodImplOptions.NoInlining)]
     public static void ThrowNotSupport(string? message = null)
         => throw new NotSupportedException(message);
 
     [DoesNotReturn]
-    [MethodImpl(MethodImplOptions.NoInlining)]
     public static void ThrowKeyNotFound(string key)
         => throw new KeyNotFoundException($"key '{key}' not found");
 
     [DoesNotReturn]
-    [MethodImpl(MethodImplOptions.NoInlining)]
     public static void ThrowArgument(string? message = null, string? paramName = null)
         => throw new ArgumentException(message, paramName);
 
     [DoesNotReturn]
-    [MethodImpl(MethodImplOptions.NoInlining)]
-    public static void ThrowArgumentOutOfRange(string? message = null, string? paramName = null, object? value = null)
+    public static void ThrowArgumentOutOfRange(string? message = null, object? value = null, [CallerArgumentExpression(nameof(value))] string? paramName = null)
         => throw new ArgumentOutOfRangeException(message, value, paramName);
 
     [DoesNotReturn]
-    [MethodImpl(MethodImplOptions.NoInlining)]
     public static void Throw(Exception exception)
         => throw exception;
 }

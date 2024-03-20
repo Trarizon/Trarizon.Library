@@ -33,4 +33,8 @@ public enum SingletonOptions
     /// type will be initialized.
     /// </remarks>
     NoProvider = 1 << 0,
+    /// <summary>
+    /// Mark Instance property internal
+    /// </summary>
+    IsInternalInstance = 1 << 1,
 }

@@ -16,7 +16,7 @@ partial class EnumerableQuery
     /// this method returns false when there are more than one element satisfying condition in sequence
     /// </summary>
     public static bool TrySingle<T>(this IEnumerable<T> source, Func<T, bool> predicate, [MaybeNullWhen(false)] out T value)
-        => source.TrySingle(predicate, out value);
+        => source.TrySingle(predicate).TryGetValue(out value);
 
     /// <summary>
     /// Try get first element in sequence,
@@ -27,7 +27,7 @@ partial class EnumerableQuery
         if (source.TryGetNonEnumeratedCount(out var count)) {
             switch (count) {
                 case 0:
-                    return new(default, SingleOptionalKind.None);
+                    return new(default, SingleOptionalKind.Empty);
                 case 1:
                     if (source is IList<T> list) {
                         return new(list[0], SingleOptionalKind.Single);
@@ -46,7 +46,7 @@ partial class EnumerableQuery
 
         // Zero
         if (!enumerator.MoveNext()) {
-            return new(default, SingleOptionalKind.None);
+            return new(default, SingleOptionalKind.Empty);
         }
 
         // 1
@@ -85,7 +85,7 @@ partial class EnumerableQuery
         }
         // Not found
         else {
-            return new(default, SingleOptionalKind.None);
+            return new(default, SingleOptionalKind.Empty);
         }
     }
 
@@ -131,7 +131,7 @@ partial class EnumerableQuery
 
     public enum SingleOptionalKind
     {
-        None,
+        Empty,
         Single,
         Multiple,
     }
