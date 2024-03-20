@@ -34,6 +34,7 @@
     - Add `EnumerableHelper.SelectNextUntil()`
     - Add `Enumerable.Index()` which will provided in Linq in .NET 9
     - Add `AllocOptDeque<>`, `Deque<>`
+    - Add `Enumerable.OfNotNull()`
 - Changes
     - Optimize `IEnumerable<>.CartesianProduct()`
     - Add zero-length check for some list queries

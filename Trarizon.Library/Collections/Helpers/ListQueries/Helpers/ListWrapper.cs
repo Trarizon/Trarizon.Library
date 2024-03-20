@@ -1,16 +1,19 @@
 ﻿using System.Collections;
 
-namespace Trarizon.Library.Collections.Helpers.ListQueries.Helpers;
-internal readonly struct ListWrapper<T> : IReadOnlyList<T>
+namespace Trarizon.Library.Collections.Helpers;
+partial class ListQuery
 {
+    private readonly struct ListWrapper<T> : IReadOnlyList<T>
+    {
 #nullable disable
-    public readonly IList<T> List;
+        public readonly IList<T> List;
 #nullable restore
 
-    public T this[int index] => List[index];
+        public T this[int index] => List[index];
 
-    public int Count => List.Count;
+        public int Count => List.Count;
 
-    public IEnumerator<T> GetEnumerator() => List.GetEnumerator();
-    IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)List).GetEnumerator();
+        public IEnumerator<T> GetEnumerator() => List.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)List).GetEnumerator();
+    }
 }
