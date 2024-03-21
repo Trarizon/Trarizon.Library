@@ -223,4 +223,34 @@ public static class EnumerableExtensions
             }
         }
     }
+
+    public static IEnumerable<(T, T)> Adjacent<T>(this IEnumerable<T> source)
+    {
+        using var enumerator = source.GetEnumerator();
+        if (!enumerator.MoveNext())
+            yield break;
+
+        var prev = enumerator.Current;
+
+        while (enumerator.MoveNext()) {
+            var cur = enumerator.Current;
+            yield return (prev, cur);
+            prev = cur;
+        }
+    }
+
+    public static IEnumerable<T> EnumerateSelectWhileNotNull<T>(this T? first, Func<T, T> nextSelector)
+    {
+        while (first is not null) {
+            yield return first;
+            first = nextSelector(first);
+        }
+    }
+
+    public static void ForEach<T>(this IEnumerable<T> source,Action<T> action)
+    {
+        foreach (var item in source) {
+            action(item);
+        }
+    }
 }

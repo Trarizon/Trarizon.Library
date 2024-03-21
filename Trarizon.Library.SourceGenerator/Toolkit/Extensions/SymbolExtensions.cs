@@ -5,11 +5,11 @@ using System.Diagnostics.CodeAnalysis;
 namespace Trarizon.Library.SourceGenerator.Toolkit.Extensions;
 public static class SymbolExtensions
 {
-    public static bool TryGetGeneratedCodeAttribute(this ISymbol symbol,[NotNullWhen(true)] out AttributeData attributeData)
+    public static bool TryGetGeneratedCodeAttribute(this ISymbol symbol, [NotNullWhen(true)] out AttributeData attributeData)
         => symbol.GetAttributes()
             .TryFirst(attr => attr!.AttributeClass.MatchDisplayString(GlobalLiterals.GeneratedCodeAttribute_TypeName), out attributeData);
 
-    public static bool MatchDisplayString(this ISymbol? symbol, string displayString, SymbolDisplayFormat? symbolDisplayFormat = null)
+    public static bool MatchDisplayString([NotNullWhen(true)] this ISymbol? symbol, string displayString, SymbolDisplayFormat? symbolDisplayFormat = null)
         => symbol?.ToDisplayString(symbolDisplayFormat) == displayString;
 
     public static string ToCsFileNameString(this ISymbol symbol, string suffix)

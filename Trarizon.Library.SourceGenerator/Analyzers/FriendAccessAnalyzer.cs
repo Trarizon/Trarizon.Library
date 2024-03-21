@@ -2,10 +2,13 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Trarizon.Library.SourceGenerator.Toolkit;
 using Trarizon.Library.SourceGenerator.Toolkit.Extensions;
+using Trarizon.Library.SourceGenerator.Toolkit.More;
 
 namespace Trarizon.Library.SourceGenerator.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -21,91 +24,136 @@ internal partial class FriendAccessAnalyzer : DiagnosticAnalyzer
         context.EnableConcurrentExecution();
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.Analyze | GeneratedCodeAnalysisFlags.ReportDiagnostics);
 
-        context.RegisterSyntaxNodeAction(
-            FriendShouldBeInternal,
-            SyntaxKind.MethodDeclaration, SyntaxKind.FieldDeclaration, SyntaxKind.PropertyDeclaration, SyntaxKind.EventDeclaration, SyntaxKind.ConstructorDeclaration);
+        context.RegisterSymbolAction(
+            RequiresFriendNotPublicAccessable,
+            SymbolKind.Method, SymbolKind.Field, SymbolKind.Property, SymbolKind.Event);
 
-        context.RegisterSyntaxNodeAction(
-            CheckIfCalledFromFriendOrSelf,
-            SyntaxKind.SimpleMemberAccessExpression, SyntaxKind.PointerMemberAccessExpression, SyntaxKind.ObjectCreationExpression, SyntaxKind.ImplicitObjectCreationExpression); // Removed IdentifierName, directly access in type is always allow
+        context.RegisterOperationAction(
+            CheckAccess,
+            OperationKind.ObjectCreation, OperationKind.FieldReference, OperationKind.PropertyReference, OperationKind.MethodReference, OperationKind.EventReference);
     }
 
-    private static void FriendShouldBeInternal(SyntaxNodeAnalysisContext context)
+    private static void RequiresFriendNotPublicAccessable(SymbolAnalysisContext context)
     {
-        var syntax = (MemberDeclarationSyntax)context.Node;
-        var symbol = context.SemanticModel.GetDeclaredSymbol(syntax is FieldDeclarationSyntax field ? field.Declaration.Variables[0] : syntax);
+        var symbol = context.Symbol;
 
-        if (true != symbol?.GetAttributes().Any(attr => attr.AttributeClass.MatchDisplayString(Literals.Attribute_TypeName)))
+        if (symbol.IsImplicitlyDeclared)
             return;
 
-        // Not explicit interface member
-        if (syntax is BasePropertyDeclarationSyntax { ExplicitInterfaceSpecifier: { } }
-            or MethodDeclarationSyntax { ExplicitInterfaceSpecifier: { } }
+        if (!symbol.GetAttributes().Any(attr => attr.AttributeClass.MatchDisplayString(Literals.Attribute_TypeName)))
+            return;
+
+        if (symbol is
+            IMethodSymbol { MethodKind: MethodKind.ExplicitInterfaceImplementation } or
+            IPropertySymbol { ExplicitInterfaceImplementations.IsDefaultOrEmpty: false } or
+            IEventSymbol { ExplicitInterfaceImplementations.IsDefaultOrEmpty: false }
         ) {
             context.ReportDiagnostic(
                 Literals.Diagnostic_FriendOnExplicitInterfaceMemberMakeNoSense,
-                syntax switch {
+                // explicit method wont be partial
+                symbol.DeclaringSyntaxReferences[0].GetSyntax() switch {
                     MethodDeclarationSyntax meth => meth.Identifier,
                     PropertyDeclarationSyntax prop => prop.Identifier,
                     EventDeclarationSyntax ev => ev.Identifier,
-                    _ => syntax,
+                    var syntax => syntax,
                 });
             return;
         }
 
         // Ensure this member will not accessed by other assembly
-        bool isInternal = syntax.AncestorsAndSelf()
-            .OfTypeUntil<MemberDeclarationSyntax, BaseNamespaceDeclarationSyntax>()
-            .Any(syntax => syntax.GetAccessModifiers() is
-                AccessModifiers.None or
-                AccessModifiers.Internal or
-                AccessModifiers.Private or
-                AccessModifiers.PrivateProtected);
-
+        bool isInternal = symbol.EnumerateSelectWhileNotNull(s => s.ContainingSymbol)
+            .OfTypeUntil<ISymbol, INamespaceSymbol>()
+            .Any(symbol => symbol.DeclaredAccessibility is
+                Accessibility.NotApplicable or
+                Accessibility.Internal or
+                Accessibility.Private or
+                Accessibility.ProtectedAndInternal); // private protected
         if (isInternal)
             return;
 
-        context.ReportDiagnostic(
-            Literals.Diagnostic_FriendMayBeAccessedByOtherAssembly,
-            syntax switch {
-                MethodDeclarationSyntax meth => meth.Identifier,
-                FieldDeclarationSyntax fie => fie.Declaration,
-                PropertyDeclarationSyntax prop => prop.Identifier,
-                EventDeclarationSyntax ev => ev.Identifier,
-                ConstructorDeclarationSyntax ctor => ctor.Identifier,
-                _ => syntax,
-            });
+        // It's better to only warn on syntax that marked with attribute
+        // but how to do that?
+        foreach (var syntaxRef in symbol.DeclaringSyntaxReferences) {
+            context.ReportDiagnostic(
+                Literals.Diagnostic_FriendMayBeAccessedByOtherAssembly,
+                syntaxRef.GetSyntax() switch {
+                    MethodDeclarationSyntax meth => meth.Identifier,
+                    FieldDeclarationSyntax fie => fie.Declaration,
+                    PropertyDeclarationSyntax prop => prop.Identifier,
+                    EventDeclarationSyntax ev => ev.Identifier,
+                    ConstructorDeclarationSyntax ctor => ctor.Identifier,
+                    AccessorDeclarationSyntax accessor => accessor.Keyword,
+                    var syntax => syntax,
+                });
+        }
     }
 
-    private static void CheckIfCalledFromFriendOrSelf(SyntaxNodeAnalysisContext context)
+    private static void CheckAccess(OperationAnalysisContext context)
     {
-        // MemberAccessExpr
-        // ObjectCreationExpr
-        // ImplicitObjectCreationExpr
-        var accessExprSyntax = (ExpressionSyntax)context.Node;
-        var memberSymbol = context.SemanticModel.GetSymbolInfo(accessExprSyntax).Symbol;
+        var operation = context.Operation;
 
-        var friendAttr = memberSymbol?.GetAttributes()
-            .FirstOrDefault(attr => attr.AttributeClass.MatchDisplayString(Literals.Attribute_TypeName));
-        if (friendAttr is null)
+        if (!TryGetInterestedSymbol(operation, out var memberSymbol, out var friendAttr))
             return;
 
         var friendTypes = friendAttr.GetConstructorArguments<ITypeSymbol>(Literals.Attribute_FriendTypes_ConstructorIndex);
 
-        bool isFriend = accessExprSyntax.Ancestors()
+        bool isFriend = operation.Syntax.Ancestors()
             .OfType<TypeDeclarationSyntax>()
-            .Select(syntax => context.SemanticModel.GetDeclaredSymbol(syntax)!)
-            .CartesianProduct(friendTypes.Prepend(memberSymbol!.ContainingType))
-            .Any(tuple => SymbolEqualityComparer.Default.Equals(tuple.Item1.OriginalDefinition, tuple.Item2.OriginalDefinition));
+            .Select(syntax => operation.SemanticModel.GetDeclaredSymbol(syntax))
+            .Intersect(friendTypes.Prepend(memberSymbol.ContainingType), MoreSymbolEqualityComaprer.OriginalDefination)
+            .Any();
         if (isFriend)
             return;
 
         context.ReportDiagnostic(
             Literals.Diagnostic_FriendMemberCannotBeAccessed,
-            accessExprSyntax switch {
-                MemberAccessExpressionSyntax memberAccess => memberAccess.Name,
-                BaseObjectCreationExpressionSyntax => accessExprSyntax,
-                _ => accessExprSyntax,
-            });
+            operation.Syntax);
+
+
+        static bool TryGetInterestedSymbol(IOperation operation, [NotNullWhen(true)] out ISymbol? memberSymbol, [NotNullWhen(true)] out AttributeData? attribute)
+        {
+            attribute = null;
+            memberSymbol = operation switch {
+                IObjectCreationOperation objectCreation => objectCreation.Constructor,
+                IMemberReferenceOperation memberReference => memberReference.Member,
+                _ => null,
+            };
+            if (memberSymbol is null)
+                return false;
+
+            attribute = memberSymbol.GetAttributes()
+                .FirstOrDefault(attr => attr.AttributeClass.MatchDisplayString(Literals.Attribute_TypeName));
+            if (attribute is not null)
+                return true;
+
+            // Maybe attribute marked on accessors
+            IMethodSymbol? accessor = operation switch {
+                IPropertyReferenceOperation propertyOperation => UsedPropertySetter(propertyOperation)
+                    ? propertyOperation.Property.SetMethod
+                    : propertyOperation.Property.GetMethod,
+                IEventReferenceOperation {
+                    Parent: ICompoundAssignmentOperation cAssign
+                } eventOperation => cAssign.OperatorKind is BinaryOperatorKind.Add
+                    ? eventOperation.Event.AddMethod
+                    : eventOperation.Event.RemoveMethod,// Outside of the parent type, event will only appear on the left of += or -=
+                _ => null,
+            };
+
+            attribute = accessor?.GetAttributes()
+                .FirstOrDefault(attr => attr.AttributeClass.MatchDisplayString(Literals.Attribute_TypeName));
+            return attribute is not null;
+
+            static bool UsedPropertySetter(IPropertyReferenceOperation propertyOperation)
+            {
+                var (target, parent) = propertyOperation.Ancestors(includeSelf: true)
+                    .Adjacent()
+                    .FirstOrDefault(tuple => tuple.Item2 is IAssignmentOperation);
+
+                if (target is null)
+                    return false;
+
+                return target == ((IAssignmentOperation)parent).Target;
+            }
+        }
     }
 }

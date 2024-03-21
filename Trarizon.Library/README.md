@@ -48,7 +48,7 @@ static classes for BCL collections
 Target Type|Method|Remarks
 --:|:--|:--
 `T[]`<br/>`List<>`|s_`Repeat`|
-`IEnumerable<>`|s_`SelectNextUntil`<br/>s_`SelectNextUntilNull`|
+`IEnumerable<>`|s_`EnumerateByWhile`<br/>s_`EnumerateByWhileNotNull`|generate next value by current value
 `T[]`<br/>`(ReadOnly)Span<>`|`OffsetOf`|通过指针计算元素/子数组的下标值
 `T[]`<br/>`List<>`|`Fill`|Fill the collection with specific value
 `T[]`<br/>`List<>`<br/>`Span<>`|`SortStably`|使用内置`Sort`实现的稳定排序

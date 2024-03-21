@@ -7,4 +7,6 @@ internal static class GlobalLiterals
     public const int GeneratedCodeAttribute_Tool_ConstructorIndex = 0;
 
     public const string GlobalNamespace_DisplayString = "<global namespace>";
+
+    public const string IEnumerable_1_TypeName = "System.Collections.Generic.IEnumerable";
 }

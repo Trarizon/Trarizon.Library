@@ -3,7 +3,7 @@
 namespace Trarizon.Library.Collections.Helpers;
 partial class ListQuery
 {
-    private readonly struct ListWrapper<T> : IReadOnlyList<T>
+    internal readonly struct ListWrapper<T> : IReadOnlyList<T>
     {
 #nullable disable
         public readonly IList<T> List;

@@ -2,11 +2,11 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Trarizon.Library.SourceGenerator.Toolkit;
 using Trarizon.Library.SourceGenerator.Toolkit.Extensions;
 
 namespace Trarizon.Library.SourceGenerator.Analyzers;
@@ -29,9 +29,9 @@ internal partial class BackingFieldAccessAnalyzer : DiagnosticAnalyzer
             FieldShouldBePrivate_ValidateAccessorMemberName,
             SyntaxKind.FieldDeclaration);
 
-        context.RegisterSyntaxNodeAction(
+        context.RegisterOperationAction(
             CheckAccessor,
-            SyntaxKind.IdentifierName);
+            OperationKind.FieldReference);
     }
 
     static void FieldShouldBePrivate_ValidateAccessorMemberName(SyntaxNodeAnalysisContext context)
@@ -47,45 +47,46 @@ internal partial class BackingFieldAccessAnalyzer : DiagnosticAnalyzer
             return;
 
         // field is private
-        if (!(fieldSyntax.GetAccessModifiers() is AccessModifiers.None or AccessModifiers.Private)) {
+        if (!(fieldFirstDeclaratorSymbol.DeclaredAccessibility is Accessibility.NotApplicable or Accessibility.Private)) {
             context.ReportDiagnostic(
                 Literals.Diagnostic_BackingFieldShouldBePrivate,
                 fieldSyntax.Declaration);
         }
 
         // Validate members
-        var notFoundMembers = attr.GetConstructorArguments<string>(Literals.Attribute_AccessableMembers_ConstructorIndex)
-            .Where(member => !fieldFirstDeclaratorSymbol.ContainingType.MemberNames.Contains(member));
-        foreach (var nfMember in notFoundMembers) {
-            context.ReportDiagnostic(
-                Literals.Diagnostic_TypeDoesnotContainsMember_0MemberName,
-                fieldSyntax.Declaration,
-                nfMember);
-        }
+        attr.GetConstructorArguments<string>(Literals.Attribute_AccessableMembers_ConstructorIndex)
+            .Where(member => !fieldFirstDeclaratorSymbol.ContainingType.MemberNames.Contains(member))
+            .ForEach(notFoundMember =>
+            {
+                context.ReportDiagnostic(
+                    Literals.Diagnostic_TypeDoesnotContainsMember_0MemberName,
+                    fieldSyntax.Declaration,
+                    notFoundMember);
+            });
     }
 
-    static void CheckAccessor(SyntaxNodeAnalysisContext context)
+    static void CheckAccessor(OperationAnalysisContext context)
     {
-        var identifierNameSyntax = (IdentifierNameSyntax)context.Node;
-        var fieldSymbol = context.SemanticModel.GetSymbolInfo(identifierNameSyntax).Symbol;
+        var operation = (IFieldReferenceOperation)context.Operation;
+        var symbol = operation.Field;
 
-        var accessAttr = fieldSymbol?.GetAttributes()
+        var accessAttr = symbol.GetAttributes()
             .FirstOrDefault(attr => attr.AttributeClass.MatchDisplayString(Literals.Attribute_TypeName));
         if (accessAttr is null)
             return;
 
         var accessableMembers = accessAttr.GetConstructorArguments<string>(Literals.Attribute_AccessableMembers_ConstructorIndex);
 
-        bool accessable = identifierNameSyntax.Ancestors()
+        bool accessable = operation.Syntax.Ancestors()
             .OfTypeUntil<MemberDeclarationSyntax, TypeDeclarationSyntax>()
-            .Select(syntax => context.SemanticModel.GetDeclaredSymbol(syntax))
-            .CartesianProduct(accessableMembers)
-            .Any(tuple => tuple.Item1?.Name == tuple.Item2);
+            .Select(syntax => operation.SemanticModel.GetDeclaredSymbol(syntax)?.Name)
+            .Intersect(accessableMembers)
+            .Any();
         if (accessable)
             return;
 
         context.ReportDiagnostic(
-            Literals.Diagnostic_BackingFieldCannotBeAccessed,
-            identifierNameSyntax.Identifier);
+           Literals.Diagnostic_BackingFieldCannotBeAccessed,
+           operation.Syntax);
     }
 }

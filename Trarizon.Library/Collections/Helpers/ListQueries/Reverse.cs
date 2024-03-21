@@ -3,7 +3,6 @@
 // https://source.dot.net/#System.Linq/System/Linq/Reverse.cs,3af306c560f8c669
 
 using Trarizon.Library.Collections.Helpers.Utilities.Queriers;
-using Trarizon.Library.Collections.Helpers.ListQueries.Helpers;
 
 namespace Trarizon.Library.Collections.Helpers;
 partial class ListQuery

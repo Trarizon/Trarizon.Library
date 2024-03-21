@@ -31,7 +31,7 @@
     - Add `AllocOptCollectionBuilder.AsXXX()`
     - Add `Enumerable.OfTypeUntil()`
     - Add more creator for `Optional<>`
-    - Add `EnumerableHelper.SelectNextUntil()`
+    - Add `EnumerableHelper.EnumerateByWhile()`
     - Add `Enumerable.Index()` which will provided in Linq in .NET 9
     - Add `AllocOptDeque<>`, `Deque<>`
     - Add `Enumerable.OfNotNull()`

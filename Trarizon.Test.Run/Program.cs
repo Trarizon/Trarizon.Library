@@ -19,25 +19,46 @@ using Trarizon.Library.RunTest.Examples;
 using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 
-
-AllocOptDeque<int> deque = [];
-
-void Display() 
-{
-    deque.Print();
-    deque.GetUnderlyingArray().Print();
-    Console.WriteLine();
-}
+ArrayInts().OfTypeUntil<string, string>();
 
 
 namespace A.A2
 {
+    public partial class B
+    {
+        [FriendAccess()]
+        public partial string Field();
+    }
+
+    partial class B
+    {
+        [FriendAccess]
+        internal B() { }
+
+        [FriendAccess(typeof(List<>))]
+        protected internal string field
+        {
+            get;
+            [FriendAccess(typeof(List<>))]
+            set;
+        }
+
+        private Action<string> _onAct;
+        public event Action<string> OnAct
+        {
+            add => _onAct += value;
+            remove => _onAct -= value;
+        }
+
+        public partial string Field() { return ""; }
+    }
+
     namespace N
     {
         partial class W<T, T2> : Collection<T>
             where T : List<T>
         {
-            [Singleton(SingletonProviderName = "S",Options = SingletonOptions.IsInternalInstance)]
+            [Singleton(SingletonProviderName = "S", Options = SingletonOptions.IsInternalInstance)]
             sealed partial class A
             {
                 // private A(int a) { }
@@ -50,6 +71,14 @@ namespace A.A2
                     [MemberNotNull(nameof(_field))]
                     init {
                         _field = "";
+                        var b = new B() {
+                            field = "str",
+                        };
+                        b.field ??= "str";
+
+                        b.OnAct += str => { };
+
+                        var func = b.Field;
                     }
                 }
             }
