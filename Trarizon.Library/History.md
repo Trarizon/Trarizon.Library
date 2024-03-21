@@ -35,6 +35,7 @@
     - Add `Enumerable.Index()` which will provided in Linq in .NET 9
     - Add `AllocOptDeque<>`, `Deque<>`
     - Add `Enumerable.OfNotNull()`
+    - Add `IOptional<>`, `IEither<>`
 - Changes
     - Optimize `IEnumerable<>.CartesianProduct()`
     - Add zero-length check for some list queries
@@ -43,6 +44,7 @@
     - Optimize collection expression creation of `AllocOptStack/Queue`
     - Optimize many details in `EnumerableQuery`
     - Optimize internal impl in `AllocOpt`
+    - Optimize `ValueTask?.GetAwaiter()` and `Sync()`
 - Bugs
     - Fix bug when use array type in `[FriendAccess]`, analyzer will crash. (though maybe nobody will do this
     - Fix bug on `AllocOptList.ClearUnreferenced()`

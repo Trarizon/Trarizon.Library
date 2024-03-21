@@ -68,7 +68,7 @@ public static class Either
     #endregion
 }
 
-public readonly struct Either<TLeft, TRight>
+public readonly struct Either<TLeft, TRight> : IEither<TLeft, TRight>
 {
     private readonly bool _isLeft;
     [FriendAccess(typeof(Either))]
@@ -181,4 +181,21 @@ public readonly struct Either<TLeft, TRight>
     #endregion
 
     public override string ToString() => (IsLeft ? _left.ToString() : _right.ToString()) ?? string.Empty;
+}
+
+public interface IEither<TLeft, TRight>
+{
+    bool IsLeft { get; }
+    bool IsRight { get; }
+
+    TLeft LeftValue { get; }
+    TRight RightValue { get; }
+
+    TLeft? GetLeftValueOrDefault();
+    TRight? GetRightValueOrDefault();
+
+    bool TryGetLeftValue([MaybeNullWhen(false)] out TLeft left);
+    bool TryGetLeftValue([MaybeNullWhen(false)] out TLeft left, [MaybeNullWhen(true)] out TRight right);
+    bool TryGetRightValue([MaybeNullWhen(false)] out TRight right);
+    bool TryGetRightValue([MaybeNullWhen(false)] out TRight right, [MaybeNullWhen(true)] out TLeft left);
 }

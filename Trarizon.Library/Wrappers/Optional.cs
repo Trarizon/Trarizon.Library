@@ -74,7 +74,7 @@ public static class Optional
     #endregion
 }
 
-public readonly struct Optional<T>(T value)
+public readonly struct Optional<T>(T value) : IOptional<T>
 {
     private readonly bool _hasValue = true;
     [FriendAccess(typeof(Optional))]
@@ -127,4 +127,12 @@ public readonly struct Optional<T>(T value)
     #endregion
 
     public override string ToString() => HasValue ? _value.ToString() ?? string.Empty : string.Empty;
+}
+
+public interface IOptional<T>
+{
+    bool HasValue { get; }
+    T Value { get; }
+    T? GetValueOrDefault();
+    bool TryGetValue([MaybeNullWhen(false)] out T? Value);
 }

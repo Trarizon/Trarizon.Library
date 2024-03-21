@@ -31,7 +31,7 @@ public static class NotNull
 /// Use this on those senarios where you want to use a <see langword="null"/>
 /// means invalid return.
 /// </summary>
-public readonly struct NotNull<T>(T value) where T : class
+public readonly struct NotNull<T>(T value) : IOptional<T> where T : class
 {
     [FriendAccess(typeof(NotNull))]
     internal readonly T? _value = value;
@@ -82,4 +82,10 @@ public readonly struct NotNull<T>(T value) where T : class
     #endregion
 
     public override string ToString() => HasValue ? _value.ToString() ?? string.Empty : string.Empty;
+
+    #region IOptional
+
+    T? IOptional<T>.GetValueOrDefault() => GetValueOrNull();
+
+    #endregion
 }

@@ -70,7 +70,7 @@ internal partial class FriendAccessAnalyzer : DiagnosticAnalyzer
                 Accessibility.ProtectedAndInternal); // private protected
         if (isInternal)
             return;
-
+        
         // It's better to only warn on syntax that marked with attribute
         // but how to do that?
         foreach (var syntaxRef in symbol.DeclaringSyntaxReferences) {

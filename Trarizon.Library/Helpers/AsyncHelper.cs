@@ -1,4 +1,5 @@
-﻿using Trarizon.Library.Wrappers;
+﻿using System.Runtime.CompilerServices;
+using Trarizon.Library.Wrappers;
 
 namespace Trarizon.Library.Helpers;
 public static partial class AsyncHelper
@@ -42,7 +43,7 @@ public static partial class AsyncHelper
     /// <summary>
     /// Provide <see langword="await"/> feature support for nullable <see cref="ValueTask"/>
     /// </summary>
-    public static NullableValueTaskAwaiter GetAwaiter(this ValueTask? valueTask) => new(valueTask);
+    public static ValueTaskAwaiter GetAwaiter(this ValueTask? valueTask) => (valueTask ?? ValueTask.CompletedTask).GetAwaiter();
 
     /// <summary>
     /// Provide <see langword="await"/> feature support for nullable <see cref="ValueTask"/>

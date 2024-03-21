@@ -21,6 +21,9 @@ using Trarizon.Test.Run;
 
 ArrayInts().OfTypeUntil<string, string>();
 
+await default(Task)?.ConfigureAwait(false);
+
+
 
 namespace A.A2
 {

@@ -38,7 +38,7 @@ public static class Result
     #endregion
 }
 
-public readonly struct Result<T, TError> where TError : class
+public readonly struct Result<T, TError> : IOptional<T>, IEither<T, TError> where TError : class
 {
     [FriendAccess(typeof(Result))]
     internal readonly T? _value;
@@ -117,4 +117,32 @@ public readonly struct Result<T, TError> where TError : class
     #endregion
 
     public override string ToString() => (Success ? _value.ToString() : _error.ToString()) ?? string.Empty;
+
+    #region IOptional
+
+    bool IOptional<T>.HasValue => Success;
+
+    #endregion
+
+    #region IEither
+
+    bool IEither<T, TError>.IsLeft => Success;
+    bool IEither<T, TError>.IsRight => Failed;
+
+    T IEither<T, TError>.LeftValue => Value;
+    TError IEither<T, TError>.RightValue => Error!;
+
+    T? IEither<T, TError>.GetLeftValueOrDefault() => GetValueOrDefault();
+    TError? IEither<T, TError>.GetRightValueOrDefault() => GetErrorOrDefault();
+
+    bool IEither<T, TError>.TryGetLeftValue([MaybeNullWhen(false)] out T left) => TryGetValue(out left);
+    bool IEither<T, TError>.TryGetRightValue([MaybeNullWhen(false)] out TError right)
+    {
+        right = _error;
+        return Failed;
+    }
+    bool IEither<T, TError>.TryGetLeftValue([MaybeNullWhen(false)] out T left, [MaybeNullWhen(true)] out TError right) => TryGetValue(out left, out right);
+    bool IEither<T, TError>.TryGetRightValue([MaybeNullWhen(false)] out TError right, [MaybeNullWhen(true)] out T left) => !TryGetValue(out left, out right);
+
+    #endregion
 }

@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Trarizon.Library.SourceGenerator.Toolkit;
@@ -52,8 +53,8 @@ internal sealed partial class SingletonGenerator : IIncrementalGenerator
             private set => _typeSyntax = value;
         }
 
-        private ITypeSymbol? _typeSymbol;
-        public ITypeSymbol TypeSymbol => _typeSymbol ??= context.SemanticModel.GetDeclaredSymbol(TypeSyntax)!;
+        private INamedTypeSymbol? _typeSymbol;
+        public INamedTypeSymbol TypeSymbol => _typeSymbol ??= context.SemanticModel.GetDeclaredSymbol(TypeSyntax)!;
 
         public bool HasPrivateCtor { get; private set; }
 
@@ -139,38 +140,27 @@ internal sealed partial class SingletonGenerator : IIncrementalGenerator
             if (!IsGeneratable)
                 return null;
 
-            // No primary constructor // primary constructor is never private
-            if (TypeSyntax.ParameterList is not null)
+            bool singleCtor = TypeSymbol.Constructors
+                .Where(ctor => !ctor.IsStatic)
+                .TrySingle(out var ctor);
+            if (!singleCtor)
                 goto ReportDiagnostic;
 
-            var ctorOpt = TypeSyntax.ChildNodes()
-                 .OfType<ConstructorDeclarationSyntax>()
-                 // Exclude static ctors
-                 .Where(ctor => !ctor.Modifiers.Any(SyntaxKind.StaticKeyword))
-                 .TrySingle();
-
-            switch (ctorOpt.ResultKind) {
-                case EnumerableExtensions.SingleOptionalKind.Empty:
-                    HasPrivateCtor = false;
-                    return null;
-                case EnumerableExtensions.SingleOptionalKind.Single:
-                    break;
-                default: //multiple
-                    goto ReportDiagnostic;
+            if (ctor!.IsImplicitlyDeclared) {
+                // We do not use the implicit declared public ctor, and generate a new private ctor
+                HasPrivateCtor = false;
+                return null;
             }
-
-            var ctor = ctorOpt.GetValueOrDefault()!;
-            if (ctor.GetAccessModifiers() is not AccessModifiers.None and not AccessModifiers.Private) {
-                // Is non-private
+            else if (ctor.DeclaredAccessibility is not Accessibility.NotApplicable or Accessibility.Private) {
                 goto ReportDiagnostic;
             }
+
             HasPrivateCtor = true;
-
-            // Is not non-param ctor
-            if (ctor.ParameterList.Parameters.Count > 0) {
+            // Requires non-param ctor
+            if (ctor.Parameters.Length > 0) {
                 return DiagnosticFactory.Create(
                     Literals.Diagnostic_SingletonCtorHasNoParameter,
-                    ctor.Identifier);
+                    ctor.DeclaringSyntaxReferences[0].GetSyntax());
             }
 
             return null;
