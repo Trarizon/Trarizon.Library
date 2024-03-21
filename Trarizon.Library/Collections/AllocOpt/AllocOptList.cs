@@ -51,19 +51,6 @@ public struct AllocOptList<T> : IList<T>, IReadOnlyList<T>
         }
     }
 
-    public readonly ref T AtRef(int index)
-    {
-        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, _size);
-        return ref _items[index];
-    }
-
-    public readonly ref T AtRefOrNullRef(int index)
-    {
-        if (index >= _size || index < 0)
-            return ref Unsafe.NullRef<T>();
-        return ref _items[index];
-    }
-
     public readonly Span<T> AsSpan(Range range)
     {
         var (offset, len) = range.GetOffsetAndLength(_size);

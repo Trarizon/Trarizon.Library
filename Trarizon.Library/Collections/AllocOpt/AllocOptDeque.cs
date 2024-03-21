@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Trarizon.Library.CodeAnalysis.MemberAccess;
+using Trarizon.Library.Collections.Generic;
 using Trarizon.Library.Collections.StackAlloc;
 
 namespace Trarizon.Library.Collections.AllocOpt;
@@ -69,18 +70,26 @@ public struct AllocOptDeque<T> : ICollection<T>, IReadOnlyCollection<T>
         }
     }
 
-    internal readonly ref T AtRefOrNullRef(int index)
+    [FriendAccess(typeof(Deque<>))]
+    internal readonly bool TryGetByIndex(int index, [MaybeNullWhen(false)] out T item)
     {
-        if (index < 0)
-            return ref Unsafe.NullRef<T>();
+        if (index < 0) {
+            item = default;
+            return false;
+        }
 
         var arrIndex = index + _head;
         if (arrIndex > Capacity)
             arrIndex -= arrIndex;
 
-        if (arrIndex >= _tail)
-            return ref Unsafe.NullRef<T>();
-        return ref _list.AtRefOrNullRef(index);
+        if (arrIndex >= _tail) {
+            item = default;
+            return false;
+        }
+        else {
+            item = _list[arrIndex];
+            return true;
+        }
     }
 
     public readonly int Capacity => _list.Capacity;

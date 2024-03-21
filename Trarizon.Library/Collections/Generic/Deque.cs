@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 using Trarizon.Library.Collections.AllocOpt;
 
 namespace Trarizon.Library.Collections.Generic;
@@ -229,8 +228,7 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
 
             var index = _index + 1;
 
-            ref var val = ref _deque._deque.AtRefOrNullRef(index);
-            if (Unsafe.IsNullRef(in val)) {
+            if (!_deque._deque.TryGetByIndex(index, out var val)) {
                 _index = 2;
                 _current = default!;
                 return false;

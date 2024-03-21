@@ -110,11 +110,11 @@ public struct AllocOptDictionary<TKey, TValue, TComparer> : IDictionary<TKey, TV
 
     /// <remarks>
     /// This method won't clear elements in underlying array.
-    /// Use <see cref="ClearUnreferenced"/> if you need it.
+    /// Use <see cref="FreeUnreferenced"/> if you need it.
     /// </remarks>
     public void Clear() => _provider.Clear();
 
-    public void ClearUnreferenced() => _provider.FreeUnreferenced();
+    public void FreeUnreferenced() => _provider.FreeUnreferenced();
 
     public void EnsureCapacity(int capacity) => _provider.EnsureCapacity(capacity);
 
@@ -417,11 +417,11 @@ public struct AllocOptDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IRea
 
     /// <remarks>
     /// This method won't clear elements in underlying array.
-    /// Use <see cref="ClearUnreferenced"/> if you need it.
+    /// Use <see cref="FreeUnreferenced"/> if you need it.
     /// </remarks>
     public void Clear() => _dict.Clear();
 
-    public void ClearUnreferenced() => _dict.ClearUnreferenced();
+    public void FreeUnreferenced() => _dict.FreeUnreferenced();
 
     public void EnsureCapacity(int capacity) => _dict.EnsureCapacity(capacity);
 
