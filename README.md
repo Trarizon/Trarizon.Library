@@ -28,7 +28,14 @@ Miscellaneous thing. There will be many breaking changes (orz.
 
 Toolkit for source generator
 
-## [Yieliception](./Trarizon.Yieliception/README.md) ([EN](./Trarizon.Yieliception/README.en.md))
+## Deprecated
+
+<details>
+<summary>Expand</summary>
+
+### [Yieliception](./Trarizon.Yieliception/README.md) ([EN](./Trarizon.Yieliception/README.en.md))
+
+> [Archive branch](https://github.com/Trarizon/Trarizon.Library/tree/archive_yieliception/src/Trarizon.Yieliception)
 
 Provide interception for `I(Async)Enumerator<>.MoveNext(Async)`. 
 
@@ -36,11 +43,6 @@ This mainly aims to extends `yield return`, provide communication capability to
 `yield return`-generated iterator. (like python
 
 > Example: [`Test.Run.Examples.YieliceptionExample`](./Trarizon.Test.Run/Examples/YieliceptionExample.cs)
-
-## Deprecated
-
-<details>
-<summary>Expand</summary>
 
 ### TextCommanding
 
