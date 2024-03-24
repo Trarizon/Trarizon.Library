@@ -60,6 +60,7 @@
     - Fix bug on non-param ctor on `AllocOptSet/Dictionary`
     - Fix bug on `AllocOptDictionary.Add`
     - MemberAccess analyzers are now works on constructor
+    - Fix Wrong name of `IROList<>.CartesianProduct`
 
 ## v0.2.2
 
