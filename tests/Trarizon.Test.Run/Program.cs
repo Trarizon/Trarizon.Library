@@ -24,7 +24,6 @@ var arr = ArrayInts().OfTypeUntil<string, string>();
 
 ArrayInts().FirstByMaxPriorityOrDefault(StringComparison.Ordinal,
     (x) => (StringComparison)x);
-// TODO: Explicit capture
 
 Local();
 
