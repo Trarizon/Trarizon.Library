@@ -35,51 +35,6 @@ void Local()
 
 partial class Program
 {
-    private int c;
-
-    public void Deconstruct()
-    {
-        var a = 0;
-        var b = 0;
-
-        Local();
-        a.Print();
-        b.Print();
-        AnotherLocal();
-        c++;
-        Another();
-        //a.ToString().Select(Sel).Print();
-        //var sel = Sel;
-        //sel('0').Print();
-        //var an = Another;
-        //an.Print();
-
-        char Sel(char c)
-        {
-            a++;
-            return c;
-        }
-
-        int Local()
-        {
-
-            a++;
-            b--;
-            return a;
-        }
-
-        void AnotherLocal()
-        {
-            a++;
-            b--;
-            c += 22;
-        }
-
-        void Another()
-        {
-            c++;
-        }
-    }
 }
 
 //namespace A.A2
