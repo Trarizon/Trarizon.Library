@@ -16,7 +16,6 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\src\Trarizon.Library\Trarizon.Library.csproj" />
 		<ProjectReference Include="..\..\src\Trarizon.Library.SourceGenerator\Trarizon.Library.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-		<ProjectReference Include="..\..\src\Trarizon.Yieliception\Trarizon.Yieliception.csproj" />
 	</ItemGroup>
 
 </Project>
