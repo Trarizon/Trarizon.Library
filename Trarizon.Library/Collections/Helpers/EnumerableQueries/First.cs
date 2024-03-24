@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Numerics;
 
 namespace Trarizon.Library.Collections.Helpers;
 partial class EnumerableQuery
@@ -52,5 +53,79 @@ partial class EnumerableQuery
         }
         value = defaultValue;
         return false;
+    }
+
+    /// <summary>
+    /// Find the first item has priority &gt;= <paramref name="maxProirity"/>,
+    /// if not found, return the first item with greater priority,
+    /// if <paramref name="source"/> is empty, return default
+    /// </summary>
+    public static (TPriority Priority, T? Value) FirstByMaxPriorityOrDefault<T, TPriority>(this IEnumerable<T> source, TPriority maxProirity, Func<T, TPriority> prioritySelector, IComparer<TPriority>? comparer = null)
+    {
+        using var enumerator = source.GetEnumerator();
+
+        TPriority priority;
+        T? value;
+
+        comparer ??= Comparer<TPriority>.Default;
+
+        if (enumerator.MoveNext()) {
+            value = enumerator.Current;
+            priority = prioritySelector(value);
+            if (comparer.Compare(priority, maxProirity) >= 0)
+                return (priority, value);
+        }
+        else {
+            return default;
+        }
+
+        while (enumerator.MoveNext()) {
+            var current = enumerator.Current;
+            var curPriority = prioritySelector(current);
+
+            if (comparer.Compare(curPriority, maxProirity) >= 0)
+                return (curPriority, current);
+            if (comparer.Compare(curPriority, priority) > 0) {
+                value = current;
+                priority = curPriority;
+            }
+        }
+        return (priority, value);
+    }
+
+    /// <summary>
+    /// Find the first item has priority &gt;= <paramref name="maxProirity"/>,
+    /// if not found, return the first item with greater priority,
+    /// if <paramref name="source"/> is empty, return default
+    /// </summary>
+    public static (TPriority Priority, T? Value) FirstByMaxPriorityOrDefault<T, TPriority>(this IEnumerable<T> source, TPriority maxPriority, Func<T, TPriority> prioritySelector) where TPriority : IComparisonOperators<TPriority, TPriority, bool>
+    {
+        using var enumerator = source.GetEnumerator();
+
+        TPriority priority;
+        T? value;
+
+        if (enumerator.MoveNext()) {
+            value = enumerator.Current;
+            priority = prioritySelector(value);
+            if (priority >= maxPriority)
+                return (priority, value);
+        }
+        else {
+            return default;
+        }
+
+        while (enumerator.MoveNext()) {
+            var current = enumerator.Current;
+            var curPriority = prioritySelector(current);
+
+            if (curPriority >= maxPriority)
+                return (curPriority, current);
+            if (curPriority > priority) {
+                value = current;
+                priority = curPriority;
+            }
+        }
+        return (priority, value);
     }
 }

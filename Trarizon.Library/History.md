@@ -14,28 +14,37 @@
     - Optimize design of `TrySingle`
     - Rename `AllocOptCol.ClearUnreferenced` to `FreeUnreferenced`
 - New
-    - Add Monad.`GetValueRefOrDefaultRef()`
-    - Add `NotNull<T>`
-    - Add `IList<>.Adjacent()`
-    - Add `IList<>.Select()` indexed version
-    - Add `IList<>.CartesianProduct()`
-    - Add `ValueTask<>?.GetAwaiter()`
-    - Add `ValueTask<>?.Sync()`
-    - Add `AllocOptQueue<T>`
-    - Add `PushRange` and multi-`Pop` to `AllocOptStack<T>`
-    - Add `List<>.AtRef()`
-    - Add `BackingFieldAccessAttribute`
-    - `FriendAccessAttribute` now works on pointer access
-    - Add `SingletonAttribute`
-    - Add a overload of `AllocOptDictionary<>.GetOrAddRef()`
-    - Add `AllocOptCollectionBuilder.AsXXX()`
-    - Add `Enumerable.OfTypeUntil()`
-    - Add more creator for `Optional<>`
-    - Add `EnumerableHelper.EnumerateByWhile()`
-    - Add `Enumerable.Index()` which will provided in Linq in .NET 9
-    - Add `AllocOptDeque<>`, `Deque<>`
-    - Add `Enumerable.OfNotNull()`
-    - Add `IOptional<>`, `IEither<>`
+    - Extend `ListQuery` methods:
+        - `Adjacent()`
+        - `Select()` indexed version
+        - `CartesianProduct()`
+    - Extend `EnumerableQuery` methods:
+        - `OfTypeUntil()`
+        - `Index()`
+        - `OfNotNull()`
+        - `FirstByMaxPriorityOrDefault()`
+    - Extend collections:
+        - `AllocOptQueue<T>`
+        - `AllocOptDeque<>`
+        - `Deque<>`
+        - Add `PushRange` and multi-`Pop` to `AllocOptStack<T>`
+        - Add a overload of `AllocOptDictionary<>.GetOrAddRef()`
+        - Add `AllocOptCollectionBuilder.AsXXX()`
+    - Extend helpers
+        - Add `List<>.AtRef()`
+        - Add `EnumerableHelper.EnumerateByWhile()`
+        - Add `ValueTask<>?.GetAwaiter()`
+        - Add `ValueTask<>?.Sync()`
+    - Extend monads
+        - `NotNull<T>`
+        - `IOptional<>`
+        - `IEither<>`
+        - Add method `GetValueRefOrDefaultRef()`
+        - Add more creator for `Optional<>`
+    - Extend Generator/Analyzer
+        - Add `BackingFieldAccessAttribute`
+        - `FriendAccessAttribute` now works on pointer access
+        - Add `SingletonAttribute`
 - Changes
     - Optimize `IEnumerable<>.CartesianProduct()`
     - Add zero-length check for some list queries

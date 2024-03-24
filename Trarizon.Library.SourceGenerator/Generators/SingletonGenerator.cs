@@ -127,7 +127,7 @@ internal sealed partial class SingletonGenerator : IIncrementalGenerator
             if (!IsGeneratable)
                 return null;
 
-            if (TypeSyntax.Modifiers.Any(SyntaxKind.SealedKeyword))
+            if (TypeSymbol.IsSealed)
                 return null;
 
             return DiagnosticFactory.Create(

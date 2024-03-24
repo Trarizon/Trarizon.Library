@@ -21,9 +21,16 @@ using Trarizon.Test.Run;
 
 ArrayInts().OfTypeUntil<string, string>();
 
-await default(Task)?.ConfigureAwait(false);
+ArrayInts().FirstByMaxPriorityOrDefault(StringComparison.Ordinal,
+    [ExplicitCapture] (x) => (StringComparison)x);
+// TODO: Explicit capture
 
 
+
+partial class Program
+{
+
+}
 
 namespace A.A2
 {
@@ -33,10 +40,11 @@ namespace A.A2
         public partial string Field();
     }
 
-    partial class B
+    [Singleton]
+    sealed partial class B
     {
         [FriendAccess]
-        internal B() { }
+        private B() { }
 
         [FriendAccess(typeof(List<>))]
         protected internal string field
