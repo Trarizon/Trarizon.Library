@@ -20,18 +20,7 @@ using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 
 
-var arr = ArrayInts().OfTypeUntil<string, string>();
-
-ArrayInts().FirstByMaxPriorityOrDefault(StringComparison.Ordinal,
-    (x) => (StringComparison)x);
-
-Local();
-
-void Local()
-{
-    arr.Take(1).ToList().Print();
-}
-
+RunBenchmarks();
 
 partial class Program
 {

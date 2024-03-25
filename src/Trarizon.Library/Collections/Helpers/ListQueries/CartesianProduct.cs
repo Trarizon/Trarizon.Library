@@ -10,7 +10,7 @@ partial class ListQuery
         return new CartesianProductQuerier<ListWrapper<T>, ListWrapper<T2>, T, T2>(list.Wrap(), list2.Wrap());
     }
 
-    public static IReadOnlyList<(T, T2)> GetCartesianProductROList<T, T2>(this IReadOnlyList<T> list, IReadOnlyList<T2> list2)
+    public static IReadOnlyList<(T, T2)> CartesianProductROList<T, T2>(this IReadOnlyList<T> list, IReadOnlyList<T2> list2)
     {
         if (list.Count == 0 || list2.Count == 0)
             return Array.Empty<(T, T2)>();

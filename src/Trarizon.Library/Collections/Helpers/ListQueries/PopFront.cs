@@ -1,4 +1,6 @@
-﻿namespace Trarizon.Library.Collections.Helpers;
+﻿using System.Runtime.InteropServices;
+
+namespace Trarizon.Library.Collections.Helpers;
 partial class ListQuery
 {
     /// <summary>
@@ -39,6 +41,63 @@ partial class ListQuery
             leadingElements = list;
             return Array.Empty<T>();
         }
+    }
+
+
+    public static IList<T> PopFrontList<T>(this IList<T> list, Span<T> resultSpan, out int resultLength)
+    {
+        if (resultSpan.Length == 0) {
+            resultLength = 0;
+            return list;
+        }
+        IList<T> result;
+        if (resultSpan.Length < list.Count) {
+            resultLength = resultSpan.Length;
+            result = list.TakeList(resultLength..);
+        }
+        else {
+            resultLength = resultSpan.Length;
+            result = Array.Empty<T>();
+        }
+
+        if (list is T[] arr)
+            arr.AsSpan(0, resultLength).CopyTo(resultSpan);
+        else if (list is List<T> lst)
+            CollectionsMarshal.AsSpan(lst).CopyTo(resultSpan);
+        else {
+            for (int i = 0; i < resultLength; i++)
+                resultSpan[i] = list[i];
+        }
+
+        return result;
+    }
+
+    public static IReadOnlyList<T> PopFrontROList<T>(this IReadOnlyList<T> list, Span<T> resultSpan, out int resultLength)
+    {
+        if (resultSpan.Length == 0) {
+            resultLength = 0;
+            return list;
+        }
+        IReadOnlyList<T> result;
+        if (resultSpan.Length < list.Count) {
+            resultLength = resultSpan.Length;
+            result = list.TakeROList(resultLength..);
+        }
+        else {
+            resultLength = resultSpan.Length;
+            result = Array.Empty<T>();
+        }
+
+        if (list is T[] arr)
+            arr.AsSpan(0, resultLength).CopyTo(resultSpan);
+        else if (list is List<T> lst)
+            CollectionsMarshal.AsSpan(lst).CopyTo(resultSpan);
+        else {
+            for (int i = 0; i < resultLength; i++)
+                resultSpan[i] = list[i];
+        }
+
+        return result;
     }
 
 

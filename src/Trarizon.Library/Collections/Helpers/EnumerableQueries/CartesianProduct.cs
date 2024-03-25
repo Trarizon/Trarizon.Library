@@ -1,20 +1,20 @@
-﻿using Trarizon.Library.Collections.Helpers.Utilities.Queriers;
+﻿using System.Diagnostics;
+using Trarizon.Library.Collections.Helpers.Utilities.Queriers;
 
 namespace Trarizon.Library.Collections.Helpers;
 partial class EnumerableQuery
 {
     public static IEnumerable<(T, T2)> CartesianProduct<T, T2>(this IEnumerable<T> first, IEnumerable<T2> second)
     {
-        if (first is IList<T> firstList && second is IList<T2> secondList) {
-            return firstList.CartesianProductList(secondList);
-        }
+        if ((first, second) is (IList<T> list1, IList<T2> list2))
+            return list1.CartesianProductList(list2);
 
-        if (first.TryGetNonEnumeratedCount(out var count) && count == 0) {
+        if (first.TryGetNonEnumeratedCount(out var count) && count == 0)
             return Enumerable.Empty<(T, T2)>();
-        }
-        if (second.TryGetNonEnumeratedCount(out count) && count == 0) {
+
+        if (second.TryGetNonEnumeratedCount(out count) && count == 0)
             return Enumerable.Empty<(T, T2)>();
-        }
+
         return new CartesianProductQuerier<T, T2>(first, second);
     }
 
@@ -25,15 +25,17 @@ partial class EnumerableQuery
 
         public override bool MoveNext()
         {
-            const int IterateMain = MinPreservedState - 1;
-            const int IterateSub = IterateMain - 1;
+            const int IterateMain_PureState = MinPreservedState - 1;
+            const int IterateSub = IterateMain_PureState - 1;
             const int End = IterateSub - 1;
+
+            Debug.Assert(_state != IterateMain_PureState);
 
             switch (_state) {
                 case -1:
                     _enumerator = _source.GetEnumerator();
-                    goto case IterateMain;
-                case IterateMain: // Not state
+                    goto case IterateMain_PureState;
+                case IterateMain_PureState:
                     if (_enumerator!.MoveNext()) {
                         _current.Item1 = _enumerator.Current;
                         _subEnumerator = _subCollection.GetEnumerator();
@@ -53,7 +55,7 @@ partial class EnumerableQuery
                         _subEnumerator.Dispose();
                         // IterateMain state wont return without change _state
                         // So here is unnecessary to reassign _state
-                        goto case IterateMain;
+                        goto case IterateMain_PureState;
                     }
                 case End:
                 default:

@@ -13,16 +13,19 @@
     - Unify parameter name in `AllocOptStack<>`
     - Optimize design of `TrySingle`
     - Rename `AllocOptCol.ClearUnreferenced` to `FreeUnreferenced`
+    - Changed parameter of `EnumerableQuery.PopFront`s as now this method returns both lazy-init collection
 - New
     - Extend `ListQuery` methods:
         - `Adjacent()`
         - `Select()` indexed version
         - `CartesianProduct()`
+        - `PopFront` overload
     - Extend `EnumerableQuery` methods:
         - `OfTypeUntil()`
         - `Index()`
         - `OfNotNull()`
         - `FirstByMaxPriorityOrDefault()`
+        - `PopFront` overload
     - Extend collections:
         - `AllocOptQueue<T>`
         - `AllocOptDeque<>`
@@ -46,12 +49,11 @@
         - `FriendAccessAttribute` now works on pointer access
         - Add `SingletonAttribute`
 - Changes
-    - Optimize `IEnumerable<>.CartesianProduct()`
+    - Optimize `IEnumerable<>.CartesianProduct()`, `IsInOrder()`, `Merge()`, `PopFront`(untested)
     - Add zero-length check for some list queries
     - Implement `ICriticalNotifyCompletion` for `NullableValueTaskAwaiter<>`
     - Adjust method in c#, no breaking for caller
     - Optimize collection expression creation of `AllocOptStack/Queue`
-    - Optimize many details in `EnumerableQuery`
     - Optimize internal impl in `AllocOpt`
     - Optimize `ValueTask?.GetAwaiter()` and `Sync()`
 - Bugs

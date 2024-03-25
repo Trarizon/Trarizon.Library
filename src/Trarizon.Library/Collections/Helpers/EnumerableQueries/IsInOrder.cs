@@ -7,7 +7,7 @@ partial class EnumerableQuery
     /// <summary>
     /// Determine if the sequence is in order
     /// </summary>
-    public static bool IsInOrder<T>(this IEnumerable<T> source, bool descending) where T : IComparisonOperators<T, T, bool>
+    public static unsafe bool IsInOrder<T>(this IEnumerable<T> source, bool descending) where T : IComparisonOperators<T, T, bool>
     {
         T prev;
         using var enumerator = source.GetEnumerator();
@@ -17,10 +17,14 @@ partial class EnumerableQuery
             // An empty array is in order
             return true;
 
+        delegate*<T, T, bool> compare = descending
+         ? &QueryUtil.IsInDescOrder
+         : &QueryUtil.IsInAscOrder;
+
         while (enumerator.MoveNext()) {
             var curr = enumerator.Current;
 
-            if (!QueryUtil.IsInOrder(prev, curr, descending))
+            if (!compare(prev, curr))
                 return false;
 
             prev = curr;
@@ -31,7 +35,7 @@ partial class EnumerableQuery
     /// <summary>
     /// Determine if the sequence is in order
     /// </summary>
-    public static bool IsInOrderBy<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector, bool descending = false) where TKey : IComparisonOperators<TKey, TKey, bool>
+    public static unsafe bool IsInOrderBy<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector, bool descending = false) where TKey : IComparisonOperators<TKey, TKey, bool>
     {
         TKey prev;
         using var enumerator = source.GetEnumerator();
@@ -40,10 +44,14 @@ partial class EnumerableQuery
         else
             return true;
 
+        delegate*<TKey, TKey, bool> compare = descending
+           ? &QueryUtil.IsInDescOrder
+           : &QueryUtil.IsInAscOrder;
+
         while (enumerator.MoveNext()) {
             var curr = keySelector(enumerator.Current);
 
-            if (!QueryUtil.IsInOrder(prev, curr, descending))
+            if (!compare(prev, curr))
                 return false;
 
             prev = curr;
@@ -54,7 +62,7 @@ partial class EnumerableQuery
     /// <summary>
     /// Determine if the sequence is in order
     /// </summary>
-    public static bool IsInOrder<T>(this IEnumerable<T> source, IComparer<T>? comparer, bool descending = false)
+    public static unsafe bool IsInOrder<T>(this IEnumerable<T> source, IComparer<T>? comparer, bool descending = false)
     {
         T prev;
         using var enumerator = source.GetEnumerator();
@@ -65,10 +73,14 @@ partial class EnumerableQuery
 
         comparer ??= Comparer<T>.Default;
 
+        delegate*<IComparer<T>, T, T, bool> compare = descending
+            ? &QueryUtil.IsInDescOrder
+            : &QueryUtil.IsInAscOrder;
+
         while (enumerator.MoveNext()) {
             var curr = enumerator.Current;
 
-            if (!QueryUtil.IsInOrder(prev, curr, comparer, descending))
+            if (!compare(comparer, prev, curr))
                 return false;
 
             prev = curr;
@@ -79,7 +91,7 @@ partial class EnumerableQuery
     /// <summary>
     /// Determine if the sequence is in order
     /// </summary>
-    public static bool IsInOrderBy<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector, IComparer<TKey>? comparer, bool descending = false)
+    public static unsafe bool IsInOrderBy<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector, IComparer<TKey>? comparer, bool descending = false)
     {
         TKey prev;
         using var enumerator = source.GetEnumerator();
@@ -90,10 +102,14 @@ partial class EnumerableQuery
 
         comparer ??= Comparer<TKey>.Default;
 
+        delegate*<IComparer<TKey>, TKey, TKey, bool> compare = descending
+          ? &QueryUtil.IsInDescOrder
+          : &QueryUtil.IsInAscOrder;
+
         while (enumerator.MoveNext()) {
             var curr = keySelector(enumerator.Current);
 
-            if (!QueryUtil.IsInOrder(prev, curr, comparer, descending))
+            if (!compare(comparer, prev, curr))
                 return false;
 
             prev = curr;

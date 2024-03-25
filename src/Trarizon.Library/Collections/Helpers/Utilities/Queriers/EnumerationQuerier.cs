@@ -7,7 +7,7 @@ internal abstract class EnumerationQuerier<T> : IEnumerator<T>, IEnumerable<T>
     protected static readonly EnumerationQuerier<T> Empty = new EmptyQuerier();
 
     /// <summary>
-    /// This value is -1 before first MoveNext(),
+    /// This value is -1 before first time <see cref="MoveNext"/> is called,
     /// -2 is preserved state, do not use it.
     /// </summary>
     protected int _state = -2;

@@ -24,12 +24,7 @@ partial class EnumerableQuery
     /// </summary>
     public static IEnumerable<T> Merge<T>(this IEnumerable<T> first, IEnumerable<T> second, bool descending = false) where T : IComparisonOperators<T, T, bool>
     {
-        return new MergeByFuncQuerier<T>(first, second, descending ? IsInOrderDesc : IsInOrderAsc);
-
-        static bool IsInOrderAsc(T left, T right)
-            => QueryUtil.IsInOrder(left, right, descending: false);
-        static bool IsInOrderDesc(T left, T right)
-            => QueryUtil.IsInOrder(left, right, descending: true);
+        return new MergeByFuncQuerier<T>(first, second, descending ? QueryUtil.IsInDescOrder : QueryUtil.IsInAscOrder);
     }
 
     private abstract class MergeQuerier<T>(IEnumerable<T> first, IEnumerable<T> second) : EnumerationQuerier<T>
@@ -143,13 +138,15 @@ partial class EnumerableQuery
         protected override bool InOrder(T left, T right) => order(left, right);
     }
 
-    private sealed class MergeByComparerQuerier<T>(
+    private sealed unsafe class MergeByComparerQuerier<T>(
         IEnumerable<T> first, IEnumerable<T> second,
         IComparer<T> comparer,
         bool descending)
         : MergeQuerier<T>(first, second)
     {
+        private readonly delegate*<IComparer<T>, T, T, bool> _inOrder = descending ? &QueryUtil.IsInDescOrder : &QueryUtil.IsInAscOrder;
+
         protected override EnumerationQuerier<T> Clone() => new MergeByComparerQuerier<T>(_first, _second, comparer, descending);
-        protected override bool InOrder(T left, T right) => QueryUtil.IsInOrder(left, right, comparer, descending);
+        protected override bool InOrder(T left, T right) => _inOrder(comparer, left, right);
     }
 }

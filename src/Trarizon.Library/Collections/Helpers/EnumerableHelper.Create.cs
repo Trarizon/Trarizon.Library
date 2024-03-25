@@ -30,6 +30,7 @@ partial class EnumerableHelper
     public static EnumerateByWhileNotNullEnumerable<T> EnumerateByWhileNotNull<T>(T? first, Func<T, T?> nextWhereSeletor) where T : class
         => new(first, nextWhereSeletor);
 
+    #region Structs
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public readonly struct EnumerateByWhilePredicateEnumerable<T>(T first, Func<T, T> nextSelector, Func<T, bool> predicate) : IEnumerable<T>, IEnumerateByWhileSelector<T>
@@ -159,6 +160,20 @@ partial class EnumerableHelper
             public void Reset() => _enumerator._state = 0;
 
             object IEnumerator.Current => Current!;
+        }
+    }
+
+    #endregion
+
+    [Experimental(ExperimentalDiagnosticIds.EnumerableHelper_Continue)]
+    public static IEnumerable<T> Continue<T>(IEnumerator<T> enumerator)
+    {
+        try {
+            while (enumerator.MoveNext()) {
+                yield return enumerator.Current;
+            }
+        } finally {
+            enumerator.Dispose();
         }
     }
 }

@@ -102,11 +102,11 @@ partial class EnumerableQuery
     /// <summary>
     /// Check if the size of collection is equals to <paramref name="count"/>
     /// </summary>
-    public static bool CountsEqualsTo<T>(this IEnumerable<T> source, int count)
-        => source.CountsAtMost(count, out int actualCount) && actualCount == count;
+    public static bool CountsEqualsTo<T>(this IEnumerable<T> source, int count) => source.CountsAtMost(count, out int actualCount) && actualCount == count;
 
     /// <summary>
-    /// Check if the size of collection is between <paramref name="lowerBound"/> and <paramref name="upperBound"/>
+    /// Check if the size of collection is between <paramref name="lowerBound"/> and <paramref name="upperBound"/>,
+    /// false if <paramref name="upperBound"/> is less than <paramref name="lowerBound"/>
     /// </summary>
     /// <param name="actualCount">
     /// If the size of collection is less than <paramref name="upperBound"/>, this is the size of collection, 
@@ -114,7 +114,10 @@ partial class EnumerableQuery
     /// </param>
     public static bool CountsBetween<T>(this IEnumerable<T> source, int lowerBound, int upperBound, out int actualCount)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(upperBound - lowerBound, 0);
+        if (upperBound < lowerBound) {
+            actualCount = 0;
+            return false;
+        }
 
         return source.CountsAtMost(upperBound, out actualCount) && actualCount >= lowerBound;
     }
@@ -122,6 +125,5 @@ partial class EnumerableQuery
     /// <summary>
     /// Check if the size of collection is between <paramref name="lowerBound"/> and <paramref name="upperBound"/>
     /// </summary>
-    public static bool CountsBetween<T>(this IEnumerable<T> source, int lowerBound, int upperBound)
-        => source.CountsBetween(lowerBound, upperBound, out _);
+    public static bool CountsBetween<T>(this IEnumerable<T> source, int lowerBound, int upperBound) => source.CountsBetween(lowerBound, upperBound, out _);
 }
