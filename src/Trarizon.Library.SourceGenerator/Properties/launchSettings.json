@@ -2,7 +2,7 @@
   "profiles": {
     "Debug on Run": {
       "commandName": "DebugRoslynComponent",
-      "targetProject": "..\\Trarizon.Test.Run\\Trarizon.Test.Run.csproj"
+      "targetProject": "..\\..\\tests\\Trarizon.Test.Run\\Trarizon.Test.Run.csproj"
     },
     "Debug on Lib": {
       "commandName": "DebugRoslynComponent",

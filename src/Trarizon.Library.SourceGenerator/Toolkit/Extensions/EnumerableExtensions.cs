@@ -239,7 +239,7 @@ public static class EnumerableExtensions
         }
     }
 
-    public static IEnumerable<T> EnumerateSelectWhileNotNull<T>(this T? first, Func<T, T> nextSelector)
+    public static IEnumerable<T> EnumerateByWhileNotNull<T>(this T? first, Func<T, T?> nextSelector)
     {
         while (first is not null) {
             yield return first;
@@ -247,10 +247,18 @@ public static class EnumerableExtensions
         }
     }
 
-    public static void ForEach<T>(this IEnumerable<T> source,Action<T> action)
+    public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
     {
         foreach (var item in source) {
             action(item);
+        }
+    }
+
+    public static IEnumerable<T> OfNotNull<T>(this IEnumerable<T?> source) where T : class
+    {
+        foreach (var item in source) {
+            if (item is not null)
+                yield return item;
         }
     }
 }

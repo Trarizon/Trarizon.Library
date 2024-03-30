@@ -2,7 +2,7 @@
 // - caches the items in list
 // https://source.dot.net/#System.Linq/System/Linq/Reverse.cs,3af306c560f8c669
 
-using Trarizon.Library.Collections.Helpers.Utilities.Queriers;
+using Trarizon.Library.Collections.Helpers.Queriers;
 
 namespace Trarizon.Library.Collections.Helpers;
 partial class ListQuery
@@ -14,7 +14,7 @@ partial class ListQuery
     {
         if (list.Count <= 1)
             return list;
-        return new ReverseQuerier<ListWrapper<T>, T>(list.Wrap());
+        return new ReverseQuerier<IList<T>, T>(list);
     }
 
     /// <summary>
@@ -24,14 +24,17 @@ partial class ListQuery
     {
         if (list.Count <= 1)
             return list;
-        return new ReverseQuerier<IReadOnlyList<T>, T>(list);
+        return new ReverseQuerier<ListWrapper<T>, T>(list.Wrap());
     }
 
 
-    private sealed class ReverseQuerier<TList, T>(TList list) : SimpleListQuerier<TList, T, T>(list) where TList : IReadOnlyList<T>
+    private sealed class ReverseQuerier<TList, T>(TList list)
+        : SimpleIndexMapListQuerier<TList, T>(list)
+        where TList : IList<T>
     {
-        public override T this[int index] => _list[_list.Count - 1 - index];
         public override int Count => _list.Count;
+
+        protected override int ValdiateAndSelectIndex(int index) => _list.Count - 1 - index;
 
         protected override EnumerationQuerier<T> Clone() => new ReverseQuerier<TList, T>(_list);
     }

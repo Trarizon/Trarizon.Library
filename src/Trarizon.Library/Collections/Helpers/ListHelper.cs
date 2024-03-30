@@ -8,7 +8,7 @@ public static partial class ListHelper
 
     #region SortStably
 
-    public static void SortStably<T>(this List<T> list, Comparison<T>? comparison = null)
+    public static void SortStably<T>(this List<T> list, Comparison<T> comparison)
         => CollectionsMarshal.AsSpan(list).SortStably(comparison);
 
     public static void SortStably<T>(this List<T> list, StableSortComparer<T>? comparer = null)

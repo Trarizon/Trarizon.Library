@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Trarizon.Library.Collections.Helpers.Utilities.Queriers;
+using Trarizon.Library.Collections.Helpers.Queriers;
 using Trarizon.Library.Wrappers;
 
 namespace Trarizon.Library.Collections.Helpers;

@@ -1,6 +1,6 @@
 ﻿#if !NET9_0_OR_GREATER
 
-using Trarizon.Library.Collections.Helpers.Utilities.Queriers;
+using Trarizon.Library.Collections.Helpers.Queriers;
 
 namespace Trarizon.Library.Collections.Helpers;
 partial class EnumerableQuery
@@ -15,22 +15,19 @@ partial class EnumerableQuery
 
     private sealed class IndexQuery<T>(IEnumerable<T> source) : SimpleEnumerationQuerier<T, (int, T)>(source)
     {
-        private int _index = 0;
-
         public override bool MoveNext()
         {
-            const int Iterate = MinPreservedState - 1;
-            const int End = Iterate - 1;
+            const int End = MinPreservedState - 1;
 
             switch (_state) {
                 case -1:
                     InitializeEnumerator();
-                    _state = Iterate;
-                    goto case Iterate;
-                case Iterate:
+                    goto Iterating;
+                case >= 0:
+                Iterating:
                     if (_enumerator.MoveNext()) {
-                        _current = (_index, _enumerator.Current);
-                        _index++;
+                        _state++;
+                        _current = (_state, _enumerator.Current);
                         return true;
                     }
                     else {

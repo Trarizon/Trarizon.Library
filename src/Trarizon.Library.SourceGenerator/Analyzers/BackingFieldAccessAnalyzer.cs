@@ -14,9 +14,9 @@ namespace Trarizon.Library.SourceGenerator.Analyzers;
 internal partial class BackingFieldAccessAnalyzer : DiagnosticAnalyzer
 {
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(
-        Literals.Diagnostic_BackingFieldCannotBeAccessed,
-        Literals.Diagnostic_BackingFieldShouldBePrivate,
-        Literals.Diagnostic_TypeDoesnotContainsMember_0MemberName);
+        Diagnostic_BackingFieldCannotBeAccessed,
+        Diagnostic_BackingFieldShouldBePrivate,
+        Diagnostic_TypeDoesnotContainsMember_0MemberName);
 
     public override void Initialize(AnalysisContext context)
     {
@@ -42,24 +42,24 @@ internal partial class BackingFieldAccessAnalyzer : DiagnosticAnalyzer
             return;
 
         var attr = fieldFirstDeclaratorSymbol.GetAttributes()
-            .FirstOrDefault(attr => attr.AttributeClass.MatchDisplayString(Literals.Attribute_TypeName));
+            .FirstOrDefault(attr => attr.AttributeClass.MatchDisplayString(Literal_Attribute_TypeName));
         if (attr is null)
             return;
 
         // field is private
         if (!(fieldFirstDeclaratorSymbol.DeclaredAccessibility is Accessibility.NotApplicable or Accessibility.Private)) {
             context.ReportDiagnostic(
-                Literals.Diagnostic_BackingFieldShouldBePrivate,
+                Diagnostic_BackingFieldShouldBePrivate,
                 fieldSyntax.Declaration);
         }
 
         // Validate members
-        attr.GetConstructorArguments<string>(Literals.Attribute_AccessableMembers_ConstructorIndex)
+        attr.GetConstructorArguments<string>(Literal_Attribute_AccessableMembers_ConstructorIndex)
             .Where(member => !fieldFirstDeclaratorSymbol.ContainingType.MemberNames.Contains(member))
             .ForEach(notFoundMember =>
             {
                 context.ReportDiagnostic(
-                    Literals.Diagnostic_TypeDoesnotContainsMember_0MemberName,
+                    Diagnostic_TypeDoesnotContainsMember_0MemberName,
                     fieldSyntax.Declaration,
                     notFoundMember);
             });
@@ -71,11 +71,11 @@ internal partial class BackingFieldAccessAnalyzer : DiagnosticAnalyzer
         var symbol = operation.Field;
 
         var accessAttr = symbol.GetAttributes()
-            .FirstOrDefault(attr => attr.AttributeClass.MatchDisplayString(Literals.Attribute_TypeName));
+            .FirstOrDefault(attr => attr.AttributeClass.MatchDisplayString(Literal_Attribute_TypeName));
         if (accessAttr is null)
             return;
 
-        var accessableMembers = accessAttr.GetConstructorArguments<string>(Literals.Attribute_AccessableMembers_ConstructorIndex);
+        var accessableMembers = accessAttr.GetConstructorArguments<string>(Literal_Attribute_AccessableMembers_ConstructorIndex);
 
         bool accessable = operation.Syntax.Ancestors()
             .OfTypeUntil<MemberDeclarationSyntax, TypeDeclarationSyntax>()
@@ -86,7 +86,7 @@ internal partial class BackingFieldAccessAnalyzer : DiagnosticAnalyzer
             return;
 
         context.ReportDiagnostic(
-           Literals.Diagnostic_BackingFieldCannotBeAccessed,
+           Diagnostic_BackingFieldCannotBeAccessed,
            operation.Syntax);
     }
 }

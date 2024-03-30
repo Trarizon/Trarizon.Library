@@ -48,6 +48,8 @@
 			System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute;
 			
 			System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute;
+			
+			System.Runtime.CompilerServices.IsExternalInit;
 		</PolySharpIncludeGeneratedTypes>
 	</PropertyGroup>	
 	<!-- PolySharp End-->

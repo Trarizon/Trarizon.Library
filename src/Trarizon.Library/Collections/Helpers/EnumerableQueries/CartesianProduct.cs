@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics;
-using Trarizon.Library.Collections.Helpers.Utilities.Queriers;
+using Trarizon.Library.Collections.Helpers.Queriers;
 
 namespace Trarizon.Library.Collections.Helpers;
 partial class EnumerableQuery

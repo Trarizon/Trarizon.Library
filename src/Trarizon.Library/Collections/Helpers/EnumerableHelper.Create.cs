@@ -6,6 +6,8 @@ using Trarizon.Library.Wrappers;
 namespace Trarizon.Library.Collections.Helpers;
 partial class EnumerableHelper
 {
+    #region EnumerateByWhile
+
     /// <summary>
     /// yield <paramref name="first"/>, and then
     /// repeatly call <paramref name="nextWhereSelector"/> to create next value.
@@ -162,6 +164,8 @@ partial class EnumerableHelper
             object IEnumerator.Current => Current!;
         }
     }
+
+    #endregion
 
     #endregion
 

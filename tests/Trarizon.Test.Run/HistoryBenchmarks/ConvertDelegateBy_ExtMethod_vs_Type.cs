@@ -2,8 +2,10 @@
 using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Test.Run;
+// 对比了通过扩展方法修改delegate定义和通过类型修改
+// 结论是扩展方法全方面辣鸡.jpg，内存分配64B
 [MemoryDiagnoser]
-public class Benchmarks
+public class ConvertDelegateBy_ExtMethod_vs_Type
 {
     public IEnumerable<int[]> ArgsSource()
     {
@@ -29,6 +31,13 @@ public class Benchmarks
         ints.AsSpan().SortStably();
     }
 
+    //[Benchmark]
+    //[ArgumentsSource(nameof(ArgsSource))]
+    //public void SortNew(int[] ints)
+    //{
+    //    ints.AsSpan().SortStablyWithExtMethod((str, str2) => str.CompareTo(str2));
+    //}
+
     [Benchmark]
     [ArgumentsSource(nameof(Args))]
     public void Sort(string[] strings)
@@ -42,6 +51,13 @@ public class Benchmarks
     {
         strings.AsSpan().SortStably();
     }
+
+    //[Benchmark]
+    //[ArgumentsSource(nameof(Args))]
+    //public void SortNew(string[] strings)
+    //{
+    //    strings.AsSpan().SortStablyWithExtMethod((str, str2) => str.CompareTo(str2));
+    //}
 }
 
 

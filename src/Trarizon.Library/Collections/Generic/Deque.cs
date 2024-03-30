@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using Trarizon.Library.Collections.AllocOpt;
 
 namespace Trarizon.Library.Collections.Generic;
@@ -75,6 +76,9 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public T DequeueFirst()
     {
+        if (!IsEmpty && RuntimeHelpers.IsReferenceOrContainsReferences<T>()) {
+            _deque.PeekFirstRef() = default!;
+        }
         var res = DequeueFirst();
         _version++;
         return res;
@@ -82,6 +86,9 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public T DequeueLast()
     {
+        if (!IsEmpty && RuntimeHelpers.IsReferenceOrContainsReferences<T>()) {
+            _deque.PeekLastRef() = default!;
+        }
         var res = _deque.DequeueLast();
         _version++;
         return res;
@@ -94,6 +101,10 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
     {
         _deque.DequeueFirst(count);
         _version++;
+
+        if (RuntimeHelpers.IsReferenceOrContainsReferences<T>()) {
+            _deque.FreeUnreferenced();
+        }
     }
 
     /// <summary>
@@ -103,11 +114,16 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
     {
         _deque.DequeueLast(count);
         _version++;
+
+        if (RuntimeHelpers.IsReferenceOrContainsReferences<T>()) {
+            _deque.FreeUnreferenced();
+        }
     }
 
     public bool TryDequeueFirst([MaybeNullWhen(false)] out T item)
     {
-        if (_deque.TryDequeueFirst(out item)) {
+        if (TryPeekFirst(out item)) {
+            DequeueFirst();
             _version++;
             return true;
         }
@@ -116,17 +132,14 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public bool TryDequeueLast([MaybeNullWhen(false)] out T item)
     {
-        if (_deque.TryDequeueLast(out item)) {
+        if(TryPeekLast(out item)) {
+            DequeueLast();
             _version++;
             return true;
         }
         return false;
     }
 
-    /// <summary>
-    /// This method won't clear elements in underlying array.
-    /// Use <see cref="FreeUnreferenced"/> if you need it.
-    /// </summary>
     public void Clear()
     {
         _deque.Clear();

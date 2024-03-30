@@ -1,5 +1,5 @@
 ﻿using System.Runtime.InteropServices;
-using Trarizon.Library.Collections.Helpers.Utilities;
+using Trarizon.Library.Helpers;
 
 namespace Trarizon.Library.Collections.Helpers;
 public static partial class ArrayHelper
@@ -12,7 +12,7 @@ public static partial class ArrayHelper
     /// </summary>
     /// <returns>Index of <paramref name="item"/></returns>
     public static int OffsetOf<T>(this T[] array, ref readonly T item)
-        => UnsafeUtil.SubstractRef(in item, in MemoryMarshal.GetArrayDataReference(array));
+        => UnsafeHelper.SubstractRef(in item, in MemoryMarshal.GetArrayDataReference(array));
 
     /// <summary>
     /// Get index of the first element in <paramref name="span"/> by reference substraction.
@@ -20,7 +20,7 @@ public static partial class ArrayHelper
     /// </summary>
     /// <returns>Index of first element in <paramref name="span"/></returns>
     public static int OffsetOf<T>(this T[] array, ReadOnlySpan<T> span)
-        => UnsafeUtil.SubstractRef(in MemoryMarshal.GetReference(span), in MemoryMarshal.GetArrayDataReference(array));
+        => UnsafeHelper.SubstractRef(in MemoryMarshal.GetReference(span), in MemoryMarshal.GetArrayDataReference(array));
 
     #endregion
 
@@ -29,7 +29,7 @@ public static partial class ArrayHelper
 
     #region SortStably
 
-    public static void SortStably<T>(this T[] values, Comparison<T>? comparison = null)
+    public static void SortStably<T>(this T[] values, Comparison<T> comparison)
         => values.AsSpan().SortStably(comparison);
 
     public static void SortStably<T>(this T[] values, StableSortComparer<T>? comparer = null)

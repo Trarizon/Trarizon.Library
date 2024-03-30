@@ -6,5 +6,5 @@ namespace Trarizon.Library.Collections.Helpers;
 public static partial class ListQuery
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static ListWrapper<T> Wrap<T>(this IList<T> list) => Unsafe.As<IList<T>, ListWrapper<T>>(ref list);
+    internal static ListWrapper<T> Wrap<T>(this IReadOnlyList<T> list) => Unsafe.As<IReadOnlyList<T>, ListWrapper<T>>(ref list);
 }

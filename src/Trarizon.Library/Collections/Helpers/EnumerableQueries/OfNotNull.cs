@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Trarizon.Library.Collections.Helpers.Utilities.Queriers;
+using Trarizon.Library.Collections.Helpers.Queriers;
+using Trarizon.Library.Wrappers;
 
 namespace Trarizon.Library.Collections.Helpers;
 partial class EnumerableQuery
@@ -18,6 +19,12 @@ partial class EnumerableQuery
         return new OfValueTypeNotNullQuerier<T>(source);
     }
 
+    public static IEnumerable<T> OfNotNone<T>(this IEnumerable<Optional<T>> source)
+    {
+        if (source.IsCheapEmpty())
+            return Enumerable.Empty<T>();
+        return new OfOptionalNotNoneQuerier<T, Optional<T>>(source);
+    }
 
     private sealed class OfReferenceTypeNotNullQuerier<T>(IEnumerable<T?> source) : SimpleWhereSelectEnumerationQuerier<T?, T>(source) where T : class
     {
@@ -37,6 +44,15 @@ partial class EnumerableQuery
         {
             outVal = inVal.GetValueOrDefault();
             return inVal is not null;
+        }
+    }
+
+    private sealed class OfOptionalNotNoneQuerier<T, TOptional>(IEnumerable<TOptional> source) : SimpleWhereSelectEnumerationQuerier<TOptional, T>(source) where TOptional : IOptional<T>
+    {
+        protected override EnumerationQuerier<T> Clone() => new OfOptionalNotNoneQuerier<T, TOptional>(_source);
+        protected override bool TrySelect(TOptional inVal, [MaybeNullWhen(false)] out T outVal)
+        {
+            return inVal.TryGetValue(out outVal);
         }
     }
 }

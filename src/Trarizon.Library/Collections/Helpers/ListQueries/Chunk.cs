@@ -1,4 +1,4 @@
-﻿using Trarizon.Library.Collections.Helpers.Utilities.Queriers;
+﻿using Trarizon.Library.Collections.Helpers.Queriers;
 
 namespace Trarizon.Library.Collections.Helpers;
 partial class ListQuery
@@ -13,7 +13,7 @@ partial class ListQuery
     {
         if (list.Count == 0)
             return Array.Empty<(T, T)>();
-        return new ChunkPairQuerier<ListWrapper<T>, T>(list.Wrap(), paddingElement)!;
+        return new ChunkPairQuerier<IList<T>, T>(list, paddingElement)!;
     }
 
     /// <summary>
@@ -26,7 +26,7 @@ partial class ListQuery
     {
         if (list.Count == 0)
             return Array.Empty<(T, T)>();
-        return new ChunkPairQuerier<IReadOnlyList<T>, T>(list, paddingElement)!;
+        return new ChunkPairQuerier<ListWrapper<T>, T>(list.Wrap(), paddingElement)!;
     }
 
 
@@ -37,7 +37,7 @@ partial class ListQuery
     {
         if (list.Count == 0)
             return Array.Empty<(T, T?)>();
-        return new ChunkPairQuerier<ListWrapper<T>, T>(list.Wrap(), default)!;
+        return new ChunkPairQuerier<IList<T>, T>(list, default!)!;
     }
 
     /// <summary>
@@ -47,7 +47,7 @@ partial class ListQuery
     {
         if (list.Count == 0)
             return Array.Empty<(T, T?)>();
-        return new ChunkPairQuerier<IReadOnlyList<T>, T>(list, default)!;
+        return new ChunkPairQuerier<ListWrapper<T>, T>(list.Wrap(), default!)!;
     }
 
 
@@ -61,7 +61,7 @@ partial class ListQuery
     {
         if (list.Count == 0)
             return Array.Empty<(T, T, T)>();
-        return new ChunkTripleQuerier<ListWrapper<T>, T>(list.Wrap(), paddingElement)!;
+        return new ChunkTripleQuerier<IList<T>, T>(list, paddingElement,paddingElement)!;
     }
 
     /// <summary>
@@ -74,7 +74,7 @@ partial class ListQuery
     {
         if (list.Count == 0)
             return Array.Empty<(T, T, T)>();
-        return new ChunkTripleQuerier<IReadOnlyList<T>, T>(list, paddingElement)!;
+        return new ChunkTripleQuerier<ListWrapper<T>, T>(list.Wrap(), paddingElement, paddingElement)!;
     }
 
 
@@ -85,7 +85,7 @@ partial class ListQuery
     {
         if (list.Count == 0)
             return Array.Empty<(T, T?, T?)>();
-        return new ChunkTripleQuerier<ListWrapper<T>, T>(list.Wrap(), default)!;
+        return new ChunkTripleQuerier<IList<T>, T>(list, default!, default!)!;
     }
 
     /// <summary>
@@ -95,40 +95,74 @@ partial class ListQuery
     {
         if (list.Count == 0)
             return Array.Empty<(T, T?, T?)>();
-        return new ChunkTripleQuerier<IReadOnlyList<T>, T>(list, default)!;
+        return new ChunkTripleQuerier<ListWrapper<T>, T>(list.Wrap(), default!, default!)!;
     }
 
 
-    private sealed class ChunkPairQuerier<TList, T>(TList list, T? paddingElement) : SimpleListQuerier<TList, T, (T, T?)>(list) where TList : IReadOnlyList<T>
+    private sealed class ChunkPairQuerier<TList, T>(TList list, T paddingElem)
+        : SimpleListQuerier<TList, T, (T, T)>(list)
+        where TList : IList<T>
     {
-        public override (T, T?) this[int index]
+        private T _paddingElem = paddingElem;
+
+        public override (T, T) this[int index]
         {
             get {
                 var i = index * 2;
                 return (_list[i],
-                    ElementAtOrDefaultOpt(_list, index + 1, paddingElement));
+                    ElementAtOrDefaultOpt(_list, index + 1, _paddingElem));
             }
+        }
+
+        protected override void SetAt(int index, (T, T) item)
+        {
+            var i = index * 2;
+            var i2 = i + 1;
+            if (i2 < _list.Count)
+                (_list[i], _list[i2]) = item;
+            else
+                (_list[i], _paddingElem) = item;
         }
 
         public override int Count => (_list.Count + 1) / 2;
 
-        protected override EnumerationQuerier<(T, T?)> Clone() => new ChunkPairQuerier<TList, T>(_list, paddingElement);
+        protected override EnumerationQuerier<(T, T)> Clone() => new ChunkPairQuerier<TList, T>(_list, _paddingElem);
     }
 
-    private sealed class ChunkTripleQuerier<TList, T>(TList list, T? paddingElement) : SimpleListQuerier<TList, T, (T, T?, T?)>(list) where TList : IReadOnlyList<T>
+    private sealed class ChunkTripleQuerier<TList, T>(TList list, T paddingElem1, T paddingElem2)
+        : SimpleListQuerier<TList, T, (T, T, T)>(list)
+        where TList : IList<T>
     {
-        public override (T, T?, T?) this[int index]
+        private T _paddingElem1 = paddingElem1;
+        private T _paddingElem2 = paddingElem2;
+
+        public override (T, T, T) this[int index]
         {
             get {
-                var i = index * 2;
+                var i = index * 3;
                 return (_list[i],
-                    ElementAtOrDefaultOpt(_list, i + 1, paddingElement),
-                    ElementAtOrDefaultOpt(_list, i + 2, paddingElement));
+                    ElementAtOrDefaultOpt(_list, i + 1, _paddingElem1),
+                    ElementAtOrDefaultOpt(_list, i + 2, _paddingElem2));
+            }
+        }
+
+        protected override void SetAt(int index, (T, T, T) item)
+        {
+            var i = index * 3;
+            var count = _list.Count;
+            if (i + 2 < count) {
+                (_list[i], _list[i + 1], _list[i + 2]) = item;
+            }
+            else if (i + 1 < count) {
+                (_list[i], _list[i + 1], _paddingElem2) = item;
+            }
+            else {
+                (_list[i], _paddingElem1, _paddingElem2) = item;
             }
         }
 
         public override int Count => (_list.Count + 1) / 3;
 
-        protected override EnumerationQuerier<(T, T?, T?)> Clone() => new ChunkTripleQuerier<TList, T>(_list, paddingElement);
+        protected override EnumerationQuerier<(T, T, T)> Clone() => new ChunkTripleQuerier<TList, T>(_list, _paddingElem1, _paddingElem2);
     }
 }

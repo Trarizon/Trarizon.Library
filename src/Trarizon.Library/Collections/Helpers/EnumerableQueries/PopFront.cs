@@ -1,9 +1,9 @@
-﻿using System.Diagnostics;
+﻿using System.Collections;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.InteropServices;
 using Trarizon.Library.CodeAnalysis.MemberAccess;
 using Trarizon.Library.Collections.AllocOpt;
-using Trarizon.Library.Collections.Helpers.Utilities.Queriers;
+using Trarizon.Library.Collections.Helpers.Queriers;
 
 namespace Trarizon.Library.Collections.Helpers;
 partial class EnumerableQuery
@@ -45,9 +45,13 @@ partial class EnumerableQuery
             return list.PopFrontList(resultSpan, out spanLength);
         }
 
-        var rest = PopFrontImmediateLeadingCollection<T>.PopAndGetRest(source, ref resultSpan);
-        spanLength = resultSpan.Length;
-        return rest;
+        if (resultSpan.Length == 0) {
+            spanLength = 0;
+            return Enumerable.Empty<T>();
+        }
+
+        var leadings = PopFrontImmediateLeadingCollection<T>.PopInto(source, resultSpan, out spanLength);
+        return leadings.RestCollection;
     }
 
     /// <summary>
@@ -70,7 +74,7 @@ partial class EnumerableQuery
             return rest;
         }
 
-        var leadings = new PopCountedFrontQuerier<T>(source, count);
+        var leadings = new PopFrontCountedQuerier<T>(source, count);
         poppedElements = leadings;
         return leadings.RestCollection;
     }
@@ -96,7 +100,7 @@ partial class EnumerableQuery
     /// Pop elements until <paramref name="predicate"/> failed.
     /// popped elements are cached in <paramref name="poppedElements"/>
     /// </summary>
-    public static IEnumerable<T> PopFrontWhile<T>(this IEnumerable<T> source, out IEnumerable<T> poppedElements, Func<T, bool> predicate)
+    public static IEnumerable<T> PopFrontWhile<T>(this IEnumerable<T> source, Func<T, bool> predicate, out IEnumerable<T> poppedElements)
     {
         if (source is IList<T> list) {
             var restList = list.PopFrontWhileList(out var leadingList, predicate);
@@ -111,64 +115,119 @@ partial class EnumerableQuery
 
     private interface IPopFrontQuerierLeadingCollection<T, TSelf> where TSelf : IPopFrontQuerierLeadingCollection<T, TSelf>
     {
-        void EnumerateAll();
+        PopFrontQuerierRestCollection<T, TSelf> RestCollection { get; }
 
-        TSelf CloneWith(PopFrontQuerierRestCollection<T, TSelf> rest);
+        /// <summary>
+        /// Iterate all items in LeadingCollection<>, RestCollection can use <see cref="IEnumerator{T}.Current"/> to get first 
+        /// value of rest collection after calling this
+        /// </summary>
+        /// <returns>
+        /// Same as <see cref="IEnumerator.MoveNext"/>, <see langword="false"/> when enumerator meets end
+        /// </returns>
+        bool MoveUntilRest();
+
+        TSelf CloneWithNewRestCollection();
     }
 
-    private readonly struct PopFrontImmediateLeadingCollection<T> : IPopFrontQuerierLeadingCollection<T, PopFrontImmediateLeadingCollection<T>>
+    private struct PopFrontImmediateLeadingCollection<T> : IPopFrontQuerierLeadingCollection<T, PopFrontImmediateLeadingCollection<T>>
     {
-        public readonly PopFrontQuerierRestCollection<T, PopFrontImmediateLeadingCollection<T>> RestCollection;
-        private readonly int _skipCount;
+        public PopFrontQuerierRestCollection<T, PopFrontImmediateLeadingCollection<T>> RestCollection { get; private set; }
+        /// <summary>
+        /// collection count,
+        /// Iterated if < 0;
+        /// </summary>
+        private int _count;
+        /// <summary>
+        /// What <see cref="MoveUntilRest()"/> will returns after enumerated all
+        /// </summary>
+        private readonly bool _initState;
 
-        private PopFrontImmediateLeadingCollection(PopFrontQuerierRestCollection<T, PopFrontImmediateLeadingCollection<T>> rest, int skipCount)
+        private PopFrontImmediateLeadingCollection(PopFrontQuerierRestCollection<T, PopFrontImmediateLeadingCollection<T>> rest, int count, bool initState)
         {
             RestCollection = rest;
-            _skipCount = skipCount;
+            _count = count;
+            _initState = initState;
         }
 
-        public static IEnumerable<T> PopAndGetRest(IEnumerable<T> source, ref Span<T> buffer)
+        public static PopFrontImmediateLeadingCollection<T> PopInto(IEnumerable<T> source, Span<T> buffer, out int actualLength)
         {
-            var rest = new PopFrontQuerierRestCollection<T, PopFrontImmediateLeadingCollection<T>>(source, default, false);
+            var rest = new PopFrontQuerierRestCollection<T, PopFrontImmediateLeadingCollection<T>>(source);
+            bool initState;
             int len = 0;
             rest.EnsureEnumerator();
-            while (len < buffer.Length && rest.Enumerator.MoveNext()) {
-                buffer[len++] = rest.Enumerator.Current;
+            while (len < buffer.Length) {
+                if (rest.Enumerator.MoveNext()) {
+                    buffer[len++] = rest.Enumerator.Current;
+                    continue;
+                }
+                else {
+                    initState = false;
+                    goto Iterated;
+                }
             }
-            if (len < buffer.Length)
-                buffer = buffer[..len];
+            initState = rest.Enumerator.MoveNext();
 
+        Iterated:
+            actualLength = len;
             // Init skipcount as negative, so this time EnumerateAll() will do nothing
-            rest.LeadingElements = new(rest, -len);
-            return rest;
+            rest.LeadingElements = new(rest, ~len, initState);
+            return rest.LeadingElements;
         }
 
-        public readonly PopFrontImmediateLeadingCollection<T> CloneWith(PopFrontQuerierRestCollection<T, PopFrontImmediateLeadingCollection<T>> rest) => new(rest, int.Abs(_skipCount));
-
-        public void EnumerateAll()
+        public bool MoveUntilRest()
         {
-            RestCollection.EnsureEnumerator();
-            for (int i = 0; i < _skipCount; i++) {
-                RestCollection.Enumerator.MoveNext();
+            if (_count < 0) {
+                return _initState;
             }
+            else {
+                RestCollection.EnsureEnumerator();
+                for (int i = 0; i < _count + 1; i++) {
+                    RestCollection.Enumerator.MoveNext();
+                }
+                _count = ~_count;
+                return _initState;
+            }
+        }
+
+        public readonly PopFrontImmediateLeadingCollection<T> CloneWithNewRestCollection()
+        {
+            var rest = RestCollection.CloneWithoutLeadingCollection();
+            rest.LeadingElements = new(rest, _count < 0 ? ~_count : _count, _initState);
+            return rest.LeadingElements;
         }
     }
 
     private abstract class PopFrontQuerierLeadingCollection<T> : EnumerationQuerier<T>, IPopFrontQuerierLeadingCollection<T, PopFrontQuerierLeadingCollection<T>>
     {
-        public readonly PopFrontQuerierRestCollection<T, PopFrontQuerierLeadingCollection<T>> RestCollection;
-        protected List<T> _cachedItems = default!;
+        public PopFrontQuerierRestCollection<T, PopFrontQuerierLeadingCollection<T>> RestCollection { get; private init; }
+        protected List<T> _cachedItems = null!;
 
         protected IEnumerator<T> Enumerator => RestCollection.Enumerator;
 
         protected PopFrontQuerierLeadingCollection(IEnumerable<T> source)
         {
-            RestCollection = new(source, this, false);
+            RestCollection = new(source) {
+                LeadingElements = this
+            };
         }
 
-        protected PopFrontQuerierLeadingCollection(PopFrontQuerierRestCollection<T, PopFrontQuerierLeadingCollection<T>> rest)
+        protected PopFrontQuerierLeadingCollection(PopFrontQuerierLeadingCollection<T> other, bool cloneRestCollection)
         {
-            RestCollection = rest;
+            if (cloneRestCollection) {
+                RestCollection = other.RestCollection.CloneWithoutLeadingCollection();
+                RestCollection.LeadingElements = this;
+            }
+            else {
+                RestCollection = other.RestCollection;
+                _cachedItems = other._cachedItems;
+            }
+        }
+
+        [MemberNotNull(nameof(_cachedItems))]
+        protected void EnsureInitialized()
+        {
+            RestCollection.EnsureEnumerator();
+            _cachedItems ??= [];
         }
 
         public sealed override T Current
@@ -185,19 +244,14 @@ partial class EnumerableQuery
             }
         }
 
-        public void EnumerateAll()
-        {
-            while (MoveNext()) { }
-        }
-
         public sealed override bool MoveNext()
         {
+            // Keep sync in PopFrontWhile
             const int End = MinPreservedState - 1;
 
             switch (_state) {
                 case -1:
-                    RestCollection.EnsureEnumerator();
-                    _cachedItems = [];
+                    EnsureInitialized();
                     goto default;
                 case End:
                     return false;
@@ -213,32 +267,39 @@ partial class EnumerableQuery
             }
         }
 
+        public abstract bool MoveUntilRest();
+
         protected abstract bool TryEnsureAccessible(int index);
 
-        [FriendAccess(typeof(PopFrontQuerierRestCollection<,>))]
-        public abstract PopFrontQuerierLeadingCollection<T> CloneWith(PopFrontQuerierRestCollection<T, PopFrontQuerierLeadingCollection<T>> rest);
+        public abstract PopFrontQuerierLeadingCollection<T> CloneWithNewRestCollection();
     }
 
-    private sealed class PopCountedFrontQuerier<T> : PopFrontQuerierLeadingCollection<T>
+    private sealed class PopFrontCountedQuerier<T> : PopFrontQuerierLeadingCollection<T>
     {
         private readonly int _maxCount;
 
-        public PopCountedFrontQuerier(IEnumerable<T> source, int maxCount) : base(source)
+        public PopFrontCountedQuerier(IEnumerable<T> source, int maxCount) : base(source)
         {
             _maxCount = maxCount;
         }
 
-        private PopCountedFrontQuerier(PopFrontQuerierRestCollection<T, PopFrontQuerierLeadingCollection<T>> rest, int maxCount)
-            : base(rest)
+        private PopFrontCountedQuerier(PopFrontCountedQuerier<T> other, bool cloneRestCollection) : base(other, cloneRestCollection)
         {
-            _maxCount = maxCount;
+            _maxCount = other._maxCount;
         }
 
-        protected override EnumerationQuerier<T> Clone()
-            => new PopCountedFrontQuerier<T>(RestCollection, _maxCount);
-
-        public override PopFrontQuerierLeadingCollection<T> CloneWith(PopFrontQuerierRestCollection<T, PopFrontQuerierLeadingCollection<T>> rest)
-            => new PopCountedFrontQuerier<T>(rest, _maxCount);
+        public override bool MoveUntilRest()
+        {
+            EnsureInitialized();
+            while (_cachedItems.Count < _maxCount) {
+                if (!Enumerator.MoveNext())
+                    return false;
+                _cachedItems.Add(Enumerator.Current);
+            }
+            // Help rest collection call a move next, so rest collection can use Current 
+            // to get first item
+            return Enumerator.MoveNext();
+        }
 
         protected override bool TryEnsureAccessible(int index)
         {
@@ -256,28 +317,44 @@ partial class EnumerableQuery
             }
             return true;
         }
+
+        protected override EnumerationQuerier<T> Clone() => new PopFrontCountedQuerier<T>(this, false);
+
+        public override PopFrontQuerierLeadingCollection<T> CloneWithNewRestCollection() => new PopFrontCountedQuerier<T>(this, true);
     }
 
     private sealed class PopFrontWhileQuerier<T> : PopFrontQuerierLeadingCollection<T>
     {
         private readonly Func<T, bool> _predicate;
+        private bool _sourceFullEnumerated;
 
         public PopFrontWhileQuerier(IEnumerable<T> source, Func<T, bool> predicate) : base(source)
         {
             _predicate = predicate;
         }
 
-        private PopFrontWhileQuerier(PopFrontQuerierRestCollection<T, PopFrontQuerierLeadingCollection<T>> rest, Func<T, bool> predicate)
-            : base(rest)
+        private PopFrontWhileQuerier(PopFrontWhileQuerier<T> other, bool cloneRestCollection) : base(other, cloneRestCollection)
         {
-            _predicate = predicate;
+            _predicate = other._predicate;
         }
 
-        protected override EnumerationQuerier<T> Clone()
-            => new PopFrontWhileQuerier<T>(RestCollection, _predicate);
-
-        public override PopFrontQuerierLeadingCollection<T> CloneWith(PopFrontQuerierRestCollection<T, PopFrontQuerierLeadingCollection<T>> rest)
-            => new PopFrontWhileQuerier<T>(rest, _predicate);
+        public override bool MoveUntilRest()
+        {
+            const int End = MinPreservedState - 1;
+            if (_state == End) {
+                return !_sourceFullEnumerated;
+            }
+            EnsureInitialized();
+            while (Enumerator.MoveNext()) {
+                var cur = Enumerator.Current;
+                if (_predicate(cur)) {
+                    _cachedItems.Add(cur);
+                    continue;
+                }
+                return true;
+            }
+            return false;
+        }
 
         protected override bool TryEnsureAccessible(int index)
         {
@@ -286,7 +363,10 @@ partial class EnumerableQuery
             }
 
             while (_cachedItems.Count <= index) {
-                if (Enumerator.MoveNext()) {
+                if (!Enumerator.MoveNext()) {
+                    _sourceFullEnumerated = true;
+                }
+                else {
                     var cur = Enumerator.Current;
                     if (_predicate(cur)) {
                         _cachedItems.Add(cur);
@@ -297,6 +377,10 @@ partial class EnumerableQuery
             }
             return true;
         }
+
+        protected override EnumerationQuerier<T> Clone() => new PopFrontWhileQuerier<T>(this, false);
+
+        public override PopFrontQuerierLeadingCollection<T> CloneWithNewRestCollection() => new PopFrontWhileQuerier<T>(this, true);
     }
 
     private sealed class PopFrontQuerierRestCollection<T, TLeadingCollection> : EnumerationQuerier<T> where TLeadingCollection : IPopFrontQuerierLeadingCollection<T, TLeadingCollection>
@@ -308,17 +392,14 @@ partial class EnumerableQuery
         public TLeadingCollection LeadingElements
         {
             get;
-            // For reason of copy pass of value type, we need to public
-            // this set to structs
-            [FriendAccess(typeof(PopFrontImmediateLeadingCollection<>))]
+            [FriendAccess(typeof(PopFrontQuerierLeadingCollection<>), typeof(PopFrontImmediateLeadingCollection<>))]
             set;
         }
 
-        [FriendAccess(typeof(PopFrontQuerierLeadingCollection<>), typeof(PopFrontImmediateLeadingCollection<>))]
-        internal PopFrontQuerierRestCollection(IEnumerable<T> source, TLeadingCollection leadings, bool cloneLeadings)
+        internal PopFrontQuerierRestCollection(IEnumerable<T> source)
         {
             _source = source;
-            LeadingElements = cloneLeadings ? leadings.CloneWith(this) : leadings;
+            LeadingElements = default!;
         }
 
         public override T Current => _current;
@@ -334,9 +415,15 @@ partial class EnumerableQuery
 
             switch (_state) {
                 case -1:
-                    LeadingElements.EnumerateAll();
-                    _state = Iterate;
-                    goto case Iterate;
+                    if (LeadingElements.MoveUntilRest()) {
+                        _current = Enumerator.Current;
+                        _state = Iterate;
+                        return true;
+                    }
+                    else {
+                        _state = End;
+                        return false;
+                    }
                 case Iterate:
                     if (Enumerator.MoveNext()) {
                         _current = Enumerator.Current;
@@ -352,6 +439,8 @@ partial class EnumerableQuery
             }
         }
 
-        protected override EnumerationQuerier<T> Clone() => new PopFrontQuerierRestCollection<T, TLeadingCollection>(_source, LeadingElements, true);
+        protected override EnumerationQuerier<T> Clone() => LeadingElements.CloneWithNewRestCollection().RestCollection;
+
+        internal PopFrontQuerierRestCollection<T, TLeadingCollection> CloneWithoutLeadingCollection() => new(_source);
     }
 }

@@ -13,7 +13,9 @@
     - Unify parameter name in `AllocOptStack<>`
     - Optimize design of `TrySingle`
     - Rename `AllocOptCol.ClearUnreferenced` to `FreeUnreferenced`
-    - Changed parameter of `EnumerableQuery.PopFront`s as now this method returns both lazy-init collection
+    - Change `EnumerableQuery.PopFront`(lazy now), `MinMax`
+    - Change `ListQuery.PopFront`
+    - Redesigned `ListQuery`
 - New
     - Extend `ListQuery` methods:
         - `Adjacent()`
@@ -36,8 +38,13 @@
     - Extend helpers
         - Add `List<>.AtRef()`
         - Add `EnumerableHelper.EnumerateByWhile()`
+        - Add `SpanHelper.As(ReadOnly)Bytes()`
         - Add `ValueTask<>?.GetAwaiter()`
         - Add `ValueTask<>?.Sync()`
+        - Add `PathHelper` with `Combine`
+        - Add `StreamHelper` with `Read<>()`
+        - Add `StringHelper` with `Interpolated`
+        - Add `UnsafeHelper` with `AsReadOnly`
     - Extend monads
         - `NotNull<T>`
         - `IOptional<>`
@@ -47,9 +54,10 @@
     - Extend Generator/Analyzer
         - Add `BackingFieldAccessAttribute`
         - `FriendAccessAttribute` now works on pointer access
+        - Add `FriendAccess.Options`
         - Add `SingletonAttribute`
 - Changes
-    - Optimize `IEnumerable<>.CartesianProduct()`, `IsInOrder()`, `Merge()`, `PopFront`(untested)
+    - Optimize `IEnumerable<>.CartesianProduct()`, `IsInOrder()`, `Merge()`, `PopFront`
     - Add zero-length check for some list queries
     - Implement `ICriticalNotifyCompletion` for `NullableValueTaskAwaiter<>`
     - Adjust method in c#, no breaking for caller

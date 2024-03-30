@@ -5,21 +5,21 @@ partial class ListQuery
 {
     [FriendAccess(typeof(EnumerableQuery))]
     internal static bool StartsWithList<T>(this IList<T> list, int offset, ReadOnlySpan<T> values)
-        => StartsWithOpt(list.Wrap(), offset, values);
+        => StartsWithOpt(list, offset, values);
 
     public static bool StartsWithROList<T>(this IReadOnlyList<T> list, int offset, ReadOnlySpan<T> values)
-        => StartsWithOpt(list, offset, values);
+        => StartsWithOpt(list.Wrap(), offset, values);
 
 
     [FriendAccess(typeof(EnumerableQuery))]
     internal static bool StartsWithList<T>(this IList<T> list, int offset, IEnumerable<T> values)
-        => StartsWithOpt(list.Wrap(), offset, values);
-
-    public static bool StartsWithROList<T>(this IReadOnlyList<T> list, int offset, IEnumerable<T> values)
         => StartsWithOpt(list, offset, values);
 
+    public static bool StartsWithROList<T>(this IReadOnlyList<T> list, int offset, IEnumerable<T> values)
+        => StartsWithOpt(list.Wrap(), offset, values);
 
-    private static bool StartsWithOpt<TList, T>(this TList list, int offset, ReadOnlySpan<T> values) where TList : IReadOnlyList<T>
+
+    private static bool StartsWithOpt<TList, T>(this TList list, int offset, ReadOnlySpan<T> values) where TList : IList<T>
     {
         if (offset + values.Length > list.Count)
             return false;
@@ -32,7 +32,7 @@ partial class ListQuery
         return true;
     }
 
-    private static bool StartsWithOpt<TList, T>(this TList list, int offset, IEnumerable<T> value) where TList : IReadOnlyList<T>
+    private static bool StartsWithOpt<TList, T>(this TList list, int offset, IEnumerable<T> value) where TList : IList<T>
     {
         int count = list.Count;
 

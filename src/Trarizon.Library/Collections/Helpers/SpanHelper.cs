@@ -14,7 +14,7 @@ public static partial class SpanHelper
     /// </summary>
     /// <returns>Index of <paramref name="item"/></returns>
     public static int OffsetOf<T>(this ReadOnlySpan<T> span, ref readonly T item)
-        => UnsafeUtil.SubstractRef(in item, in MemoryMarshal.GetReference(span));
+        => UnsafeHelper.SubstractRef(in item, in MemoryMarshal.GetReference(span));
 
     /// <summary>
     /// Get index of item by reference substraction.
@@ -22,7 +22,7 @@ public static partial class SpanHelper
     /// </summary>
     /// <returns>Index of <paramref name="item"/></returns>
     public static int OffsetOf<T>(this Span<T> span, ref readonly T item)
-        => UnsafeUtil.SubstractRef(in item, in MemoryMarshal.GetReference(span));
+        => UnsafeHelper.SubstractRef(in item, in MemoryMarshal.GetReference(span));
 
     /// <summary>
     /// Get index of the first element in <paramref name="subSpan"/> by reference substraction.
@@ -30,7 +30,7 @@ public static partial class SpanHelper
     /// </summary>
     /// <returns>Index of first element in <paramref name="subSpan"/></returns>
     public static int OffsetOf<T>(this ReadOnlySpan<T> span, ReadOnlySpan<T> subSpan)
-        => UnsafeUtil.SubstractRef(in MemoryMarshal.GetReference(subSpan), in MemoryMarshal.GetReference(span));
+        => UnsafeHelper.SubstractRef(in MemoryMarshal.GetReference(subSpan), in MemoryMarshal.GetReference(span));
 
     /// <summary>
     /// Get index of the first element in <paramref name="subSpan"/> by reference substraction.
@@ -38,7 +38,7 @@ public static partial class SpanHelper
     /// </summary>
     /// <returns>Index of first element in <paramref name="subSpan"/></returns>
     public static int OffsetOf<T>(this Span<T> span, ReadOnlySpan<T> subSpan)
-        => UnsafeUtil.SubstractRef(in MemoryMarshal.GetReference(subSpan), in MemoryMarshal.GetReference(span));
+        => UnsafeHelper.SubstractRef(in MemoryMarshal.GetReference(subSpan), in MemoryMarshal.GetReference(span));
 
     #endregion
 
@@ -54,8 +54,8 @@ public static partial class SpanHelper
 
     #region SortStably
 
-    public static void SortStably<T>(this Span<T> span, Comparison<T>? comparison = null)
-        => span.SortStably(comparison is null ? null : new StableSortComparer<T>(comparison));
+    public static void SortStably<T>(this Span<T> span, Comparison<T> comparison)
+        => span.SortStably(new StableSortComparer<T>(comparison));
 
     public static void SortStably<T>(this Span<T> span, StableSortComparer<T>? comparer = null)
     {

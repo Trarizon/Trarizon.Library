@@ -92,7 +92,8 @@ Impl Type|Method|Remarks
 ✔|`IsInOrder`<br/>`IsInOrderBy`|判断序列是否有序
 ✔|`Merge`|合并两个有序序列
 ✔|`MinMax`<br/>`MinMaxBy`|一次遍历返回序列中的最小值与最大值
-✔|`OfTypeUntil`|`OfType<T>().TakeWhile(t is not TExcept)`
+✔|`OfNotNull`<br/>`OfNotNone`|`.Where(t is not null)` <br/> `.Where(t.HasValue)`
+✔|`OfTypeUntil`|`.OfType<T>().TakeWhile(t is not TExcept)`
 ✔✔✔|`PopFront`<br/>`PopFirst`<br/>`PopFrontWhile`|取出开头指定数量的元素（*非延迟加载*），并返回剩下的元素
 ✔✔✔|`Repeat`<br/>`RepeatForever`|将序列重复
 ⭕✔✔|`Reverse`|-

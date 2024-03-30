@@ -13,25 +13,25 @@ partial class ListQuery
     /// if <paramref name="index"/> is out of range, return <paramref name="defaultValue"/>
     /// </summary>
     public static T ElementAtOrDefaultROList<T>(this IReadOnlyList<T> list, Index index, T defaultValue = default!)
-        => ElementAtOrDefaultOpt(list, index, defaultValue);
+        => ElementAtOrDefaultOpt(list.Wrap(), index, defaultValue);
 
 
     /// <summary>
     /// Try get the item at <paramref name="index"/>
     /// </summary>
     public static bool TryAt<T>(this IList<T> list, Index index, [MaybeNullWhen(false)] out T value)
-        => TryAtOpt(list.Wrap(), index, out value);
+        => TryAtOpt(list, index, out value);
 
     /// <summary>
     /// Try get the item at <paramref name="index"/>
     /// </summary>
     public static bool TryAtROList<T>(this IReadOnlyList<T> list, Index index, [MaybeNullWhen(false)] out T value)
-        => TryAtOpt(list, index, out value);
+        => TryAtOpt(list.Wrap(), index, out value);
 
 
     #region Internal
 
-    internal static T ElementAtOrDefaultOpt<TList, T>(TList list, Index index, T defaultValue = default!) where TList : IReadOnlyList<T>
+    internal static T ElementAtOrDefaultOpt<TList, T>(TList list, Index index, T defaultValue = default!) where TList : IList<T>
     {
         var count = list.Count;
         var i = index.Value;
@@ -43,7 +43,7 @@ partial class ListQuery
         }
     }
 
-    internal static bool TryAtOpt<TList, T>(TList list, Index index, out T? value) where TList : IReadOnlyList<T>
+    internal static bool TryAtOpt<TList, T>(TList list, Index index, out T? value) where TList : IList<T>
     {
         var count = list.Count;
         var i = index.Value;

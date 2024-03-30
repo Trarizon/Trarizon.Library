@@ -1,4 +1,4 @@
-﻿using Trarizon.Library.Collections.Helpers.Utilities.Queriers;
+﻿using Trarizon.Library.Collections.Helpers.Queriers;
 
 namespace Trarizon.Library.Collections.Helpers;
 partial class ListQuery
@@ -11,7 +11,7 @@ partial class ListQuery
         if (splitPosition == 0 || splitPosition >= list.Count)
             return list;
         else
-            return new RotateQuerier<ListWrapper<T>, T>(list.Wrap(), splitPosition);
+            return new RotateQuerier<IList<T>, T>(list, splitPosition);
     }
 
     /// <summary>
@@ -22,23 +22,29 @@ partial class ListQuery
         if (splitPosition == 0 || splitPosition >= list.Count)
             return list;
         else
-            return new RotateQuerier<IReadOnlyList<T>, T>(list, splitPosition);
+            return new RotateQuerier<ListWrapper<T>, T>(list.Wrap(), splitPosition);
     }
 
 
-    private sealed class RotateQuerier<TList, T>(TList list, int splitPosition) : SimpleListQuerier<TList, T, T>(list) where TList : IReadOnlyList<T>
+    private sealed class RotateQuerier<TList, T>(TList list, int splitPosition)
+        : SimpleIndexMapListQuerier<TList, T>(list)
+        where TList : IList<T>
     {
         private readonly int _splitPosition = splitPosition;
 
-        public override T this[int index]
-        {
-            get {
-                ArgumentOutOfRangeException.ThrowIfGreaterThan(index, Count);
-
-                return _list[(_splitPosition + index) % _list.Count];
-            }
-        }
         public override int Count => _list.Count;
+
+        protected override int ValdiateAndSelectIndex(int index)
+        {
+            var count = Count;
+            ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, count);
+
+            var newIndex = _splitPosition + index;
+            if (newIndex > count)
+                return newIndex - count;
+            else
+                return newIndex;
+        }
 
         protected override EnumerationQuerier<T> Clone() => new RotateQuerier<TList, T>(_list, _splitPosition);
     }

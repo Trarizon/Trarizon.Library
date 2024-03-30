@@ -19,74 +19,42 @@ using Trarizon.Library.RunTest.Examples;
 using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 
+//RunBenchmarks();
+new D().Count.Print();
+(new D() as IInter).Count.Print();
+//ArrayValues(i => i.ToString(), 2).CartesianProductList(ArrayInts(4)).Print();
 
-RunBenchmarks();
-
-partial class Program
+interface IInter
 {
+    int Count { get; }
+}
+
+class B : IInter
+{
+    public int Count => 1;
+
+    Regex Gen() => default!;
+}
+
+class D : B, IInter
+{
+    int IInter.Count => 2;
 }
 
 //namespace A.A2
 //{
 //    public partial class B
 //    {
-//        [FriendAccess()]
-//        public partial string Field();
+//        [FriendAccess(typeof(List<int>))]
+//        internal partial string Field();
 //    }
 
 //    [Singleton]
 //    sealed partial class B
 //    {
-//        [FriendAccess]
+//        [FriendAccess(typeof(IDictionary<,>), Options = FriendAccessOptions.AllowInherits)]
 //        private B() { }
 
-//        [FriendAccess(typeof(List<>))]
-//        protected internal string field
-//        {
-//            get;
-//            [FriendAccess(typeof(List<>))]
-//            set;
-//        }
-
-//        private Action<string> _onAct;
-//        public event Action<string> OnAct
-//        {
-//            add => _onAct += value;
-//            remove => _onAct -= value;
-//        }
-
-//        public partial string Field() { return ""; }
-//    }
-
-//    namespace N
-//    {
-//        partial class W<T, T2> : Collection<T>
-//            where T : List<T>
-//        {
-//            [Singleton(SingletonProviderName = "S", Options = SingletonOptions.IsInternalInstance)]
-//            sealed partial class A
-//            {
-//                // private A(int a) { }
-
-//                [BackingFieldAccess(nameof(Field))]
-//                private string _field;
-
-//                public string Field
-//                {
-//                    [MemberNotNull(nameof(_field))]
-//                    init {
-//                        _field = "";
-//                        var b = new B() {
-//                            field = "str",
-//                        };
-//                        b.field ??= "str";
-
-//                        b.OnAct += str => { };
-
-//                        var func = b.Field;
-//                    }
-//                }
-//            }
-//        }
+//        internal partial string Field() { return ""; }
 //    }
 //}

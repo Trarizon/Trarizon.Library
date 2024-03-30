@@ -3,7 +3,6 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Trarizon.Library.SourceGenerator.Toolkit;
@@ -17,7 +16,7 @@ internal sealed partial class SingletonGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var filter = context.SyntaxProvider.ForAttributeWithMetadataName(
-             Literals.Attribute_TypeName,
+             L_Attribute_TypeName,
              (node, token) => true, // class or record
              (context, token) =>
              {
@@ -67,7 +66,7 @@ internal sealed partial class SingletonGenerator : IIncrementalGenerator
         {
             get {
                 if (!_instancePropertyIdentifier.HasValue) {
-                    _instancePropertyIdentifier = Attribute.GetNamedArgument<string>(Literals.Attribute_InstancePropertyName_PropertyIdentifier);
+                    _instancePropertyIdentifier = Attribute.GetNamedArgument<string>(L_Attribute_InstancePropertyName_PropertyIdentifier);
                 }
                 return _instancePropertyIdentifier.Value;
             }
@@ -78,13 +77,13 @@ internal sealed partial class SingletonGenerator : IIncrementalGenerator
         {
             get {
                 if (!_singletonProviderIdentifier.HasValue) {
-                    _singletonProviderIdentifier = Attribute.GetNamedArgument<string>(Literals.Attribute_SingletonProviderName_PropertyIdentifier);
+                    _singletonProviderIdentifier = Attribute.GetNamedArgument<string>(L_Attribute_SingletonProviderName_PropertyIdentifier);
                 }
                 return _singletonProviderIdentifier.Value;
             }
         }
 
-        public SingletonOptions Options => Attribute.GetNamedArgument<SingletonOptions>(Literals.Attribute_Options_PropertyIdentifier);
+        public SingletonOptions Options => Attribute.GetNamedArgument<SingletonOptions>(L_Attribute_Options_PropertyIdentifier);
 
         [Flags]
         public enum SingletonOptions
@@ -118,7 +117,7 @@ internal sealed partial class SingletonGenerator : IIncrementalGenerator
 
             IsGeneratable = false;
             return DiagnosticFactory.Create(
-                Literals.Diagnostic_SingletonIsClassOnly,
+                D_SingletonIsClassOnly,
                 targetNode.Identifier);
         }
 
@@ -131,7 +130,7 @@ internal sealed partial class SingletonGenerator : IIncrementalGenerator
                 return null;
 
             return DiagnosticFactory.Create(
-                Literals.Diagnostic_SingletonIsSealed,
+                D_SingletonIsSealed,
                 TypeSyntax.Identifier);
         }
 
@@ -143,32 +142,31 @@ internal sealed partial class SingletonGenerator : IIncrementalGenerator
             bool singleCtor = TypeSymbol.Constructors
                 .Where(ctor => !ctor.IsStatic)
                 .TrySingle(out var ctor);
-            if (!singleCtor)
-                goto ReportDiagnostic;
+            if (!singleCtor) {
+                return DiagnosticFactory.Create(
+                    D_SingletonHasOneOrNoneCtor,
+                    TypeSyntax.Identifier);
+            }
 
-            if (ctor!.IsImplicitlyDeclared) {
-                // We do not use the implicit declared public ctor, and generate a new private ctor
-                HasPrivateCtor = false;
+            // We do not use the implicit declared public ctor, and generate a new private ctor
+            HasPrivateCtor = ctor!.IsImplicitlyDeclared;
+            if (!HasPrivateCtor) {
                 return null;
             }
-            else if (ctor.DeclaredAccessibility is not Accessibility.NotApplicable or Accessibility.Private) {
-                goto ReportDiagnostic;
+            else if (ctor.DeclaredAccessibility is not (Accessibility.NotApplicable or Accessibility.Private)) {
+                return DiagnosticFactory.Create(
+                    D_SingletonCannotContainsNonPrivateCtor,
+                    TypeSyntax.Identifier);
             }
 
-            HasPrivateCtor = true;
             // Requires non-param ctor
             if (ctor.Parameters.Length > 0) {
                 return DiagnosticFactory.Create(
-                    Literals.Diagnostic_SingletonCtorHasNoParameter,
+                    D_SingletonCtorHasNoParameter,
                     ctor.DeclaringSyntaxReferences[0].GetSyntax());
             }
 
             return null;
-
-        ReportDiagnostic:
-            return DiagnosticFactory.Create(
-                Literals.Diagnostic_SingletonCannotContainsNonPrivateCtor,
-                TypeSyntax.Identifier);
         }
     }
 
@@ -180,7 +178,7 @@ internal sealed partial class SingletonGenerator : IIncrementalGenerator
         private IdentifierNameSyntax? _type_IdentifierName;
         private IdentifierNameSyntax Type_IdentifierName => _type_IdentifierName ??= SyntaxFactory.IdentifierName(Type_FullQualifiedName);
 
-        private readonly string SingletonProvider_Identifier => validation.SingletonProviderIdentifier ?? Literals.SingletonProvider_TypeIdentifier;
+        private readonly string SingletonProvider_Identifier => validation.SingletonProviderIdentifier ?? L_SingletonProvider_TypeIdentifier;
 
 
         private ObjectCreationExpressionSyntax GenerateCallCtorExpression()
@@ -195,7 +193,7 @@ internal sealed partial class SingletonGenerator : IIncrementalGenerator
         {
             return SyntaxFactory.FieldDeclaration(
                 SyntaxFactory.SingletonList(
-                    Literals.Syntax_GeneratedCodeAttribute_AttributeList),
+                    Syntax_GeneratedCodeAttribute_AttributeList),
                 SyntaxFactory.TokenList(
                     SyntaxFactory.Token(SyntaxKind.PublicKeyword),
                     SyntaxFactory.Token(SyntaxKind.StaticKeyword),
@@ -204,7 +202,7 @@ internal sealed partial class SingletonGenerator : IIncrementalGenerator
                     Type_IdentifierName,
                     SyntaxFactory.SingletonSeparatedList(
                         SyntaxFactory.VariableDeclarator(
-                            SyntaxFactory.Identifier(Literals.Instance_FieldIdentifier),
+                            SyntaxFactory.Identifier(L_Instance_FieldIdentifier),
                             argumentList: null,
                             SyntaxFactory.EqualsValueClause(
                                 GenerateCallCtorExpression())))),
@@ -215,7 +213,7 @@ internal sealed partial class SingletonGenerator : IIncrementalGenerator
         {
             return SyntaxFactory.ClassDeclaration(
                 SyntaxFactory.SingletonList(
-                    Literals.Syntax_GeneratedCodeAttribute_AttributeList),
+                    Syntax_GeneratedCodeAttribute_AttributeList),
                 SyntaxFactory.TokenList(
                     SyntaxFactory.Token(SyntaxKind.PrivateKeyword),
                     SyntaxFactory.Token(SyntaxKind.StaticKeyword)),
@@ -240,7 +238,7 @@ internal sealed partial class SingletonGenerator : IIncrementalGenerator
                     SyntaxFactory.MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
                         SyntaxFactory.IdentifierName($"{Type_FullQualifiedName}.{SingletonProvider_Identifier}"),
-                        SyntaxFactory.IdentifierName($"{Literals.Instance_FieldIdentifier}")));
+                        SyntaxFactory.IdentifierName($"{L_Instance_FieldIdentifier}")));
                 initializer = null;
             }
             else {
@@ -255,7 +253,7 @@ internal sealed partial class SingletonGenerator : IIncrementalGenerator
 
             return SyntaxFactory.PropertyDeclaration(
                 SyntaxFactory.SingletonList(
-                    Literals.Syntax_GeneratedCodeAttribute_AttributeList),
+                    Syntax_GeneratedCodeAttribute_AttributeList),
                 SyntaxFactory.TokenList(
                     SyntaxFactory.Token(
                         validation.Options.HasFlag(ValidationContext.SingletonOptions.IsInternalInstance)
@@ -264,7 +262,7 @@ internal sealed partial class SingletonGenerator : IIncrementalGenerator
                     SyntaxFactory.Token(SyntaxKind.StaticKeyword)),
                 Type_IdentifierName,
                 explicitInterfaceSpecifier: null,
-                SyntaxFactory.Identifier(validation.InstancePropertyIdentifier ?? Literals.Instance_PropertyIdentifier),
+                SyntaxFactory.Identifier(validation.InstancePropertyIdentifier ?? L_Instance_PropertyIdentifier),
                 accessorList,
                 expressionBody,
                 initializer,
@@ -275,7 +273,7 @@ internal sealed partial class SingletonGenerator : IIncrementalGenerator
         {
             return SyntaxFactory.ConstructorDeclaration(
                 SyntaxFactory.SingletonList(
-                    Literals.Syntax_GeneratedCodeAttribute_AttributeList),
+                    Syntax_GeneratedCodeAttribute_AttributeList),
                 SyntaxFactory.TokenList(
                     SyntaxFactory.Token(SyntaxKind.PrivateKeyword)),
                 SyntaxFactory.Identifier(validation.TypeSymbol.Name),

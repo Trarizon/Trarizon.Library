@@ -44,6 +44,15 @@ public static class GlobalUsings
     public static IEnumerable<T> EnumerateValues<T>(Func<int, T> factory, int count = 8)
         => EnumerateInts(count).Select(factory);
 
+    public static IEnumerable<int> EnumerateLogged(int length = 8, TextWriter? printer = null)
+    {
+        printer ??= Console.Out;
+        for (int i = 0; i < length; i++) {
+            printer.WriteLine($"Enumerate {i}");
+            yield return i;
+        }
+    }
+
     #endregion
 
     #region Print

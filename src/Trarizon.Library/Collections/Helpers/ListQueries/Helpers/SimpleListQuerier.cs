@@ -1,9 +1,9 @@
-﻿using Trarizon.Library.Collections.Helpers.Utilities.Queriers;
+﻿using Trarizon.Library.Collections.Helpers.Queriers;
 
 namespace Trarizon.Library.Collections.Helpers;
 partial class ListQuery
 {
-    private abstract class SimpleListQuerier<TList, TIn, TOut>(TList list) : ListQuerier<TOut> where TList : IReadOnlyList<TIn>
+    private abstract class SimpleListQuerier<TList, TIn, TOut>(TList list) : ListQuerier<TOut> where TList : IList<TIn>
     {
         protected readonly TList _list = list;
 

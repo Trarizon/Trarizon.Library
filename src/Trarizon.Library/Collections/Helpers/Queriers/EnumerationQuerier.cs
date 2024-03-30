@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 
-namespace Trarizon.Library.Collections.Helpers.Utilities.Queriers;
+namespace Trarizon.Library.Collections.Helpers.Queriers;
 internal abstract class EnumerationQuerier<T> : IEnumerator<T>, IEnumerable<T>
 {
     protected const int MinPreservedState = -2;

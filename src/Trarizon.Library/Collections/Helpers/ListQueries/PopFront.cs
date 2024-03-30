@@ -7,18 +7,18 @@ partial class ListQuery
     /// Pop specific number of elements, and return the rest,
     /// popped elements are cached in <paramref name="leadingElements"/>
     /// </summary>
-    public static IList<T> PopFrontList<T>(this IList<T> list, int count, out IReadOnlyList<T> leadingElements)
+    public static IList<T> PopFrontList<T>(this IList<T> list, int count, out IList<T> leadingElements)
     {
         if (count <= 0) {
             leadingElements = Array.Empty<T>();
             return list;
         }
         else if (count < list.Count) {
-            leadingElements = list.Wrap().TakeROList(..count);
+            leadingElements = list.TakeList(..count);
             return list.TakeList(count..);
         }
         else {
-            leadingElements = list is IReadOnlyList<T> rolist ? rolist : list.Wrap();
+            leadingElements = list;
             return Array.Empty<T>();
         }
     }
@@ -148,7 +148,7 @@ partial class ListQuery
     /// Pop elements until <paramref name="predicate"/> failed.
     /// popped elements are cached in <paramref name="leadingElements"/>
     /// </summary>
-    public static IList<T> PopFrontWhileList<T>(this IList<T> list, out IReadOnlyList<T> leadingElements, Func<T, bool> predicate)
+    public static IList<T> PopFrontWhileList<T>(this IList<T> list, out IList<T> leadingElements, Func<T, bool> predicate)
     {
         for (int i = 0; i < list.Count; i++) {
             if (!predicate(list[i])) {
@@ -157,12 +157,12 @@ partial class ListQuery
                     return list;
                 }
                 else {
-                    leadingElements = list.Wrap().TakeROList(..i);
+                    leadingElements = list.TakeList(..i);
                     return list.TakeList(i);
                 }
             }
         }
-        leadingElements = list is IReadOnlyList<T> rolist ? rolist : list.Wrap();
+        leadingElements = list;
         return Array.Empty<T>();
     }
 

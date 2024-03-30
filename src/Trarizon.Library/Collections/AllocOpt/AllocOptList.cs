@@ -51,6 +51,11 @@ public struct AllocOptList<T> : IList<T>, IReadOnlyList<T>
         }
     }
 
+    internal readonly ref T AtRef(int index)
+    {
+        return ref _items[index];
+    }
+
     public readonly Span<T> AsSpan(Range range)
     {
         var (offset, len) = range.GetOffsetAndLength(_size);
@@ -91,7 +96,6 @@ public struct AllocOptList<T> : IList<T>, IReadOnlyList<T>
         }
     }
 
-    [FriendAccess(typeof(AllocOptDeque<>))]
     internal void SetCountNonMove(int count, out T[] originalArray)
     {
         if (count <= Capacity) {

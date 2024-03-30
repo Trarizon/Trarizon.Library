@@ -1,4 +1,4 @@
-﻿using Trarizon.Library.Collections.Helpers.Utilities.Queriers;
+﻿using Trarizon.Library.Collections.Helpers.Queriers;
 
 namespace Trarizon.Library.Collections.Helpers;
 partial class ListQuery
@@ -38,7 +38,7 @@ partial class ListQuery
             return list;
 
         var (start, length) = range.GetOffsetAndLength(list.Count);
-        return new TakeRangeQuerier<ListWrapper<T>, T>(list.Wrap(), start, length);
+        return new TakeRangeQuerier<IList<T>, T>(list, start, length);
     }
 
     /// <summary>
@@ -53,29 +53,28 @@ partial class ListQuery
             return list;
 
         var (start, length) = range.GetOffsetAndLength(list.Count);
-        return new TakeRangeQuerier<IReadOnlyList<T>, T>(list, start, length);
+        return new TakeRangeQuerier<ListWrapper<T>, T>(list.Wrap(), start, length);
     }
 
 
-    private sealed class TakeRangeQuerier<TList, T>(TList list, int start, int length) : SimpleListQuerier<TList, T, T>(list) where TList : IReadOnlyList<T>
+    private sealed class TakeRangeQuerier<TList, T>(TList list, int start, int length)
+        : SimpleIndexMapListQuerier<TList, T>(list)
+        where TList : IList<T>
     {
         private readonly int _length = Math.Max(length, 0);
-
-        public override T this[int index]
-        {
-            get {
-                ArgumentOutOfRangeException.ThrowIfNegative(index);
-                ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, Count);
-
-                return _list[index + start];
-            }
-        }
 
         public override int Count
         {
             get {
                 return Math.Min(_length, _list.Count - start);
             }
+        }
+
+        protected override int ValdiateAndSelectIndex(int index)
+        {
+            ValidateNegative(index);
+            ValidateOutOfRange(index);
+            return index + start;
         }
 
         protected override EnumerationQuerier<T> Clone() => new TakeRangeQuerier<TList, T>(_list, start, _length);

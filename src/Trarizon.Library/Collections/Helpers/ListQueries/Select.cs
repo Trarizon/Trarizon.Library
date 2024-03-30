@@ -3,39 +3,39 @@
 // https://source.dot.net/#System.Linq/System/Linq/Select.cs,c669c338f82e311e
 
 using System.Diagnostics;
-using Trarizon.Library.Collections.Helpers.Utilities.Queriers;
+using Trarizon.Library.Collections.Helpers.Queriers;
 using Trarizon.Library.Collections.StackAlloc;
 
 namespace Trarizon.Library.Collections.Helpers;
 partial class ListQuery
 {
-    public static IList<TResult> SelectList<T, TResult>(this IList<T> list, Func<T, TResult> selector)
+    public static IReadOnlyList<TResult> SelectList<T, TResult>(this IList<T> list, Func<T, TResult> selector)
     {
         if (list.Count == 0)
             return Array.Empty<TResult>();
-        return new SelectQuerier<ListWrapper<T>, T, TResult, Selector<T, TResult>>(list.Wrap(), new(selector));
+        return new SelectQuerier<IList<T>, T, TResult, Selector<T, TResult>>(list, new(selector));
     }
 
     public static IReadOnlyList<TResult> SelectROList<T, TResult>(this IReadOnlyList<T> list, Func<T, TResult> selector)
     {
         if (list.Count == 0)
             return Array.Empty<TResult>();
-        return new SelectQuerier<IReadOnlyList<T>, T, TResult, Selector<T, TResult>>(list, new(selector));
+        return new SelectQuerier<ListWrapper<T>, T, TResult, Selector<T, TResult>>(list.Wrap(), new(selector));
     }
 
 
-    public static IList<TResult> SelectList<T, TResult>(this IList<T> list, Func<T, int, TResult> selector)
+    public static IReadOnlyList<TResult> SelectList<T, TResult>(this IList<T> list, Func<T, int, TResult> selector)
     {
         if (list.Count == 0)
             return Array.Empty<TResult>();
-        return new SelectQuerier<ListWrapper<T>, T, TResult, IndexedSelector<T, TResult>>(list.Wrap(), new(selector));
+        return new SelectQuerier<IList<T>, T, TResult, IndexedSelector<T, TResult>>(list, new(selector));
     }
 
     public static IReadOnlyList<TResult> SelectROList<T, TResult>(this IReadOnlyList<T> list, Func<T, int, TResult> selector)
     {
         if (list.Count == 0)
             return Array.Empty<TResult>();
-        return new SelectQuerier<IReadOnlyList<T>, T, TResult, IndexedSelector<T, TResult>>(list, new(selector));
+        return new SelectQuerier<ListWrapper<T>, T, TResult, IndexedSelector<T, TResult>>(list.Wrap(), new(selector));
     }
 
 
@@ -43,14 +43,14 @@ partial class ListQuery
     {
         if (list.Count == 0)
             return Array.Empty<TResult>();
-        return new CachedSelectQuerier<ListWrapper<T>, T, TResult, Selector<T, TResult>>(list.Wrap(), new(selector));
+        return new CachedSelectQuerier<IList<T>, T, TResult, Selector<T, TResult>>(list, new(selector));
     }
 
     public static IReadOnlyList<TResult> SelectCachedROList<T, TResult>(this IReadOnlyList<T> list, Func<T, TResult> selector)
     {
         if (list.Count == 0)
             return Array.Empty<TResult>();
-        return new CachedSelectQuerier<IReadOnlyList<T>, T, TResult, Selector<T, TResult>>(list, new(selector));
+        return new CachedSelectQuerier<ListWrapper<T>, T, TResult, Selector<T, TResult>>(list.Wrap(), new(selector));
     }
 
 
@@ -58,20 +58,20 @@ partial class ListQuery
     {
         if (list.Count == 0)
             return Array.Empty<TResult>();
-        return new CachedSelectQuerier<ListWrapper<T>, T, TResult, IndexedSelector<T, TResult>>(list.Wrap(), new(selector));
+        return new CachedSelectQuerier<IList<T>, T, TResult, IndexedSelector<T, TResult>>(list, new(selector));
     }
 
     public static IReadOnlyList<TResult> SelectCachedROList<T, TResult>(this IReadOnlyList<T> list, Func<T, int, TResult> selector)
     {
         if (list.Count == 0)
             return Array.Empty<TResult>();
-        return new CachedSelectQuerier<IReadOnlyList<T>, T, TResult, IndexedSelector<T, TResult>>(list, new(selector));
+        return new CachedSelectQuerier<ListWrapper<T>, T, TResult, IndexedSelector<T, TResult>>(list.Wrap(), new(selector));
     }
 
 
     private sealed class SelectQuerier<TList, TIn, TOut, TSelector>(TList list, TSelector selector)
         : SimpleListQuerier<TList, TIn, TOut>(list)
-        where TList : IReadOnlyList<TIn>
+        where TList : IList<TIn>
         where TSelector : ISelector<TIn, TOut>
     {
         public override TOut this[int index] => selector.Select(_list[index], index);
@@ -83,7 +83,7 @@ partial class ListQuery
 
     private sealed class CachedSelectQuerier<TList, TIn, TOut, TSelector>(TList list, TSelector selector)
         : SimpleListQuerier<TList, TIn, TOut>(list)
-        where TList : IReadOnlyList<TIn>
+        where TList : IList<TIn>
         where TSelector : ISelector<TIn, TOut>
     {
         private TOut[] _cache = null!;
@@ -92,8 +92,10 @@ partial class ListQuery
         public override TOut this[int index]
         {
             get {
+                var count = Count;
+                ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, count);
+
                 if (_isCachedMarks is null) {
-                    var count = Count;
                     _isCachedMarks = new byte[StackAllocBitArray.GetArrayLength(count)];
                     _cache = new TOut[count];
                 }
@@ -109,6 +111,22 @@ partial class ListQuery
         }
 
         public override int Count => _list.Count;
+
+        protected override void SetAt(int index, TOut item)
+        {
+            var count = Count;
+            ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, count);
+
+            if (_isCachedMarks is null) {
+                _isCachedMarks = new byte[StackAllocBitArray.GetArrayLength(count)];
+                _cache = new TOut[count];
+            }
+
+            Debug.Assert(_cache is not null);
+            var bits = new StackAllocBitArray(_isCachedMarks);
+            bits[index] = true;
+            _cache[index] = item;
+        }
 
         protected override EnumerationQuerier<TOut> Clone() => new CachedSelectQuerier<TList, TIn, TOut, TSelector>(_list, selector);
     }

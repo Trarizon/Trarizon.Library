@@ -1,16 +1,18 @@
-﻿using Trarizon.Library.Collections.Helpers.Utilities.Queriers;
+﻿using Trarizon.Library.Collections.Helpers.Queriers;
 
 namespace Trarizon.Library.Collections.Helpers;
 partial class ListQuery
 {
-    public static IList<(T, T)> AdjacentList<T>(this IList<T> list)
+    public static IReadOnlyList<(T, T)> AdjacentList<T>(this IList<T> list)
+        => new AdjacentQuerier<IList<T>, T>(list);
+
+    public static IReadOnlyList<(T, T)> AdjacentROList<T>(this IReadOnlyList<T> list)
         => new AdjacentQuerier<ListWrapper<T>, T>(list.Wrap());
 
-    public static IReadOnlyList<(T, T)> AdjacentList<T>(this IReadOnlyList<T> list)
-        => new AdjacentQuerier<IReadOnlyList<T>, T>(list);
 
-
-    private sealed class AdjacentQuerier<TList, T>(TList list) : SimpleListQuerier<TList, T, (T, T)>(list) where TList : IReadOnlyList<T>
+    private sealed class AdjacentQuerier<TList, T>(TList list) 
+        : SimpleListQuerier<TList, T, (T, T)>(list) 
+        where TList : IList<T>
     {
         public override (T, T) this[int index] => (_list[index], _list[index + 1]);
 

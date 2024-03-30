@@ -11,7 +11,7 @@ namespace Trarizon.Library.SourceGenerator.Generators;
 partial class SingletonGenerator : DiagnosticAnalyzer
 {
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(
-        Literals.Diagnostic_SingletonCtorIsNotAccessable);
+        Diagnostic_SingletonCtorIsNotAccessable);
 
     public override void Initialize(AnalysisContext context)
     {
@@ -23,7 +23,7 @@ partial class SingletonGenerator : DiagnosticAnalyzer
             var ctorAccessSyntax = (BaseObjectCreationExpressionSyntax)context.Node;
             var ctorSymbol = context.SemanticModel.GetSymbolInfo(ctorAccessSyntax).Symbol as IMethodSymbol;
 
-            if (true != ctorSymbol?.ContainingType?.GetAttributes().Any(attr => attr.AttributeClass.MatchDisplayString(Literals.Attribute_TypeName)))
+            if (true != ctorSymbol?.ContainingType?.GetAttributes().Any(attr => attr.AttributeClass.MatchDisplayString(L_Attribute_TypeName)))
                 return;
 
             var accessorMemberSyntax = ctorAccessSyntax.Ancestors()
@@ -41,14 +41,14 @@ partial class SingletonGenerator : DiagnosticAnalyzer
 
             // 排除singleton provider的调用
             if (accessorMemberSymbol.TryGetGeneratedCodeAttribute(out var attributeData) &&
-                attributeData.GetConstructorArgument<string>(GlobalLiterals.GeneratedCodeAttribute_Tool_ConstructorIndex) is Literals.GeneratedCodeAttribute_Tool_Argument
+                attributeData.GetConstructorArgument<string>(GlobalLiterals.GeneratedCodeAttribute_Tool_ConstructorIndex) is L_GeneratedCodeAttribute_Tool_Argument
                 ) {
                 return;
             }
 
         ReportDiagnostic:
             context.ReportDiagnostic(
-                Literals.Diagnostic_SingletonCtorIsNotAccessable,
+                Diagnostic_SingletonCtorIsNotAccessable,
                 ctorAccessSyntax);
 
         }, SyntaxKind.ObjectCreationExpression, SyntaxKind.ImplicitObjectCreationExpression);

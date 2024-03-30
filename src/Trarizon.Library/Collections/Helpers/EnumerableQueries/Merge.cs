@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
+using Trarizon.Library.Collections.Helpers.Queriers;
 using Trarizon.Library.Collections.Helpers.Utilities;
-using Trarizon.Library.Collections.Helpers.Utilities.Queriers;
 
 namespace Trarizon.Library.Collections.Helpers;
 partial class EnumerableQuery

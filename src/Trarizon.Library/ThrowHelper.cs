@@ -5,7 +5,6 @@ namespace Trarizon.Library;
 internal static partial class ThrowHelper
 {
     [DoesNotReturn]
-    [MethodImpl(MethodImplOptions.NoInlining)]
     public static void ThrowInvalidOperation(string? message = null)
         => throw new InvalidOperationException(message);
 

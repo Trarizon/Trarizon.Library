@@ -96,6 +96,8 @@ public struct AllocOptDeque<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public readonly T PeekFirst() => _list[_head];
 
+    internal readonly ref T PeekFirstRef() => ref _list.AtRef(_head);
+
     public readonly ReadOnlyQueueSpan<T> PeekFirst(int count)
     {
         ArgumentOutOfRangeException.ThrowIfGreaterThan(count, Count);
@@ -133,6 +135,13 @@ public struct AllocOptDeque<T> : ICollection<T>, IReadOnlyCollection<T>
         var index = _tail;
         Decrement(ref index);
         return _list[index];
+    }
+
+    internal readonly ref T PeekLastRef()
+    {
+        var index = _tail;
+        Decrement(ref index);
+        return ref _list.AtRef(index);
     }
 
     public readonly ReversedReadOnlyQueueSpan<T> PeekLast(int count)
