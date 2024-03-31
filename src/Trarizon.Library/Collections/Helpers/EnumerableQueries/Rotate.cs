@@ -15,9 +15,6 @@ partial class EnumerableQuery
         if (source is IList<T> list)
             return list.RotateList(splitPosition);
 
-        if (source.TryGetNonEnumeratedCount(out var count) && splitPosition >= count)
-            return source;
-
         return new RotateQuerier<T>(source, splitPosition);
     }
 

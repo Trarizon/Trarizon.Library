@@ -10,8 +10,8 @@ partial class EnumerableQuery
     /// </summary>
     public static IEnumerable<TResult> WhereSelect<T, TResult>(this IEnumerable<T> source, Func<T, Optional<TResult>> whereSelector)
     {
-        if (source.TryGetNonEnumeratedCount(out var count) && count == 0)
-            return Enumerable.Empty<TResult>();
+        if (source.IsFixedSizeEmpty())
+            return [];
 
         return new WhereSelectQuerier<T, TResult>(source, whereSelector);
     }

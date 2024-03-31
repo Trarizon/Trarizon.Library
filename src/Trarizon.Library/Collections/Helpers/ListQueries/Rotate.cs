@@ -8,10 +8,13 @@ partial class ListQuery
     /// </summary>
     public static IList<T> RotateList<T>(this IList<T> list, int splitPosition)
     {
-        if (splitPosition == 0 || splitPosition >= list.Count)
+        if (splitPosition == 0)
             return list;
-        else
-            return new RotateQuerier<IList<T>, T>(list, splitPosition);
+
+        if (list.IsFixedSizeAtMost(splitPosition))
+            return list;
+
+        return new RotateQuerier<IList<T>, T>(list, splitPosition);
     }
 
     /// <summary>
@@ -19,10 +22,13 @@ partial class ListQuery
     /// </summary>
     public static IReadOnlyList<T> RotateROList<T>(this IReadOnlyList<T> list, int splitPosition)
     {
-        if (splitPosition == 0 || splitPosition >= list.Count)
+        if (splitPosition == 0)
             return list;
-        else
-            return new RotateQuerier<ListWrapper<T>, T>(list.Wrap(), splitPosition);
+
+        if (list.IsFixedSizeAtMost(splitPosition))
+            return list;
+
+        return new RotateQuerier<ListWrapper<T>, T>(list.Wrap(), splitPosition);
     }
 
 

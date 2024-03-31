@@ -8,10 +8,10 @@ partial class ListQuery
     /// </summary>
     public static IReadOnlyList<T> RepeatList<T>(this IList<T> list, int count)
     {
-        if (count == 0)
+        if (count == 0 || list.IsFixedSizeEmpty())
             return Array.Empty<T>();
-        else
-            return new RepeatQuerier<IList<T>, T>(list, count);
+
+        return new RepeatQuerier<IList<T>, T>(list, count);
     }
 
     /// <summary>
@@ -19,10 +19,10 @@ partial class ListQuery
     /// </summary>
     public static IReadOnlyList<T> RepeatROList<T>(this IReadOnlyList<T> list, int count)
     {
-        if (count == 0)
+        if (count == 0 || list.IsFixedSizeEmpty())
             return Array.Empty<T>();
-        else
-            return new RepeatQuerier<ListWrapper<T>, T>(list.Wrap(), count);
+
+        return new RepeatQuerier<ListWrapper<T>, T>(list.Wrap(), count);
     }
 
 
@@ -31,10 +31,10 @@ partial class ListQuery
     /// </summary>
     public static IReadOnlyList<T> RepeatForeverList<T>(this IList<T> list)
     {
-        if (list.Count == 0)
+        if (list.IsFixedSizeEmpty())
             return Array.Empty<T>();
-        else
-            return new RepeatForeverQuerier<IList<T>, T>(list);
+
+        return new RepeatForeverQuerier<IList<T>, T>(list);
     }
 
     /// <summary>
@@ -42,15 +42,15 @@ partial class ListQuery
     /// </summary>
     public static IReadOnlyList<T> RepeatForeverROList<T>(this IReadOnlyList<T> list)
     {
-        if (list.Count == 0)
+        if (list.IsFixedSizeEmpty())
             return Array.Empty<T>();
-        else
-            return new RepeatForeverQuerier<ListWrapper<T>, T>(list.Wrap());
+
+        return new RepeatForeverQuerier<ListWrapper<T>, T>(list.Wrap());
     }
 
 
     private sealed class RepeatQuerier<TList, T>(TList list, int count)
-        : SimpleListQuerier<TList, T, T>(list)
+        : SimpleReadOnlyListQuerier<TList, T, T>(list)
         where TList : IList<T>
     {
         public override T this[int index] => _list[index % _list.Count];
@@ -61,7 +61,7 @@ partial class ListQuery
     }
 
     private sealed class RepeatForeverQuerier<TList, T>(TList list)
-        : SimpleListQuerier<TList, T, T>(list)
+        : SimpleReadOnlyListQuerier<TList, T, T>(list)
         where TList : IList<T>
     {
         public override T this[int index] => _list[index % _list.Count];

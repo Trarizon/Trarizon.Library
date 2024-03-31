@@ -9,8 +9,7 @@ internal abstract class CollectionQuerier<T> : EnumerationQuerier<T>, ICollectio
     void ICollection<T>.Clear() => ThrowHelper.ThrowNotSupport(ThrowConstants.QuerierImmutable);
     bool ICollection<T>.Contains(T item)
     {
-        foreach (var v in this)
-        {
+        foreach (var v in this) {
             if (EqualityComparer<T>.Default.Equals(v, item))
                 return true;
         }
@@ -20,8 +19,7 @@ internal abstract class CollectionQuerier<T> : EnumerationQuerier<T>, ICollectio
     {
         ArgumentOutOfRangeException.ThrowIfGreaterThan(arrayIndex, array.Length - Count);
 
-        foreach (var item in this)
-        {
+        foreach (var item in this) {
             array[arrayIndex++] = item;
         }
     }

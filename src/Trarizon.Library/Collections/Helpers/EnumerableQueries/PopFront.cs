@@ -9,52 +9,6 @@ namespace Trarizon.Library.Collections.Helpers;
 partial class EnumerableQuery
 {
     /// <summary>
-    /// Pop specific number of elements, and return the rest,
-    /// popped elements are cached in <paramref name="leadingElements"/>
-    /// </summary>
-    //public static IEnumerable<T> PopFront<T>(this IEnumerable<T> source, int count, out IReadOnlyList<T> leadingElements)
-    //{
-    //    if (count <= 0) {
-    //        leadingElements = Array.Empty<T>();
-    //        return source;
-    //    }
-
-    //    if (source is IList<T> list) {
-    //        return list.PopFrontList(count, out leadingElements);
-    //    }
-
-    //    var enumerator = source.GetEnumerator();
-    //    var buffer = new AllocOptList<T>(count);
-    //    while (buffer.Count < count && enumerator.MoveNext()) {
-    //        buffer.Add(enumerator.Current);
-    //    }
-
-    //    if (buffer.Count < count) {
-    //        leadingElements = buffer.GetUnderlyingArray().TakeROList(..buffer.Count);
-    //        return Enumerable.Empty<T>();
-    //    }
-    //    else {
-    //        leadingElements = buffer.GetUnderlyingArray();
-    //        return new PopFrontQuerier<T>(source, enumerator, count);
-    //    }
-    //}
-
-    public static IEnumerable<T> PopFront<T>(this IEnumerable<T> source, Span<T> resultSpan, out int spanLength)
-    {
-        if (source is IList<T> list) {
-            return list.PopFrontList(resultSpan, out spanLength);
-        }
-
-        if (resultSpan.Length == 0) {
-            spanLength = 0;
-            return Enumerable.Empty<T>();
-        }
-
-        var leadings = PopFrontImmediateLeadingCollection<T>.PopInto(source, resultSpan, out spanLength);
-        return leadings.RestCollection;
-    }
-
-    /// <summary>
     /// Pop specific number of elements, and return the rest
     /// </summary>
     /// <remarks>
@@ -64,7 +18,7 @@ partial class EnumerableQuery
     public static IEnumerable<T> PopFront<T>(this IEnumerable<T> source, int count, out IEnumerable<T> poppedElements)
     {
         if (count <= 0) {
-            poppedElements = Enumerable.Empty<T>();
+            poppedElements = [];
             return source;
         }
 
@@ -80,6 +34,25 @@ partial class EnumerableQuery
     }
 
     /// <summary>
+    /// Pop specific number of elements, and return the rest,
+    /// popped elements are cached in <paramref name="resultSpan"/>
+    /// </summary>
+    public static IEnumerable<T> PopFront<T>(this IEnumerable<T> source, Span<T> resultSpan, out int spanLength)
+    {
+        if (source is IList<T> list) {
+            return list.PopFrontList(resultSpan, out spanLength);
+        }
+
+        if (resultSpan.Length == 0) {
+            spanLength = 0;
+            return source;
+        }
+
+        var leadings = PopFrontImmediateLeadingCollection<T>.PopInto(source, resultSpan, out spanLength);
+        return leadings.RestCollection;
+    }
+
+    /// <summary>
     /// Pop first element and return the rest,
     /// first element is <paramref name="firstElement"/>.
     /// If no element in <paramref name="source"/>,
@@ -87,11 +60,14 @@ partial class EnumerableQuery
     /// </summary>
     public static IEnumerable<T> PopFirst<T>(this IEnumerable<T> source, [NotNullIfNotNull(nameof(defaultValue))] out T? firstElement, T? defaultValue = default!)
     {
+        if(source is IList<T> list) 
+            return list.PopFirstList(out firstElement, defaultValue);
+
         firstElement = default;
         var rest = source.PopFront(new Span<T>(ref firstElement!), out int len);
         if (len == 0) {
             firstElement = defaultValue;
-            return Enumerable.Empty<T>();
+            return [];
         }
         return rest;
     }
@@ -102,16 +78,14 @@ partial class EnumerableQuery
     /// </summary>
     public static IEnumerable<T> PopFrontWhile<T>(this IEnumerable<T> source, Func<T, bool> predicate, out IEnumerable<T> poppedElements)
     {
-        if (source is IList<T> list) {
-            var restList = list.PopFrontWhileList(out var leadingList, predicate);
-            poppedElements = leadingList;
-            return restList;
-        }
+        if (source.IsFixedSizeEmpty())
+            return poppedElements = [];
 
         var leadings = new PopFrontWhileQuerier<T>(source, predicate);
         poppedElements = leadings;
         return leadings.RestCollection;
     }
+
 
     private interface IPopFrontQuerierLeadingCollection<T, TSelf> where TSelf : IPopFrontQuerierLeadingCollection<T, TSelf>
     {

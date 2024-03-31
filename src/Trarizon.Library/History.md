@@ -16,6 +16,8 @@
     - Change `EnumerableQuery.PopFront`(lazy now), `MinMax`
     - Change `ListQuery.PopFront`
     - Redesigned `ListQuery`
+    - Remove `Random.Shuffle`
+    - Remove `IList.PopFrontWhile`
 - New
     - Extend `ListQuery` methods:
         - `Adjacent()`
@@ -28,6 +30,8 @@
         - `OfNotNull()`
         - `FirstByMaxPriorityOrDefault()`
         - `PopFront` overload
+    - Add `SpanQuery` methods:
+        - `Sum`
     - Extend collections:
         - `AllocOptQueue<T>`
         - `AllocOptDeque<>`
@@ -58,7 +62,7 @@
         - Add `SingletonAttribute`
 - Changes
     - Optimize `IEnumerable<>.CartesianProduct()`, `IsInOrder()`, `Merge()`, `PopFront`
-    - Add zero-length check for some list queries
+    - Optimize condition check in Queries
     - Implement `ICriticalNotifyCompletion` for `NullableValueTaskAwaiter<>`
     - Adjust method in c#, no breaking for caller
     - Optimize collection expression creation of `AllocOptStack/Queue`

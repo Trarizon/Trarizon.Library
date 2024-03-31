@@ -5,6 +5,8 @@ using Trarizon.Library.Collections.Helpers.Utilities;
 namespace Trarizon.Library.Collections.Helpers;
 partial class EnumerableQuery
 {
+    // TODO: empty collection check?
+
     // Related: IsInOrder
 
     /// <summary>
@@ -22,10 +24,9 @@ partial class EnumerableQuery
     /// <summary>
     /// Merge 2 ordered <see cref="IEnumerable{T}"/> into one
     /// </summary>
-    public static IEnumerable<T> Merge<T>(this IEnumerable<T> first, IEnumerable<T> second, bool descending = false) where T : IComparisonOperators<T, T, bool>
-    {
-        return new MergeByFuncQuerier<T>(first, second, descending ? QueryUtil.IsInDescOrder : QueryUtil.IsInAscOrder);
-    }
+    public static IEnumerable<T> Merge<T>(this IEnumerable<T> first, IEnumerable<T> second, bool descending = false) where T : IComparisonOperators<T, T, bool> 
+        => new MergeByFuncQuerier<T>(first, second, descending ? QueryUtil.IsInDescOrder : QueryUtil.IsInAscOrder);
+
 
     private abstract class MergeQuerier<T>(IEnumerable<T> first, IEnumerable<T> second) : EnumerationQuerier<T>
     {

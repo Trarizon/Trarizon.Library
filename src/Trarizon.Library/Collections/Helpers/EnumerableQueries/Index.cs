@@ -7,11 +7,12 @@ partial class EnumerableQuery
 {
     public static IEnumerable<(int Index, T Item)> Index<T>(this IEnumerable<T> source)
     {
-        if (source.IsCheapEmpty())
-            return Enumerable.Empty<(int, T)>();
+        if (source.IsFixedSizeEmpty())
+            return [];
 
         return new IndexQuery<T>(source);
     }
+
 
     private sealed class IndexQuery<T>(IEnumerable<T> source) : SimpleEnumerationQuerier<T, (int, T)>(source)
     {

@@ -11,12 +11,7 @@ partial class EnumerableQuery
         if (source is IList<T> list)
             return list.RepeatList(count);
 
-        if (count == 0)
-            return Enumerable.Empty<T>();
-        else if (source.TryGetNonEnumeratedCount(out var colCount) && colCount == 0)
-            return Enumerable.Empty<T>();
-        else
-            return new RepeatQuerier<T>(source, count);
+        return new RepeatQuerier<T>(source, count);
     }
 
     /// <summary>
@@ -26,9 +21,6 @@ partial class EnumerableQuery
     {
         if (source is IList<T> list)
             return list.RepeatForeverList();
-
-        if (source.TryGetNonEnumeratedCount(out var count) && count == 0)
-            return Enumerable.Empty<T>();
 
         return new RepeatForeverQuerier<T>(source);
     }

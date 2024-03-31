@@ -4,8 +4,13 @@ using Trarizon.Library.Collections.Helpers.Queriers;
 namespace Trarizon.Library.Collections.Helpers;
 partial class EnumerableQuery
 {
-    public static IEnumerable<T> OfTypeUntil<T, TExcept>(this IEnumerable source) where TExcept : T 
-        => new OfTypeUntilQuerier<T, TExcept>(source);
+    public static IEnumerable<T> OfTypeUntil<T, TExcept>(this IEnumerable source) where TExcept : T
+    {
+        if (source.IsFixedSizeEmpty())
+            return [];
+
+        return new OfTypeUntilQuerier<T, TExcept>(source);
+    }
 
 
     private sealed class OfTypeUntilQuerier<T, TExcept>(IEnumerable source) : EnumerationQuerier<T> where TExcept : T

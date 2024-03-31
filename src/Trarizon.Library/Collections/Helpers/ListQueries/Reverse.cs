@@ -12,8 +12,9 @@ partial class ListQuery
     /// </summary>
     public static IList<T> ReverseList<T>(this IList<T> list)
     {
-        if (list.Count <= 1)
+        if (list.IsFixedSizeAtMost(1))
             return list;
+
         return new ReverseQuerier<IList<T>, T>(list);
     }
 
@@ -22,8 +23,9 @@ partial class ListQuery
     /// </summary>
     public static IReadOnlyList<T> ReverseROList<T>(this IReadOnlyList<T> list)
     {
-        if (list.Count <= 1)
+        if (list.IsFixedSizeAtMost(1))
             return list;
+
         return new ReverseQuerier<ListWrapper<T>, T>(list.Wrap());
     }
 

@@ -1,7 +1,7 @@
 ﻿using System.Buffers;
 using System.Runtime.InteropServices;
-using Trarizon.Library.Collections.Helpers.Utilities;
 using Trarizon.Library.Collections.StackAlloc;
+using Trarizon.Library.Helpers;
 
 namespace Trarizon.Library.Collections.Helpers;
 public static partial class SpanHelper

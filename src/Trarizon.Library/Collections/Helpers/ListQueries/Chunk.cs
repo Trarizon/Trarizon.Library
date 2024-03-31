@@ -11,8 +11,9 @@ partial class ListQuery
     /// </param>
     public static IList<(T, T)> ChunkPairList<T>(this IList<T> list, T paddingElement)
     {
-        if (list.Count == 0)
+        if (list.IsFixedSizeEmpty())
             return Array.Empty<(T, T)>();
+
         return new ChunkPairQuerier<IList<T>, T>(list, paddingElement)!;
     }
 
@@ -24,8 +25,9 @@ partial class ListQuery
     /// </param>
     public static IReadOnlyList<(T, T)> ChunkPairROList<T>(this IReadOnlyList<T> list, T paddingElement)
     {
-        if (list.Count == 0)
+        if (list.IsFixedSizeEmpty())
             return Array.Empty<(T, T)>();
+
         return new ChunkPairQuerier<ListWrapper<T>, T>(list.Wrap(), paddingElement)!;
     }
 
@@ -35,8 +37,9 @@ partial class ListQuery
     /// </summary>
     public static IList<(T, T?)> ChunkPairList<T>(this IList<T> list)
     {
-        if (list.Count == 0)
+        if (list.IsFixedSizeEmpty())
             return Array.Empty<(T, T?)>();
+
         return new ChunkPairQuerier<IList<T>, T>(list, default!)!;
     }
 
@@ -45,8 +48,9 @@ partial class ListQuery
     /// </summary>
     public static IReadOnlyList<(T, T?)> ChunkPairROList<T>(this IReadOnlyList<T> list)
     {
-        if (list.Count == 0)
+        if (list.IsFixedSizeEmpty())
             return Array.Empty<(T, T?)>();
+        
         return new ChunkPairQuerier<ListWrapper<T>, T>(list.Wrap(), default!)!;
     }
 
@@ -59,9 +63,10 @@ partial class ListQuery
     /// </param>
     public static IList<(T, T, T)> ChunkTripleList<T>(this IList<T> list, T paddingElement)
     {
-        if (list.Count == 0)
+        if (list.IsFixedSizeEmpty())
             return Array.Empty<(T, T, T)>();
-        return new ChunkTripleQuerier<IList<T>, T>(list, paddingElement,paddingElement)!;
+     
+        return new ChunkTripleQuerier<IList<T>, T>(list, paddingElement, paddingElement)!;
     }
 
     /// <summary>
@@ -72,8 +77,9 @@ partial class ListQuery
     /// </param>
     public static IReadOnlyList<(T, T, T)> ChunkTripleROList<T>(this IReadOnlyList<T> list, T paddingElement)
     {
-        if (list.Count == 0)
+        if (list.IsFixedSizeEmpty())
             return Array.Empty<(T, T, T)>();
+      
         return new ChunkTripleQuerier<ListWrapper<T>, T>(list.Wrap(), paddingElement, paddingElement)!;
     }
 
@@ -83,8 +89,9 @@ partial class ListQuery
     /// </summary>
     public static IList<(T, T?, T?)> ChunkTripleList<T>(this IList<T> list)
     {
-        if (list.Count == 0)
+        if (list.IsFixedSizeEmpty())
             return Array.Empty<(T, T?, T?)>();
+     
         return new ChunkTripleQuerier<IList<T>, T>(list, default!, default!)!;
     }
 
@@ -93,8 +100,9 @@ partial class ListQuery
     /// </summary>
     public static IReadOnlyList<(T, T?, T?)> ChunkTripleROList<T>(this IReadOnlyList<T> list)
     {
-        if (list.Count == 0)
+        if (list.IsFixedSizeEmpty())
             return Array.Empty<(T, T?, T?)>();
+      
         return new ChunkTripleQuerier<ListWrapper<T>, T>(list.Wrap(), default!, default!)!;
     }
 

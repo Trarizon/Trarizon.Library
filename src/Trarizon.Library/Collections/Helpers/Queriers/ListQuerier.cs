@@ -4,7 +4,7 @@ internal abstract class ListQuerier<T> : EnumerationQuerier<T>, IList<T>, IReadO
     public abstract T this[int index] { get; }
     public abstract int Count { get; }
 
-    public bool IsReadOnly => false;
+    public abstract bool IsReadOnly { get; }
 
     protected ListQuerier() { }
 

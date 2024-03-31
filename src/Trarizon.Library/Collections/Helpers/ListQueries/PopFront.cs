@@ -13,14 +13,14 @@ partial class ListQuery
             leadingElements = Array.Empty<T>();
             return list;
         }
-        else if (count < list.Count) {
-            leadingElements = list.TakeList(..count);
-            return list.TakeList(count..);
-        }
-        else {
+
+        if (list.IsFixedSizeAtMost(count)) {
             leadingElements = list;
             return Array.Empty<T>();
         }
+
+        leadingElements = list.TakeList(..count);
+        return list.TakeList(count..);
     }
 
     /// <summary>
@@ -33,14 +33,14 @@ partial class ListQuery
             leadingElements = Array.Empty<T>();
             return list;
         }
-        else if (count < list.Count) {
-            leadingElements = list.TakeROList(..count);
-            return list.TakeROList(count..);
-        }
-        else {
+
+        if (list.IsFixedSizeAtMost(count)) {
             leadingElements = list;
             return Array.Empty<T>();
         }
+
+        leadingElements = list.TakeROList(..count);
+        return list.TakeROList(count..);
     }
 
 
@@ -50,26 +50,45 @@ partial class ListQuery
             resultLength = 0;
             return list;
         }
-        IList<T> result;
-        if (resultSpan.Length < list.Count) {
-            resultLength = resultSpan.Length;
-            result = list.TakeList(resultLength..);
-        }
-        else {
-            resultLength = resultSpan.Length;
-            result = Array.Empty<T>();
+
+        if (list is T[] arr) {
+            if (arr.Length <= resultSpan.Length) {
+                resultLength = arr.Length;
+                arr.AsSpan().CopyTo(resultSpan);
+                return Array.Empty<T>();
+            }
+            else {
+                resultLength = resultSpan.Length;
+                arr.AsSpan(0, resultLength).CopyTo(resultSpan);
+                return list.TakeList(resultLength);
+            }
         }
 
-        if (list is T[] arr)
-            arr.AsSpan(0, resultLength).CopyTo(resultSpan);
-        else if (list is List<T> lst)
-            CollectionsMarshal.AsSpan(lst).CopyTo(resultSpan);
-        else {
+        if (list is List<T> lst) {
+            if (lst.Count <= resultSpan.Length) {
+                resultLength = lst.Count;
+                CollectionsMarshal.AsSpan(lst).CopyTo(resultSpan);
+                return Array.Empty<T>();
+            }
+            else {
+                resultLength = resultSpan.Length;
+                CollectionsMarshal.AsSpan(lst)[..resultLength].CopyTo(resultSpan);
+                return list.TakeList(resultLength);
+            }
+        }
+
+        if (list.IsReadOnly && list.Count is var len && len <= resultSpan.Length) {
+            resultLength = len;
             for (int i = 0; i < resultLength; i++)
                 resultSpan[i] = list[i];
+            return Array.Empty<T>();
         }
-
-        return result;
+        else {
+            resultLength = resultSpan.Length;
+            for (int i = 0; i < resultLength; i++)
+                resultSpan[i] = list[i];
+            return list.TakeList(resultLength);
+        }
     }
 
     public static IReadOnlyList<T> PopFrontROList<T>(this IReadOnlyList<T> list, Span<T> resultSpan, out int resultLength)
@@ -78,26 +97,45 @@ partial class ListQuery
             resultLength = 0;
             return list;
         }
-        IReadOnlyList<T> result;
-        if (resultSpan.Length < list.Count) {
-            resultLength = resultSpan.Length;
-            result = list.TakeROList(resultLength..);
-        }
-        else {
-            resultLength = resultSpan.Length;
-            result = Array.Empty<T>();
+
+        if (list is T[] arr) {
+            if (arr.Length <= resultSpan.Length) {
+                resultLength = arr.Length;
+                arr.AsSpan().CopyTo(resultSpan);
+                return Array.Empty<T>();
+            }
+            else {
+                resultLength = resultSpan.Length;
+                arr.AsSpan(0, resultLength).CopyTo(resultSpan);
+                return list.TakeROList(resultLength);
+            }
         }
 
-        if (list is T[] arr)
-            arr.AsSpan(0, resultLength).CopyTo(resultSpan);
-        else if (list is List<T> lst)
-            CollectionsMarshal.AsSpan(lst).CopyTo(resultSpan);
-        else {
+        if (list is List<T> lst) {
+            if (lst.Count <= resultSpan.Length) {
+                resultLength = lst.Count;
+                CollectionsMarshal.AsSpan(lst).CopyTo(resultSpan);
+                return Array.Empty<T>();
+            }
+            else {
+                resultLength = resultSpan.Length;
+                CollectionsMarshal.AsSpan(lst)[..resultLength].CopyTo(resultSpan);
+                return list.TakeROList(resultLength);
+            }
+        }
+
+        if (list.Count is var len && len <= resultSpan.Length) {
+            resultLength = len;
             for (int i = 0; i < resultLength; i++)
                 resultSpan[i] = list[i];
+            return Array.Empty<T>();
         }
-
-        return result;
+        else {
+            resultLength = resultSpan.Length;
+            for (int i = 0; i < resultLength; i++)
+                resultSpan[i] = list[i];
+            return list.TakeROList(resultLength);
+        }
     }
 
 
@@ -113,9 +151,6 @@ partial class ListQuery
             case 0:
                 firstElement = defaultValue;
                 return list;
-            case 1:
-                firstElement = list[0];
-                return Array.Empty<T>();
             default:
                 firstElement = list[0];
                 return list.TakeList(1);
@@ -134,57 +169,9 @@ partial class ListQuery
             case 0:
                 firstElement = defaultValue;
                 return list;
-            case 1:
-                firstElement = list[0];
-                return Array.Empty<T>();
             default:
                 firstElement = list[0];
                 return list.TakeROList(1);
         }
-    }
-
-
-    /// <summary>
-    /// Pop elements until <paramref name="predicate"/> failed.
-    /// popped elements are cached in <paramref name="leadingElements"/>
-    /// </summary>
-    public static IList<T> PopFrontWhileList<T>(this IList<T> list, out IList<T> leadingElements, Func<T, bool> predicate)
-    {
-        for (int i = 0; i < list.Count; i++) {
-            if (!predicate(list[i])) {
-                if (i == 0) {
-                    leadingElements = Array.Empty<T>();
-                    return list;
-                }
-                else {
-                    leadingElements = list.TakeList(..i);
-                    return list.TakeList(i);
-                }
-            }
-        }
-        leadingElements = list;
-        return Array.Empty<T>();
-    }
-
-    /// <summary>
-    /// Pop elements until <paramref name="predicate"/> failed.
-    /// popped elements are cached in <paramref name="leadingElements"/>
-    /// </summary>
-    public static IReadOnlyList<T> PopFrontWhileROList<T>(this IReadOnlyList<T> list, out IReadOnlyList<T> leadingElements, Func<T, bool> predicate)
-    {
-        for (int i = 0; i < list.Count; i++) {
-            if (!predicate(list[i])) {
-                if (i == 0) {
-                    leadingElements = Array.Empty<T>();
-                    return list;
-                }
-                else {
-                    leadingElements = list.TakeROList(..i);
-                    return list.TakeROList(i);
-                }
-            }
-        }
-        leadingElements = list;
-        return Array.Empty<T>();
     }
 }

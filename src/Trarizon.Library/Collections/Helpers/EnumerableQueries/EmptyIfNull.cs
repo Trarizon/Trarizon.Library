@@ -6,5 +6,5 @@ partial class EnumerableQuery
     /// else return <paramref name="source"/> it self
     /// </summary>
     public static IEnumerable<T> EmptyIfNull<T>(this IEnumerable<T>? source)
-        => source ?? Enumerable.Empty<T>();
+        => source ?? [];
 }

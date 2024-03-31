@@ -11,4 +11,11 @@ public static class StringHelper
         [InterpolatedStringHandlerArgument(nameof(provider), nameof(initialBuffer))]
         in DefaultInterpolatedStringHandler handler)
         => handler.ToString();
+
+    [SuppressMessage("Style", "IDE0060", Justification = "For interpolated string handler")]
+    public static string Interpolated(
+        IFormatProvider? provider,
+        [InterpolatedStringHandlerArgument(nameof(provider))]
+        in DefaultInterpolatedStringHandler handler)
+        => handler.ToString();
 }

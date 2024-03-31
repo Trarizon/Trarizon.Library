@@ -7,24 +7,28 @@ partial class EnumerableQuery
 {
     public static IEnumerable<T> OfNotNull<T>(this IEnumerable<T?> source) where T : class
     {
-        if (source.IsCheapEmpty())
-            return Enumerable.Empty<T>();
+        if (source.IsFixedSizeEmpty())
+            return [];
+
         return new OfReferenceTypeNotNullQuerier<T>(source);
     }
 
     public static IEnumerable<T> OfNotNull<T>(this IEnumerable<T?> source) where T : struct
     {
-        if (source.IsCheapEmpty())
-            return Enumerable.Empty<T>();
+        if (source.IsFixedSizeEmpty())
+            return [];
+
         return new OfValueTypeNotNullQuerier<T>(source);
     }
 
     public static IEnumerable<T> OfNotNone<T>(this IEnumerable<Optional<T>> source)
     {
-        if (source.IsCheapEmpty())
-            return Enumerable.Empty<T>();
+        if (source.IsFixedSizeEmpty())
+            return [];
+
         return new OfOptionalNotNoneQuerier<T, Optional<T>>(source);
     }
+
 
     private sealed class OfReferenceTypeNotNullQuerier<T>(IEnumerable<T?> source) : SimpleWhereSelectEnumerationQuerier<T?, T>(source) where T : class
     {

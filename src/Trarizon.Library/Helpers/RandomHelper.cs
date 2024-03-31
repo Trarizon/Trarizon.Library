@@ -38,13 +38,6 @@ public static partial class RandomHelper
 
     #endregion
 
-    #region Shuffle
-
-    public static void Shuffle<T>(this Random random, List<T> list)
-        => random.Shuffle(CollectionsMarshal.AsSpan(list));
-
-    #endregion
-
     #region NextFloat
 
     public static float NextSingle(this Random random, float min, float max)

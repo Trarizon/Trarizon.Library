@@ -19,42 +19,9 @@ using Trarizon.Library.RunTest.Examples;
 using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 
-//RunBenchmarks();
-new D().Count.Print();
-(new D() as IInter).Count.Print();
-//ArrayValues(i => i.ToString(), 2).CartesianProductList(ArrayInts(4)).Print();
+Console.WriteLine(ArrayInts().IsReadOnly);
 
-interface IInter
+
+partial class Program
 {
-    int Count { get; }
 }
-
-class B : IInter
-{
-    public int Count => 1;
-
-    Regex Gen() => default!;
-}
-
-class D : B, IInter
-{
-    int IInter.Count => 2;
-}
-
-//namespace A.A2
-//{
-//    public partial class B
-//    {
-//        [FriendAccess(typeof(List<int>))]
-//        internal partial string Field();
-//    }
-
-//    [Singleton]
-//    sealed partial class B
-//    {
-//        [FriendAccess(typeof(IDictionary<,>), Options = FriendAccessOptions.AllowInherits)]
-//        private B() { }
-
-//        internal partial string Field() { return ""; }
-//    }
-//}

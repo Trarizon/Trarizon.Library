@@ -11,66 +11,74 @@ partial class ListQuery
 {
     public static IReadOnlyList<TResult> SelectList<T, TResult>(this IList<T> list, Func<T, TResult> selector)
     {
-        if (list.Count == 0)
+        if (list.IsFixedSizeEmpty())
             return Array.Empty<TResult>();
+
         return new SelectQuerier<IList<T>, T, TResult, Selector<T, TResult>>(list, new(selector));
     }
 
     public static IReadOnlyList<TResult> SelectROList<T, TResult>(this IReadOnlyList<T> list, Func<T, TResult> selector)
     {
-        if (list.Count == 0)
+        if (list.IsFixedSizeEmpty())
             return Array.Empty<TResult>();
+
         return new SelectQuerier<ListWrapper<T>, T, TResult, Selector<T, TResult>>(list.Wrap(), new(selector));
     }
 
 
     public static IReadOnlyList<TResult> SelectList<T, TResult>(this IList<T> list, Func<T, int, TResult> selector)
     {
-        if (list.Count == 0)
+        if (list.IsFixedSizeEmpty())
             return Array.Empty<TResult>();
+
         return new SelectQuerier<IList<T>, T, TResult, IndexedSelector<T, TResult>>(list, new(selector));
     }
 
     public static IReadOnlyList<TResult> SelectROList<T, TResult>(this IReadOnlyList<T> list, Func<T, int, TResult> selector)
     {
-        if (list.Count == 0)
+        if (list.IsFixedSizeEmpty())
             return Array.Empty<TResult>();
+
         return new SelectQuerier<ListWrapper<T>, T, TResult, IndexedSelector<T, TResult>>(list.Wrap(), new(selector));
     }
 
 
     public static IList<TResult> SelectCachedList<T, TResult>(this IList<T> list, Func<T, TResult> selector)
     {
-        if (list.Count == 0)
+        if (list.IsFixedSizeEmpty())
             return Array.Empty<TResult>();
+
         return new CachedSelectQuerier<IList<T>, T, TResult, Selector<T, TResult>>(list, new(selector));
     }
 
     public static IReadOnlyList<TResult> SelectCachedROList<T, TResult>(this IReadOnlyList<T> list, Func<T, TResult> selector)
     {
-        if (list.Count == 0)
+        if (list.IsFixedSizeEmpty())
             return Array.Empty<TResult>();
+
         return new CachedSelectQuerier<ListWrapper<T>, T, TResult, Selector<T, TResult>>(list.Wrap(), new(selector));
     }
 
 
     public static IList<TResult> SelectCachedList<T, TResult>(this IList<T> list, Func<T, int, TResult> selector)
     {
-        if (list.Count == 0)
+        if (list.IsFixedSizeEmpty())
             return Array.Empty<TResult>();
+
         return new CachedSelectQuerier<IList<T>, T, TResult, IndexedSelector<T, TResult>>(list, new(selector));
     }
 
     public static IReadOnlyList<TResult> SelectCachedROList<T, TResult>(this IReadOnlyList<T> list, Func<T, int, TResult> selector)
     {
-        if (list.Count == 0)
+        if (list.IsFixedSizeEmpty())
             return Array.Empty<TResult>();
+
         return new CachedSelectQuerier<ListWrapper<T>, T, TResult, IndexedSelector<T, TResult>>(list.Wrap(), new(selector));
     }
 
 
     private sealed class SelectQuerier<TList, TIn, TOut, TSelector>(TList list, TSelector selector)
-        : SimpleListQuerier<TList, TIn, TOut>(list)
+        : SimpleReadOnlyListQuerier<TList, TIn, TOut>(list)
         where TList : IList<TIn>
         where TSelector : ISelector<TIn, TOut>
     {

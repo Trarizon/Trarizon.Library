@@ -11,9 +11,6 @@ partial class EnumerableQuery
         if (source is IList<T> list)
             return list.AdjacentList();
 
-        if (source.TryGetNonEnumeratedCount(out var count) && count <= 1)
-            return Enumerable.Empty<(T, T)>();
-
         return new AdjacentQuerier<T>(source);
     }
 

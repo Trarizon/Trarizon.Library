@@ -21,11 +21,12 @@ partial class EnumerableQuery
     /// </summary>
     public static IEnumerable<TResult> AggregateSelect<T, TAccumulate, TResult>(this IEnumerable<T> source, TAccumulate seed, Func<TAccumulate, T, TAccumulate> func, Func<TAccumulate, TResult> resultSelector)
     {
-        if (source.TryGetNonEnumeratedCount(out var count) && count == 0)
-            return Enumerable.Empty<TResult>();
+        if (source.IsFixedSizeEmpty())
+            return [];
 
         return new AggregateSelectQuerier<T, TAccumulate, TResult>(source, seed, func, resultSelector);
     }
+
 
     private sealed class AggregateSelectQuerier<T, TAcc, TResult>(
         IEnumerable<T> source,

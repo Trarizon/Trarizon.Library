@@ -6,17 +6,20 @@ partial class EnumerableQuery
 {
     public static IEnumerable<(T, T2)> CartesianProduct<T, T2>(this IEnumerable<T> first, IEnumerable<T2> second)
     {
-        if ((first, second) is (IList<T> list1, IList<T2> list2))
-            return list1.CartesianProductList(list2);
+        if(first is IList<T> l1) {
+            if (second is IList<T2> l2)
+                return l1.CartesianProductList(l2);
 
-        if (first.TryGetNonEnumeratedCount(out var count) && count == 0)
-            return Enumerable.Empty<(T, T2)>();
+            if (first.IsFixedSizeEmpty())
+                return [];
+        }
 
-        if (second.TryGetNonEnumeratedCount(out count) && count == 0)
-            return Enumerable.Empty<(T, T2)>();
+        if (second.IsFixedSizeEmpty())
+            return [];
 
         return new CartesianProductQuerier<T, T2>(first, second);
     }
+
 
     private sealed class CartesianProductQuerier<T, T2>(IEnumerable<T> source, IEnumerable<T2> sub) : SimpleEnumerationQuerier<T, (T, T2)>(source)
     {

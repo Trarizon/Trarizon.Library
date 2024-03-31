@@ -13,8 +13,6 @@ partial class EnumerableQuery
     {
         if (source is IList<T> list)
             return list.ChunkPairList(paddingElement);
-        if (source.TryGetNonEnumeratedCount(out var count) && count == 0)
-            return Enumerable.Empty<(T, T)>();
 
         return new ChunkPairQuerier<T>(source, paddingElement)!;
     }
@@ -29,8 +27,7 @@ partial class EnumerableQuery
     {
         if (source is IList<T> list)
             return list.ChunkTripleList(paddingElement);
-        if (source.TryGetNonEnumeratedCount(out var count) && count == 0)
-            return Enumerable.Empty<(T, T, T)>();
+
         return new ChunkTripleQuerier<T>(source, paddingElement)!;
     }
 
@@ -41,8 +38,7 @@ partial class EnumerableQuery
     {
         if (source is IList<T> list)
             return list.ChunkPairList();
-        if (source.TryGetNonEnumeratedCount(out var count) && count == 0)
-            return Enumerable.Empty<(T, T?)>();
+
         return new ChunkPairQuerier<T>(source, default);
     }
 
@@ -53,8 +49,7 @@ partial class EnumerableQuery
     {
         if (source is IList<T> list)
             return list.ChunkTripleList();
-        if (source.TryGetNonEnumeratedCount(out var count) && count == 0)
-            return Enumerable.Empty<(T, T?, T?)>();
+
         return new ChunkTripleQuerier<T>(source, default);
     }
 
