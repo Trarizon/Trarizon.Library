@@ -5,9 +5,11 @@ partial class ListQuery
 {
     private abstract class SimpleIndexMapListQuerier<TList, T>(TList list) : SimpleListQuerier<TList, T, T>(list) where TList : IList<T>
     {
-        public sealed override T this[int index] => _list[ValdiateAndSelectIndex(index)];
-
-        protected sealed override void SetAt(int index, T item) => _list[ValdiateAndSelectIndex(index)] = item;
+        public sealed override T this[int index]
+        {
+            get => _list[ValdiateAndSelectIndex(index)];
+            set => _list[ValdiateAndSelectIndex(index)] = value;
+        }
 
         protected abstract int ValdiateAndSelectIndex(int index);
 

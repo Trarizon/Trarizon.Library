@@ -50,7 +50,7 @@ partial class ListQuery
     {
         if (list.IsFixedSizeEmpty())
             return Array.Empty<(T, T?)>();
-        
+
         return new ChunkPairQuerier<ListWrapper<T>, T>(list.Wrap(), default!)!;
     }
 
@@ -65,7 +65,7 @@ partial class ListQuery
     {
         if (list.IsFixedSizeEmpty())
             return Array.Empty<(T, T, T)>();
-     
+
         return new ChunkTripleQuerier<IList<T>, T>(list, paddingElement, paddingElement)!;
     }
 
@@ -79,7 +79,7 @@ partial class ListQuery
     {
         if (list.IsFixedSizeEmpty())
             return Array.Empty<(T, T, T)>();
-      
+
         return new ChunkTripleQuerier<ListWrapper<T>, T>(list.Wrap(), paddingElement, paddingElement)!;
     }
 
@@ -91,7 +91,7 @@ partial class ListQuery
     {
         if (list.IsFixedSizeEmpty())
             return Array.Empty<(T, T?, T?)>();
-     
+
         return new ChunkTripleQuerier<IList<T>, T>(list, default!, default!)!;
     }
 
@@ -102,7 +102,7 @@ partial class ListQuery
     {
         if (list.IsFixedSizeEmpty())
             return Array.Empty<(T, T?, T?)>();
-      
+
         return new ChunkTripleQuerier<ListWrapper<T>, T>(list.Wrap(), default!, default!)!;
     }
 
@@ -120,16 +120,14 @@ partial class ListQuery
                 return (_list[i],
                     ElementAtOrDefaultOpt(_list, index + 1, _paddingElem));
             }
-        }
-
-        protected override void SetAt(int index, (T, T) item)
-        {
-            var i = index * 2;
-            var i2 = i + 1;
-            if (i2 < _list.Count)
-                (_list[i], _list[i2]) = item;
-            else
-                (_list[i], _paddingElem) = item;
+            set {
+                var i = index * 2;
+                var i2 = i + 1;
+                if (i2 < _list.Count)
+                    (_list[i], _list[i2]) = value;
+                else
+                    (_list[i], _paddingElem) = value;
+            }
         }
 
         public override int Count => (_list.Count + 1) / 2;
@@ -152,20 +150,18 @@ partial class ListQuery
                     ElementAtOrDefaultOpt(_list, i + 1, _paddingElem1),
                     ElementAtOrDefaultOpt(_list, i + 2, _paddingElem2));
             }
-        }
-
-        protected override void SetAt(int index, (T, T, T) item)
-        {
-            var i = index * 3;
-            var count = _list.Count;
-            if (i + 2 < count) {
-                (_list[i], _list[i + 1], _list[i + 2]) = item;
-            }
-            else if (i + 1 < count) {
-                (_list[i], _list[i + 1], _paddingElem2) = item;
-            }
-            else {
-                (_list[i], _paddingElem1, _paddingElem2) = item;
+            set {
+                var i = index * 3;
+                var count = _list.Count;
+                if (i + 2 < count) {
+                    (_list[i], _list[i + 1], _list[i + 2]) = value;
+                }
+                else if (i + 1 < count) {
+                    (_list[i], _list[i + 1], _paddingElem2) = value;
+                }
+                else {
+                    (_list[i], _paddingElem1, _paddingElem2) = value;
+                }
             }
         }
 

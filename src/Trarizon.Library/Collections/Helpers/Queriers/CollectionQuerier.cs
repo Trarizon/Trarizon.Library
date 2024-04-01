@@ -23,5 +23,5 @@ internal abstract class CollectionQuerier<T> : EnumerationQuerier<T>, ICollectio
             array[arrayIndex++] = item;
         }
     }
-    bool ICollection<T>.Remove(T item) => throw new NotImplementedException();
+    bool ICollection<T>.Remove(T item) { ThrowHelper.ThrowNotSupport(ThrowConstants.QuerierImmutable); return default; }
 }

@@ -17,7 +17,7 @@
     - Change `ListQuery.PopFront`
     - Redesigned `ListQuery`
     - Remove `Random.Shuffle`
-    - Remove `IList.PopFrontWhile`
+    - Remove `IList.PopFrontWhile` `RepearForever`
 - New
     - Extend `ListQuery` methods:
         - `Adjacent()`
@@ -48,7 +48,7 @@
         - Add `PathHelper` with `Combine`
         - Add `StreamHelper` with `Read<>()`
         - Add `StringHelper` with `Interpolated`
-        - Add `UnsafeHelper` with `AsReadOnly`
+        - Add `UnsafeHelper` with `AsReadOnly`, public `Offset`
     - Extend monads
         - `NotNull<T>`
         - `IOptional<>`

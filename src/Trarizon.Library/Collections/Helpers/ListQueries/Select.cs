@@ -82,7 +82,7 @@ partial class ListQuery
         where TList : IList<TIn>
         where TSelector : ISelector<TIn, TOut>
     {
-        public override TOut this[int index] => selector.Select(_list[index], index);
+        protected override TOut At(int index) => selector.Select(_list[index], index);
 
         public override int Count => _list.Count;
 
@@ -116,25 +116,23 @@ partial class ListQuery
                 bits[index] = true;
                 return _cache[index] = selector.Select(_list[index], index);
             }
+            set {
+                var count = Count;
+                ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, count);
+
+                if (_isCachedMarks is null) {
+                    _isCachedMarks = new byte[StackAllocBitArray.GetArrayLength(count)];
+                    _cache = new TOut[count];
+                }
+
+                Debug.Assert(_cache is not null);
+                var bits = new StackAllocBitArray(_isCachedMarks);
+                bits[index] = true;
+                _cache[index] = value;
+            }
         }
 
         public override int Count => _list.Count;
-
-        protected override void SetAt(int index, TOut item)
-        {
-            var count = Count;
-            ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, count);
-
-            if (_isCachedMarks is null) {
-                _isCachedMarks = new byte[StackAllocBitArray.GetArrayLength(count)];
-                _cache = new TOut[count];
-            }
-
-            Debug.Assert(_cache is not null);
-            var bits = new StackAllocBitArray(_isCachedMarks);
-            bits[index] = true;
-            _cache[index] = item;
-        }
 
         protected override EnumerationQuerier<TOut> Clone() => new CachedSelectQuerier<TList, TIn, TOut, TSelector>(_list, selector);
     }

@@ -25,12 +25,10 @@ partial class ListQuery
         where TList : IList<T>
         where TList2 : IList<T2>
     {
-        public override (T, T2) this[int index]
+        protected override (T, T2) At(int index)
         {
-            get {
-                var (div, rem) = Math.DivRem(index, list2.Count);
-                return (_list[div], list2[rem]);
-            }
+            var (div, rem) = Math.DivRem(index, list2.Count);
+            return (_list[div], list2[rem]);
         }
 
         public override int Count => _list.Count * list2.Count;

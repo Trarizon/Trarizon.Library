@@ -19,9 +19,32 @@ using Trarizon.Library.RunTest.Examples;
 using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 
-Console.WriteLine(ArrayInts().IsReadOnly);
+Console.WriteLine(ArrayInts().ToImmutableArray());
 
 
 partial class Program
 {
+}
+
+abstract class A
+{
+    protected abstract int P
+    {
+        get;
+        set;
+    }
+}
+
+abstract class B : A
+{
+    protected override int P
+    {
+       get => 1;
+        set => throw new NotImplementedException();
+    }
+}
+
+class C : B
+{
+    protected override int P { set => base.P = value; }
 }

@@ -19,5 +19,13 @@ partial class ListQuery
         where TList : IList<TIn>
     {
         public sealed override bool IsReadOnly => true;
+
+        public sealed override TOut this[int index]
+        {
+            get => At(index);
+            set => ThrowHelper.ThrowNotSupport(ThrowConstants.QuerierImmutable);
+        }
+
+        protected abstract TOut At(int index);
     }
 }

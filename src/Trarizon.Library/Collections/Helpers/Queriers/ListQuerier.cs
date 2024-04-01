@@ -1,16 +1,12 @@
 ﻿namespace Trarizon.Library.Collections.Helpers.Queriers;
 internal abstract class ListQuerier<T> : EnumerationQuerier<T>, IList<T>, IReadOnlyList<T>
 {
-    public abstract T this[int index] { get; }
+    public abstract T this[int index] { get; set; }
     public abstract int Count { get; }
 
     public abstract bool IsReadOnly { get; }
 
     protected ListQuerier() { }
-
-    protected virtual void SetAt(int index, T item) => ThrowHelper.ThrowNotSupport(ThrowConstants.QuerierImmutable);
-
-    T IList<T>.this[int index] { get => this[index]; set => SetAt(index, value); }
 
     int IList<T>.IndexOf(T item)
     {

@@ -24,7 +24,7 @@ partial class ListQuery
         : SimpleReadOnlyListQuerier<TList, T, (T, T)>(list)
         where TList : IList<T>
     {
-        public override (T, T) this[int index] => (_list[index], _list[index + 1]);
+        protected override (T, T) At(int index) => (_list[index], _list[index + 1]);
 
         public override int Count => int.Max(_list.Count - 1, 0);
 

@@ -19,8 +19,8 @@ partial class EnumerableQuery
     /// </summary>
     public static IEnumerable<T> RepeatForever<T>(this IEnumerable<T> source)
     {
-        if (source is IList<T> list)
-            return list.RepeatForeverList();
+        if (source.IsFixedSizeEmpty())
+            return [];
 
         return new RepeatForeverQuerier<T>(source);
     }

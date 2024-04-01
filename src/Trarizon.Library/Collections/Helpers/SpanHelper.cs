@@ -14,7 +14,7 @@ public static partial class SpanHelper
     /// </summary>
     /// <returns>Index of <paramref name="item"/></returns>
     public static int OffsetOf<T>(this ReadOnlySpan<T> span, ref readonly T item)
-        => UnsafeHelper.SubstractRef(in item, in MemoryMarshal.GetReference(span));
+        => (int)UnsafeHelper.Offset(in MemoryMarshal.GetReference(span), in item);
 
     /// <summary>
     /// Get index of item by reference substraction.
@@ -22,7 +22,7 @@ public static partial class SpanHelper
     /// </summary>
     /// <returns>Index of <paramref name="item"/></returns>
     public static int OffsetOf<T>(this Span<T> span, ref readonly T item)
-        => UnsafeHelper.SubstractRef(in item, in MemoryMarshal.GetReference(span));
+        => (int)UnsafeHelper.Offset(in MemoryMarshal.GetReference(span), in item);
 
     /// <summary>
     /// Get index of the first element in <paramref name="subSpan"/> by reference substraction.
@@ -30,7 +30,7 @@ public static partial class SpanHelper
     /// </summary>
     /// <returns>Index of first element in <paramref name="subSpan"/></returns>
     public static int OffsetOf<T>(this ReadOnlySpan<T> span, ReadOnlySpan<T> subSpan)
-        => UnsafeHelper.SubstractRef(in MemoryMarshal.GetReference(subSpan), in MemoryMarshal.GetReference(span));
+        => (int)UnsafeHelper.Offset(in MemoryMarshal.GetReference(span), in MemoryMarshal.GetReference(subSpan));
 
     /// <summary>
     /// Get index of the first element in <paramref name="subSpan"/> by reference substraction.
@@ -38,7 +38,7 @@ public static partial class SpanHelper
     /// </summary>
     /// <returns>Index of first element in <paramref name="subSpan"/></returns>
     public static int OffsetOf<T>(this Span<T> span, ReadOnlySpan<T> subSpan)
-        => UnsafeHelper.SubstractRef(in MemoryMarshal.GetReference(subSpan), in MemoryMarshal.GetReference(span));
+        => (int)UnsafeHelper.Offset(in MemoryMarshal.GetReference(span), in MemoryMarshal.GetReference(subSpan));
 
     #endregion
 

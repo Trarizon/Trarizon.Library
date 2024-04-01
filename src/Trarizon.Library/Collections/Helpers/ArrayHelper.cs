@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Collections.Immutable;
+using System.Runtime.InteropServices;
 using Trarizon.Library.Helpers;
 
 namespace Trarizon.Library.Collections.Helpers;
@@ -12,7 +13,7 @@ public static partial class ArrayHelper
     /// </summary>
     /// <returns>Index of <paramref name="item"/></returns>
     public static int OffsetOf<T>(this T[] array, ref readonly T item)
-        => UnsafeHelper.SubstractRef(in item, in MemoryMarshal.GetArrayDataReference(array));
+        => (int)UnsafeHelper.Offset(in MemoryMarshal.GetArrayDataReference(array), in item);
 
     /// <summary>
     /// Get index of the first element in <paramref name="span"/> by reference substraction.
@@ -20,7 +21,7 @@ public static partial class ArrayHelper
     /// </summary>
     /// <returns>Index of first element in <paramref name="span"/></returns>
     public static int OffsetOf<T>(this T[] array, ReadOnlySpan<T> span)
-        => UnsafeHelper.SubstractRef(in MemoryMarshal.GetReference(span), in MemoryMarshal.GetArrayDataReference(array));
+        => (int)UnsafeHelper.Offset(in MemoryMarshal.GetArrayDataReference(array), in MemoryMarshal.GetReference(span));
 
     #endregion
 
@@ -42,4 +43,7 @@ public static partial class ArrayHelper
 
     public static ReadOnlySpan<T> AsReadOnlySpan<T>(this T[,] values, int row)
         => MemoryMarshal.CreateReadOnlySpan(ref values[row, 0], values.GetLength(1));
+
+    public static ImmutableArray<T> EmptyIfDefault<T>(this ImmutableArray<T> array)
+        => array.IsDefault ? [] : array;
 }
