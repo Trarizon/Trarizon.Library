@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.CodeAnalysis;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
@@ -7,7 +9,7 @@ public static class EnumerableExtensions
 {
     #region TryGetNonEnumeratedCount
 
-    public static bool GetNonEnumeratedCount<T>(this IEnumerable<T> source, out int count)
+    public static bool TryGetNonEnumeratedCount<T>(this IEnumerable<T> source, out int count)
     {
         if (source is ICollection<T> collection) {
             count = collection.Count;
@@ -22,7 +24,7 @@ public static class EnumerableExtensions
 
     #region TryFirst
 
-    public static bool TryFirst<T>(this IEnumerable<T> source, out T value, T defaultValue = default!)
+    public static bool TryFirst<T>(this IEnumerable<T> source, [MaybeNullWhen(false)] out T value)
     {
         if (source is IList<T> list) {
             if (list.Count > 0) {
@@ -30,7 +32,7 @@ public static class EnumerableExtensions
                 return true;
             }
             else {
-                value = defaultValue;
+                value = default;
                 return false;
             }
         }
@@ -42,12 +44,12 @@ public static class EnumerableExtensions
             return true;
         }
         else {
-            value = defaultValue;
+            value = default!;
             return false;
         }
     }
 
-    public static bool TryFirst<T>(this IEnumerable<T> source, Func<T, bool> predicate, out T value, T defaultValue = default!)
+    public static bool TryFirst<T>(this IEnumerable<T> source, Func<T, bool> predicate, [MaybeNullWhen(false)] out T value)
     {
         using var enumerator = source.GetEnumerator();
 
@@ -58,7 +60,7 @@ public static class EnumerableExtensions
                 return true;
             }
         }
-        value = defaultValue;
+        value = default!;
         return false;
     }
 
@@ -66,155 +68,69 @@ public static class EnumerableExtensions
 
     #region TrySingle
 
-    /// <summary>
-    /// Try get first element in sequence,
-    /// this method returns false when there is not exactly one element in sequence
-    /// </summary>
-    /// <remarks>
-    /// About nullable analysis:<br/>
-    /// There's no warning if <typeparamref name="T"/> is nullable reference type.<br/>
-    /// It's hard to provide perfect in all conditions,
-    /// so I chose a least-used condition (IMO). At least
-    /// it provide correct analysis in most conditions where
-    /// <typeparamref name="T"/> is not null
-    /// </remarks>
-    /// <param name="value">
-    /// The only element in sequence,
-    /// or <paramref name="defaultValue"/> if sequence is empty or contains more than 1 element.
-    /// </param>
-    /// <returns><see langword="true"/> if there is exactly one elements in sequence</returns>
-    public static bool TrySingle<T>(this IEnumerable<T> source, [NotNullWhen(true), NotNullIfNotNull(nameof(defaultValue))] out T? value, T? defaultValue = default!)
-        => source.TrySingleInternal(out value, defaultValue, false);
-
-    /// <summary>
-    /// Try get first element satisfying specific condition in sequence,
-    /// this method returns false when there is not exactly one element satisfying condition in sequence
-    /// </summary>
-    /// <remarks>
-    /// About nullable analysis:<br/>
-    /// There's no warning if <typeparamref name="T"/> is nullable reference type.<br/>
-    /// It's hard to provide perfect in all conditions,
-    /// so I chose a least-used condition (IMO). At least
-    /// it provide correct analysis in most conditions where
-    /// <typeparamref name="T"/> is not null
-    /// </remarks>
-    /// <param name="value">
-    /// The only element in sequence,
-    /// or <paramref name="defaultValue"/> if sequence is empty or contains more than 1 element.
-    /// </param>
-    /// <returns><see langword="true"/> if there is exactly one elements satisfying condition in sequence</returns>
-    public static bool TrySingle<T>(this IEnumerable<T> source, Func<T, bool> predicate, [NotNullWhen(true), NotNullIfNotNull(nameof(defaultValue))] out T? value, T? defaultValue = default!)
-        => source.TryPredicateSingleInternal(predicate, out value, defaultValue, false);
-
-    /// <summary>
-    /// Try get first element in sequence or default,
-    /// this method returns false when there are more than one element in sequence
-    /// </summary>
-    /// <remarks>
-    /// About nullable analysis:<br/>
-    /// There's no warning if <typeparamref name="T"/> is nullable reference type.<br/>
-    /// It's hard to provide perfect in all conditions,
-    /// so I chose a least-used condition (IMO). At least
-    /// it provide correct analysis in most conditions where
-    /// <typeparamref name="T"/> is not null
-    /// </remarks>
-    /// <param name="value">
-    /// The only element in sequence,
-    /// or <paramref name="defaultValue"/> if sequence is empty or contains more than 1 element.
-    /// </param>
-    /// <returns><see langword="true"/> if there is one or zero elements in sequence</returns>
-    public static bool TrySingleOrNone<T>(this IEnumerable<T> source, [NotNullIfNotNull(nameof(defaultValue))] out T? value, T? defaultValue = default!)
-        => source.TrySingleInternal(out value, defaultValue, true);
-
-    /// <summary>
-    /// Try get first element satisfying specific condition in sequence or default,
-    /// this method returns false when there are more than one element satisfying condition in sequence
-    /// </summary>
-    /// <remarks>
-    /// About nullable analysis:<br/>
-    /// There's no warning if <typeparamref name="T"/> is nullable reference type.<br/>
-    /// It's hard to provide perfect in all conditions,
-    /// so I chose a least-used condition (IMO). At least
-    /// it provide correct analysis in most conditions where
-    /// <typeparamref name="T"/> is not null
-    /// </remarks>
-    /// <param name="value">
-    /// The only element in sequence,
-    /// or <paramref name="defaultValue"/> if sequence is empty or contains more than 1 element.
-    /// </param>
-    /// <returns><see langword="true"/> if there is one or zero elements satisfying condition in sequence</returns>
-    public static bool TrySingleOrNone<T>(this IEnumerable<T> source, Func<T, bool> predicate, [NotNullIfNotNull(nameof(defaultValue))] out T? value, T? defaultValue = default!)
-        => source.TryPredicateSingleInternal(predicate, out value, defaultValue, true);
-
-    private static bool TrySingleInternal<T>(this IEnumerable<T> source, out T? value, T? defaultValue, bool resultWhenZero)
+    public static bool TrySingle<T>(this IEnumerable<T> source, [MaybeNullWhen(false)] out T first)
     {
-        if (source.GetNonEnumeratedCount(out var count)) {
-            switch (count) {
-                case 0:
-                    value = defaultValue;
-                    return resultWhenZero;
-                case 1:
-                    if (source is IList<T> list) {
-                        value = list[0];
-                    }
-                    else {
-                        using var e = source.GetEnumerator();
-                        e.MoveNext();
-                        value = e.Current;
-                    }
-                    return true;
-                default:
-                    value = defaultValue;
-                    return false;
-            }
-        }
-
-        using var enumerator = source.GetEnumerator();
-
-        // Zero
-        if (!enumerator.MoveNext()) {
-            value = defaultValue;
-            return resultWhenZero;
-        }
-
-        // 1
-        value = enumerator.Current;
-        if (!enumerator.MoveNext())
+        if (source.TrySingleOrNone(out var opt) && opt.HasValue) {
+            first = opt.Value;
             return true;
-
-        // More than 1
-        value = defaultValue;
-        return false;
+        }
+        else {
+            first = default;
+            return false;
+        }
     }
 
-    private static bool TryPredicateSingleInternal<T>(this IEnumerable<T> source, Func<T, bool> predicate, out T? value, T? defaultValue, bool resultWhenNotFound)
+    public static bool TrySingleOrNone<T>(this IEnumerable<T> source, out Optional<T> first)
     {
         using var enumerator = source.GetEnumerator();
 
-        bool find = false;
-        T current = default!;
-        while (enumerator.MoveNext()) {
-            current = enumerator.Current;
-            if (predicate(current)) {
-                if (find) {
-                    // Multiple
-                    value = defaultValue;
+        if (!enumerator.MoveNext()) {
+            first = default;
+            return true;
+        }
+
+        if (enumerator.MoveNext()) {
+            first = default;
+            return false;
+        }
+
+        first = enumerator.Current;
+        return true;
+    }
+
+    public static bool TrySingle<T>(this IEnumerable<T> source, Func<T, bool> predicate, [MaybeNullWhen(false)] out T first)
+    {
+        if (source.TrySingleOrNone(predicate,out var opt) && opt.HasValue) {
+            first = opt.Value;
+            return true;
+        }
+        else {
+            first = default;
+            return false;
+        }
+    }
+
+    public static bool TrySingleOrNone<T>(this IEnumerable<T> source, Func<T, bool> predicate, out Optional<T> first)
+    {
+        using var enumerator = source.GetEnumerator();
+
+        first = default;
+
+        foreach (var item in source) {
+            if (predicate(item)) {
+                // More than 1
+                if (first.HasValue) {
+                    first = default;
                     return false;
                 }
-                find = true;
+                else {
+                    first = item;
+                }
             }
         }
 
-        // Single
-        if (find) {
-            value = current;
-            return true;
-        }
-        // Not found
-        else {
-            value = defaultValue;
-            return resultWhenNotFound;
-        }
+        // 0 or 1
+        return true;
     }
 
     #endregion
@@ -225,6 +141,71 @@ public static class EnumerableExtensions
             foreach (var item2 in second) {
                 yield return (item, item2);
             }
+        }
+    }
+
+    public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
+    {
+        foreach (var item in source) {
+            action(item);
+        }
+    }
+
+    #region OfFilter
+
+    public static IEnumerable<T> OfNotNull<T>(this IEnumerable<T?> source) where T : class
+    {
+        foreach (var item in source) {
+            if (item is not null)
+                yield return item;
+        }
+    }
+
+    public static IEnumerable<T> OfTypeUntil<T, TExcept>(this IEnumerable source) where TExcept : T
+    {
+        foreach (var item in source) {
+            if (item is T t) {
+                if (item is TExcept)
+                    yield break;
+                else
+                    yield return t;
+            }
+        }
+    }
+
+    public static IEnumerable<T> OfTypeWhile<T>(this IEnumerable source)
+    {
+        foreach (var item in source) {
+            if (item is T t)
+                yield return t;
+            else
+                yield break;
+        }
+    }
+
+    #endregion
+
+    public static IEnumerable<T> EnumerateByWhileNotNull<T>(this T? first, Func<T, T?> nextSelector)
+    {
+        while (first is not null) {
+            yield return first;
+            first = nextSelector(first);
+        }
+    }
+
+    public static IEnumerable<(T, T)> Adjacent<T>(this IEnumerable<T> source)
+    {
+        using var enumerator = source.GetEnumerator();
+
+        if (!enumerator.MoveNext())
+            yield break;
+
+        T first = enumerator.Current;
+        T second;
+        while (enumerator.MoveNext()) {
+            second = enumerator.Current;
+            yield return (first, second);
+            first = second;
         }
     }
 }

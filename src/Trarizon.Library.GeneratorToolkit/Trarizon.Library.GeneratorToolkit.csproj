@@ -7,17 +7,7 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 
-	<PropertyGroup Label="NugetProperties">
-		<Title>$(AssemblyName)</Title>
-		<Authors>Trarizon</Authors>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<RepositoryUrl>https://github.com/Trarizon/Trarizon.Library</RepositoryUrl>
-		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-		<PackageLicenseFile>LICENSE</PackageLicenseFile>
-		<Version>1.0.3</Version>
-		<AssemblyVersion>1.0.0.3</AssemblyVersion>
-		<FileVersion>$(AssemblyVersion)</FileVersion>
-	</PropertyGroup>
+	<Import Project="..\..\Nuget.props" />
 
 	<ItemGroup Label="NugetItems">
 		<None Include="README.md" Pack="True" PackagePath="" />
@@ -36,15 +26,15 @@
 	</ItemGroup>
 
 	<PropertyGroup Label="PolySharpSettings">
-		<PolySharpUsePublicAccessibilityForGeneratedTypes>true</PolySharpUsePublicAccessibilityForGeneratedTypes>
 		<PolySharpIncludeGeneratedTypes>
-			System.Index;
 			System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute;
 			System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute;
 			System.Diagnostics.CodeAnalysis.NotNullAttribute;
 			System.Diagnostics.CodeAnalysis.NotNullWhenAttribute;
 			System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute;
 			System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute;
+
+			System.Runtime.CompilerServices.IsExternalInit;
 		</PolySharpIncludeGeneratedTypes>
 	</PropertyGroup>
 

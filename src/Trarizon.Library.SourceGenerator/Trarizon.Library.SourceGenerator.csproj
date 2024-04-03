@@ -11,6 +11,8 @@
 		<EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
 	</PropertyGroup>
 
+	<Import Project="..\..\Nuget.props" />
+
 	<!--<PropertyGroup>
 		--><!--It means use this lib only as analyzer --><!--
 		<IncludeBuildOutput>false</IncludeBuildOutput>
@@ -31,6 +33,10 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Trarizon.Library.GeneratorToolkit\Trarizon.Library.GeneratorToolkit.csproj" />
 	</ItemGroup>
 	
 	<!-- Nuget Reference End -->

@@ -8,16 +8,7 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 
-	<PropertyGroup Label="NugetProperties">
-		<Title>Trarizon.Library</Title>
-		<Authors>Trarizon</Authors>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<RepositoryUrl>https://github.com/Trarizon/Trarizon.Library</RepositoryUrl>
-		<PackageLicenseFile>LICENSE</PackageLicenseFile>
-		<AssemblyVersion>0.3.0.1</AssemblyVersion>
-		<Version>$(AssemblyVersion)</Version>
-		<FileVersion>$(AssemblyVersion)</FileVersion>
-	</PropertyGroup>
+	<Import Project="..\..\Nuget.props" />
 
 	<ItemGroup Label="NugetItems">
 		<None Include="..\..\LICENSE" Pack="True" PackagePath="" />
@@ -26,10 +17,13 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\Trarizon.Library.SourceGenerator\Trarizon.Library.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+	  <ProjectReference Include="..\Trarizon.Library.GeneratorToolkit\Trarizon.Library.GeneratorToolkit.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+
 	</ItemGroup>
 
 	<ItemGroup>
 		<None Include="..\Trarizon.Library.SourceGenerator\bin\$(Configuration)\netstandard2.0\Trarizon.Library.SourceGenerator.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+		<None Include="..\Trarizon.Library.SourceGenerator\bin\$(Configuration)\netstandard2.0\Trarizon.Library.GeneratorToolkit.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
 	</ItemGroup>
 
 </Project>

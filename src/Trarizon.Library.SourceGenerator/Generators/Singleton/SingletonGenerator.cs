@@ -1,13 +1,14 @@
 ﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
-using Trarizon.Library.SourceGenerator.Toolkit;
-using Trarizon.Library.SourceGenerator.Toolkit.Extensions;
-using Trarizon.Library.SourceGenerator.Toolkit.Factories;
+using System.Threading;
+using Trarizon.Library.GeneratorToolkit;
+using Trarizon.Library.GeneratorToolkit.Extensions;
+using Trarizon.Library.GeneratorToolkit.Helpers;
 
 namespace Trarizon.Library.SourceGenerator.Generators;
 [Generator(LanguageNames.CSharp)]
@@ -16,74 +17,157 @@ internal sealed partial class SingletonGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var filter = context.SyntaxProvider.ForAttributeWithMetadataName(
-             L_Attribute_TypeName,
-             (node, token) => true, // class or record
-             (context, token) =>
-             {
-                 var diagContext = new DiagnosticContext<ValidationContext>(new ValidationContext(context))
-                    .Validate(v => v.ValidateClassDeclaration())
-                    .Validate(v => v.ValidateIsSealed())
-                    .Validate(v => v.ValidateHasSinglePrivateNonParamCtor());
-                 return diagContext;
-             });
+            L_Attribute_TypeName,
+            (node, token) => node is TypeDeclarationSyntax,
+            Emitter.Parse)
+            .OfNotNull();
 
-        context.RegisterSourceOutput(filter, (context, diagContext) =>
+        context.RegisterSourceOutput(filter, (context, result) =>
         {
-            foreach (var diag in diagContext.Diagnostics) {
-                context.ReportDiagnostic(diag);
+            if (result is DiagnosticData d) {
+                context.ReportDiagnostic(d.ToDiagnostic());
+                return;
             }
-            if (diagContext.Value.IsGeneratable) {
-                context.AddSource(
-                    diagContext.Value.TypeSymbol.ToCsFileNameString(Constants.SingletonGenerator_Suffix),
-                    new GenerationContext(diagContext.Value).GenerateCompilationUnit());
+
+            var (emitter, diags) = ((Emitter, List<DiagnosticData>?))result;
+
+            foreach (var diag in diags ?? []) {
+                context.ReportDiagnostic(diag.ToDiagnostic());
+            }
+            if (emitter is not null) {
+                var str = emitter.Emit();
+                Console.WriteLine(str);
+                context.AddSource(emitter.GenerateFileName(), emitter.Emit());
             }
         });
     }
 
-    private class ValidationContext(GeneratorAttributeSyntaxContext context)
+    private sealed record class Emitter(ClassDeclarationSyntax Syntax, INamedTypeSymbol Symbol,
+        string InstancePropertyIdentifier, string ProviderIdentifier, Emitter.SingletonOptions Options, bool HasCustomPrivateCtor)
     {
-        [MemberNotNullWhen(true, nameof(_typeSyntax), nameof(TypeSyntax))]
-        public bool IsGeneratable { get; private set; } = true;
+        public string InstancePropertyIdentifier = InstancePropertyIdentifier ?? L_Instance_PropertyIdentifier;
 
-        private ClassDeclarationSyntax? _typeSyntax;
-        public ClassDeclarationSyntax TypeSyntax
+        public string ProviderIdentifier = ProviderIdentifier ?? L_SingletonProvider_TypeIdentifier;
+
+        public static object? Parse(GeneratorAttributeSyntaxContext context, CancellationToken token)
         {
-            get => _typeSyntax!;
-            private set => _typeSyntax = value;
+            if (context.TargetNode is not ClassDeclarationSyntax syntax)
+                return new DiagnosticData(D_SingletonIsClassOnly, (context.TargetNode as TypeDeclarationSyntax)?.Identifier);
+
+            if (context.TargetSymbol is not INamedTypeSymbol symbol)
+                return null;
+
+            if (symbol.IsAbstract || symbol.IsStatic)
+                return new DiagnosticData(D_SingletonCannotBeAbstractOrStatic, syntax.Identifier);
+
+            if (context.Attributes is not [var attribute])
+                return null;
+
+            var instancePropertyIdentifier = attribute.GetNamedArgument<string?>(L_Attribute_InstancePropertyName_PropertyIdentifier).Value;
+            if (instancePropertyIdentifier is null) {
+                instancePropertyIdentifier = L_Instance_PropertyIdentifier;
+            }
+            else if (!ValidationHelper.IsValidIdentifier(instancePropertyIdentifier))
+                return new DiagnosticData(D_InvalidInstanceIdentifier, syntax.Identifier);
+
+            var singletonProviderIdentifier = attribute.GetNamedArgument<string?>(L_Attribute_SingletonProviderName_PropertyIdentifier).Value;
+            if (singletonProviderIdentifier is null)
+                singletonProviderIdentifier = L_Attribute_SingletonProviderName_PropertyIdentifier;
+            else if (!ValidationHelper.IsValidIdentifier(singletonProviderIdentifier))
+                return new DiagnosticData(D_InvalidSingletonProviderIdentifier, syntax.Identifier);
+
+            var options = attribute.GetNamedArgument<SingletonOptions>(L_Attribute_Options_PropertyIdentifier).Value;
+            if (!options.HasFlag(SingletonOptions.NoProvider) && instancePropertyIdentifier == singletonProviderIdentifier)
+                return new DiagnosticData(D_SingletonMemberNameRepeat, syntax.Identifier);
+
+            // Confirm generate
+
+            List<DiagnosticData>? diags = null;
+
+            // constructor
+
+            bool hasCustomPrivateCtor = false;
+
+            if (!symbol.Constructors.TrySingleOrNone(ctor => !ctor.IsStatic, out var first)) {
+                diags.SafelyAdd(new DiagnosticData(D_SingletonHasOneOrNoneCtor, syntax.Identifier));
+                goto EndCtor;
+            }
+
+            hasCustomPrivateCtor = first.HasValue && !first.Value.IsImplicitlyDeclared;
+            if (!hasCustomPrivateCtor)
+                goto EndCtor;
+
+            var ctor = first.Value;
+            if (ctor.DeclaredAccessibility is not (Accessibility.NotApplicable or Accessibility.Private)) {
+                diags.SafelyAdd(new DiagnosticData(D_SingletonCannotContainsNonPrivateCtor, ctor.DeclaringSyntaxReferences.FirstOrDefault()));
+            }
+
+            if (ctor.Parameters.Length > 0) {
+                diags.SafelyAdd(new DiagnosticData(D_SingletonCtorHasNoParameter, ctor.DeclaringSyntaxReferences.FirstOrDefault()));
+            }
+
+        EndCtor:
+            return (new Emitter(syntax, symbol, instancePropertyIdentifier, singletonProviderIdentifier, options, hasCustomPrivateCtor), diags);
         }
 
-        private INamedTypeSymbol? _typeSymbol;
-        public INamedTypeSymbol TypeSymbol => _typeSymbol ??= context.SemanticModel.GetDeclaredSymbol(TypeSyntax)!;
-
-        public bool HasPrivateCtor { get; private set; }
-
-        #region AttributeDatas
-
-        private AttributeData Attribute => context.Attributes[0];
-
-        private Optional<string?> _instancePropertyIdentifier;
-        public string? InstancePropertyIdentifier
+        public string GenerateFileName()
         {
-            get {
-                if (!_instancePropertyIdentifier.HasValue) {
-                    _instancePropertyIdentifier = Attribute.GetNamedArgument<string>(L_Attribute_InstancePropertyName_PropertyIdentifier);
+            return $"{Symbol.ToValidFileNameString()}.g.{Literals.SingletonGenerator_FileSuffix}.cs";
+        }
+
+        public string Emit()
+        {
+            var sw = new StringWriter();
+            var writer = new IndentedTextWriter(sw);
+
+            writer.WriteLine(Literals.AutoGenerated_TopTrivia_Code);
+            writer.WriteLine();
+
+            using (writer.EmitContainingTypesAndNamespace(Symbol, Syntax)) {
+                using (writer.WriteLineWithBrace($"sealed partial class {Symbol.Name}")) {
+                    if (!HasCustomPrivateCtor) {
+                        EmitConstructor(writer);
+                        writer.WriteLine();
+                    }
+
+                    EmitInstancePropertyDeclaration(writer);
+
+                    if (!Options.HasFlag(SingletonOptions.NoProvider)) {
+                        writer.WriteLine();
+                        EmitProviderTypeDeclaration(writer);
+                    }
                 }
-                return _instancePropertyIdentifier.Value;
+            }
+
+            return sw.ToString();
+        }
+
+        private void EmitConstructor(IndentedTextWriter writer)
+        {
+            writer.WriteLine(Literals.GeneratedCodeAttributeList_Code);
+            writer.WriteLine($"private {Symbol.Name}() {{ }}");
+        }
+
+        private void EmitInstancePropertyDeclaration(IndentedTextWriter writer)
+        {
+            writer.WriteLine(Literals.GeneratedCodeAttributeList_Code);
+
+            var accessibility = Options.HasFlag(SingletonOptions.IsInternalInstance) ? "internal" : "public";
+            writer.Write($"{accessibility} static {Symbol.ToFullQualifiedDisplayString()} {InstancePropertyIdentifier} ");
+
+            if (Options.HasFlag(SingletonOptions.NoProvider))
+                writer.WriteLine($"{{ get; }} = new {Symbol.ToFullQualifiedDisplayString()}();");
+            else
+                writer.WriteLine($"=> {Symbol.ToFullQualifiedDisplayString()}.{ProviderIdentifier}.{L_Instance_FieldIdentifier};");
+        }
+
+        private void EmitProviderTypeDeclaration(IndentedTextWriter writer)
+        {
+            writer.WriteLine(Literals.GeneratedCodeAttributeList_Code);
+            using (writer.WriteLineWithBrace($"private static class {ProviderIdentifier}")) {
+                writer.WriteLine($"public static readonly {Symbol.ToFullQualifiedDisplayString()} {L_Instance_FieldIdentifier} = new {Symbol.ToFullQualifiedDisplayString()}();");
             }
         }
-
-        private Optional<string?> _singletonProviderIdentifier;
-        public string? SingletonProviderIdentifier
-        {
-            get {
-                if (!_singletonProviderIdentifier.HasValue) {
-                    _singletonProviderIdentifier = Attribute.GetNamedArgument<string>(L_Attribute_SingletonProviderName_PropertyIdentifier);
-                }
-                return _singletonProviderIdentifier.Value;
-            }
-        }
-
-        public SingletonOptions Options => Attribute.GetNamedArgument<SingletonOptions>(L_Attribute_Options_PropertyIdentifier);
 
         [Flags]
         public enum SingletonOptions
@@ -103,207 +187,6 @@ internal sealed partial class SingletonGenerator : IIncrementalGenerator
             /// Mark Instance property internal
             /// </summary>
             IsInternalInstance = 1 << 1,
-        }
-
-        #endregion
-
-        public Diagnostic? ValidateClassDeclaration()
-        {
-            var targetNode = (TypeDeclarationSyntax)context.TargetNode;
-            if (context.TargetNode is ClassDeclarationSyntax typeSyntax) {
-                TypeSyntax = typeSyntax;
-                return null;
-            }
-
-            IsGeneratable = false;
-            return DiagnosticFactory.Create(
-                D_SingletonIsClassOnly,
-                targetNode.Identifier);
-        }
-
-        public Diagnostic? ValidateIsSealed()
-        {
-            if (!IsGeneratable)
-                return null;
-
-            if (TypeSymbol.IsSealed)
-                return null;
-
-            return DiagnosticFactory.Create(
-                D_SingletonIsSealed,
-                TypeSyntax.Identifier);
-        }
-
-        public Diagnostic? ValidateHasSinglePrivateNonParamCtor()
-        {
-            if (!IsGeneratable)
-                return null;
-
-            bool singleCtor = TypeSymbol.Constructors
-                .Where(ctor => !ctor.IsStatic)
-                .TrySingle(out var ctor);
-            if (!singleCtor) {
-                return DiagnosticFactory.Create(
-                    D_SingletonHasOneOrNoneCtor,
-                    TypeSyntax.Identifier);
-            }
-
-            // We do not use the implicit declared public ctor, and generate a new private ctor
-            HasPrivateCtor = ctor!.IsImplicitlyDeclared;
-            if (!HasPrivateCtor) {
-                return null;
-            }
-            else if (ctor.DeclaredAccessibility is not (Accessibility.NotApplicable or Accessibility.Private)) {
-                return DiagnosticFactory.Create(
-                    D_SingletonCannotContainsNonPrivateCtor,
-                    TypeSyntax.Identifier);
-            }
-
-            // Requires non-param ctor
-            if (ctor.Parameters.Length > 0) {
-                return DiagnosticFactory.Create(
-                    D_SingletonCtorHasNoParameter,
-                    ctor.DeclaringSyntaxReferences[0].GetSyntax());
-            }
-
-            return null;
-        }
-    }
-
-    private struct GenerationContext(ValidationContext validation)
-    {
-        private string? _type_FullQualifiedName;
-        private string Type_FullQualifiedName => _type_FullQualifiedName ??= validation.TypeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-
-        private IdentifierNameSyntax? _type_IdentifierName;
-        private IdentifierNameSyntax Type_IdentifierName => _type_IdentifierName ??= SyntaxFactory.IdentifierName(Type_FullQualifiedName);
-
-        private readonly string SingletonProvider_Identifier => validation.SingletonProviderIdentifier ?? L_SingletonProvider_TypeIdentifier;
-
-
-        private ObjectCreationExpressionSyntax GenerateCallCtorExpression()
-        {
-            return SyntaxFactory.ObjectCreationExpression(
-                Type_IdentifierName,
-                SyntaxFactory.ArgumentList(),
-                null);
-        }
-
-        private FieldDeclarationSyntax GenerateProviderFieldDeclaration()
-        {
-            return SyntaxFactory.FieldDeclaration(
-                SyntaxFactory.SingletonList(
-                    Syntax_GeneratedCodeAttribute_AttributeList),
-                SyntaxFactory.TokenList(
-                    SyntaxFactory.Token(SyntaxKind.PublicKeyword),
-                    SyntaxFactory.Token(SyntaxKind.StaticKeyword),
-                    SyntaxFactory.Token(SyntaxKind.ReadOnlyKeyword)),
-                SyntaxFactory.VariableDeclaration(
-                    Type_IdentifierName,
-                    SyntaxFactory.SingletonSeparatedList(
-                        SyntaxFactory.VariableDeclarator(
-                            SyntaxFactory.Identifier(L_Instance_FieldIdentifier),
-                            argumentList: null,
-                            SyntaxFactory.EqualsValueClause(
-                                GenerateCallCtorExpression())))),
-                SyntaxFactory.Token(SyntaxKind.SemicolonToken));
-        }
-
-        private ClassDeclarationSyntax GenerateSingletonProviderClassDeclaration()
-        {
-            return SyntaxFactory.ClassDeclaration(
-                SyntaxFactory.SingletonList(
-                    Syntax_GeneratedCodeAttribute_AttributeList),
-                SyntaxFactory.TokenList(
-                    SyntaxFactory.Token(SyntaxKind.PrivateKeyword),
-                    SyntaxFactory.Token(SyntaxKind.StaticKeyword)),
-                SyntaxFactory.Identifier(SingletonProvider_Identifier),
-                typeParameterList: null,
-                baseList: null,
-                constraintClauses: default,
-                SyntaxFactory.SingletonList<MemberDeclarationSyntax>(
-                    GenerateProviderFieldDeclaration()));
-        }
-
-        private PropertyDeclarationSyntax GenerateInstancePropertyDeclaration(bool withProvider)
-        {
-            AccessorListSyntax? accessorList;
-            ArrowExpressionClauseSyntax? expressionBody;
-            EqualsValueClauseSyntax? initializer;
-
-            if (withProvider) {
-                // Instance => _Provider._Instance;
-                accessorList = null;
-                expressionBody = SyntaxFactory.ArrowExpressionClause(
-                    SyntaxFactory.MemberAccessExpression(
-                        SyntaxKind.SimpleMemberAccessExpression,
-                        SyntaxFactory.IdentifierName($"{Type_FullQualifiedName}.{SingletonProvider_Identifier}"),
-                        SyntaxFactory.IdentifierName($"{L_Instance_FieldIdentifier}")));
-                initializer = null;
-            }
-            else {
-                // Instance { get; } = new();
-                accessorList = SyntaxFactory.AccessorList(
-                    SyntaxFactory.SingletonList(
-                        SyntaxProvider.AccessorDeclarationNonBody(SyntaxKind.GetAccessorDeclaration)));
-                expressionBody = null;
-                initializer = SyntaxFactory.EqualsValueClause(
-                    GenerateCallCtorExpression());
-            }
-
-            return SyntaxFactory.PropertyDeclaration(
-                SyntaxFactory.SingletonList(
-                    Syntax_GeneratedCodeAttribute_AttributeList),
-                SyntaxFactory.TokenList(
-                    SyntaxFactory.Token(
-                        validation.Options.HasFlag(ValidationContext.SingletonOptions.IsInternalInstance)
-                        ? SyntaxKind.InternalKeyword
-                        : SyntaxKind.PublicKeyword),
-                    SyntaxFactory.Token(SyntaxKind.StaticKeyword)),
-                Type_IdentifierName,
-                explicitInterfaceSpecifier: null,
-                SyntaxFactory.Identifier(validation.InstancePropertyIdentifier ?? L_Instance_PropertyIdentifier),
-                accessorList,
-                expressionBody,
-                initializer,
-                SyntaxFactory.Token(SyntaxKind.SemicolonToken));
-        }
-
-        private ConstructorDeclarationSyntax GenerateNonParameterConstructorDeclaration()
-        {
-            return SyntaxFactory.ConstructorDeclaration(
-                SyntaxFactory.SingletonList(
-                    Syntax_GeneratedCodeAttribute_AttributeList),
-                SyntaxFactory.TokenList(
-                    SyntaxFactory.Token(SyntaxKind.PrivateKeyword)),
-                SyntaxFactory.Identifier(validation.TypeSymbol.Name),
-                SyntaxFactory.ParameterList(),
-                initializer: null,
-                SyntaxFactory.Block());
-        }
-
-        private IEnumerable<MemberDeclarationSyntax> GeneratePartialTypeMembers()
-        {
-            if (!validation.HasPrivateCtor)
-                yield return GenerateNonParameterConstructorDeclaration();
-
-            bool withProvider = !validation.Options.HasFlag(ValidationContext.SingletonOptions.NoProvider);
-            yield return GenerateInstancePropertyDeclaration(withProvider);
-
-            if (withProvider)
-                yield return GenerateSingletonProviderClassDeclaration();
-        }
-
-        public CompilationUnitSyntax GenerateCompilationUnit()
-        {
-            return SyntaxFactory.CompilationUnit(
-                default, default, default,
-                SyntaxFactory.SingletonList(
-                    SyntaxProvider.CloneContainingTypeAndNamespaceDeclarations(
-                        validation.TypeSyntax,
-                        validation.TypeSymbol,
-                        SyntaxFactory.List(
-                            GeneratePartialTypeMembers()))));
         }
     }
 }

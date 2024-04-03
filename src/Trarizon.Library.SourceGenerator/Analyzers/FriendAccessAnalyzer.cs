@@ -4,13 +4,11 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Trarizon.Library.SourceGenerator.Toolkit;
-using Trarizon.Library.SourceGenerator.Toolkit.Extensions;
-using Trarizon.Library.SourceGenerator.Toolkit.More;
+using Trarizon.Library.GeneratorToolkit.Extensions;
+using Trarizon.Library.GeneratorToolkit.More;
 
 namespace Trarizon.Library.SourceGenerator.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -64,13 +62,13 @@ internal partial class FriendAccessAnalyzer : DiagnosticAnalyzer
                 context.ReportDiagnostic(
                     Diagnostic_SpecificTypeInTypeParameterMakeNoSense,
                     symbol.DeclaringSyntaxReferences[0].GetSyntax() switch {
-                        MethodDeclarationSyntax meth => meth.Identifier,
-                        FieldDeclarationSyntax fie => fie.Declaration,
-                        PropertyDeclarationSyntax prop => prop.Identifier,
-                        EventDeclarationSyntax ev => ev.Identifier,
-                        ConstructorDeclarationSyntax ctor => ctor.Identifier,
-                        AccessorDeclarationSyntax accessor => accessor.Keyword,
-                        var syntax => syntax,
+                        MethodDeclarationSyntax meth => meth.Identifier.GetLocation(),
+                        FieldDeclarationSyntax fie => fie.Declaration.GetLocation(),
+                        PropertyDeclarationSyntax prop => prop.Identifier.GetLocation(),
+                        EventDeclarationSyntax ev => ev.Identifier.GetLocation(),
+                        ConstructorDeclarationSyntax ctor => ctor.Identifier.GetLocation(),
+                        AccessorDeclarationSyntax accessor => accessor.Keyword.GetLocation(),
+                        var syntax => syntax.GetLocation(),
                     });
             }
         }
@@ -87,10 +85,10 @@ internal partial class FriendAccessAnalyzer : DiagnosticAnalyzer
                     Diagnostic_FriendOnExplicitInterfaceMemberMakeNoSense,
                     // explicit method wont be partial
                     symbol.DeclaringSyntaxReferences[0].GetSyntax() switch {
-                        MethodDeclarationSyntax meth => meth.Identifier,
-                        PropertyDeclarationSyntax prop => prop.Identifier,
-                        EventDeclarationSyntax ev => ev.Identifier,
-                        var syntax => syntax,
+                        MethodDeclarationSyntax meth => meth.Identifier.GetLocation(),
+                        PropertyDeclarationSyntax prop => prop.Identifier.GetLocation(),
+                        EventDeclarationSyntax ev => ev.Identifier.GetLocation(),
+                        var syntax => syntax.GetLocation(),
                     });
             }
 
@@ -114,13 +112,13 @@ internal partial class FriendAccessAnalyzer : DiagnosticAnalyzer
                 context.ReportDiagnostic(
                     Diagnostic_FriendMayBeAccessedByOtherAssembly,
                     symbol.DeclaringSyntaxReferences[0].GetSyntax() switch {
-                        MethodDeclarationSyntax meth => meth.Identifier,
-                        FieldDeclarationSyntax fie => fie.Declaration,
-                        PropertyDeclarationSyntax prop => prop.Identifier,
-                        EventDeclarationSyntax ev => ev.Identifier,
-                        ConstructorDeclarationSyntax ctor => ctor.Identifier,
-                        AccessorDeclarationSyntax accessor => accessor.Keyword,
-                        var syntax => syntax,
+                        MethodDeclarationSyntax meth => meth.Identifier.GetLocation(),
+                        FieldDeclarationSyntax fie => fie.Declaration.GetLocation(),
+                        PropertyDeclarationSyntax prop => prop.Identifier.GetLocation(),
+                        EventDeclarationSyntax ev => ev.Identifier.GetLocation(),
+                        ConstructorDeclarationSyntax ctor => ctor.Identifier.GetLocation(),
+                        AccessorDeclarationSyntax accessor => accessor.Keyword.GetLocation(),
+                        var syntax => syntax.GetLocation(),
                     });
             }
         }
@@ -134,7 +132,7 @@ internal partial class FriendAccessAnalyzer : DiagnosticAnalyzer
             return;
 
         var friendTypes = friendAttr.GetConstructorArguments<ITypeSymbol>(L_Attribute_FriendTypes_ConstructorIndex);
-        var options = friendAttr.GetNamedArgument<FriendAccessOptions>(L_Attribute_Options_PropertyIdentifier);
+        var options = friendAttr.GetNamedArgument<FriendAccessOptions>(L_Attribute_Options_PropertyIdentifier).Value;
 
         CheckAccess();
 
@@ -198,7 +196,7 @@ internal partial class FriendAccessAnalyzer : DiagnosticAnalyzer
 
             context.ReportDiagnostic(
                 Diagnostic_FriendMemberCannotBeAccessed,
-                operation.Syntax);
+                operation.Syntax.GetLocation());
 
             Func<(INamedTypeSymbol, ITypeSymbol), bool> CombinePredicates(FriendAccessOptions options)
             {
@@ -213,16 +211,16 @@ internal partial class FriendAccessAnalyzer : DiagnosticAnalyzer
                 if (friendType.TypeKind is TypeKind.Interface) {
                     return accessorType.AllInterfaces
                         .AsEnumerable<ITypeSymbol>()
-                        .Contains(friendType, MoreSymbolEqualityComaprer.OriginalDefination);
+                        .Contains(friendType, MoreSymbolEqualityComparer.ByOriginalDefination);
                 }
                 else {
                     return accessorType.EnumerateByWhileNotNull(type => type.BaseType)
-                        .Contains(friendType, MoreSymbolEqualityComaprer.OriginalDefination);
+                        .Contains(friendType, MoreSymbolEqualityComparer.ByOriginalDefination);
                 }
             }
             bool AccessPredicate_None((INamedTypeSymbol, ITypeSymbol) tuple)
             {
-                return MoreSymbolEqualityComaprer.OriginalDefination.Equals(tuple.Item1, tuple.Item2);
+                return MoreSymbolEqualityComparer.ByOriginalDefination.Equals(tuple.Item1, tuple.Item2);
             }
         }
     }

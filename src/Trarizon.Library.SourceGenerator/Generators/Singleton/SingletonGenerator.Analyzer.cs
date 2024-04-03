@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
 using System.Linq;
-using Trarizon.Library.SourceGenerator.Toolkit.Extensions;
+using Trarizon.Library.GeneratorToolkit.Extensions;
 
 namespace Trarizon.Library.SourceGenerator.Generators;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -18,6 +18,7 @@ partial class SingletonGenerator : DiagnosticAnalyzer
         context.EnableConcurrentExecution();
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.Analyze | GeneratedCodeAnalysisFlags.ReportDiagnostics);
 
+        // Do not call ctor manually
         context.RegisterSyntaxNodeAction(context =>
         {
             var ctorAccessSyntax = (BaseObjectCreationExpressionSyntax)context.Node;
@@ -40,16 +41,16 @@ partial class SingletonGenerator : DiagnosticAnalyzer
                 return;
 
             // 排除singleton provider的调用
-            if (accessorMemberSymbol.TryGetGeneratedCodeAttribute(out var attributeData) &&
-                attributeData.GetConstructorArgument<string>(GlobalLiterals.GeneratedCodeAttribute_Tool_ConstructorIndex) is L_GeneratedCodeAttribute_Tool_Argument
-                ) {
+            var accessorIsGenerated = accessorMemberSymbol.EnumerateByWhileNotNull(s => s.ContainingSymbol)
+                .Any(s => s.TryGetGeneratedCodeAttribute(out var attributeData, Literals.GeneratedCodeAttribute_Tool_Argument));
+            if (accessorIsGenerated) {
                 return;
             }
 
         ReportDiagnostic:
             context.ReportDiagnostic(
                 Diagnostic_SingletonCtorIsNotAccessable,
-                ctorAccessSyntax);
+                ctorAccessSyntax.GetLocation());
 
         }, SyntaxKind.ObjectCreationExpression, SyntaxKind.ImplicitObjectCreationExpression);
     }

@@ -19,32 +19,37 @@ using Trarizon.Library.RunTest.Examples;
 using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 
-Console.WriteLine(ArrayInts().ToImmutableArray());
+int a = -1;
+uint u = (uint)a;
+Console.WriteLine(u); ;
 
 
 partial class Program
 {
-}
-
-abstract class A
-{
-    protected abstract int P
+    partial class NEst
     {
-        get;
-        set;
+        [GeneratedRegex("")]
+        public partial Regex A();
     }
 }
-
-abstract class B : A
+namespace N
 {
-    protected override int P
+    namespace M.S
     {
-       get => 1;
-        set => throw new NotImplementedException();
+        partial class AB
+        {
+            partial interface IDE<T, TD> where TD : IEnumerable
+            {
+                [Singleton(InstancePropertyName = "DDd", SingletonProviderName = "Dd")]
+                public sealed partial class A
+                {
+                    public int DD
+                    {
+                        get;
+                        set;
+                    }
+                }
+            }
+        }
     }
-}
-
-class C : B
-{
-    protected override int P { set => base.P = value; }
 }

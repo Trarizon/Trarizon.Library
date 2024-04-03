@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Trarizon.Library.SourceGenerator.Toolkit.Extensions;
+using Trarizon.Library.GeneratorToolkit.Extensions;
 
 namespace Trarizon.Library.SourceGenerator.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -50,7 +50,7 @@ internal partial class BackingFieldAccessAnalyzer : DiagnosticAnalyzer
         if (!(fieldFirstDeclaratorSymbol.DeclaredAccessibility is Accessibility.NotApplicable or Accessibility.Private)) {
             context.ReportDiagnostic(
                 Diagnostic_BackingFieldShouldBePrivate,
-                fieldSyntax.Declaration);
+                fieldSyntax.Declaration.GetLocation());
         }
 
         // Validate members
@@ -60,7 +60,7 @@ internal partial class BackingFieldAccessAnalyzer : DiagnosticAnalyzer
             {
                 context.ReportDiagnostic(
                     Diagnostic_TypeDoesnotContainsMember_0MemberName,
-                    fieldSyntax.Declaration,
+                    fieldSyntax.Declaration.GetLocation(),
                     notFoundMember);
             });
     }
@@ -87,6 +87,6 @@ internal partial class BackingFieldAccessAnalyzer : DiagnosticAnalyzer
 
         context.ReportDiagnostic(
            Diagnostic_BackingFieldCannotBeAccessed,
-           operation.Syntax);
+           operation.Syntax.GetLocation());
     }
 }

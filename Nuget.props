@@ -1,0 +1,14 @@
+<Project>
+
+	<PropertyGroup Label="NugetProperties">
+		<Title>Trarizon.Library</Title>
+		<Authors>Trarizon</Authors>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<RepositoryUrl>https://github.com/Trarizon/Trarizon.Library</RepositoryUrl>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<AssemblyVersion>0.3.0.3</AssemblyVersion>
+		<Version>$(AssemblyVersion)</Version>
+		<FileVersion>$(AssemblyVersion)</FileVersion>
+	</PropertyGroup>
+
+</Project>
