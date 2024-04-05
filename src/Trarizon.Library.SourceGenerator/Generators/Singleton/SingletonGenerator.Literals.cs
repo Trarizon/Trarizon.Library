@@ -55,25 +55,9 @@ partial class SingletonGenerator
         DiagnosticSeverity.Error,
         true);
 
-    public static readonly DiagnosticDescriptor D_InvalidInstanceIdentifier = new(
-        $"TRA{Literals.SingletonGenerator_Id}0006",
-        nameof(D_InvalidInstanceIdentifier),
-        "Instance identifier is invalid",
-        Literals.Category,
-        DiagnosticSeverity.Error,
-        true);
-
-    public static readonly DiagnosticDescriptor D_InvalidSingletonProviderIdentifier = new(
-        $"TRA{Literals.SingletonGenerator_Id}0007",
-        nameof(D_InvalidSingletonProviderIdentifier),
-        "SingleonProvider identifier is invalid",
-        Literals.Category,
-        DiagnosticSeverity.Error,
-        true);
-
     public static readonly DiagnosticDescriptor D_SingletonMemberNameRepeat = new(
-        $"TRA{Literals.SingletonGenerator_Id}0008",
-        nameof(D_InvalidSingletonProviderIdentifier),
+        $"TRA{Literals.SingletonGenerator_Id}0006",
+        nameof(D_SingletonMemberNameRepeat),
         "Provider and intance cannot have same name",
         Literals.Category,
         DiagnosticSeverity.Error,

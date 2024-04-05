@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 
 namespace Trarizon.Library.GeneratorToolkit.Extensions;
 public static class EnumerableExtensions
@@ -100,7 +101,7 @@ public static class EnumerableExtensions
 
     public static bool TrySingle<T>(this IEnumerable<T> source, Func<T, bool> predicate, [MaybeNullWhen(false)] out T first)
     {
-        if (source.TrySingleOrNone(predicate,out var opt) && opt.HasValue) {
+        if (source.TrySingleOrNone(predicate, out var opt) && opt.HasValue) {
             first = opt.Value;
             return true;
         }
@@ -207,5 +208,50 @@ public static class EnumerableExtensions
             yield return (first, second);
             first = second;
         }
+    }
+
+    public static IEnumerable<(T Value, TResult Result)> SelectZip<T, TResult>(this IEnumerable<T> source, Func<T, TResult> selector)
+    {
+        foreach (var item in source) {
+            yield return (item, selector(item));
+        }
+    }
+
+    public static IEnumerable<(int Index, T Item)> Index<T>(this IEnumerable<T> source)
+    {
+        int index = 0;
+        foreach (var item in source) {
+            yield return (index, item);
+            index++;
+        }
+    }
+
+    public static bool IsDistinct<T>(this IEnumerable<T> source)
+    {
+        HashSet<T> set = [];
+        foreach (var item in source) {
+            if (!set.Add(item))
+                return false;
+        }
+        return true;
+    }
+
+    public static IEnumerable<T> DuplicatesBy<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector)
+        => source
+        .GroupBy(keySelector)
+        .Where(g => g.Count() > 1)
+        .SelectMany(g => g);
+
+    public static List<T>? ToListIfAny<T>(this IEnumerable<T> source)
+    {
+        using var enumerator = source.GetEnumerator();
+        if (!enumerator.MoveNext())
+            return null;
+        List<T> result = [enumerator.Current];
+
+        while (enumerator.MoveNext()) {
+            result.Add(enumerator.Current);
+        }
+        return result;
     }
 }

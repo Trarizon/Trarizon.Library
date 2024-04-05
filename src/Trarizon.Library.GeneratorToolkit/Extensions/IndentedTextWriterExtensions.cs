@@ -17,8 +17,19 @@ public static class IndentedTextWriterExtensions
 
     public static DeferIndentBack WriteLineWithBrace(this IndentedTextWriter writer, string? text)
     {
-        writer.WriteLine(text);
+        if (text is not null)
+            writer.WriteLine(text);
         return writer.WriteBraceIndent();
+    }
+
+    public static DeferIndentBack WriteLineWithIndent(this IndentedTextWriter writer, string? text, string? beforeIndent = null, string? afterIndent = null)
+    {
+        if (text is not null)
+            writer.WriteLine(text);
+        if (beforeIndent is not null)
+            writer.WriteLine(beforeIndent);
+        writer.Indent++;
+        return new DeferIndentBack(writer, afterIndent);
     }
 
     public static void WriteMultipleLines(this IndentedTextWriter writer, string text)

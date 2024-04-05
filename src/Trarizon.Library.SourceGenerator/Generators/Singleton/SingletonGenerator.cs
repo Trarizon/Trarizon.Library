@@ -64,13 +64,13 @@ internal sealed partial class SingletonGenerator : IIncrementalGenerator
                 instancePropertyIdentifier = L_Instance_PropertyIdentifier;
             }
             else if (!ValidationHelper.IsValidIdentifier(instancePropertyIdentifier))
-                return new DiagnosticData(D_InvalidInstanceIdentifier, syntax.Identifier);
+                return new DiagnosticData(Literals.Diagnostic_InvalidIdentifier_0Identifiers, syntax.Identifier, instancePropertyIdentifier);
 
             var singletonProviderIdentifier = attribute.GetNamedArgument<string?>(L_Attribute_SingletonProviderName_PropertyIdentifier).Value;
             if (singletonProviderIdentifier is null)
                 singletonProviderIdentifier = L_Attribute_SingletonProviderName_PropertyIdentifier;
             else if (!ValidationHelper.IsValidIdentifier(singletonProviderIdentifier))
-                return new DiagnosticData(D_InvalidSingletonProviderIdentifier, syntax.Identifier);
+                return new DiagnosticData(Literals.Diagnostic_InvalidIdentifier_0Identifiers, syntax.Identifier, singletonProviderIdentifier);
 
             var options = attribute.GetNamedArgument<SingletonOptions>(L_Attribute_Options_PropertyIdentifier).Value;
             if (!options.HasFlag(SingletonOptions.NoProvider) && instancePropertyIdentifier == singletonProviderIdentifier)
@@ -85,7 +85,7 @@ internal sealed partial class SingletonGenerator : IIncrementalGenerator
             bool hasCustomPrivateCtor = false;
 
             if (!symbol.Constructors.TrySingleOrNone(ctor => !ctor.IsStatic, out var first)) {
-                diags.SafelyAdd(new DiagnosticData(D_SingletonHasOneOrNoneCtor, syntax.Identifier));
+                (diags ??= []).Add(new DiagnosticData(D_SingletonHasOneOrNoneCtor, syntax.Identifier));
                 goto EndCtor;
             }
 
@@ -95,11 +95,11 @@ internal sealed partial class SingletonGenerator : IIncrementalGenerator
 
             var ctor = first.Value;
             if (ctor.DeclaredAccessibility is not (Accessibility.NotApplicable or Accessibility.Private)) {
-                diags.SafelyAdd(new DiagnosticData(D_SingletonCannotContainsNonPrivateCtor, ctor.DeclaringSyntaxReferences.FirstOrDefault()));
+                (diags ??= []).Add(new DiagnosticData(D_SingletonCannotContainsNonPrivateCtor, ctor.DeclaringSyntaxReferences.FirstOrDefault()));
             }
 
             if (ctor.Parameters.Length > 0) {
-                diags.SafelyAdd(new DiagnosticData(D_SingletonCtorHasNoParameter, ctor.DeclaringSyntaxReferences.FirstOrDefault()));
+                (diags ??= []).Add(new DiagnosticData(D_SingletonCtorHasNoParameter, ctor.DeclaringSyntaxReferences.FirstOrDefault()));
             }
 
         EndCtor:
@@ -108,7 +108,7 @@ internal sealed partial class SingletonGenerator : IIncrementalGenerator
 
         public string GenerateFileName()
         {
-            return $"{symbol.ToValidFileNameString()}.g.{Literals.SingletonGenerator_FileSuffix}.cs";
+            return $"{symbol.ToValidFileNameString()}.g.{Literals.SingletonGenerator_Id}.cs";
         }
 
         public string Emit()

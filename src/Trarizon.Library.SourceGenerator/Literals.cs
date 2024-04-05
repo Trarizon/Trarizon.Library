@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using Microsoft.CodeAnalysis;
+using System.Reflection;
 using Trarizon.Library.GeneratorToolkit.Factories;
 
 namespace Trarizon.Library.SourceGenerator;
@@ -23,7 +24,18 @@ internal static class Literals
     public const string BackingFieldAccessAnalyzer_Id = "BFA";
 
     public const string SingletonGenerator_Id = "Siglt";
-    public const string SingletonGenerator_FileSuffix = "Singleton";
+    public const string TaggedUnionGenerator_Id = "TU";
 
+    #endregion
+
+    #region Diagnostics
+
+    public static readonly DiagnosticDescriptor Diagnostic_InvalidIdentifier_0Identifiers = new(
+        "TRA0001",
+        nameof(Diagnostic_InvalidIdentifier_0Identifiers),
+        "Invalid identifier(s): {0}",
+        Category,
+        DiagnosticSeverity.Error,
+        true);
     #endregion
 }

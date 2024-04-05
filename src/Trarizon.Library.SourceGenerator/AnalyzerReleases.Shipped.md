@@ -7,6 +7,7 @@
 
 Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
+TRA0001 | Trarizon.Library.SourceGenerator | Error | Literals
 TRAFA0001 | Trarizon.Library.SourceGenerator | Error | FriendAccessAnalyzer
 TRAFA0002 | Trarizon.Library.SourceGenerator | Warning | FriendAccessAnalyzer
 TRAFA0003 | Trarizon.Library.SourceGenerator | Warning | FriendAccessAnalyzer
@@ -20,6 +21,4 @@ TRASiglt0003 | Trarizon.Library.SourceGenerator | Error | SingletonGenerator
 TRASiglt0004 | Trarizon.Library.SourceGenerator | Error | SingletonGenerator
 TRASiglt0005 | Trarizon.Library.SourceGenerator | Error | SingletonGenerator
 TRASiglt0006 | Trarizon.Library.SourceGenerator | Error | SingletonGenerator
-TRASiglt0007 | Trarizon.Library.SourceGenerator | Error | SingletonGenerator
-TRASiglt0008 | Trarizon.Library.SourceGenerator | Error | SingletonGenerator
 TRASiglt1001 | Trarizon.Library.SourceGenerator | Error | SingletonGenerator

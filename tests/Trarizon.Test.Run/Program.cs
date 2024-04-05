@@ -1,4 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
+#pragma warning disable CS8500
+
 using BenchmarkDotNet.Running;
 using System.Collections;
 using System.Collections.Immutable;
@@ -13,43 +15,92 @@ using Trarizon.Library;
 using Trarizon.Library.CodeAnalysis;
 using Trarizon.Library.CodeAnalysis.MemberAccess;
 using Trarizon.Library.CodeTemplating;
+using Trarizon.Library.CodeTemplating.TaggedUnion;
 using Trarizon.Library.Collections.AllocOpt;
 using Trarizon.Library.Collections.Helpers;
 using Trarizon.Library.RunTest.Examples;
 using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 
-int a = -1;
-uint u = (uint)a;
-Console.WriteLine(u); ;
+unsafe {
+    //(int, object) val=(5,new());
+    //var span = MemoryMarshal.CreateSpan(ref Unsafe.As<int, byte>(ref val.Item1), 16);
+    //span.Print();
+    var u2 = new U2();
+    u2.a.Item2 = (5, "string");
+    //u2.u.Print();
+    sizeof(U2).Print();
+    MemoryMarshal.CreateSpan(ref Unsafe.As<int, byte>(ref u2.a.Item1), 24).Print();
+    //MemoryMarshal.CreateSpan(ref Unsafe.As<int, byte>(ref u2.u.Item1), 24).Print();
+
+    var un = Un.CreateA(5);
+    if (un.TryGetA(out int v))
+        v.Print();
+}
+
+Console.WriteLine("Hello, World!"); ;
 
 
 partial class Program
 {
-    partial class NEst
+    //[UnionTag]
+    //enum UnKind
+    //{
+    //    Zero,
+    //    [TagVariant<int>("Str")]
+    //    A,
+    //    //[TagVariant<int, string, string, int>("v", "dd", null,null)]
+    //    //B,
+    //    //[TagVariant(typeof(int), typeof((string, string Right)), Identifiers = ["s", "b"])]
+    //    //C,
+    //    //[TagVariant<string>("St")]
+    //    //D,
+    //    //[TagVariant<Program>("Prog")]
+    //    //E,
+    //}
+
+    [StructLayout(LayoutKind.Explicit)]
+    struct U3
     {
-        [GeneratedRegex("")]
-        public partial Regex A();
+        [FieldOffset(0)]
+        (int, object, object) t;
+        [FieldOffset(0)]
+        object obj; // 如果只有obj和unmanaged type
+        [FieldOffset(0)]
+        (object, long, int, object) a;
     }
-}
-namespace N
-{
-    namespace M.S
+
+    [StructLayout(LayoutKind.Explicit)]
+    struct U2
     {
-        partial class AB
-        {
-            partial interface IDE<T, TD> where TD : IEnumerable
-            {
-                [Singleton(InstancePropertyName = "DDd", SingletonProviderName = "Dd")]
-                public sealed partial class A
-                {
-                    public int DD
-                    {
-                        get;
-                        set;
-                    }
-                }
-            }
-        }
+        [FieldOffset(0)]
+        public (int, (object, object)) a;
+        //[FieldOffset(0)]
+        //public (int, object, object, int) u;
+    }
+
+    [StructLayout(LayoutKind.Explicit)]
+    struct U
+    {
+        [FieldOffset(0)]
+        public A a;
+        [FieldOffset(0)]
+        public B b;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    struct A
+    {
+        public uint num;
+        public string name;
+        public List<U> list;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    struct B
+    {
+        public Queue<U> queue;
+        public uint num;
+        public string name;
     }
 }

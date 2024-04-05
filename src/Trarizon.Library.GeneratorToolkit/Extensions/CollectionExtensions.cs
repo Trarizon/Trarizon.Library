@@ -1,11 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.CodeAnalysis;
+using System.Collections.Immutable;
 
 namespace Trarizon.Library.GeneratorToolkit.Extensions;
 public static class CollectionExtensions
 {
-    public static void SafelyAdd<T>(this List<T>? list,T item)
+    public static Optional<T> TryAt<T>(this ImmutableArray<T> values, int index)
     {
-        list ??= [];
-        list.Add(item);
+        if (values.IsDefault || index < 0 || index >= values.Length)
+            return default;
+        else
+            return values[index];
     }
+
+    public static ImmutableArray<T> EmptyIfDefault<T>(this ImmutableArray<T> array)
+        => array.IsDefault ? ImmutableArray<T>.Empty : array;
 }
