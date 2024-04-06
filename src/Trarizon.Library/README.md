@@ -86,6 +86,8 @@ Impl Type|Method|Remarks
 ✔✔✔|`CartesianProduct`|返回两个序列的笛卡尔积（`SelectMany(_ => second, (_1, _2) => (_1, _2))`）
 ✔✔✔|`ChunkPair`<br/>`ChunkTriple`|类LinQ的`Chunk`，返回结果为`ValueTuple`
 ✔|`CountsMoreThan`<br/>`CountsLessThan`<br/>`CountsAtLeast`<br/>`CountsAtMost`<br/>`CountsEqualsTo`<br/>`CountsBetween`|比较序列大小，可选out参数在小于指定值时返回当前序列大小
+✔|`Distinct`<br/>`DistinctBy`|判断序列是否有重复元素
+✔|`Duplicates`|返回有重复的元素
 ⭕⭕✔<br/>❌✔✔|`ElementAtOrDefault`<br/>`TryAt`|以安全方式按下标获取值
 ✔|`EmptyIfNull`|序列为`null`时返回空序列，否则返回自身
 ✔|`TryFirst`|判断序列是否有值，若有，返回第一个值
@@ -95,13 +97,14 @@ Impl Type|Method|Remarks
 ✔|`MinMax`<br/>`MinMaxBy`|一次遍历返回序列中的最小值与最大值
 ✔|`OfNotNull`<br/>`OfNotNone`|`.Where(t is not null)` <br/> `.Where(t.HasValue)`
 ✔|`OfTypeUntil`|`.OfType<T>().TakeWhile(t is not TExcept)`
-✔✔✔|`PopFront`<br/>`PopFirst`<br/>`PopFrontWhile`|取出开头指定数量的元素（*非延迟加载*），并返回剩下的元素
+✔✔✔|`PopFront`<br/>`PopFirst`<br/>`PopFrontWhile`|取出开头指定数量的元素，并返回剩下的元素
 ✔✔✔|`Repeat`<br/>`RepeatForever`|将序列重复
 ⭕✔✔|`Reverse`|-
 ✔✔✔|`Rotate`|交换序列前后两个部分
 ✔|`TrySingle`<br/>`TrySingleOrNone`|判断序列是否仅含有1个值（或为空），并返回该值（或指定默认值）
 ✔⭕✔|`StartsWith`|扩展了从指定位置开始判定的方法
 ⭕✔✔|`Take`|-
+✔|`ToListIfAny`|如果序列为空，返回`null`，否则等效`ToList`。仅作为优化方法
 ✔|`WhereSelect`|合并了LinQ的`Where`和`Select`，以此可以利用中间值
 
 </details>

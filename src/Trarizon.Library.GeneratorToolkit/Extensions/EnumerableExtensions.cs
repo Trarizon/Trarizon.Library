@@ -210,32 +210,6 @@ public static class EnumerableExtensions
         }
     }
 
-    public static IEnumerable<(T Value, TResult Result)> SelectZip<T, TResult>(this IEnumerable<T> source, Func<T, TResult> selector)
-    {
-        foreach (var item in source) {
-            yield return (item, selector(item));
-        }
-    }
-
-    public static IEnumerable<(int Index, T Item)> Index<T>(this IEnumerable<T> source)
-    {
-        int index = 0;
-        foreach (var item in source) {
-            yield return (index, item);
-            index++;
-        }
-    }
-
-    public static bool IsDistinct<T>(this IEnumerable<T> source)
-    {
-        HashSet<T> set = [];
-        foreach (var item in source) {
-            if (!set.Add(item))
-                return false;
-        }
-        return true;
-    }
-
     public static bool IsDistinctBy<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector)
     {
         HashSet<TKey> set = [];

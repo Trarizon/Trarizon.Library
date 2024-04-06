@@ -30,6 +30,8 @@
         - `OfNotNull()`
         - `FirstByMaxPriorityOrDefault()`
         - `PopFront` overload
+        - `Distinct`, `DistinctBy`
+        - `ToListIfAny`
     - Add `SpanQuery` methods:
         - `Sum`
     - Extend collections:
@@ -60,6 +62,7 @@
         - `FriendAccessAttribute` now works on pointer access
         - Add `FriendAccess.Options`
         - Add `SingletonAttribute`
+        - Add TaggedUnion (`UnionTagAttribute`, `TagVariantAttribute`)
 - Changes
     - Optimize `IEnumerable<>.CartesianProduct()`, `IsInOrder()`, `Merge()`, `PopFront`
     - Optimize condition check in Queries
