@@ -11,10 +11,12 @@ Miscellaneous thing. There will be many breaking changes (orz.
 <details>
 <summary>brief</summary>
 
-- CodeAnalysis (Use generator)
+- CodeGenerator/Analyzers
 	- MemberAccess
 		- `[FriendAccess]`: restrict access of member to specified several types
 		- `[BackingFieldAccess]`: A workaround of semi-auto-property, restrict access of a field to specified member
+	- `[Singleton]`
+	- TaggedUnion : Generate tagged union within enum type
 - Wrappers: Monads, `Optional<T>`, `Result<T, TError>`, `Either<TLeft, TRight>`
 - Collections:
 	- Queries: More Linq-like methods for `IEnumerable<>`, `IList<>`, `IReadOnlyList<>`

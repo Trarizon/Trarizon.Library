@@ -2,10 +2,8 @@
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.CodeDom.Compiler;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -14,9 +12,10 @@ using Trarizon.Library.GeneratorToolkit;
 using Trarizon.Library.GeneratorToolkit.Extensions;
 using Trarizon.Library.GeneratorToolkit.Helpers;
 using Trarizon.Library.GeneratorToolkit.More;
+using Trarizon.Library.GeneratorToolkit.Wrappers;
 
 namespace Trarizon.Library.SourceGenerator.Generators;
-// [Generator(LanguageNames.CSharp)]
+[Generator(LanguageNames.CSharp)]
 internal sealed partial class TaggedUnionGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
@@ -27,53 +26,24 @@ internal sealed partial class TaggedUnionGenerator : IIncrementalGenerator
             Emitter.Parse)
             .OfNotNull();
 
-        context.RegisterSourceOutput(filter, (context, result) =>
-        {
-            if (result is DiagnosticData d) {
-                context.ReportDiagnostic(d.ToDiagnostic());
-                return;
-            }
-
-            if (result is List<DiagnosticData> ds) {
-                foreach (var diag in ds) {
-                    context.ReportDiagnostic(diag.ToDiagnostic());
-                }
-                return;
-            }
-
-            if (result is Emitter e) {
-                Console.WriteLine(e.Emit());
-                context.AddSource(e.GenerateFileName(), e.Emit());
-                return;
-            }
-
-            var (emitter, diags) = ((Emitter, List<DiagnosticData>?))result;
-
-            foreach (var diag in diags ?? []) {
-                context.ReportDiagnostic(diag.ToDiagnostic());
-            }
-            if (emitter is not null) {
-                Console.WriteLine(emitter.Emit());
-                context.AddSource(emitter.GenerateFileName(), emitter.Emit());
-            }
-        });
+        context.RegisterSourceOutput(filter);
     }
 
     private sealed class Emitter(EnumDeclarationSyntax syntax, INamedTypeSymbol symbol,
-        string taggedUnionTypeIdentifier, IEnumerable<Variant> variants, int maxReferenceCount)
+        string taggedUnionTypeIdentifier, IEnumerable<Variant> variants, int maxReferenceCount) : ISourceEmitter
     {
         public string GenerateFileName() => $"{symbol.ToValidFileNameString()}.g.{Literals.TaggedUnionGenerator_Id}.cs";
 
-        public static object? Parse(GeneratorAttributeSyntaxContext context, CancellationToken token)
+        public static ParseResult<Emitter> Parse(GeneratorAttributeSyntaxContext context, CancellationToken token)
         {
             if (context.TargetNode is not EnumDeclarationSyntax syntax)
-                return null;
+                return default;
 
             if (context.TargetSymbol is not INamedTypeSymbol { TypeKind: TypeKind.Enum } symbol)
-                return null;
+                return default;
 
             if (context.Attributes is not [var attribute])
-                return null;
+                return default;
 
             var generatedTypeIdentifier = attribute.GetConstructorArgument<string?>(L_Attribute_GeneratedTypeName_ConstructorIndex).Value;
             if (generatedTypeIdentifier is null) {
@@ -82,19 +52,19 @@ internal sealed partial class TaggedUnionGenerator : IIncrementalGenerator
             else if (!ValidationHelper.IsValidIdentifier(generatedTypeIdentifier))
                 return new DiagnosticData(Literals.Diagnostic_InvalidIdentifier_0Identifiers, syntax.Identifier.GetLocation(), generatedTypeIdentifier);
 
-            var variants = symbol.GetMembers()
+            var variantResults = symbol.GetMembers()
                 .OfType<IFieldSymbol>()
                 // Collect TagVariant attribute datas
-                .Select(field =>
+                .Select(Result<Variant, DiagnosticData> (field) =>
                 {
                     var attr = field.GetAttributes()
                        .Where(attr => attr.AttributeClass?.ToDisplayString(MoreSymbolDisplayFormats.DefaultWithoutGeneric) is L_VariantAttribute_TypeName)
                        .FirstOrDefault();
                     if (attr is null)
-                        return new Variant(field, ImmutableArray<ITypeSymbol>.Empty, ImmutableArray<string>.Empty);
+                        return new Variant(field, ImmutableArray<ITypeSymbol>.Empty, ImmutableArray<string?>.Empty);
 
                     ImmutableArray<ITypeSymbol> types;
-                    IEnumerable<string?> identifiers;
+                    ImmutableArray<string?> identifiers;
 
                     if (attr.AttributeClass!.TypeParameters.IsEmpty) {
                         types = attr.GetConstructorArguments<ITypeSymbol>(L_VariantAttribute_Types_ConstructorIndex);
@@ -107,39 +77,64 @@ internal sealed partial class TaggedUnionGenerator : IIncrementalGenerator
                             .Cast<string?>()
                             .ToImmutableArray();
                     }
+
+                    var invalidIdentifiers = identifiers
+                        .Where(id => id is not null && !ValidationHelper.IsValidIdentifier(id))
+                        .ToListIfAny();
+                    if (invalidIdentifiers is not null)
+                        return new DiagnosticData(Literals.Diagnostic_InvalidIdentifier_0Identifiers,
+                            field.DeclaringSyntaxReferences[0].GetSyntax().GetLocation(),
+                            string.Join(", ", invalidIdentifiers));
+
                     return new Variant(field,
                         types.EmptyIfDefault(),
-                        identifiers.Select((arg, i) => arg ?? $"Item{i + 1}").ToImmutableArray());
-                })
-                .ToList();
+                        identifiers);
+                });
+
+            token.ThrowIfCancellationRequested();
+
+            var unsupports = variantResults
+                .Where(r => r.Failed)
+                .Select(r => r.Error)
+                .ToListIfAny();
+            if (unsupports is not null)
+                return unsupports;
 
             // Distinct enum values
-            var diags = variants
-                .DuplicatesBy(v => v.EnumValue)
-                .Select(v => new DiagnosticData(D_EnumValueRepeat, v.EnumField.DeclaringSyntaxReferences[0]))
+            var duplicateEnumValues = variantResults
+                .DuplicatesBy(v => v.Value.EnumValue)
+                .Select(v => new DiagnosticData(D_EnumValueRepeat, v.Value.EnumField.DeclaringSyntaxReferences[0]))
                 .ToListIfAny();
-            if (diags is not null)
-                return diags;
+            if (duplicateEnumValues is not null)
+                return duplicateEnumValues;
 
             // Distinct identifiers
-            diags = variants
-                .Where(v => !v.Fields.Identifiers.IsDistinct())
-                .Select(v => new DiagnosticData(D_VariantFieldNameRepeat, v.EnumField.DeclaringSyntaxReferences[0]))
+            duplicateEnumValues = variantResults
+                .Where(v => !v.Value.Fields.IsDistinctBy(f => f.Identifier))
+                .Select(v => new DiagnosticData(D_VariantFieldNameRepeat, v.Value.EnumField.DeclaringSyntaxReferences[0]))
                 .ToListIfAny();
-            if (diags is not null)
-                return diags;
+            if (duplicateEnumValues is not null)
+                return duplicateEnumValues;
 
+            token.ThrowIfCancellationRequested();
+
+            var variants = variantResults.Select(r => r.Value).ToList();
             int max = variants.Max(v => v.ReferenceCount);
+            var res = new ParseResult<Emitter>(new Emitter(syntax, symbol, generatedTypeIdentifier, variants, max));
 
+            foreach (var variant in variants) {
+                if (variant.Fields.Any(f => f.Type is { IsReferenceType: false, IsUnmanagedType: false }))
+                    res.AddDiagnostic(new DiagnosticData(D_ManagedValueTypeWillBeBoxes, variant.EnumField.DeclaringSyntaxReferences[0]));
+            }
             if (!variants.Any(v => v is { EnumValue: 0L, Fields.Length: 0 }))
-                (diags ??= []).Add(new DiagnosticData(D_ProvideNonVariantZeroField, syntax.Identifier.GetLocation()));
-            return (new Emitter(syntax, symbol, generatedTypeIdentifier, variants, max), diags);
+                res.AddDiagnostic(new DiagnosticData(D_ProvideNonVariantZeroField, syntax.Identifier.GetLocation()));
+            return res;
         }
 
         private static string GetDefaultGeneratedTypeIdentifier(INamedTypeSymbol symbol)
         {
             var enumName = symbol.Name;
-            if (enumName.EndsWith("Kind"))
+            if (enumName.EndsWith("Kind") && enumName.Length > 4)
                 return enumName[..^4];
             else
                 return $"{enumName}Union";
@@ -154,12 +149,17 @@ internal sealed partial class TaggedUnionGenerator : IIncrementalGenerator
             writer.WriteLine();
 
             using (writer.EmitContainingTypesAndNamespace(symbol, syntax)) {
+                EmitXmlDocComments(writer);
                 using (writer.WriteLineWithBrace($"{syntax.Modifiers} partial struct {taggedUnionTypeIdentifier}")) {
                     writer.WriteLine(Literals.GeneratedCodeAttributeList_Code);
                     writer.WriteLine($"public readonly {symbol.ToFullQualifiedDisplayString()} {L_Tag_PropertyIdentifier} {{ get; private init; }}");
 
-                    writer.WriteLine(Literals.GeneratedCodeAttributeList_Code);
-                    writer.WriteLine($"private {L_Struct_TypeIdentifier} {L_Struct_FieldIdentifier};");
+                    bool containsUnmanaged = variants.Any(v => v.UnmanagedCount > 0);
+                    if (containsUnmanaged) {
+                        writer.WriteLine(Literals.GeneratedCodeAttributeList_Code);
+                        writer.WriteLine($"private {L_UnionStruct_TypeIdentifier} {L_UnionStruct_FieldIdentifier};");
+                    }
+                    EmitRefObjFields(writer);
 
                     foreach (var variant in variants) {
                         writer.WriteLine();
@@ -168,8 +168,10 @@ internal sealed partial class TaggedUnionGenerator : IIncrementalGenerator
                         EmitTryGetMethod(writer, variant);
                     }
 
-                    writer.WriteLine();
-                    EmitUnionStruct(writer);
+                    if (containsUnmanaged) {
+                        writer.WriteLine();
+                        EmitUnionStruct(writer);
+                    }
                 }
             }
 
@@ -177,31 +179,47 @@ internal sealed partial class TaggedUnionGenerator : IIncrementalGenerator
             return sw.ToString();
         }
 
-        private void EmitUnionStruct(IndentedTextWriter writer)
+        public void EmitXmlDocComments(IndentedTextWriter writer)
         {
-            writer.WriteLine(Literals.GeneratedCodeAttributeList_Code);
-            writer.WriteLine($"[global::{Globals.StructLayoutAttribute_TypeName}(global::{Globals.LayoutKind_Explicit_EnumValue})]");
-            using (writer.WriteLineWithBrace($"private struct {L_Struct_TypeIdentifier}")) {
-                // We do not generate type for simple enum field with no variant
-                foreach (var variant in variants.Where(v => !v.Fields.IsEmpty)) {
-                    writer.WriteLine($"[global::{Globals.FieldOffsetAttribute_TypeName}(0)]");
-                    writer.WriteLine($"public {GenerateVariantTypeName(variant)} {variant.EnumField.Name};");
-                }
+            writer.WriteXmlDocLine("<remarks>", noEscape: true);
+            writer.WriteXmlDocLine("<code>", noEscape: true);
+            writer.WriteXmlDocLine($"union {taggedUnionTypeIdentifier}");
+            writer.WriteXmlDocLine($"{{");
+            foreach (var variant in variants) {
+                writer.WriteXmlDocLine($"    {variant.EnumField.Name}({string.Join(", ", variant.Fields.Select(f => $"{f.Type.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)} {f.Identifier}"))}),");
+            }
+            writer.WriteXmlDocLine($"}}");
+            writer.WriteXmlDocLine("</code>", noEscape: true);
+            writer.WriteXmlDocLine("</remarks>", noEscape: true);
+        }
+
+        private void EmitRefObjFields(IndentedTextWriter writer)
+        {
+            for (int i = 0; i < maxReferenceCount; i++) {
+                writer.WriteLine(Literals.GeneratedCodeAttributeList_Code);
+                writer.WriteLine($"private object {L_RefObj_FieldIdentifier(i)};");
             }
         }
 
         private void EmitCreateMethod(IndentedTextWriter writer, Variant variant)
         {
-            var parameters = variant.Fields
-                .Select(v => $"{v.Type.ToFullQualifiedDisplayString()} {v.Identifier}");
-            using (writer.WriteLineWithIndent($"public static {taggedUnionTypeIdentifier} Create{variant.EnumField.Name}({string.Join(", ", parameters)}) => new()", "{", "};")) {
+            string parameters = string.Join(", ", variant.Fields.Select(f => $"{f.Type.ToFullQualifiedDisplayString()} {f.Identifier}"));
+            using (writer.WriteLineWithIndent($"public static {taggedUnionTypeIdentifier} Create{variant.EnumField.Name}({parameters}) => new()", "{", "};")) {
+                // initializer list
                 writer.WriteLine($"{L_Tag_PropertyIdentifier} = {symbol.ToFullQualifiedDisplayString()}.{variant.EnumField.Name},");
-                if (variant.Fields.IsEmpty)
+                if (variant.Fields.Length == 0)
                     return;
 
-                using (writer.WriteLineWithIndent($"{L_Struct_FieldIdentifier} = new()", "{", "},")) {
-                    writer.WriteLine($"{variant.EnumField.Name} = {GenerateVariantCreate(variant)},");
+                foreach (var field in variant.Fields.Where(f => !f.Type.IsUnmanagedType)) {
+                    writer.WriteLine($"{L_RefObj_FieldIdentifier(field.FieldIndex)} = {field.Identifier},");
                 }
+
+                if (variant.UnmanagedCount == 0)
+                    return;
+                var unmanageds = string.Join(", ", variant.Fields.Where(f => f.Type.IsUnmanagedType).Select(f => f.Identifier));
+                // We always use () wrap field, If there's only 1 field,
+                // this () will be treat as redundant by compiler.
+                writer.WriteLine($"{L_UnionStruct_FieldIdentifier} = new() {{ {variant.EnumField.Name} = ({unmanageds}), }},");
             }
         }
 
@@ -211,76 +229,58 @@ internal sealed partial class TaggedUnionGenerator : IIncrementalGenerator
                 return;
 
             IEnumerable<string> parameters = variant.Fields
-                .Select((v) =>
+                .Select((f) =>
                 {
-                    var attr = v.Type.IsReferenceType ? $"[{Globals.MaybeNullWhenAttribute_TypeName}(false)] " : "";
-                    return $"{attr}out {v.Type.ToFullQualifiedDisplayString()} {v.Identifier}";
+                    var attr = f.Type.IsReferenceType ? $"[{Globals.MaybeNullWhenAttribute_TypeName}(false)] " : "";
+                    return $"{attr}out {f.Type.ToFullQualifiedDisplayString()} {f.Identifier}";
                 });
 
             using (writer.WriteLineWithBrace($"public readonly bool TryGet{variant.EnumField.Name}({string.Join(", ", parameters)})")) {
                 using (writer.WriteLineWithBrace($"if ({L_Tag_PropertyIdentifier} is {symbol.ToFullQualifiedDisplayString()}.{variant.EnumField.Name})")) {
-                    foreach (var (index, iden) in variant.Fields.Identifiers.Index()) {
-                        writer.WriteLine($"{iden} = {L_Struct_FieldIdentifier}.{GenerateVariantAccess(variant, index)};");
+                    Func<string, int, string> unmanagedAssign = variant.UnmanagedCount == 1
+                        ? (id, i) => $"{id} = {L_UnionStruct_FieldIdentifier}.{variant.EnumField.Name};"
+                        : (id, i) => $"{id} = {L_UnionStruct_FieldIdentifier}.{variant.EnumField.Name}.Item{i + 1};";
+
+                    foreach (var (type, identifier, fieldIndex) in variant.Fields) {
+                        if (type.IsUnmanagedType)
+                            writer.WriteLine(unmanagedAssign(identifier, fieldIndex));
+                        else if (type.IsReferenceType)
+                            writer.WriteLine($"{identifier} = global::{Globals.Unsafe_TypeName}.{Globals.As_Identifier}<{type.ToFullQualifiedDisplayString()}>({L_RefObj_FieldIdentifier(fieldIndex)});");
+                        else
+                            writer.WriteLine($"{identifier} = global::{Globals.Unsafe_TypeName}.{Globals.Unbox_Identifier}<{type.ToFullQualifiedDisplayString()}>({L_RefObj_FieldIdentifier(fieldIndex)});");
                     }
                     writer.WriteLine("return true;");
                 }
-                foreach (var iden in variant.Fields.Identifiers) {
-                    writer.WriteLine($"{iden} = default;");
+                foreach (var field in variant.Fields) {
+                    writer.WriteLine($"{field.Identifier} = default;");
                 }
                 writer.WriteLine("return false;");
             }
         }
 
-        // For reference type, we use type itself
-        // For value type, we use ValueTuple to padding necessary count of object to match the requirement
-        private string GenerateVariantTypeName(Variant variant)
+        private void EmitUnionStruct(IndentedTextWriter writer)
         {
-            Debug.Assert(!variant.Fields.IsEmpty);
+            // Union unmanaged types
 
-            string variantType;
-            if (variant.Fields.Length == 1)
-                variantType = variant.Fields[0].Type.ToFullQualifiedDisplayString();
-            else
-                variantType = $"({string.Join(", ", variant.Fields.Types.Select(type => type.ToFullQualifiedDisplayString()))})";
+            writer.WriteLine(Literals.GeneratedCodeAttributeList_Code);
+            writer.WriteLine($"[global::{Globals.StructLayoutAttribute_TypeName}(global::{Globals.LayoutKind_Explicit_EnumValue})]");
+            using (writer.WriteLineWithBrace($"private struct {L_UnionStruct_TypeIdentifier}")) {
+                // We do not generate type for simple enum field with no variant
+                foreach (var variant in variants.Where(v => v.UnmanagedCount > 0)) {
+                    writer.WriteLine($"[global::{Globals.FieldOffsetAttribute_TypeName}(0)]");
 
-            if (variant.IsSingleReferenceType || variant.ReferenceCount == maxReferenceCount)
-                return variantType;
-            return $"({variantType}{string.Concat(Enumerable.Repeat(", object", maxReferenceCount - variant.ReferenceCount))})";
-        }
-
-        private string GenerateVariantCreate(Variant variant)
-        {
-            // Keep sync with GenerateVariantTypeName
-            if (variant.IsSingleReferenceType)
-                return variant.Fields.Identifiers[0];
-
-            string variantFields;
-            if (variant.Fields.Length == 1)
-                variantFields = variant.Fields.Identifiers[0];
-            else
-                variantFields = $"({string.Join(", ", variant.Fields.Identifiers)})";
-
-            if (variant.ReferenceCount == maxReferenceCount)
-                return variantFields;
-            else
-                return $"new() {{ Item1 = {variantFields}, }}";
-        }
-
-        private string GenerateVariantAccess(Variant variant, int index = 0)
-        {
-            if (variant.IsSingleReferenceType)
-                return variant.EnumField.Name;
-
-            string variantAccessField;
-            if (variant.Fields.Length == 1)
-                variantAccessField = "";
-            else
-                variantAccessField = $".Item{index + 1}";
-
-            if (variant.ReferenceCount == maxReferenceCount)
-                return $"{variant.EnumField.Name}{variantAccessField}";
-            else
-                return $"{variant.EnumField.Name}.Item1{variantAccessField}";
+                    string typeName;
+                    if (variant.UnmanagedCount == 1)
+                        typeName = variant.Fields[0].Type.ToFullQualifiedDisplayString();
+                    else {
+                        var types = variant.Fields
+                            .Where(f => f.Type.IsUnmanagedType)
+                            .Select(f => f.Type.ToFullQualifiedDisplayString());
+                        typeName = $"({string.Join(", ", types)})";
+                    }
+                    writer.WriteLine($"public {typeName} {variant.EnumField.Name};");
+                }
+            }
         }
     }
 
@@ -290,13 +290,12 @@ internal sealed partial class TaggedUnionGenerator : IIncrementalGenerator
 
         public long EnumValue { get; }
 
-        public FieldZipCollection Fields { get; }
+        public ImmutableArray<(ITypeSymbol Type, string Identifier, int FieldIndex)> Fields { get; }
 
-        public int ReferenceCount { get; }
+        public int ReferenceCount => Fields.Length - UnmanagedCount;
+        public int UnmanagedCount { get; }
 
-        public bool IsSingleReferenceType => ReferenceCount == -1;
-
-        public Variant(IFieldSymbol enumField, ImmutableArray<ITypeSymbol> types, ImmutableArray<string> identifiers)
+        public Variant(IFieldSymbol enumField, ImmutableArray<ITypeSymbol> types, ImmutableArray<string?> identifiers)
         {
             EnumField = enumField;
             EnumValue = enumField.ConstantValue switch {
@@ -310,55 +309,18 @@ internal sealed partial class TaggedUnionGenerator : IIncrementalGenerator
                 ulong ul => Unsafe.As<ulong, long>(ref ul),
                 _ => throw new InvalidCastException()
             };
-            Fields = new(types, identifiers);
 
-            if (Fields.IsEmpty)
-                ReferenceCount = -2;
-            else if (Fields is not [(var singleType, _)])
-                ReferenceCount = types.Aggregate(0, (count, type) => count + ReferenceFieldCount(type));
-            else if (singleType.IsReferenceType)
-                ReferenceCount = -1;
-            else if (singleType.IsUnmanagedType)
-                ReferenceCount = 0;
-            else
-                ReferenceCount = ReferenceFieldCount(singleType);
-        }
-
-        private static int ReferenceFieldCount(ITypeSymbol symbol)
-        {
-            if (symbol.IsReferenceType)
-                return 1;
-            if (symbol.IsUnmanagedType)
-                return 0;
-            return symbol.GetMembers()
-                .OfType<IFieldSymbol>()
-                .Where(f => !f.IsExplicitlyNamedTupleElement)
-                .Aggregate(0, (count, field) => count + ReferenceFieldCount(field.Type));
-        }
-
-        public readonly struct FieldZipCollection(ImmutableArray<ITypeSymbol> types, ImmutableArray<string> identifiers) : IEnumerable<(ITypeSymbol Type, string Identifier)>
-        {
-            public ImmutableArray<ITypeSymbol> Types { get; } = types;
-            public ImmutableArray<string> Identifiers { get; } = identifiers;
-
-            public int Length => Types.Length;
-            public bool IsEmpty => Types.IsEmpty;
-            public (ITypeSymbol Type, string Identifier) this[int index]
-            {
-                get {
-                    var type = Types[index];
-                    var identifier = Identifiers.TryAt(index).Value ?? $"Item{index + 1}";
-                    return (type, identifier);
-                }
+            var builder = ImmutableArray.CreateBuilder<(ITypeSymbol, string, int)>(types.Length);
+            int refCount = 0, unmCount = 0;
+            for (int i = 0; i < types.Length; i++) {
+                var type = types[i];
+                var id = identifiers.TryAt(i).Value ?? $"Item{i + 1}";
+                ref var index = ref (type.IsUnmanagedType ? ref unmCount : ref refCount);
+                builder.Add((type, id, index));
+                index++;
             }
-
-            public IEnumerator<(ITypeSymbol Type, string Identifier)> GetEnumerator()
-            {
-                for (int i = 0; i < Length; i++) {
-                    yield return this[i];
-                }
-            }
-            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+            Fields = builder.ToImmutable();
+            UnmanagedCount = unmCount;
         }
     }
 }

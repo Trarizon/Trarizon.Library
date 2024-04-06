@@ -22,42 +22,60 @@ using Trarizon.Library.RunTest.Examples;
 using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 
-unsafe {
-    //(int, object) val=(5,new());
-    //var span = MemoryMarshal.CreateSpan(ref Unsafe.As<int, byte>(ref val.Item1), 16);
-    //span.Print();
-    var u2 = new U2();
-    u2.a.Item2 = (5, "string");
-    //u2.u.Print();
-    sizeof(U2).Print();
-    MemoryMarshal.CreateSpan(ref Unsafe.As<int, byte>(ref u2.a.Item1), 24).Print();
-    //MemoryMarshal.CreateSpan(ref Unsafe.As<int, byte>(ref u2.u.Item1), 24).Print();
+var un = Un.CreateA(1);
 
-    var un = Un.CreateA(5);
-    if (un.TryGetA(out int v))
-        v.Print();
+un.TryGetA(out var a).Print();
+a.Print();
+un.TryGetC(out int s, out var b).Print();
+s.Print();
+b.Print();
+un.TryGetE(out var e).Print();
+e.Print();
+
+unsafe {
+    //    //(int, object) val=(5,new());
+    //    //var span = MemoryMarshal.CreateSpan(ref Unsafe.As<int, byte>(ref val.Item1), 16);
+    //    //span.Print();
+    //    var u2 = new U2();
+    //    //u2.u.Print();
+    //    //sizeof(U2).Print();
+    //    //MemoryMarshal.CreateSpan(ref Unsafe.As<int, byte>(ref u2.a.Item1), 24).Print();
+    //    //MemoryMarshal.CreateSpan(ref Unsafe.As<int, byte>(ref u2.u.Item1), 24).Print();
 }
 
-Console.WriteLine("Hello, World!"); ;
+Console.WriteLine("Hello, World!");
 
 
 partial class Program
 {
-    //[UnionTag]
-    //enum UnKind
-    //{
-    //    Zero,
-    //    [TagVariant<int>("Str")]
-    //    A,
-    //    //[TagVariant<int, string, string, int>("v", "dd", null,null)]
-    //    //B,
-    //    //[TagVariant(typeof(int), typeof((string, string Right)), Identifiers = ["s", "b"])]
-    //    //C,
-    //    //[TagVariant<string>("St")]
-    //    //D,
-    //    //[TagVariant<Program>("Prog")]
-    //    //E,
-    //}
+    [GeneratedRegex("")]
+    public static partial Regex Ted();
+
+    /// <summary>
+    /// <code>
+    /// union Un
+    /// {
+    ///     not     is 
+    /// }
+    /// </code>
+    /// <see cref="int"/> is not
+    /// </summary>
+    /// <returns></returns>
+    [UnionTag]
+    enum UnKind
+    {
+        Zero,
+        [TagVariant<int>("Str")]
+        A,
+        [TagVariant<int, string, string, int>("v", "dd", null, null)]
+        B,
+        [TagVariant(typeof(int), typeof((string, string Right)), Identifiers = ["s", "b"])]
+        C,
+        [TagVariant<string>("St")]
+        D,
+        [TagVariant<Program>("Prog")]
+        E,
+    }
 
     [StructLayout(LayoutKind.Explicit)]
     struct U3
@@ -74,9 +92,9 @@ partial class Program
     struct U2
     {
         [FieldOffset(0)]
-        public (int, (object, object)) a;
-        //[FieldOffset(0)]
-        //public (int, object, object, int) u;
+        public (int,int,int,int,CancellationToken) a;
+        [FieldOffset(0)]
+        public (int, object, int) u;
     }
 
     [StructLayout(LayoutKind.Explicit)]

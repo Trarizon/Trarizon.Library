@@ -26,3 +26,9 @@ public sealed class TagVariantAttribute<T1, T2, T3, T4, T5>(string? name1, strin
 
 public sealed class TagVariantAttribute<T1, T2, T3, T4, T5, T6>(string? name1, string? name2, string? name3, string? name4, string? name5, string? name6)
     : TagVariantAttribute([typeof(T1), typeof(T2), typeof(T3), typeof(T4), typeof(T5), typeof(T6)], [name1, name2, name3, name4, name5, name6]);
+
+public sealed class TagVariantAttribute<T1, T2, T3, T4, T5, T6, T7>(string? name1, string? name2, string? name3, string? name4, string? name5, string? name6, string? name7)
+    : TagVariantAttribute([typeof(T1), typeof(T2), typeof(T3), typeof(T4), typeof(T5), typeof(T6), typeof(T7)], [name1, name2, name3, name4, name5, name6, name7]);
+
+public sealed class TagVariantAttribute<T1, T2, T3, T4, T5, T6, T7, T8>(string? name1, string? name2, string? name3, string? name4, string? name5, string? name6, string? name7, string? name8)
+    : TagVariantAttribute([typeof(T1), typeof(T2), typeof(T3), typeof(T4), typeof(T5), typeof(T6), typeof(T7), typeof(T8)], [name1, name2, name3, name4, name5, name6, name7, name8]);

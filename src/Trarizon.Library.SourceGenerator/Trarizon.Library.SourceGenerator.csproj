@@ -57,6 +57,7 @@
 			
 			System.Runtime.CompilerServices.IsExternalInit;
 		</PolySharpIncludeGeneratedTypes>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>	
 	<!-- PolySharp End-->
 	

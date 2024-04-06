@@ -236,6 +236,16 @@ public static class EnumerableExtensions
         return true;
     }
 
+    public static bool IsDistinctBy<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector)
+    {
+        HashSet<TKey> set = [];
+        foreach (var item in source) {
+            if (!set.Add(keySelector(item)))
+                return false;
+        }
+        return true;
+    }
+
     public static IEnumerable<T> DuplicatesBy<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector)
         => source
         .GroupBy(keySelector)

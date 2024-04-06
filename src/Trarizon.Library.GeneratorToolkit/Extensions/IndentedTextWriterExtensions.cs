@@ -1,8 +1,10 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Trarizon.Library.GeneratorToolkit.Factories;
 
 namespace Trarizon.Library.GeneratorToolkit.Extensions;
@@ -39,6 +41,33 @@ public static class IndentedTextWriterExtensions
         }
     }
 
+    public static void WriteXmlDocLine(this IndentedTextWriter writer, string text, bool noEscape = false)
+    {
+        if (noEscape)
+            writer.WriteLine($"/// {text}");
+        else
+            writer.WriteLine($"/// {Escape(text)}");
+
+        static string Escape(string text)
+        {
+            //                                       guessLength
+            var sb = new StringBuilder(text.Length + 6);
+            foreach (var c in text) {
+                if (c is '<')
+                    sb.Append("&lt;");
+                else if (c is '>')
+                    sb.Append("&gt;");
+                else if (c is '&')
+                    sb.Append("&amp;");
+                else if (c is '\n')
+                    sb.Append("<br/>");
+                else
+                    sb.Append(c);
+            }
+            return sb.ToString();
+        }
+    }
+
     public static DeferMultiIndentBackHelper EmitContainingTypesAndNamespace(this IndentedTextWriter writer, ISymbol symbol, SyntaxNode syntax)
     {
         var defer = new DeferMultiIndentBackHelper(writer);
@@ -55,6 +84,14 @@ public static class IndentedTextWriterExtensions
         return defer;
     }
 
+    public ref struct Defer(IndentedTextWriter writer, string? defered)
+    {
+        public readonly void Dispose()
+        {
+            if (defered is not null)
+                writer.WriteLine(defered);
+        }
+    }
 
     public ref struct DeferIndentBack(IndentedTextWriter writer, string? lineAfterBack)
     {

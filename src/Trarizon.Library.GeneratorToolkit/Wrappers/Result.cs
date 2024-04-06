@@ -46,22 +46,10 @@ public readonly struct Result<T, TError> where TError : class
     [MemberNotNullWhen(true, nameof(_error), nameof(Error))]
     public readonly bool Failed => _error is not null;
 
-    public readonly T Value
-    {
-        get
-        {
-            return _value!;
-        }
-    }
+    public readonly T Value => _value!;
 
     [NotNull]
-    public readonly TError Error
-    {
-        get
-        {
-            return _error!;
-        }
-    }
+    public readonly TError Error => _error!;
 
     public readonly T? GetValueOrDefault() => _value;
     public readonly TError? GetErrorOrDefault() => _error;

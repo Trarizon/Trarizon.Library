@@ -25,6 +25,7 @@ Generators are in [Trarizon.Library.SourceGenerator](../Trarizon.Library.SourceG
 Attribute|Generator|Remark
 :-:|:-:|:--
 `Singleton`|`SingletonGenerator`| generate singleton template
+`UnionTag`<br/>`TagVariant`|`TaggedUnionGenerator`|Generated tagged union struct by enum
 
 ## Collections
 

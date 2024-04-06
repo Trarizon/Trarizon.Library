@@ -2,13 +2,13 @@
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.CodeDom.Compiler;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using Trarizon.Library.GeneratorToolkit;
 using Trarizon.Library.GeneratorToolkit.Extensions;
 using Trarizon.Library.GeneratorToolkit.Helpers;
+using Trarizon.Library.GeneratorToolkit.Wrappers;
 
 namespace Trarizon.Library.SourceGenerator.Generators;
 [Generator(LanguageNames.CSharp)]
@@ -22,42 +22,25 @@ internal sealed partial class SingletonGenerator : IIncrementalGenerator
             Emitter.Parse)
             .OfNotNull();
 
-        context.RegisterSourceOutput(filter, (context, result) =>
-        {
-            if (result is DiagnosticData d) {
-                context.ReportDiagnostic(d.ToDiagnostic());
-                return;
-            }
-
-            var (emitter, diags) = ((Emitter, List<DiagnosticData>?))result;
-
-            foreach (var diag in diags ?? []) {
-                context.ReportDiagnostic(diag.ToDiagnostic());
-            }
-            if (emitter is not null) {
-                var str = emitter.Emit();
-                Console.WriteLine(str);
-                context.AddSource(emitter.GenerateFileName(), emitter.Emit());
-            }
-        });
+        context.RegisterSourceOutput(filter);
     }
 
     private sealed class Emitter(ClassDeclarationSyntax syntax, INamedTypeSymbol symbol,
-        string instancePropertyIdentifier, string providerTypeIdentifier, Emitter.SingletonOptions options, bool hasCustomPrivateCtor)
+        string instancePropertyIdentifier, string providerTypeIdentifier, Emitter.SingletonOptions options, bool hasCustomPrivateCtor) : ISourceEmitter
     {
-        public static object? Parse(GeneratorAttributeSyntaxContext context, CancellationToken token)
+        public static ParseResult<Emitter> Parse(GeneratorAttributeSyntaxContext context, CancellationToken token)
         {
             if (context.TargetNode is not ClassDeclarationSyntax syntax)
                 return new DiagnosticData(D_SingletonIsClassOnly, (context.TargetNode as TypeDeclarationSyntax)?.Identifier);
 
             if (context.TargetSymbol is not INamedTypeSymbol symbol)
-                return null;
+                return default;
 
             if (symbol.IsAbstract || symbol.IsStatic)
                 return new DiagnosticData(D_SingletonCannotBeAbstractOrStatic, syntax.Identifier);
 
             if (context.Attributes is not [var attribute])
-                return null;
+                return default;
 
             var instancePropertyIdentifier = attribute.GetNamedArgument<string?>(L_Attribute_InstancePropertyName_PropertyIdentifier).Value;
             if (instancePropertyIdentifier is null) {
@@ -76,16 +59,16 @@ internal sealed partial class SingletonGenerator : IIncrementalGenerator
             if (!options.HasFlag(SingletonOptions.NoProvider) && instancePropertyIdentifier == singletonProviderIdentifier)
                 return new DiagnosticData(D_SingletonMemberNameRepeat, syntax.Identifier);
 
-            // Confirm generate
+            token.ThrowIfCancellationRequested();
 
-            List<DiagnosticData>? diags = null;
+            ParseResult<Emitter> res = new();
 
             // constructor
 
             bool hasCustomPrivateCtor = false;
 
             if (!symbol.Constructors.TrySingleOrNone(ctor => !ctor.IsStatic, out var first)) {
-                (diags ??= []).Add(new DiagnosticData(D_SingletonHasOneOrNoneCtor, syntax.Identifier));
+                res.AddDiagnostic(new DiagnosticData(D_SingletonHasOneOrNoneCtor, syntax.Identifier));
                 goto EndCtor;
             }
 
@@ -95,15 +78,16 @@ internal sealed partial class SingletonGenerator : IIncrementalGenerator
 
             var ctor = first.Value;
             if (ctor.DeclaredAccessibility is not (Accessibility.NotApplicable or Accessibility.Private)) {
-                (diags ??= []).Add(new DiagnosticData(D_SingletonCannotContainsNonPrivateCtor, ctor.DeclaringSyntaxReferences.FirstOrDefault()));
+                res.AddDiagnostic(new DiagnosticData(D_SingletonCannotContainsNonPrivateCtor, ctor.DeclaringSyntaxReferences.FirstOrDefault()));
             }
 
             if (ctor.Parameters.Length > 0) {
-                (diags ??= []).Add(new DiagnosticData(D_SingletonCtorHasNoParameter, ctor.DeclaringSyntaxReferences.FirstOrDefault()));
+                res.AddDiagnostic(new DiagnosticData(D_SingletonCtorHasNoParameter, ctor.DeclaringSyntaxReferences.FirstOrDefault()));
             }
 
         EndCtor:
-            return (new Emitter(syntax, symbol, instancePropertyIdentifier, singletonProviderIdentifier, options, hasCustomPrivateCtor), diags);
+            res.Result = new Emitter(syntax, symbol, instancePropertyIdentifier, singletonProviderIdentifier, options, hasCustomPrivateCtor);
+            return res;
         }
 
         public string GenerateFileName()
