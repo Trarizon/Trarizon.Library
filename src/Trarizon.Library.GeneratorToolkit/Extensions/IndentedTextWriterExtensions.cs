@@ -76,7 +76,7 @@ public static class IndentedTextWriterExtensions
             writer.WriteLine($"namespace {ns}");
             defer.IndentWithBrace();
         }
-
+        
         foreach (var containgType in syntax.Ancestors().OfTypeWhile<TypeDeclarationSyntax>().Reverse()) {
             writer.WriteLine(CodeFactory.ClonePartialDeclaration(containgType));
             defer.IndentWithBrace();

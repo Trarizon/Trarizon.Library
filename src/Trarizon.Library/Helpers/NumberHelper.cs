@@ -35,4 +35,6 @@ public static partial class NumberHelper
         => Remap(number, originalMinBoundary, originalMaxBoundary - originalMinBoundary, minBoundary, maxBoundary - minBoundary);
 
     #endregion
+
+    internal static int GetUnderlyingInt32(this Index index) => Unsafe.As<Index, int>(ref index);
 }

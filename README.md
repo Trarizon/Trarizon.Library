@@ -4,7 +4,7 @@ Private lib, Based on .NET 8, written in C#12
 
 ~some method are just for fun though~
 
-## [Library](./Trarizon.Library/README.md)
+## [Library](./src/Trarizon.Library/README.md)
 
 Miscellaneous thing. There will be many breaking changes (orz.
 
@@ -26,7 +26,7 @@ Miscellaneous thing. There will be many breaking changes (orz.
 
 </details>
 
-## [GeneratorToolkit](./Trarizon.Library.GeneratorToolkit/README.md)
+## [GeneratorToolkit](./src/Trarizon.Library.GeneratorToolkit/README.md)
 
 Toolkit for source generator
 

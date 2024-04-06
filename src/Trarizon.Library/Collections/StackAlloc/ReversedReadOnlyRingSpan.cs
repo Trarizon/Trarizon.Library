@@ -1,12 +1,12 @@
 ﻿using System.Runtime.CompilerServices;
 
 namespace Trarizon.Library.Collections.StackAlloc;
-public readonly ref struct ReversedReadOnlyQueueSpan<T>
+public readonly ref struct ReversedReadOnlyRingSpan<T>
 {
-    private readonly ReadOnlyQueueSpan<T> _span;
+    private readonly ReadOnlyRingSpan<T> _span;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal ReversedReadOnlyQueueSpan(ReadOnlyQueueSpan<T> span)
+    internal ReversedReadOnlyRingSpan(ReadOnlyRingSpan<T> span)
         => _span = span;
 
     public int Length => _span.Length;
@@ -17,12 +17,12 @@ public readonly ref struct ReversedReadOnlyQueueSpan<T>
         get=>ref _span[^index];
     }
 
-    public ReadOnlyQueueSpan<T> Reverse() => _span;
+    public ReadOnlyRingSpan<T> Reverse() => _span;
 
-    public ReversedReadOnlyQueueSpan<T> Slice(int index, int length)
+    public ReversedReadOnlyRingSpan<T> Slice(int index, int length)
         => new(_span.Slice(Length - index - length, length));
 
-    public ReversedReadOnlyQueueSpan<T> Slice(int index)
+    public ReversedReadOnlyRingSpan<T> Slice(int index)
         => new(_span[..(Length - index)]);
 
     public void CopyTo(Span<T> span)
@@ -51,11 +51,11 @@ public readonly ref struct ReversedReadOnlyQueueSpan<T>
 
     public ref struct Enumerator
     {
-        private readonly ReadOnlyQueueSpan<T> _span;
+        private readonly ReadOnlyRingSpan<T> _span;
         private int _index;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal Enumerator(ReadOnlyQueueSpan<T> span)
+        internal Enumerator(ReadOnlyRingSpan<T> span)
         {
             _span = span;
             _index = span.Length;

@@ -117,8 +117,9 @@ partial class ListHelper
         {
             get {
                 var i = index * 2;
-                return (_list[i],
-                    ElementAtOrDefaultOpt(_list, index + 1, _paddingElem));
+                T v1 = _list[i];
+                TryAtOpt<TList, T>(_list, i + 1, out var v2);
+                return (v1, v2)!;
             }
             set {
                 var i = index * 2;
@@ -146,9 +147,10 @@ partial class ListHelper
         {
             get {
                 var i = index * 3;
-                return (_list[i],
-                    ElementAtOrDefaultOpt(_list, i + 1, _paddingElem1),
-                    ElementAtOrDefaultOpt(_list, i + 2, _paddingElem2));
+                T v1 = _list[i];
+                TryAtOpt<TList, T>(_list, i + 1, out var v2);
+                TryAtOpt<TList, T>(_list, i + 2, out var v3);
+                return (v1, v2, v3)!;
             }
             set {
                 var i = index * 3;

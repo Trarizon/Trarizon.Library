@@ -34,11 +34,11 @@ public struct AllocOptQueue<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public readonly T Peek() => _deque.PeekFirst();
 
-    public readonly ReadOnlyQueueSpan<T> Peek(int count) => _deque.PeekFirst(count);
+    public readonly ReadOnlyRingSpan<T> Peek(int count) => _deque.PeekFirst(count);
 
     public readonly bool TryPeek([MaybeNullWhen(false)] out T item) => _deque.TryPeekFirst(out item);
 
-    public readonly bool TryPeek(int count, out ReadOnlyQueueSpan<T> items) => _deque.TryPeekFirst(count, out items);
+    public readonly bool TryPeek(int count, out ReadOnlyRingSpan<T> items) => _deque.TryPeekFirst(count, out items);
 
     [SuppressMessage("Style", "IDE0305", Justification = "<挂起>")]
     public readonly T[] ToArray() => _deque.ToArray();

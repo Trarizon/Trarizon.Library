@@ -3,13 +3,13 @@ using Trarizon.Library.CodeAnalysis.MemberAccess;
 using Trarizon.Library.Collections.AllocOpt;
 
 namespace Trarizon.Library.Collections.StackAlloc;
-public readonly ref struct ReadOnlyQueueSpan<T>
+public readonly ref struct ReadOnlyRingSpan<T>
 {
     private readonly Span<T> _firstPart;
     private readonly Span<T> _secondPart;
 
     [FriendAccess(typeof(AllocOptDeque<>))]
-    internal ReadOnlyQueueSpan(T[] underlyingArray, int head, int tail)
+    internal ReadOnlyRingSpan(T[] underlyingArray, int head, int tail)
     {
         if (tail > head) {
             _firstPart = underlyingArray.AsSpan(head..tail);
@@ -21,7 +21,7 @@ public readonly ref struct ReadOnlyQueueSpan<T>
         }
     }
 
-    private ReadOnlyQueueSpan(Span<T> firstPart, Span<T> secondPart)
+    private ReadOnlyRingSpan(Span<T> firstPart, Span<T> secondPart)
     {
         _firstPart = firstPart;
         _secondPart = secondPart;
@@ -40,9 +40,9 @@ public readonly ref struct ReadOnlyQueueSpan<T>
         }
     }
 
-    public ReversedReadOnlyQueueSpan<T> Reverse() => new(this);
+    public ReversedReadOnlyRingSpan<T> Reverse() => new(this);
 
-    public ReadOnlyQueueSpan<T> Slice(int startIndex, int length)
+    public ReadOnlyRingSpan<T> Slice(int startIndex, int length)
     {
         if (startIndex < _firstPart.Length) {
             var endIndex = startIndex + length;
@@ -57,7 +57,7 @@ public readonly ref struct ReadOnlyQueueSpan<T>
         return new(_secondPart.Slice(startIndex, length), []);
     }
 
-    public ReadOnlyQueueSpan<T> Slice(int startIndex)
+    public ReadOnlyRingSpan<T> Slice(int startIndex)
     {
         if (startIndex < _firstPart.Length) {
             return new(_firstPart[startIndex..], _secondPart);
@@ -90,11 +90,11 @@ public readonly ref struct ReadOnlyQueueSpan<T>
 
     public ref struct Enumerator
     {
-        private readonly ReadOnlyQueueSpan<T> _span;
+        private readonly ReadOnlyRingSpan<T> _span;
         private int _index;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal Enumerator(ReadOnlyQueueSpan<T> span)
+        internal Enumerator(ReadOnlyRingSpan<T> span)
         {
             _span = span;
             _index = -1;

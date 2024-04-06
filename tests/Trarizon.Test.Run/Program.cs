@@ -2,6 +2,8 @@
 #pragma warning disable CS8500
 
 using BenchmarkDotNet.Running;
+using CommunityToolkit.HighPerformance;
+using CommunityToolkit.HighPerformance.Buffers;
 using System.Collections;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
@@ -22,8 +24,15 @@ using Trarizon.Library.RunTest.Examples;
 using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 
-var un = Un.CreateA(1);
+using var span = SpanOwner<int>.Allocate(10);
 
+List<int> list = Enumerable.Range(0, 5).ToList();
+if (list.TryAt(-1, out var val))
+    val.Print();
+
+return;
+
+var un = Un.CreateA(1);
 un.TryGetA(out var a).Print();
 a.Print();
 un.TryGetC(out int s, out var b).Print();

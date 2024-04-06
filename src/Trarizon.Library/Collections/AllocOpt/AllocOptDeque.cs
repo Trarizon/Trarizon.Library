@@ -98,7 +98,7 @@ public struct AllocOptDeque<T> : ICollection<T>, IReadOnlyCollection<T>
 
     internal readonly ref T PeekFirstRef() => ref _list.AtRef(_head);
 
-    public readonly ReadOnlyQueueSpan<T> PeekFirst(int count)
+    public readonly ReadOnlyRingSpan<T> PeekFirst(int count)
     {
         ArgumentOutOfRangeException.ThrowIfGreaterThan(count, Count);
         var head = _head + count;
@@ -117,7 +117,7 @@ public struct AllocOptDeque<T> : ICollection<T>, IReadOnlyCollection<T>
         return true;
     }
 
-    public readonly bool TryPeekFirst(int count, out ReadOnlyQueueSpan<T> items)
+    public readonly bool TryPeekFirst(int count, out ReadOnlyRingSpan<T> items)
     {
         if (count > Count) {
             items = default;
@@ -144,13 +144,13 @@ public struct AllocOptDeque<T> : ICollection<T>, IReadOnlyCollection<T>
         return ref _list.AtRef(index);
     }
 
-    public readonly ReversedReadOnlyQueueSpan<T> PeekLast(int count)
+    public readonly ReversedReadOnlyRingSpan<T> PeekLast(int count)
     {
         ArgumentOutOfRangeException.ThrowIfGreaterThan(count, Count);
         var head = _tail - count;
         if (head < 0)
             head += Capacity;
-        return new ReadOnlyQueueSpan<T>(GetUnderlyingArray(), head, _tail).Reverse();
+        return new ReadOnlyRingSpan<T>(GetUnderlyingArray(), head, _tail).Reverse();
     }
 
     public readonly bool TryPeekLast([MaybeNullWhen(false)] out T item)
@@ -163,7 +163,7 @@ public struct AllocOptDeque<T> : ICollection<T>, IReadOnlyCollection<T>
         return true;
     }
 
-    public readonly bool TryPeekLast(int count, out ReversedReadOnlyQueueSpan<T> items)
+    public readonly bool TryPeekLast(int count, out ReversedReadOnlyRingSpan<T> items)
     {
         if (count > Count) {
             items = default;
@@ -172,11 +172,11 @@ public struct AllocOptDeque<T> : ICollection<T>, IReadOnlyCollection<T>
         var head = _tail - count;
         if (head < 0)
             head += Capacity;
-        items = new ReadOnlyQueueSpan<T>(GetUnderlyingArray(), head, _tail).Reverse();
+        items = new ReadOnlyRingSpan<T>(GetUnderlyingArray(), head, _tail).Reverse();
         return true;
     }
 
-    public readonly ReadOnlyQueueSpan<T> AsSpan() => new(GetUnderlyingArray(), _head, _tail);
+    public readonly ReadOnlyRingSpan<T> AsSpan() => new(GetUnderlyingArray(), _head, _tail);
 
     public readonly T[] ToArray()
     {

@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using Trarizon.Library.Collections.Helpers.Queriers;
 using Trarizon.Library.Wrappers;
 
@@ -28,14 +27,6 @@ partial class EnumerableHelper
             return [];
 
         return new OfOptionalNotNoneQuerier<T, Optional<T>>(source);
-    }
-
-    public static IEnumerable<T> OfTypeUntil<T, TExcept>(this IEnumerable source) where TExcept : T
-    {
-        if (source.IsFixedSizeEmpty())
-            return [];
-
-        return new OfTypeUntilQuerier<T, TExcept>(source);
     }
 
 
@@ -67,43 +58,5 @@ partial class EnumerableHelper
         {
             return inVal.TryGetValue(out outVal);
         }
-    }
-
-    private sealed class OfTypeUntilQuerier<T, TExcept>(IEnumerable source) : EnumerationQuerier<T> where TExcept : T
-    {
-        private IEnumerator _enumerator = default!;
-        private T _current = default!;
-        public override T Current => _current;
-
-        public override bool MoveNext()
-        {
-            const int ValidCase = MinPreservedState - 1;
-            const int End = ValidCase - 1;
-
-            switch (_state) {
-                case -1:
-                    _enumerator = source.GetEnumerator();
-                    _state = ValidCase;
-                    goto default;
-                case ValidCase:
-                    if (!_enumerator.MoveNext()) {
-                        _state = End;
-                        return false;
-                    }
-
-                    if (_enumerator.Current is not T current)
-                        goto case ValidCase;
-
-                    if (current is TExcept) {
-                        _state = End;
-                        return false;
-                    }
-                    _current = current;
-                    return true;
-                default: // End
-                    return false;
-            }
-        }
-        protected override EnumerationQuerier<T> Clone() => new OfTypeUntilQuerier<T, TExcept>(source);
     }
 }
