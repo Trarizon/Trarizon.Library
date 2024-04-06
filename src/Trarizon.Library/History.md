@@ -18,6 +18,9 @@
     - Redesigned `ListQuery`
     - Remove `Random.Shuffle`
     - Remove `IList.PopFrontWhile` `RepearForever`
+    - Remove `T[,].AsSpan`
+    - Remove `Array/List.Repeat()`
+    - Combined `CollectionQuery` and `CollectionHelper`
 - New
     - Extend `ListQuery` methods:
         - `Adjacent()`

@@ -92,7 +92,7 @@ partial class Program
     struct U2
     {
         [FieldOffset(0)]
-        public (int,int,int,int,CancellationToken) a;
+        public (int, int, int, int, CancellationToken) a;
         [FieldOffset(0)]
         public (int, object, int) u;
     }
