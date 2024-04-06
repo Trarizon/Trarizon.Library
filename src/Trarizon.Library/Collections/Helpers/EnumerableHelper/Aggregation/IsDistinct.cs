@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Trarizon.Library.Collections.AllocOpt;
+﻿using Trarizon.Library.Collections.AllocOpt;
 
 namespace Trarizon.Library.Collections.Helpers;
 partial class EnumerableHelper
@@ -23,17 +22,4 @@ partial class EnumerableHelper
         }
         return true;
     }
-
-
-    [Experimental(ExperimentalDiagnosticIds.EnumerableQuery_Duplicates)]
-    public static IEnumerable<T> Duplicates<T>(this IEnumerable<T> source)
-        => source.GroupBy(x => x)
-        .Where(g => g.Count() > 1)
-        .SelectMany(g => g);
-
-    [Experimental(ExperimentalDiagnosticIds.EnumerableQuery_Duplicates)]
-    public static IEnumerable<T> DuplicatesBy<T,TKey>(this IEnumerable<T> source,Func<T,TKey> keySelector)
-        => source.GroupBy(keySelector)
-        .Where(g => g.Count() > 1)
-        .SelectMany(g => g);
 }
