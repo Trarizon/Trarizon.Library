@@ -97,13 +97,14 @@ Type|Method|Rename
 |🟢|`EnumerateByWhile(NotNull)`|
 ||***Element***
 |❌🟢|`TryAt`|以安全方式按下标获取值
-|⭕🟢|`AtOrDefault`|以安全方式按下标获取值
+|✔🟢|`AtOrDefault`|以安全方式按下标获取值
 |🟢|`FirstByMaxPriorityOrDefault`|获取第一个匹配Priority的值，若无则返回Priority最大的第一个值
 |🟢|`TryFirst`|判断序列是否有值，若有，返回第一个值
 |🟢|`TrySingle`|判断序列是否仅含有1个值（或为空），并返回该值或`default`
 |🟢🟢|`StartsWith`|扩展了从指定位置开始判定的方法
 ||***Filtering***
 |🟢|`OfNotNull`<br/>`OfNotNone`|`.Where(t is not null)` <br/> `.Where(t.HasValue)`
+|🟢|`TakeEvery`|每间隔n个值返回
 |🟢|`WhereSelect`|合并了LinQ的`Where`和`Select`，以此可以利用中间值
 ||***Joining***
 |🟢🟢|`CartesianProduct`|返回两个序列的笛卡尔积（`SelectMany(_ => second, (_1, _2) => (_1, _2))`）

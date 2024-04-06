@@ -30,7 +30,8 @@ partial class EnumerableHelper
     }
 
 
-    private sealed class OfReferenceTypeNotNullQuerier<T>(IEnumerable<T?> source) : SimpleWhereSelectEnumerationQuerier<T?, T>(source) where T : class
+    private sealed class OfReferenceTypeNotNullQuerier<T>(IEnumerable<T?> source)
+        : SimpleWhereSelectEnumerationQuerier<T?, T>(source) where T : class
     {
         protected override EnumerationQuerier<T> Clone() => new OfReferenceTypeNotNullQuerier<T>(_source);
 
@@ -41,7 +42,8 @@ partial class EnumerableHelper
         }
     }
 
-    private sealed class OfValueTypeNotNullQuerier<T>(IEnumerable<T?> source) : SimpleWhereSelectEnumerationQuerier<T?, T>(source) where T : struct
+    private sealed class OfValueTypeNotNullQuerier<T>(IEnumerable<T?> source)
+        : SimpleWhereSelectEnumerationQuerier<T?, T>(source) where T : struct
     {
         protected override EnumerationQuerier<T> Clone() => new OfValueTypeNotNullQuerier<T>(_source);
         protected override bool TrySelect(T? inVal, [MaybeNullWhen(false)] out T outVal)
@@ -51,7 +53,8 @@ partial class EnumerableHelper
         }
     }
 
-    private sealed class OfOptionalNotNoneQuerier<T, TOptional>(IEnumerable<TOptional> source) : SimpleWhereSelectEnumerationQuerier<TOptional, T>(source) where TOptional : IOptional<T>
+    private sealed class OfOptionalNotNoneQuerier<T, TOptional>(IEnumerable<TOptional> source)
+        : SimpleWhereSelectEnumerationQuerier<TOptional, T>(source) where TOptional : IOptional<T>
     {
         protected override EnumerationQuerier<T> Clone() => new OfOptionalNotNoneQuerier<T, TOptional>(_source);
         protected override bool TrySelect(TOptional inVal, [MaybeNullWhen(false)] out T outVal)

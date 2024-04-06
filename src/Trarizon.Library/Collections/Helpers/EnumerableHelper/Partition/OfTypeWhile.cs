@@ -20,7 +20,9 @@ partial class EnumerableHelper
         return new OfTypeWhileQuerier<T>(source);
     }
 
-    private sealed class OfTypeUntilQuerier<T, TExcept>(IEnumerable source) : EnumerationQuerier<T> where TExcept : T
+
+    private sealed class OfTypeUntilQuerier<T, TExcept>(IEnumerable source) 
+        : EnumerationQuerier<T> where TExcept : T
     {
         private IEnumerator _enumerator = default!;
         private T _current = default!;
@@ -58,7 +60,8 @@ partial class EnumerableHelper
         protected override EnumerationQuerier<T> Clone() => new OfTypeUntilQuerier<T, TExcept>(source);
     }
 
-    private sealed class OfTypeWhileQuerier<T>(IEnumerable source) : EnumerationQuerier<T>
+    private sealed class OfTypeWhileQuerier<T>(IEnumerable source) 
+        : EnumerationQuerier<T>
     {
         private IEnumerator _enumerator = default!;
         private T _current = default!;

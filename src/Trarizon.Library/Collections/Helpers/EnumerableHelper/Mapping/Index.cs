@@ -14,7 +14,8 @@ partial class EnumerableHelper
     }
 
 
-    private sealed class IndexQuery<T>(IEnumerable<T> source) : SimpleEnumerationQuerier<T, (int, T)>(source)
+    private sealed class IndexQuery<T>(IEnumerable<T> source) 
+        : SimpleEnumerationQuerier<T, (int, T)>(source)
     {
         public override bool MoveNext()
         {

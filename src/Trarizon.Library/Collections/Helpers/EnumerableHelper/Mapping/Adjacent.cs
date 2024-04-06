@@ -15,7 +15,8 @@ partial class EnumerableHelper
     }
 
 
-    private sealed class AdjacentQuerier<T>(IEnumerable<T> source) : SimpleEnumerationQuerier<T, (T, T)>(source)
+    private sealed class AdjacentQuerier<T>(IEnumerable<T> source)
+        : SimpleEnumerationQuerier<T, (T, T)>(source)
     {
         public override bool MoveNext()
         {

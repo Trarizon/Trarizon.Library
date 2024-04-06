@@ -28,7 +28,8 @@ partial class EnumerableHelper
         => new MergeByFuncQuerier<T>(first, second, descending ? Utility.IsInDescOrder : Utility.IsInAscOrder);
 
 
-    private abstract class MergeQuerier<T>(IEnumerable<T> first, IEnumerable<T> second) : EnumerationQuerier<T>
+    private abstract class MergeQuerier<T>(IEnumerable<T> first, IEnumerable<T> second)
+        : EnumerationQuerier<T>
     {
         protected readonly IEnumerable<T> _first = first;
         protected readonly IEnumerable<T> _second = second;

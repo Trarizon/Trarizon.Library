@@ -4,7 +4,8 @@ using Trarizon.Library.Collections.Helpers.Queriers;
 namespace Trarizon.Library.Collections.Helpers;
 partial class EnumerableHelper
 {
-    private abstract class SimpleEnumerationQuerier<TIn, TOut>(IEnumerable<TIn> source) : EnumerationQuerier<TOut>
+    private abstract class SimpleEnumerationQuerier<TIn, TOut>(IEnumerable<TIn> source) 
+        : EnumerationQuerier<TOut>
     {
         protected readonly IEnumerable<TIn> _source = source;
         protected IEnumerator<TIn> _enumerator = default!;

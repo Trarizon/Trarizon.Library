@@ -87,7 +87,8 @@ partial class EnumerableHelper
     }
 
 
-    private interface IPopFrontQuerierLeadingCollection<T, TSelf> where TSelf : IPopFrontQuerierLeadingCollection<T, TSelf>
+    private interface IPopFrontQuerierLeadingCollection<T, TSelf> 
+        where TSelf : IPopFrontQuerierLeadingCollection<T, TSelf>
     {
         PopFrontQuerierRestCollection<T, TSelf> RestCollection { get; }
 
@@ -103,7 +104,8 @@ partial class EnumerableHelper
         TSelf CloneWithNewRestCollection();
     }
 
-    private struct PopFrontImmediateLeadingCollection<T> : IPopFrontQuerierLeadingCollection<T, PopFrontImmediateLeadingCollection<T>>
+    private struct PopFrontImmediateLeadingCollection<T> 
+        : IPopFrontQuerierLeadingCollection<T, PopFrontImmediateLeadingCollection<T>>
     {
         public PopFrontQuerierRestCollection<T, PopFrontImmediateLeadingCollection<T>> RestCollection { get; private set; }
         /// <summary>
@@ -171,7 +173,9 @@ partial class EnumerableHelper
         }
     }
 
-    private abstract class PopFrontQuerierLeadingCollection<T> : EnumerationQuerier<T>, IPopFrontQuerierLeadingCollection<T, PopFrontQuerierLeadingCollection<T>>
+    private abstract class PopFrontQuerierLeadingCollection<T> 
+        : EnumerationQuerier<T>, 
+        IPopFrontQuerierLeadingCollection<T, PopFrontQuerierLeadingCollection<T>>
     {
         public PopFrontQuerierRestCollection<T, PopFrontQuerierLeadingCollection<T>> RestCollection { get; private init; }
         protected List<T> _cachedItems = null!;
@@ -248,7 +252,8 @@ partial class EnumerableHelper
         public abstract PopFrontQuerierLeadingCollection<T> CloneWithNewRestCollection();
     }
 
-    private sealed class PopFrontCountedQuerier<T> : PopFrontQuerierLeadingCollection<T>
+    private sealed class PopFrontCountedQuerier<T> 
+        : PopFrontQuerierLeadingCollection<T>
     {
         private readonly int _maxCount;
 
@@ -297,7 +302,8 @@ partial class EnumerableHelper
         public override PopFrontQuerierLeadingCollection<T> CloneWithNewRestCollection() => new PopFrontCountedQuerier<T>(this, true);
     }
 
-    private sealed class PopFrontWhileQuerier<T> : PopFrontQuerierLeadingCollection<T>
+    private sealed class PopFrontWhileQuerier<T>
+        : PopFrontQuerierLeadingCollection<T>
     {
         private readonly Func<T, bool> _predicate;
         private bool _sourceFullEnumerated;
@@ -357,7 +363,9 @@ partial class EnumerableHelper
         public override PopFrontQuerierLeadingCollection<T> CloneWithNewRestCollection() => new PopFrontWhileQuerier<T>(this, true);
     }
 
-    private sealed class PopFrontQuerierRestCollection<T, TLeadingCollection> : EnumerationQuerier<T> where TLeadingCollection : IPopFrontQuerierLeadingCollection<T, TLeadingCollection>
+    private sealed class PopFrontQuerierRestCollection<T, TLeadingCollection> 
+        : EnumerationQuerier<T>
+        where TLeadingCollection : IPopFrontQuerierLeadingCollection<T, TLeadingCollection>
     {
         private readonly IEnumerable<T> _source;
         public IEnumerator<T> Enumerator = default!;

@@ -26,7 +26,8 @@ partial class EnumerableHelper
     }
 
 
-    private sealed class RepeatQuerier<T>(IEnumerable<T> source, int count) : SimpleEnumerationQuerier<T, T>(source)
+    private sealed class RepeatQuerier<T>(IEnumerable<T> source, int count)
+        : SimpleEnumerationQuerier<T, T>(source)
     {
         public override bool MoveNext()
         {
@@ -63,7 +64,8 @@ partial class EnumerableHelper
         protected override EnumerationQuerier<T> Clone() => new RepeatQuerier<T>(_source, count);
     }
 
-    private sealed class RepeatForeverQuerier<T>(IEnumerable<T> source) : SimpleEnumerationQuerier<T, T>(source)
+    private sealed class RepeatForeverQuerier<T>(IEnumerable<T> source)
+        : SimpleEnumerationQuerier<T, T>(source)
     {
         public override bool MoveNext()
         {

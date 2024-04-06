@@ -3,7 +3,8 @@
 namespace Trarizon.Library.Collections.Helpers;
 partial class EnumerableHelper
 {
-    private abstract class SimpleWhereSelectEnumerationQuerier<TIn, TOut>(IEnumerable<TIn> source) : SimpleEnumerationQuerier<TIn, TOut>(source)
+    private abstract class SimpleWhereSelectEnumerationQuerier<TIn, TOut>(IEnumerable<TIn> source)
+        : SimpleEnumerationQuerier<TIn, TOut>(source)
     {
         public sealed override bool MoveNext()
         {

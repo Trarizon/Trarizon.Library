@@ -54,7 +54,8 @@ partial class EnumerableHelper
     }
 
 
-    private sealed class ChunkPairQuerier<T>(IEnumerable<T> source, T? paddingElement) : SimpleEnumerationQuerier<T, (T, T?)>(source)
+    private sealed class ChunkPairQuerier<T>(IEnumerable<T> source, T? paddingElement) 
+        : SimpleEnumerationQuerier<T, (T, T?)>(source)
     {
         public override bool MoveNext()
         {
@@ -74,7 +75,8 @@ partial class EnumerableHelper
         protected override EnumerationQuerier<(T, T?)> Clone() => new ChunkPairQuerier<T>(_source, paddingElement);
     }
 
-    private sealed class ChunkTripleQuerier<T>(IEnumerable<T> source, T? paddingElement) : SimpleEnumerationQuerier<T, (T, T?, T?)>(source)
+    private sealed class ChunkTripleQuerier<T>(IEnumerable<T> source, T? paddingElement) 
+        : SimpleEnumerationQuerier<T, (T, T?, T?)>(source)
     {
         public override bool MoveNext()
         {

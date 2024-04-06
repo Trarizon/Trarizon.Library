@@ -19,7 +19,8 @@ partial class EnumerableHelper
     }
 
 
-    private sealed class RotateQuerier<T>(IEnumerable<T> source, int splitPosition) : SimpleEnumerationQuerier<T, T>(source)
+    private sealed class RotateQuerier<T>(IEnumerable<T> source, int splitPosition)
+        : SimpleEnumerationQuerier<T, T>(source)
     {
         private AllocOptList<T> _firstPart;
 

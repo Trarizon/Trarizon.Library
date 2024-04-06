@@ -22,12 +22,13 @@
     - Remove `Array/List.Repeat()`
     - Combined `CollectionQuery` and `CollectionHelper`
 - New
-    - Extend `ListQuery` methods:
+    - Extend `ListHelper` methods:
         - `Adjacent()`
         - `Select()` indexed version
         - `CartesianProduct()`
         - `PopFront` overload
-    - Extend `EnumerableQuery` methods:
+        - `TakeEvery`
+    - Extend `EnumerableHelper` methods:
         - `OfTypeUntil()`
         - `Index()`
         - `OfNotNull()`
@@ -35,7 +36,8 @@
         - `PopFront` overload
         - `Distinct`, `DistinctBy`
         - `ToListIfAny`
-    - Add `SpanQuery` methods:
+        - `TakeEvery`
+    - Add `SpanHelper` methods:
         - `Sum`
     - Extend collections:
         - `AllocOptQueue<T>`

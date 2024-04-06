@@ -21,7 +21,8 @@ partial class EnumerableHelper
     }
 
 
-    private sealed class CartesianProductQuerier<T, T2>(IEnumerable<T> source, IEnumerable<T2> sub) : SimpleEnumerationQuerier<T, (T, T2)>(source)
+    private sealed class CartesianProductQuerier<T, T2>(IEnumerable<T> source, IEnumerable<T2> sub) 
+        : SimpleEnumerationQuerier<T, (T, T2)>(source)
     {
         private readonly IEnumerable<T2> _subCollection = sub;
         private IEnumerator<T2>? _subEnumerator;

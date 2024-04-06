@@ -16,7 +16,8 @@ partial class EnumerableHelper
         return new WhereSelectQuerier<T, TResult>(source, whereSelector);
     }
 
-    private sealed class WhereSelectQuerier<T, TResult>(IEnumerable<T> source, Func<T, Optional<TResult>> whereSelector) : SimpleWhereSelectEnumerationQuerier<T, TResult>(source)
+    private sealed class WhereSelectQuerier<T, TResult>(IEnumerable<T> source, Func<T, Optional<TResult>> whereSelector)
+        : SimpleWhereSelectEnumerationQuerier<T, TResult>(source)
     {
         protected override EnumerationQuerier<TResult> Clone() => new WhereSelectQuerier<T, TResult>(_source, whereSelector);
 

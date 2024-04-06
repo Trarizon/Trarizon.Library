@@ -3,7 +3,9 @@
 namespace Trarizon.Library.Collections.Helpers;
 partial class ListHelper
 {
-    private abstract class SimpleListQuerier<TList, TIn, TOut>(TList list) : ListQuerier<TOut> where TList : IList<TIn>
+    private abstract class SimpleListQuerier<TList, TIn, TOut>(TList list)
+        : ListQuerier<TOut> 
+        where TList : IList<TIn>
     {
         protected readonly TList _list = list;
 

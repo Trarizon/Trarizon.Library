@@ -3,7 +3,9 @@
 namespace Trarizon.Library.Collections.Helpers;
 partial class ListHelper
 {
-    private abstract class SimpleIndexMapListQuerier<TList, T>(TList list) : SimpleListQuerier<TList, T, T>(list) where TList : IList<T>
+    private abstract class SimpleIndexMapListQuerier<TList, T>(TList list)
+        : SimpleListQuerier<TList, T, T>(list) 
+        where TList : IList<T>
     {
         public sealed override T this[int index]
         {
