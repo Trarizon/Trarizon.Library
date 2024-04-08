@@ -21,7 +21,7 @@ public static class Optional
     public static Optional<T> None<T>() => Optional<T>.None;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ref readonly T? GetValueRefOrDefaultRef<T>(this in Optional<T> optional)
+    public static ref readonly T? GetValueRefOrDefaultRef<T>(this ref readonly Optional<T> optional)
         => ref optional._value;
 
     #region Conversion

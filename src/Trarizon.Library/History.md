@@ -76,6 +76,7 @@
     - Optimize collection expression creation of `AllocOptStack/Queue`
     - Optimize internal impl in `AllocOpt`
     - Optimize `ValueTask?.GetAwaiter()` and `Sync()`
+    - Change ref kind of wrapper.`GetValueRefOrDefaultRef`
 - Bugs
     - Fix bug when use array type in `[FriendAccess]`, analyzer will crash. (though maybe nobody will do this
     - Fix bug on `AllocOptList.ClearUnreferenced()`

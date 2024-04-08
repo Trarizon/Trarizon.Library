@@ -14,11 +14,11 @@ public static class Either
         => new(rightValue);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ref readonly TLeft? GetLeftRefOrDefaultRef<TLeft, TRight>(this in Either<TLeft, TRight> either)
+    public static ref readonly TLeft? GetLeftRefOrDefaultRef<TLeft, TRight>(this ref readonly Either<TLeft, TRight> either)
         => ref either._left;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ref readonly TRight? GetRightRefOrDefaultRef<TLeft, TRight>(this in Either<TLeft, TRight> either)
+    public static ref readonly TRight? GetRightRefOrDefaultRef<TLeft, TRight>(this ref readonly Either<TLeft, TRight> either)
         => ref either._right;
 
     #region Conversion

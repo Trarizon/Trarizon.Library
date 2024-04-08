@@ -21,7 +21,7 @@ public static class Result
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ref readonly T? GetValueRefOrDefaultRef<T, TError>(this in Result<T, TError> result) where TError : class
+    public static ref readonly T? GetValueRefOrDefaultRef<T, TError>(this ref readonly Result<T, TError> result) where TError : class
         => ref result._value;
 
     #region Conversion
