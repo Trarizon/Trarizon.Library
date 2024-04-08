@@ -119,7 +119,7 @@ Type|Method|Rename
 ✔🟢|`Select(Cached)`|
 ||***Partition***
 |🟢|`OfTypeUntil`|`.OfType<T>().TakeWhile(t is not TExcept)`
-|🟢|`OfTypeWhile`|`.TakeWhile(t is T).OfType<T>()`
+|🟢|`OfTypeWhile`|`.TakeWhile(t is T).Cast<T>()`
 |🟢🟢|`PopFront(While)`<br/>`PopFirst`|取出开头指定数量的元素，并返回剩下的元素
 |✔🟢|`Take`|
 ||***Sorting***
