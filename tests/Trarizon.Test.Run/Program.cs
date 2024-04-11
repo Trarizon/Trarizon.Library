@@ -29,7 +29,7 @@ using var span = SpanOwner<int>.Allocate(10);
 List<int> list = Enumerable.Range(0, 5).ToList();
 if (list.TryAt(-1, out var val))
     val.Print();
-
+EnumerateValues<string?>(i=>i.ToString()).Order();
 return;
 
 var un = Un.CreateA(1);

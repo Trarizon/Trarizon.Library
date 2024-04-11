@@ -32,11 +32,14 @@
         - `OfTypeUntil()`
         - `Index()`
         - `OfNotNull()`
+        - `OfXXX()` for wrappers
         - `FirstByMaxPriorityOrDefault()`
         - `PopFront` overload
         - `Distinct`, `DistinctBy`
         - `ToListIfAny`
         - `TakeEvery`
+        - `WhereSelect` for wrappers
+        - `CountsXXX` with predicate
     - Add `SpanHelper` methods:
         - `Sum`
     - Extend collections:

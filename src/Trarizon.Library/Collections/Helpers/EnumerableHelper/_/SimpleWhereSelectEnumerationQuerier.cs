@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-namespace Trarizon.Library.Collections.Helpers;
+﻿namespace Trarizon.Library.Collections.Helpers;
 partial class EnumerableHelper
 {
     private abstract class SimpleWhereSelectEnumerationQuerier<TIn, TOut>(IEnumerable<TIn> source)
@@ -20,8 +18,7 @@ partial class EnumerableHelper
                     if (_enumerator.MoveNext()) {
                         var current = _enumerator.Current;
 
-                        if (TrySelect(current, out var outVal)) {
-                            _current = outVal;
+                        if (TrySetValue(current)) {
                             return true;
                         }
                         else {
@@ -36,6 +33,6 @@ partial class EnumerableHelper
             }
         }
 
-        protected abstract bool TrySelect(TIn inVal, [MaybeNullWhen(false)] out TOut outVal);
+        protected abstract bool TrySetValue(TIn inVal);
     }
 }
