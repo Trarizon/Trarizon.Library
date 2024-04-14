@@ -17,24 +17,47 @@ public static partial class AsyncHelper
     public static T Sync<T>(this Task<T> task) => task.GetAwaiter().GetResult();
 
     /// <summary>
-    /// Run synchronously by call GetAwaiter().GetResult()
+    /// Run synchronously
     /// </summary>
-    public static void Sync(this in ValueTask task) => task.GetAwaiter().GetResult();
+    public static void Sync(this in ValueTask task)
+    {
+        if (task.IsCompleted)
+            return;
+
+        task.AsTask().Sync();
+    }
 
     /// <summary>
-    /// Run synchronously by call GetAwaiter().GetResult()
+    /// Run synchronously
     /// </summary>
-    public static T Sync<T>(this in ValueTask<T> task) => task.GetAwaiter().GetResult();
+    public static T Sync<T>(this in ValueTask<T> task)
+    {
+        if (task.IsCompleted)
+            return task.Result;
+
+        return task.AsTask().Sync();
+    }
 
     /// <summary>
-    /// Run synchronously by call GetAwaiter().GetResult()
+    /// Run synchronously
     /// </summary>
-    public static void Sync<T>(this in ValueTask? task) => task.GetAwaiter().GetResult();
+    public static void Sync<T>(this in ValueTask? task)
+    {
+        if (task is null or { IsCompleted: true })
+            return;
+
+        Nullable.GetValueRefOrDefaultRef(in task).Sync();
+    }
 
     /// <summary>
-    /// Run synchronously by call GetAwaiter().GetResult()
+    /// Run synchronously
     /// </summary>
-    public static Optional<T> Sync<T>(this in ValueTask<T>? task) => task.GetAwaiter().GetResult();
+    public static Optional<T> Sync<T>(this in ValueTask<T>? task)
+    {
+        if (task is null)
+            return Optional.None<T>();
+        return Nullable.GetValueRefOrDefaultRef(in task).Sync();
+    }
 
     #endregion
 
