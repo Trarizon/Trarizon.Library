@@ -14,10 +14,11 @@ public static class Result
         => new(error);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void ThrowIfFailed<T, TException>(this in Result<T, TException> result) where TException : Exception
+    public static T GetValueOrThrow<T, TException>(this in Result<T, TException> result) where TException : Exception
     {
         if (!result.Success)
             ThrowHelper.Throw(result._error);
+        return result._value;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

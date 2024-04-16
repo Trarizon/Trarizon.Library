@@ -21,6 +21,7 @@
     - Remove `T[,].AsSpan`
     - Remove `Array/List.Repeat()`
     - Combined `CollectionQuery` and `CollectionHelper`
+    - Replace `Result<T,Exception>.ThrowIfFailed` with `GetValueOrThrow`
 - New
     - Extend `ListHelper` methods:
         - `Adjacent()`
