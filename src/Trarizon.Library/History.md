@@ -41,6 +41,7 @@
         - `TakeEvery`
         - `WhereSelect` for wrappers
         - `CountsXXX` with predicate
+        - `Range()`
     - Add `SpanHelper` methods:
         - `Sum`
     - Extend collections:
