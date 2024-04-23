@@ -44,6 +44,8 @@
         - `Range()`
     - Add `SpanHelper` methods:
         - `Sum`
+    - Add `DictionaryHelper` methods:
+        - `GetValueRef`
     - Extend collections:
         - `AllocOptQueue<T>`
         - `AllocOptDeque<>`
@@ -52,6 +54,8 @@
         - Add a overload of `AllocOptDictionary<>.GetOrAddRef()`
         - Add `AllocOptCollectionBuilder.AsXXX()`
     - Extend helpers
+        - Move `AsyncHelper` to namespace `Threading.Helpers`
+        - Move `PathHelper` and `StreamHelper` to namespace `IO.Helpers`
         - Add `List<>.AtRef()`
         - Add `EnumerableHelper.EnumerateByWhile()`
         - Add `SpanHelper.As(ReadOnly)Bytes()`
@@ -61,7 +65,7 @@
         - Add `StreamHelper` with `Read<>()`
         - Add `StringHelper` with `Interpolated`
         - Add `UnsafeHelper` with `AsReadOnly`, public `Offset`
-        - Add `LockHelper` with `InterlockedCompareExchange`, `InterlockedExchange` for `bool` by `InterlockedBoolean`
+        - Add `LockHelper` with `InterlockedCompareExchange`/ `~Exchange` / `~Toggle`
     - Extend monads
         - `NotNull<T>`
         - `IOptional<>`
@@ -74,7 +78,7 @@
         - Add `FriendAccess.Options`
         - Add `SingletonAttribute`
         - Add TaggedUnion (`UnionTagAttribute`, `TagVariantAttribute`)
-    - Add `InterlockedBoolean`
+    - Add `InterlockedBoolean`, `InterlockedBooleanLock`
 - Changes
     - Optimize `IEnumerable<>.CartesianProduct()`, `IsInOrder()`, `Merge()`, `PopFront`
     - Optimize condition check in Queries

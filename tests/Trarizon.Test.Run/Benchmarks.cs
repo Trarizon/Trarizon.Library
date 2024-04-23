@@ -1,13 +1,14 @@
 ﻿using BenchmarkDotNet.Attributes;
 using Trarizon.Library.Collections.Helpers;
+using Trarizon.Library.Helpers;
 
 namespace Trarizon.Test.Run;
 [MemoryDiagnoser]
 public class Benchmarks
 {
-    public IEnumerable<int[]> ArgsSource()
+    public IEnumerable<long> ArgsSource()
     {
-        yield return [1, 9, 8, 4, 3, 5, 4,];
+        yield return 1;
     }
 
     public IEnumerable<string[]> Args()
@@ -17,30 +18,18 @@ public class Benchmarks
 
     [Benchmark]
     [ArgumentsSource(nameof(ArgsSource))]
-    public void Sort(int[] ints)
+    public ulong Sort(long ints)
     {
-        ints.AsSpan().SortStably((str, str2) => str.CompareTo(str2));
+        ref readonly var val = ref UnsafeHelper.AsReadOnly<long, ulong>(ref ints);
+        return val;
     }
 
     [Benchmark]
     [ArgumentsSource(nameof(ArgsSource))]
-    public void SortComparer(int[] ints)
+    public ulong SortComparer(long ints)
     {
-        ints.AsSpan().SortStably();
-    }
-
-    [Benchmark]
-    [ArgumentsSource(nameof(Args))]
-    public void Sort(string[] strings)
-    {
-        strings.AsSpan().SortStably((str, str2) => str.CompareTo(str2));
-    }
-
-    [Benchmark]
-    [ArgumentsSource(nameof(Args))]
-    public void SortComparer(string[] strings)
-    {
-        strings.AsSpan().SortStably();
+        ref readonly var val = ref UnsafeHelper.AsReadOnlyInline<long, ulong>(ref ints);
+        return val;
     }
 }
 

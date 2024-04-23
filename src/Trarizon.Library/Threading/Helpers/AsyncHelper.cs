@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using Trarizon.Library.Wrappers;
 
-namespace Trarizon.Library.Helpers;
+namespace Trarizon.Library.Threading.Helpers;
 public static partial class AsyncHelper
 {
     #region Sync

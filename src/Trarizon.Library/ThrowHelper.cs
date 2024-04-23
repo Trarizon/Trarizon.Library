@@ -13,8 +13,11 @@ internal static partial class ThrowHelper
         => throw new NotSupportedException(message);
 
     [DoesNotReturn]
-    public static void ThrowKeyNotFound(string key)
-        => throw new KeyNotFoundException($"key '{key}' not found");
+    public static void ThrowKeyNotFound<T>(T? key)
+    {
+        var msg = $"key '{key?.ToString() ?? string.Empty}' not found";
+        throw new KeyNotFoundException(msg);
+    }
 
     [DoesNotReturn]
     public static void ThrowArgument(string? message = null, string? paramName = null)

@@ -24,12 +24,7 @@ using Trarizon.Library.RunTest.Examples;
 using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 
-using var span = SpanOwner<int>.Allocate(10);
-
-List<int> list = Enumerable.Range(0, 5).ToList();
-if (list.TryAt(-1, out var val))
-    val.Print();
-EnumerateValues<string?>(i=>i.ToString()).Order();
+RunBenchmarks();
 return;
 
 var un = Un.CreateA(1);
@@ -103,7 +98,7 @@ partial class Program
         [FieldOffset(0)]
         public (int, int, int, int, CancellationToken) a;
         [FieldOffset(0)]
-        public (int, object, int) u;
+        public (int, int, int) u;
     }
 
     [StructLayout(LayoutKind.Explicit)]

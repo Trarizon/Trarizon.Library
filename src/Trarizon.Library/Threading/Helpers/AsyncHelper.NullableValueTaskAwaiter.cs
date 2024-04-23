@@ -2,7 +2,7 @@
 using Trarizon.Library.CodeAnalysis.MemberAccess;
 using Trarizon.Library.Wrappers;
 
-namespace Trarizon.Library.Helpers;
+namespace Trarizon.Library.Threading.Helpers;
 partial class AsyncHelper
 {
     public readonly struct NullableValueTaskAwaiter<T> : INotifyCompletion, ICriticalNotifyCompletion

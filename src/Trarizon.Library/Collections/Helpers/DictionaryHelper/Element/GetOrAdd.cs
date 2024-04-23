@@ -1,10 +1,8 @@
 ﻿using System.Runtime.InteropServices;
 
 namespace Trarizon.Library.Collections.Helpers;
-public static partial class DictionaryHelper
+partial class DictionaryHelper
 {
-    #region GetOrAdd
-
     public static TValue GetOrAdd<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key, TValue addValue) where TKey : notnull
     {
         ref TValue? value = ref CollectionsMarshal.GetValueRefOrAddDefault(dictionary, key, out var exists);
@@ -50,6 +48,4 @@ public static partial class DictionaryHelper
         dictionary.Add(key, value);
         return value;
     }
-
-    #endregion
 }
