@@ -7,6 +7,7 @@
  * - Pack: 用于指定[StructLayout]的Pack
  * - CreatorAccessibility: Create方法或ctor的accessibility
  *   - 对Record无效
+ * - AllowFieldAccess: bool: 对Struct有效，表示允许用户直接访问fields，这是unsafe操作 [暂定]
  * - // AggressiveMinimizingSize:试图不存储tag并通过字段获取tag
  *   - 因为获取tag时性能问题似乎不小所以取消了
  *   - 但是TryGetXXX里使用或许可以，暂定
@@ -14,6 +15,7 @@
 
 /**partial struct Union
  * {
+ *     // 该结构内部可能存在大量Unsafe的cast操作，因此用户不应当访问这里任何一个字段，除了tag。
  *     object __obj0;
  *     object __obj1;
  *     ...
@@ -23,7 +25,11 @@
  *     
  *     // 外部库可能会修改struct结构，所以即使字段全是引用类型，managed struct也不能直接映射到objects
  *     ManagedA __managed0;
- *     ManagedB __managed1;
+ *     ...
+ *     // 考虑valuetuple应该不会修改，当field为valuetuple时，我们或许可以从其中节省部分字段
+ *     // 对于ref type和 unmanaged type，优先从这里寻找可分配空间
+ *     // 我们不将这里tuple字段定义中的reference type转为object，仍然使用Unsafe在获取时进行转换
+ *     (ValueTuple) __vtuple0;
  *     ...
  *     
  *     #pragma warning disable CS8618
@@ -35,7 +41,7 @@
  *     public VariantVariant Variant => new VariantVariant(ref this);
  *     
  *     // accessibility可设置
- *     public Union CreateVariant(field) => new(UnionTag.Variant) { __field = field, };
+ *     public static Union CreateVariant(field) => new(UnionTag.Variant) { __field = field, };
  *     
  *     public bool TryGetVariant(out field)
  *     {
@@ -49,8 +55,10 @@
  *         }
  *     }
  * 
+ *     // 如果只有基本类型，我们可以直接计算出这个结构的尺寸。否则需要FieldOffset一下
  *     struct __UnmanagedUnion { } // 对齐所有Unmanaged struct
  *     
+ *     // 没有字段时不生成这个结构
  *     ref struct VariantVariant(ref Union union)
  *     {
  *         private ref Union _unionRef = ref union;
@@ -62,6 +70,8 @@
  *         public void Deconstruct(out field) => field = _unionRef._field;
  *     }
  * }
+ * - 用户始终可以创建default(Union)，因此我们添加一个Diagnostic(INFO)，提示用户添加一个值为0的无字段enum值
+ * 对标记FlagAttr的enum报Diagnostic(INFO)
  */
 
 /**abstract partial class Union
@@ -69,6 +79,8 @@
  *     sealed partial class Variant(field) : Union
  *     {
  *         public Field; // yes we use public field rather than property
+ *         // util methods:
+ *         // Equals, Deconstruct
  *     }
  * }
  */
@@ -87,9 +99,21 @@
  * int _maxRefTypeCount;
  * INamedTypeSymbol _tagSymbol;
  * //dict 使用草稿见Program.Partial.Do()
- * //managed struct的处理和unmanaged应该是一致的，两者的区别只有是不是union而已 
- * Dictionary<ITypeSymbol, string Identifier> _unmanagedStructs;
- * Dictionary<ITypeSymbol, string Identifier> _managedStructs;
+ * //managed struct的处理和unmanaged应该是基本一致的。但是managed struct不能获取tuple的sub tuple
+ * //unmanaged的设计主要在于减少字段定义，对union size没有影响
+ * Dictionary<ITypeSymbol, int Index> _unmanagedStructs;
+ * Dictionary<ITypeSymbol, int Index> _managedStructs;
+ * Dict<ITupleTypeSymbol, int> _managedTuples;
+ * enum FieldValueSource
+ * {
+ *     ObjectInstances(int Index),
+ *     UnmanagedUnion(string? VariantFieldName), // 为null时，使用Unsafe直接转换，
+ *     ManagedStruct(string FieldName),
+ *     ManagedTuple(string FieldName, string? TupleItemAccess), // 其他字段从managed tuple 借用时，TupleItemAccess有意义。通过$"this.{FieldName}.{TupleItemAccess}"访问字段
+ * }
+
+ * Parse(Variant variant):
+ * 
  */
 
 using Microsoft.CodeAnalysis;
@@ -108,6 +132,7 @@ using Trarizon.Library.GeneratorToolkit.Helpers;
 using Trarizon.Library.GeneratorToolkit.More;
 using Trarizon.Library.GeneratorToolkit.Wrappers;
 
+// TODO: 突然想到，Generator和Analyzer定义在一起，编译器会不会生成两个instance
 namespace Trarizon.Library.SourceGenerator.Generators;
 [Generator(LanguageNames.CSharp)]
 internal sealed partial class TaggedUnionGenerator : IIncrementalGenerator
