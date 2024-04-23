@@ -27,7 +27,7 @@ public struct AllocOptDictionary<TKey, TValue, TComparer> : IDictionary<TKey, TV
         readonly get {
             ref readonly var val = ref GetValueRefOrNullRef(key);
             if (Unsafe.IsNullRef(in val))
-                ThrowHelper.ThrowKeyNotFound(key?.ToString() ?? string.Empty);
+                ThrowHelper.ThrowKeyNotFound(key);
             
             return val!;
         }

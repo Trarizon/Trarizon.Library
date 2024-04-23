@@ -1,4 +1,6 @@
-﻿namespace Trarizon.Library.Helpers;
+﻿using Trarizon.Library.Helpers;
+
+namespace Trarizon.Library.IO.Helpers;
 internal static class PathHelper
 {
     public static string Combine(ReadOnlySpan<char> path1, ReadOnlySpan<char> path2)

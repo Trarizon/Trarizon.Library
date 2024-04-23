@@ -24,7 +24,18 @@ using Trarizon.Library.RunTest.Examples;
 using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 
-sizeof(Index).Print();
+RunBenchmarks();
+return;
+
+var un = Un.CreateA(1);
+un.TryGetA(out var a).Print();
+a.Print();
+un.TryGetC(out int s, out var b).Print();
+s.Print();
+b.Print();
+un.TryGetE(out var e).Print();
+e.Print();
+
 unsafe {
     //    //(int, object) val=(5,new());
     //    //var span = MemoryMarshal.CreateSpan(ref Unsafe.As<int, byte>(ref val.Item1), 16);
@@ -87,7 +98,7 @@ partial class Program
         [FieldOffset(0)]
         public (int, int, int, int, CancellationToken) a;
         [FieldOffset(0)]
-        public (int, object, int) u;
+        public (int, int, int) u;
     }
 
     [StructLayout(LayoutKind.Explicit)]
