@@ -6,9 +6,9 @@ namespace Trarizon.Test.Run;
 [MemoryDiagnoser]
 public class Benchmarks
 {
-    public IEnumerable<long> ArgsSource()
+    public IEnumerable<object> ArgsSource()
     {
-        yield return 1;
+        yield return new Program.ALargeUnionType();
     }
 
     public IEnumerable<string[]> Args()
@@ -18,18 +18,10 @@ public class Benchmarks
 
     [Benchmark]
     [ArgumentsSource(nameof(ArgsSource))]
-    public ulong Sort(long ints)
+    public ulong UnionA(Program.ALargeUnionType union)
     {
-        ref readonly var val = ref UnsafeHelper.AsReadOnly<long, ulong>(ref ints);
-        return val;
-    }
-
-    [Benchmark]
-    [ArgumentsSource(nameof(ArgsSource))]
-    public ulong SortComparer(long ints)
-    {
-        ref readonly var val = ref UnsafeHelper.AsReadOnlyInline<long, ulong>(ref ints);
-        return val;
+        var _ = union.A;
+        return 0;
     }
 }
 

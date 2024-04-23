@@ -1,32 +1,95 @@
-﻿/**
- * 由于managed ptr和unmanaged ptr不能重叠，tagged union设计如下：
- * - 如果任何一个字段为ref struct，那么全部使用ref byte存储
- * - 否则
- *   - 0    - object : object段存储引用类型
- *   - 8  - object
- *   - ..   - object
- *   - 8n    - Tag
- *   - 8n+T - T1: 将可重叠的部分放在所有object之后
- *   - 8n+T - T2: 后续字段偏移均一致
- * 
- * 对于variant（即字段组）
- * - Unmanaged struct:
- *   - 所有Unmanaged struct使用ExplicitLayout对齐，放在struct最后
- * - class:
- *   - 所有引用类型可以共用object，我们使用Unsafe.As<>进行转换
- * - managed struct
- *   - 如果managed struct仅含class，将struct内部的class映射到union的object段（可以Unsafe.As<,object>和Unsafe.AddOffset
- *   - 如果managed struct包含unmanaged struct和class，进行装箱，存储在object中。
- *   
- * 提供可选项：
- * - Box: 无论类型对所有字段进行装箱
+﻿/**Options
+ * - UnionTypeKind: 默认Struct，有任何一个字段为ref struct时为RefStruct
+ *   - Struct: 默认的TaggedUnion
+ *   - Class: 使用class和type pattern match check
+ *   - Record: 使用Record与type pattern match check
+ *   - RefStruct：一个tag和一个ref byte  // 安全性存疑，暂定
  * - Pack: 用于指定[StructLayout]的Pack
- * - AggressiveCompressTagKind: 不显式存储union，尝试通过字段来获取Tag
- *   - SafeCompress:当仅一个
- *   ! 以下情况调用方创建时需要严格遵守nullable check，否则可能出现Tag不对的情况
- *   - Nullable: 仅通过判断object是否为null获取
- *   - TypeNoVariance: 会使用is判断非协变逆变类型（因为协变判断会有性能问题
- *   - Type: 会使用is判断类型以判断object
+ * - CreatorAccessibility: Create方法或ctor的accessibility
+ *   - 对Record无效
+ * - // AggressiveMinimizingSize:试图不存储tag并通过字段获取tag
+ *   - 因为获取tag时性能问题似乎不小所以取消了
+ *   - 但是TryGetXXX里使用或许可以，暂定
+ */
+
+/**partial struct Union
+ * {
+ *     object __obj0;
+ *     object __obj1;
+ *     ...
+ *     
+ *     readonly UnionTag __tag;
+ *     __UnmanagedUnion __unmanageds;
+ *     
+ *     // 外部库可能会修改struct结构，所以即使字段全是引用类型，managed struct也不能直接映射到objects
+ *     ManagedA __managed0;
+ *     ManagedB __managed1;
+ *     ...
+ *     
+ *     #pragma warning disable CS8618
+ *     private Union(UnionTag tag) => __tag = tag;
+ *     
+ *     public UnionTag Tag => __tag;
+ *     
+ *     [UnscopedRef]
+ *     public VariantVariant Variant => new VariantVariant(ref this);
+ *     
+ *     // accessibility可设置
+ *     public Union CreateVariant(field) => new(UnionTag.Variant) { __field = field, };
+ *     
+ *     public bool TryGetVariant(out field)
+ *     {
+ *         if (__tag is UnionTag.Variant) {
+ *             field = _field;
+ *             return true;
+ *         }
+ *         else {
+ *             field = default!;
+ *             return false;
+ *         }
+ *     }
+ * 
+ *     struct __UnmanagedUnion { } // 对齐所有Unmanaged struct
+ *     
+ *     ref struct VariantVariant(ref Union union)
+ *     {
+ *         private ref Union _unionRef = ref union;
+ *         
+ *         public ref Field => _unionRef._field;
+ *         
+ *         // 异步和迭代器中不能使用ref struct，因此提供Deconstruct很有用
+ *         // 但是只有一个field时没用，此时不生成，用Field属性获取
+ *         public void Deconstruct(out field) => field = _unionRef._field;
+ *     }
+ * }
+ */
+
+/**abstract partial class Union
+ * {
+ *     sealed partial class Variant(field) : Union
+ *     {
+ *         public Field; // yes we use public field rather than property
+ *     }
+ * }
+ */
+
+/**abstract record Union
+ * {
+ *     sealed record Variant(fields) : Union {}
+ * }
+ */
+
+/**RefStruct
+ * [tag|ref byte|ref byte|..]
+ */
+
+/** Struct的详细设计
+ * int _maxRefTypeCount;
+ * INamedTypeSymbol _tagSymbol;
+ * //dict 使用草稿见Program.Partial.Do()
+ * //managed struct的处理和unmanaged应该是一致的，两者的区别只有是不是union而已 
+ * Dictionary<ITypeSymbol, string Identifier> _unmanagedStructs;
+ * Dictionary<ITypeSymbol, string Identifier> _managedStructs;
  */
 
 using Microsoft.CodeAnalysis;
