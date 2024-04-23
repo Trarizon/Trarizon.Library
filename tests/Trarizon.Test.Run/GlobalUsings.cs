@@ -2,6 +2,7 @@
 
 using BenchmarkDotNet.Running;
 using System.Collections;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -57,10 +58,18 @@ public static class GlobalUsings
 
     #region Print
 
-    public static void Print(this string? value) => Console.WriteLine(value ?? "<null>");
-    public static void Print<T>(this T value) => PrintValue(value).Print();
+    public static void Print<T>(this T value)
+    {
+        if (typeof(string) == typeof(T))
+            Console.WriteLine(Unsafe.As<T, string>(ref value) ?? "<null>");
+        else
+            PrintValue(value).Print();
+    }
+
     public static void Print<T>(this Span<T> values) => PrintValue((ReadOnlySpan<T>)values).Print();
     public static void Print<T>(this ReadOnlySpan<T> values) => PrintValue(values).Print();
+
+    public static void PrintType<T>(this T value) => value?.GetType().Print();
 
     private static string? PrintValue<T>(T value)
     {

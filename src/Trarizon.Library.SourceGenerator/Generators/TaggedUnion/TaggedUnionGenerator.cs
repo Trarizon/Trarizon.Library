@@ -1,4 +1,35 @@
-﻿using Microsoft.CodeAnalysis;
+﻿/**
+ * 由于managed ptr和unmanaged ptr不能重叠，tagged union设计如下：
+ * - 如果任何一个字段为ref struct，那么全部使用ref byte存储
+ * - 否则
+ *   - 0    - object : object段存储引用类型
+ *   - 8  - object
+ *   - ..   - object
+ *   - 8n    - Tag
+ *   - 8n+T - T1: 将可重叠的部分放在所有object之后
+ *   - 8n+T - T2: 后续字段偏移均一致
+ * 
+ * 对于variant（即字段组）
+ * - Unmanaged struct:
+ *   - 所有Unmanaged struct使用ExplicitLayout对齐，放在struct最后
+ * - class:
+ *   - 所有引用类型可以共用object，我们使用Unsafe.As<>进行转换
+ * - managed struct
+ *   - 如果managed struct仅含class，将struct内部的class映射到union的object段（可以Unsafe.As<,object>和Unsafe.AddOffset
+ *   - 如果managed struct包含unmanaged struct和class，进行装箱，存储在object中。
+ *   
+ * 提供可选项：
+ * - Box: 无论类型对所有字段进行装箱
+ * - Pack: 用于指定[StructLayout]的Pack
+ * - AggressiveCompressTagKind: 不显式存储union，尝试通过字段来获取Tag
+ *   - SafeCompress:当仅一个
+ *   ! 以下情况调用方创建时需要严格遵守nullable check，否则可能出现Tag不对的情况
+ *   - Nullable: 仅通过判断object是否为null获取
+ *   - TypeNoVariance: 会使用is判断非协变逆变类型（因为协变判断会有性能问题
+ *   - Type: 会使用is判断类型以判断object
+ */
+
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.CodeDom.Compiler;

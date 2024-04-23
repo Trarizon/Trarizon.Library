@@ -6,15 +6,7 @@ public static class OperationExtensions
 {
     public static IEnumerable<IOperation> Ancestors(this IOperation operation, bool includeSelf = false)
     {
-        if (includeSelf)
-            yield return operation;
-
-        while (true) {
-            operation = operation.Parent!;
-            if (operation is null)
-                yield break;
-            else
-                yield return operation;
-        }
+        return (includeSelf ? operation : operation.Parent)
+            .EnumerateByWhileNotNull(o => o.Parent);
     }
 }

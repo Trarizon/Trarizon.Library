@@ -24,23 +24,7 @@ using Trarizon.Library.RunTest.Examples;
 using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 
-using var span = SpanOwner<int>.Allocate(10);
-
-List<int> list = Enumerable.Range(0, 5).ToList();
-if (list.TryAt(-1, out var val))
-    val.Print();
-EnumerateValues<string?>(i=>i.ToString()).Order();
-return;
-
-var un = Un.CreateA(1);
-un.TryGetA(out var a).Print();
-a.Print();
-un.TryGetC(out int s, out var b).Print();
-s.Print();
-b.Print();
-un.TryGetE(out var e).Print();
-e.Print();
-
+sizeof(Index).Print();
 unsafe {
     //    //(int, object) val=(5,new());
     //    //var span = MemoryMarshal.CreateSpan(ref Unsafe.As<int, byte>(ref val.Item1), 16);

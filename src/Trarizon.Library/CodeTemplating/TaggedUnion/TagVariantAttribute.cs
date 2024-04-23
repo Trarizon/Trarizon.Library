@@ -7,6 +7,38 @@ public class TagVariantAttribute(params Type[] types) : Attribute
 
     internal TagVariantAttribute(Type[] types, string?[]? identifiers) : this(types)
         => Identifiers = identifiers;
+
+    public TagVariantAttribute(Type type1, string? identifier)
+        : this([type1], [identifier])
+    { }
+
+    public TagVariantAttribute(Type type1, string? identifier1, Type type2, string? identifier2)
+        : this([type1, type2], [identifier1, identifier2])
+    { }
+
+    public TagVariantAttribute(Type type1, string? identifier1, Type type2, string? identifier2, Type type3, string? identifier3)
+        : this([type1, type2, type3], [identifier1, identifier2, identifier3])
+    { }
+
+    public TagVariantAttribute(Type type1, string? identifier1, Type type2, string? identifier2, Type type3, string? identifier3, Type type4, string? identifier4)
+        : this([type1, type2, type3, type4], [identifier1, identifier2, identifier3, identifier4])
+    { }
+
+    public TagVariantAttribute(Type type1, string? identifier1, Type type2, string? identifier2, Type type3, string? identifier3, Type type4, string? identifier4, Type type5, string? identifier5)
+        : this([type1, type2, type3, type4, type5], [identifier1, identifier2, identifier3, identifier4, identifier5])
+    { }
+
+    public TagVariantAttribute(Type type1, string? identifier1, Type type2, string? identifier2, Type type3, string? identifier3, Type type4, string? identifier4, Type type5, string? identifier5, Type type6, string? identifier6)
+        : this([type1, type2, type3, type4, type5, type6], [identifier1, identifier2, identifier3, identifier4, identifier5, identifier6])
+    { }
+
+    public TagVariantAttribute(Type type1, string? identifier1, Type type2, string? identifier2, Type type3, string? identifier3, Type type4, string? identifier4, Type type5, string? identifier5, Type type6, string? identifier6, Type type7, string? identifier7)
+        : this([type1, type2, type3, type4, type5, type6, type7], [identifier1, identifier2, identifier3, identifier4, identifier5, identifier6, identifier7])
+    { }
+
+    public TagVariantAttribute(Type type1, string? identifier1, Type type2, string? identifier2, Type type3, string? identifier3, Type type4, string? identifier4, Type type5, string? identifier5, Type type6, string? identifier6, Type type7, string? identifier7, Type type8, string? identifier8)
+        : this([type1, type2, type3, type4, type5, type6, type7, type8], [identifier1, identifier2, identifier3, identifier4, identifier5, identifier6, identifier7, identifier8])
+    { }
 }
 
 public sealed class TagVariantAttribute<T>(string? name = null)
