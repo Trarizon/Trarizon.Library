@@ -61,6 +61,7 @@
         - Add `StreamHelper` with `Read<>()`
         - Add `StringHelper` with `Interpolated`
         - Add `UnsafeHelper` with `AsReadOnly`, public `Offset`
+        - Add `LockHelper` with `InterlockedCompareExchange`, `InterlockedExchange` for `bool` by `InterlockedBoolean`
     - Extend monads
         - `NotNull<T>`
         - `IOptional<>`
@@ -73,6 +74,7 @@
         - Add `FriendAccess.Options`
         - Add `SingletonAttribute`
         - Add TaggedUnion (`UnionTagAttribute`, `TagVariantAttribute`)
+    - Add `InterlockedBoolean`
 - Changes
     - Optimize `IEnumerable<>.CartesianProduct()`, `IsInOrder()`, `Merge()`, `PopFront`
     - Optimize condition check in Queries
