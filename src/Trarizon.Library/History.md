@@ -77,7 +77,6 @@
         - `FriendAccessAttribute` now works on pointer access
         - Add `FriendAccess.Options`
         - Add `SingletonAttribute`
-        - Add TaggedUnion (`UnionTagAttribute`, `TagVariantAttribute`)
     - Add `InterlockedBoolean`, `InterlockedBooleanLock`
 - Changes
     - Optimize `IEnumerable<>.CartesianProduct()`, `IsInOrder()`, `Merge()`, `PopFront`

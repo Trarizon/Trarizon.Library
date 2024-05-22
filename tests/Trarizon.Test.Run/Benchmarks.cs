@@ -8,7 +8,7 @@ public class Benchmarks
 {
     public IEnumerable<object> ArgsSource()
     {
-        yield return new Program.ALargeUnionType();
+        yield return null!;
     }
 
     public IEnumerable<string[]> Args()
@@ -18,9 +18,8 @@ public class Benchmarks
 
     [Benchmark]
     [ArgumentsSource(nameof(ArgsSource))]
-    public ulong UnionA(Program.ALargeUnionType union)
+    public ulong UnionA()
     {
-        var _ = union.A;
         return 0;
     }
 }

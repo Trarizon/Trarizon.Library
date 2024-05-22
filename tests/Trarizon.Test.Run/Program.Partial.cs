@@ -16,11 +16,36 @@ public sealed partial class Program
 {
     public enum ALargeUnionKind
     {
-        Z,
+        [TagVariant(typeof(int*))]
+        Z = 1,
         [TagVariant<int, string>()]
         A,
         [TagVariant<long>()]
         B,
+    }
+
+    [TaggedUnion(nameof(Defi))]
+    partial struct AL<T, T2>
+    {
+        (object, object, object, object, object, object, object, object, object, object, object, object, object, object, object, object, object, object, object, object, object) _vals;
+        static partial void Defi(
+            ValueTuple A,
+            int B,
+            (T A, int B) C
+            );
+
+        void A()
+        {
+            switch (ArrayInts()) {
+                case { IsFixedSize: false, Length: var l }:
+                    break;
+                case { IsFixedSize: true, Length: var l }:
+
+                default:
+                    break;
+            }
+            var rf = __makeref(_vals);
+        }
     }
 
     ref int Do()
@@ -82,11 +107,11 @@ public sealed partial class Program
 
         public static ALargeUnionType CreateA(int val, string str) => new(ALargeUnionKind.A) {
             _item = str,
-            _unmanaged = new() { _0 = val, },
+            // _unmanaged = new() { _0 = val, },
         };
 
         public static ALargeUnionType CreateB(long Item1) => new(ALargeUnionKind.B) {
-            _unmanaged = new() { _1 = Item1 },
+            // _unmanaged = new() { _1 = Item1 },
         };
 
         public bool TryGetA(out int item1, out string item2)
@@ -130,7 +155,7 @@ public sealed partial class Program
         {
             private ref ALargeUnionType _union = ref union;
 
-            public ref int Item1 => ref _union._unmanaged._0;
+            public ref int Item1 => ref Unsafe.As<__UnmanagedUnion, int>(ref _union._unmanaged);
             public ref string Item2 => ref Unsafe.As<object, string>(ref _union._item);
 
             public void Deconstruct(out int Item1, out string Item2)
@@ -141,7 +166,7 @@ public sealed partial class Program
         {
             private ref ALargeUnionType _union = ref union;
 
-            public ref long Item1 => ref _union._unmanaged._1;
+            public ref long Item1 => ref Unsafe.As<__UnmanagedUnion, long>(ref _union._unmanaged);
         }
     }
 
@@ -201,4 +226,5 @@ public sealed partial class Program
             public ref string Item2 = ref Unsafe.As<byte, string>(ref union._1);
         }
     }
+
 }

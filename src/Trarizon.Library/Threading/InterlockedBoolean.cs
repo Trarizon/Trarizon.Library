@@ -15,6 +15,6 @@ public struct InterlockedBoolean(bool value)
     public static implicit operator InterlockedBoolean(bool boolean) => new(boolean);
     public static implicit operator bool(InterlockedBoolean interlocked) => interlocked.Value;
     public static bool operator true(InterlockedBoolean interlocked) => interlocked;
-    public static bool operator false(InterlockedBoolean interlocked) => interlocked;
+    public static bool operator false(InterlockedBoolean interlocked) => !interlocked;
     public static InterlockedBoolean operator !(InterlockedBoolean interlocked) => new(!interlocked.Value);
 }

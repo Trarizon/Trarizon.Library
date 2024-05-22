@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Trarizon.Library.GeneratorToolkit.Wrappers;
 
 namespace Trarizon.Library.GeneratorToolkit.Extensions;
 public static class EnumerableExtensions
@@ -237,5 +238,14 @@ public static class EnumerableExtensions
             result.Add(enumerator.Current);
         }
         return result;
+    }
+
+    public static IEnumerable<TResult> WhereSelect<T,TResult>(this IEnumerable<T> source,Func<T,Optional<TResult>> filter)
+    {
+        foreach (var item in source) {
+            var res = filter(item);
+            if (res.TryGetValue(out var val))
+                yield return val;
+        }
     }
 }

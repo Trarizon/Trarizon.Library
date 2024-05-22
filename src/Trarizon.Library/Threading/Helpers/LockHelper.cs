@@ -25,6 +25,6 @@ public static class LockHelper
 
     public static void InterlockToggle(ref InterlockedBoolean interlockedBoolean)
     {
-        InterlockedExchange(ref interlockedBoolean, interlockedBoolean);
+        InterlockedExchange(ref interlockedBoolean, !interlockedBoolean);
     }
 }

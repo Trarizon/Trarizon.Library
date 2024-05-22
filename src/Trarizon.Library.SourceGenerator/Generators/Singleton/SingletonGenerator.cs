@@ -19,8 +19,8 @@ internal sealed partial class SingletonGenerator : IIncrementalGenerator
         var filter = context.SyntaxProvider.ForAttributeWithMetadataName(
             L_Attribute_TypeName,
             (node, token) => node is TypeDeclarationSyntax,
-            Emitter.Parse)
-            .OfNotNull();
+            Emitter.Parse);
+            //.OfNotNull();
 
         context.RegisterSourceOutput(filter);
     }
