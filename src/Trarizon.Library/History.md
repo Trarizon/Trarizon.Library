@@ -50,6 +50,7 @@
         - `AllocOptQueue<T>`
         - `AllocOptDeque<>`
         - `Deque<>`
+        - `RingQueue<>`
         - Add `PushRange` and multi-`Pop` to `AllocOptStack<T>`
         - Add a overload of `AllocOptDictionary<>.GetOrAddRef()`
         - Add `AllocOptCollectionBuilder.AsXXX()`

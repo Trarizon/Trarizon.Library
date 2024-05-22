@@ -65,7 +65,7 @@ public struct AllocOptQueue<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public bool TryDequeue([MaybeNullWhen(false)] out T item) => _deque.TryDequeueFirst(out item);
 
-    void ICollection<T>.Clear() => _deque.Clear();
+    public void Clear() => _deque.Clear();
 
     public readonly void FreeUnreferenced() => _deque.FreeUnreferenced();
 
