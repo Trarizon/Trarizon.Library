@@ -36,8 +36,8 @@
         - `OfXXX()` for wrappers
         - `FirstByMaxPriorityOrDefault()`
         - `PopFront` overload
-        - `Distinct`, `DistinctBy`
-        - `ToListIfAny`
+        - `IsDistinct`, `IsDistinctBy`
+        - `ToNonEmptyListOrNull`
         - `TakeEvery`
         - `WhereSelect` for wrappers
         - `CountsXXX` with predicate
@@ -66,6 +66,7 @@
         - Add `StringHelper` with `Interpolated`
         - Add `UnsafeHelper` with `AsReadOnly`, public `Offset`
         - Add `LockHelper` with `InterlockedCompareExchange`/ `~Exchange` / `~Toggle`
+        - Add `NumberHelper` with `IncMod`, `IncClamp`
     - Extend monads
         - `NotNull<T>`
         - `IOptional<>`

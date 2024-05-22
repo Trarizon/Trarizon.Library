@@ -36,5 +36,15 @@ public static partial class NumberHelper
 
     #endregion
 
+    #region IncMod, IncClamp
+
+    public static void IncMod<TNumber>(this ref TNumber number, TNumber wrapUpperBound) where TNumber : struct, INumberBase<TNumber>, IModulusOperators<TNumber, TNumber, TNumber> 
+        => number = (number + TNumber.One) % wrapUpperBound;
+
+    public static void IncClamp<TNumber>(this ref TNumber number, TNumber min, TNumber max) where TNumber : struct, INumber<TNumber> 
+        => number = TNumber.Clamp(number + TNumber.One, min, max);
+
+    #endregion
+
     internal static int GetUnderlyingInt32(this Index index) => Unsafe.As<Index, int>(ref index);
 }

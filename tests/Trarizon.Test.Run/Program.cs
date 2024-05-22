@@ -24,23 +24,7 @@ using Trarizon.Library.RunTest.Examples;
 using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 
-long l = 5;
-Do(ref l);
-
-l.Print();
-Array arr = new int[5];
-
-Either<string, Array> either = arr;
-
-(either as string)
-
-switch (either)
-{
-    case :
-        break;
-    default:
-        break;
-}
+ArrayInts().Distinct();
 
 Console.WriteLine("Hello, World!");
 return;

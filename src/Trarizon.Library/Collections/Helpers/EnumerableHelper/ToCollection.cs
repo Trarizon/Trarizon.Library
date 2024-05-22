@@ -1,7 +1,7 @@
 ﻿namespace Trarizon.Library.Collections.Helpers;
 partial class EnumerableHelper
 {
-    public static List<T>? ToListIfAny<T>(this IEnumerable<T> source)
+    public static List<T>? ToNonEmptyListOrNull<T>(this IEnumerable<T> source)
     {
         using var enumerator = source.GetEnumerator();
         if (!enumerator.MoveNext())
