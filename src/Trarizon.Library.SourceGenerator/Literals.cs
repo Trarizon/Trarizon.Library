@@ -10,7 +10,7 @@ internal static class Literals
 
     public const string CodeAnalysis_Namespace = "Trarizon.Library.CodeAnalysis";
     public const string CodeAnalysis_MemberAccess_Namespace = $"{CodeAnalysis_Namespace}.MemberAccess";
-    public const string CodeTemplating_Namespace = "Trarizon.Library.CodeTemplating";
+    public const string CodeGeneration_Namespace = "Trarizon.Library.CodeGeneration";
 
     public static readonly string GeneratedCodeAttribute_Tool_Argument = Assembly.GetExecutingAssembly().GetName().Name;
     public static readonly string GeneratedCodeAttribute_Version_Argument = Assembly.GetExecutingAssembly().GetName().Version.ToString();

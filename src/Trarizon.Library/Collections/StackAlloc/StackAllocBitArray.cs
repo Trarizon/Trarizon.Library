@@ -1,37 +1,48 @@
 ﻿using System.Diagnostics;
 
 namespace Trarizon.Library.Collections.StackAlloc;
+/// <summary>
+/// Stack allocated bitarray, use
+/// <c>new StackAllocBitArray(stackalloc byte[StackAllocBitArray.GetArrayLength(...)])</c>
+/// to create a new stackalloc instance
+/// </summary>
+/// <param name="allocatedSpace"></param>
 public ref struct StackAllocBitArray(Span<byte> allocatedSpace)
 {
-    private readonly Span<byte> _bytes = allocatedSpace;
+    private const int BitContainterSize = 8 * sizeof(byte);
 
-    public const int BitSizeOfByte = 8;
+    private readonly Span<byte> _span = allocatedSpace;
 
-    public readonly int Length => _bytes.Length * BitSizeOfByte;
+    public readonly int Length => _span.Length * BitContainterSize;
 
     public readonly bool this[int index]
     {
         get {
-            var (quo, rem) = Math.DivRem(index, BitSizeOfByte);
-            return (_bytes[quo] & GetMask(rem)) != 0;
+            var (quo, rem) = int.DivRem(index, BitContainterSize);
+            return (_span[quo] & GetMask(rem)) != 0;
         }
         set {
-            var (quo, rem) = Math.DivRem(index, BitSizeOfByte);
+            var (quo, rem) = int.DivRem(index, BitContainterSize);
             if (value)
-                _bytes[quo] |= GetMask(rem);
+                _span[quo] |= GetMask(rem);
             else
-                _bytes[quo] &= (byte)~GetMask(rem);
+                _span[quo] &= (byte)~GetMask(rem);
         }
     }
+
+    /// <summary>
+    /// Get the length of <see cref="BitContainer"/> array that caller should allocate
+    /// </summary>
+    /// <param name="bitLength"></param>
+    /// <returns></returns>
+    public static int GetArrayLength(int bitLength)
+        => bitLength > 0 ? (bitLength - 1) / BitContainterSize + 1 : 0;
 
     private static byte GetMask(int index)
     {
-        Debug.Assert(index < BitSizeOfByte);
+        Debug.Assert(index < BitContainterSize);
         return (byte)(1 << index);
     }
-
-    public static int GetArrayLength(int bitLength)
-        => bitLength > 0 ? (bitLength - 1) / BitSizeOfByte + 1 : 0;
 
     public readonly Enumerator GetEnumerator() => new(this);
 

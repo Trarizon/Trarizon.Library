@@ -26,4 +26,9 @@
 		<None Include="..\Trarizon.Library.SourceGenerator\bin\$(Configuration)\netstandard2.0\Trarizon.Library.GeneratorToolkit.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <PackageReference Include="CommunityToolkit.Diagnostics" Version="8.3.2" />
+	  <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.3.2" />
+	</ItemGroup>
+
 </Project>

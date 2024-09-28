@@ -1,135 +1,224 @@
 ﻿using System.Collections;
-using System.Diagnostics.CodeAnalysis;
-using Trarizon.Library.Collections.AllocOpt;
+using System.Runtime.CompilerServices;
+using Trarizon.Library.Collections.AllocOpt.Providers;
+using Trarizon.Library.Collections.StackAlloc;
 
 namespace Trarizon.Library.Collections.Generic;
-public class RingQueue<T> : ICollection<T>, IReadOnlyCollection<T>
+public class RingQueue<T>(int maxCount, RingQueue<T>.CollectionFullBehaviour fullBehaviour = RingQueue<T>.CollectionFullBehaviour.Overwrite)
+    : ICollection<T>, IReadOnlyCollection<T>
 {
-    private readonly AllocOptDeque<T> _deque;
-    private readonly bool _throwOnFull;
-    private int _version;
+    private readonly AllocOptGrowableArrayProvider<T> _array = new();
+    private int _head = 0;
+    private int _tail = 0;
+    private readonly CollectionFullBehaviour _fullBehaviour = fullBehaviour;
+    private readonly int _maxCount = maxCount;
+    private int _version = 0;
 
-    public RingQueue(int maxCount, bool throwOnFull = false)
+    public int Count
     {
-        _deque = new(maxCount);
-        _throwOnFull = throwOnFull;
+        get {
+            if (_head < _tail) {
+                return _tail - _head;
+            }
+            if (_tail == _head) {
+                // If empty, items of _array will be cleared, so returns 0,
+                // otherwise, returns MaxCount
+                return _array.Count;
+            }
+
+            return MaxCount - _head + _tail;
+        }
     }
 
-    #region Accessors
+    public int Capacity => _array.Array.Length;
 
-    public int Count => _deque.Count;
+    public int MaxCount => _maxCount;
 
-    public int Capacity => _deque.Capacity;
+    public bool IsFull => _head == _tail && _array.Count > 0;
 
-    public T Peek() => _deque.PeekFirst();
+    public bool IsEmpty => _head == _tail && _array.Count == 0;
 
-    public bool TryPeek([MaybeNullWhen(false)] out T item) => _deque.TryPeekFirst(out item);
-
-    public T[] ToArray() => _deque.ToArray();
-
-    public Enumerator GetEnumerator() => new(this);
-
-    #endregion
-
-    #region Modifiers
+    public ReadOnlyConcatSpan<T> AsSpan()
+    {
+        var array = _array.Array;
+        // |  ---  |
+        if (_head < _tail)
+            return new(array.AsSpan(_head.._tail), default);
+        // Empty
+        else if (_head == _tail && _array.Count == 0)
+            return default;
+        // |--  --|
+        else
+            return new(array.AsSpan(_head), array.AsSpan(0, _tail));
+    }
 
     public void Enqueue(T item)
     {
-        if (Count == Capacity) {
-            if (_throwOnFull)
-                ThrowHelper.ThrowInvalidOperation("Ring queue full");
-            _deque.DequeueFirst();
+        if (IsFull) {
+            ThrowFullIfBehaviourRequires();
+            _array.Array[_tail] = item;
+            Increment(ref _head);
+            Increment(ref _tail);
         }
-        _deque.EnqueueLast(item);
+        else if (_array.Count == MaxCount) {
+            _array.Array[_tail] = item;
+            Increment(ref _tail);
+        }
+        else {
+            _array.Add(item);
+            Increment(ref _tail);
+        }
         _version++;
     }
 
-    public void Dequeue()
+    public void DequeueFirst()
     {
-        _deque.DequeueFirst();
+        if (IsEmpty)
+            TraThrow.NoElement();
+
+        _array.Array[_head] = default!;
+        Increment(ref _head);
+        _version++;
+    }
+
+    public void DequeueLast()
+    {
+        if (IsEmpty)
+            TraThrow.NoElement();
+
+        _array.Array[_tail] = default!;
+        Decrement(ref _tail);
         _version++;
     }
 
     public void Clear()
     {
-        _deque.Clear();
-        _deque.FreeUnreferenced();
+        _array.Clear();
+        _head = 0;
+        _tail = 0;
         _version++;
+
+        if (RuntimeHelpers.IsReferenceOrContainsReferences<T>()) {
+            Array.Clear(_array.Array);
+        }
     }
 
-    #endregion
+    public bool Contains(T item)
+    {
+        var array = _array.Array;
+        if (_head < _tail)
+            return Array.IndexOf(array, item, _head, _tail - _head) >= 0;
+        else if (_head == _tail && _array.Count == 0)
+            return false;
+        else
+            return Array.IndexOf(array, item, _head, MaxCount - _head) >= 0
+                || Array.IndexOf(array, item, 0, _head) >= 0;
+    }
 
+    public void CopyTo(T[] array, int arrayIndex)
+        => AsSpan().CopyTo(array.AsSpan(arrayIndex));
 
-    public bool IsReadOnly => throw new NotImplementedException();
-
+    public Enumerator GetEnumerator() => new(this);
 
     bool ICollection<T>.IsReadOnly => false;
-
-    public bool Contains(T item) => _deque.Contains(item);
-    public void CopyTo(T[] array, int arrayIndex) => _deque.CopyTo(array, arrayIndex);
-
     void ICollection<T>.Add(T item) => Enqueue(item);
-    bool ICollection<T>.Remove(T item)
-    {
-        if (TryPeek(out var val) && EqualityComparer<T>.Default.Equals(val, item)) {
-            Dequeue();
-            return true;
-        }
-        return false;
-    }
-
     IEnumerator<T> IEnumerable<T>.GetEnumerator() => GetEnumerator();
+    bool ICollection<T>.Remove(T item) => false;
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
+    private void ThrowFullIfBehaviourRequires()
+    {
+        if (_fullBehaviour is CollectionFullBehaviour.Throw)
+            throw new InvalidOperationException("Ring queue is full");
+    }
+
+    private void Increment(ref int index)
+    {
+        index++;
+        if (index >= MaxCount)
+            index -= MaxCount;
+    }
+
+    private void Decrement(ref int index)
+    {
+        if (index == 0)
+            index = MaxCount;
+        else
+            index--;
+    }
 
     public struct Enumerator : IEnumerator<T>
     {
         private readonly RingQueue<T> _queue;
         private readonly int _version;
-        private int _index;
-        private T _current;
+        private int _index = -1;
+        private T? _current;
+
+        public readonly T Current => _current!;
+
+        readonly object? IEnumerator.Current => Current;
 
         internal Enumerator(RingQueue<T> queue)
         {
             _queue = queue;
             _version = _queue._version;
-            _index = -1;
-            _current = default!;
+
+            if (_queue.IsEmpty)
+                _index = -1;
+            else
+                _index = _queue._head;
         }
 
-        public readonly T Current => _current;
-
-        readonly object? IEnumerator.Current => Current;
-
-        public void Dispose()
-        {
-            _index = -2;
-            _current = default!;
-        }
         public bool MoveNext()
         {
-            if (_version != _queue._version)
-                ThrowHelper.ThrowInvalidOperation("Collection has been changed after enumerator created.");
+            CheckVersion();
 
-            if (_index == -2)
-                return false;
-
-            var index = _index + 1;
-
-            if (!_queue._deque.TryGetByIndex(index, out var val)) {
-                _index = 2;
-                _current = default!;
+            if (_index < 0) {
+                _current = default;
                 return false;
             }
-            _index = index;
-            _current = val;
-            return true;
+
+            // |  ---  |
+            if (_queue._head < _queue._tail) {
+                _current = _queue._array.Array[_index];
+                if (_index + 1 == _queue._tail)
+                    _index = -1;
+                else
+                    _index++;
+                return true;
+            }
+            // |--  --|
+            else {
+                if (_index + 1 == _queue._tail)
+                    _index = -1;
+                else
+                    _index++;
+                return true;
+            }
         }
-        public void Reset()
+
+        void IEnumerator.Reset()
+        {
+            CheckVersion();
+            if (_queue.IsEmpty)
+                _index = -1;
+            else
+                _index = _queue._head;
+        }
+
+        private readonly void CheckVersion()
         {
             if (_version != _queue._version)
-                ThrowHelper.ThrowInvalidOperation("Collection has been changed after enumerator created.");
-            _index = -1;
+                TraThrow.CollectionModified();
+            return;
         }
+
+        public readonly void Dispose() { }
+    }
+
+    public enum CollectionFullBehaviour
+    {
+        Overwrite = 0,
+        Throw,
     }
 }

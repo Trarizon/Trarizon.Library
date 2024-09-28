@@ -1,26 +1,43 @@
 ﻿using BenchmarkDotNet.Attributes;
-using Trarizon.Library.Collections.Helpers;
-using Trarizon.Library.Helpers;
+using System.Runtime.InteropServices;
+using Trarizon.Library.Collections;
 
 namespace Trarizon.Test.Run;
 [MemoryDiagnoser]
 public class Benchmarks
 {
-    public IEnumerable<object> ArgsSource()
-    {
-        yield return null!;
-    }
-
     public IEnumerable<string[]> Args()
     {
-        yield return ["str", "asd", "ddf", "wefd"];
+        yield return ["str", "asd", "ddf", "wefd", "str", "ddf"];
     }
 
     [Benchmark]
-    [ArgumentsSource(nameof(ArgsSource))]
-    public ulong UnionA()
+    [ArgumentsSource(nameof(Args))]
+    public void ByDict(IEnumerable<string> args)
     {
-        return 0;
+        IEnumerable<string> Iter()
+        {
+            var dict = new Dictionary<string, bool>();
+            foreach (var arg in args) {
+                if (AddOrUpdate(dict, arg))
+                    yield return arg;
+            }
+        }
+
+        bool AddOrUpdate(Dictionary<string, bool> dict, string arg)
+        {
+            ref var value = ref CollectionsMarshal.GetValueRefOrAddDefault(dict, arg, out var exists);
+            if (exists) {
+                if (!value) {
+                    value = true;
+                    return true;
+                }
+            }
+            else {
+                value = false;
+            }
+            return false;
+        }
     }
 }
 

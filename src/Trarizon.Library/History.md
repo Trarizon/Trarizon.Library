@@ -1,5 +1,9 @@
 # History
 
+## v1.0.0
+
+- Completely refactored
+
 ## v0.3.0 (in progress)
 
 - Breaking

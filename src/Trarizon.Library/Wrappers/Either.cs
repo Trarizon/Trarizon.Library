@@ -1,6 +1,6 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using CommunityToolkit.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using Trarizon.Library.CodeAnalysis.MemberAccess;
 
 namespace Trarizon.Library.Wrappers;
 public static class Either
@@ -22,16 +22,6 @@ public static class Either
         => ref either._right;
 
     #region Conversion
-
-    #region NotNull
-
-    public static NotNull<TLeft> ToNotNullLeft<TLeft, TRight>(this in Either<TLeft, TRight> either) where TLeft : class
-        => either.IsLeft ? NotNull.Of(either._left) : default;
-
-    public static NotNull<TRight> ToNotNullRight<TLeft, TRight>(this in Either<TLeft, TRight> either) where TRight : class
-        => either.IsRight ? NotNull.Of(either._right) : default;
-
-    #endregion
 
     #region Optional
 
@@ -68,12 +58,14 @@ public static class Either
     #endregion
 }
 
-public readonly struct Either<TLeft, TRight> : IEither<TLeft, TRight>
+public readonly struct Either<TLeft, TRight>
+#if NET9_0_OR_GREATER
+    where TLeft : allows ref struct
+    where TRight : allows ref struct
+#endif
 {
     private readonly bool _isLeft;
-    [FriendAccess(typeof(Either))]
     internal readonly TLeft? _left;
-    [FriendAccess(typeof(Either))]
     internal readonly TRight? _right;
 
     #region Accessor
@@ -92,21 +84,20 @@ public readonly struct Either<TLeft, TRight> : IEither<TLeft, TRight>
     public TLeft GetValidLeftValue()
     {
         if (IsRight)
-            ThrowHelper.ThrowInvalidOperation("Either<> has no left value");
+            ThrowHelper.ThrowInvalidOperationException("Either<> has no left value");
         return _left;
     }
     public TRight GetValidRightValue()
     {
         if (IsLeft)
-            ThrowHelper.ThrowInvalidOperation("Either<> has no right value");
+            ThrowHelper.ThrowInvalidOperationException("Either<> has no right value");
         return _right;
     }
 
     public TLeft? GetLeftValueOrDefault() => _left;
     public TRight? GetRightValueOrDefault() => _right;
 
-    [MemberNotNullWhen(true, nameof(_left))]
-    [MemberNotNullWhen(false, nameof(_right))]
+    [MemberNotNullWhen(true, nameof(_left)), MemberNotNullWhen(false, nameof(_right))]
     public bool TryGetLeftValue([MaybeNullWhen(false)] out TLeft left, [MaybeNullWhen(true)] out TRight right)
     {
         left = _left;
@@ -114,21 +105,18 @@ public readonly struct Either<TLeft, TRight> : IEither<TLeft, TRight>
         return IsLeft;
     }
 
-    [MemberNotNullWhen(true, nameof(_left))]
-    [MemberNotNullWhen(false, nameof(_right))]
+    [MemberNotNullWhen(true, nameof(_left)), MemberNotNullWhen(false, nameof(_right))]
     public bool TryGetLeftValue([MaybeNullWhen(false)] out TLeft left)
     {
         left = _left;
         return IsLeft;
     }
 
-    [MemberNotNullWhen(false, nameof(_left))]
-    [MemberNotNullWhen(true, nameof(_right))]
+    [MemberNotNullWhen(false, nameof(_left)), MemberNotNullWhen(true, nameof(_right))]
     public bool TryGetRightValue([MaybeNullWhen(false)] out TRight right, [MaybeNullWhen(true)] out TLeft left)
         => !TryGetLeftValue(out left, out right);
 
-    [MemberNotNullWhen(false, nameof(_left))]
-    [MemberNotNullWhen(true, nameof(_right))]
+    [MemberNotNullWhen(false, nameof(_left)), MemberNotNullWhen(true, nameof(_right))]
     public bool TryGetRightValue([MaybeNullWhen(false)] out TRight right)
     {
         right = _right;
@@ -163,17 +151,17 @@ public readonly struct Either<TLeft, TRight> : IEither<TLeft, TRight>
     public Either<TNewLeft, TRight> SelectLeft<TNewLeft>(Func<TLeft, TNewLeft> selector)
         => IsLeft ? new(selector(_left)) : new(_right);
 
-    public Either<TNewLeft, TRight> SelectLeftWrapped<TNewLeft>(Func<TLeft, Either<TNewLeft, TRight>> selector)
-        => IsLeft ? selector(_left) : new(_right);
-
     public Either<TLeft, TNewRight> SelectRight<TNewRight>(Func<TRight, TNewRight> selector)
         => IsRight ? new(selector(_right)) : new(_left);
 
-    public Either<TLeft, TNewRight> SelectRightWrapped<TNewRight>(Func<TRight, Either<TLeft, TNewRight>> selector)
-        => IsRight ? selector(_right) : new(_left);
-
     public Either<TNewLeft, TNewRight> Select<TNewLeft, TNewRight>(Func<TLeft, TNewLeft> leftSelector, Func<TRight, TNewRight> rightSelector)
         => IsLeft ? new(leftSelector(_left)) : new(rightSelector(_right));
+
+    public Either<TNewLeft, TRight> SelectLeftWrapped<TNewLeft>(Func<TLeft, Either<TNewLeft, TRight>> selector)
+        => IsLeft ? selector(_left) : new(_right);
+
+    public Either<TLeft, TNewRight> SelectRightWrapped<TNewRight>(Func<TRight, Either<TLeft, TNewRight>> selector)
+        => IsRight ? selector(_right) : new(_left);
 
     public Either<TNewLeft, TNewRight> SelectWrapped<TNewLeft, TNewRight>(Func<TLeft, Either<TNewLeft, TNewRight>> leftSelector, Func<TRight, Either<TNewLeft, TNewRight>> rightSelector)
         => IsLeft ? leftSelector(_left) : rightSelector(_right);
@@ -181,21 +169,4 @@ public readonly struct Either<TLeft, TRight> : IEither<TLeft, TRight>
     #endregion
 
     public override string ToString() => (IsLeft ? _left.ToString() : _right.ToString()) ?? string.Empty;
-}
-
-public interface IEither<TLeft, TRight>
-{
-    bool IsLeft { get; }
-    bool IsRight { get; }
-
-    TLeft LeftValue { get; }
-    TRight RightValue { get; }
-
-    TLeft? GetLeftValueOrDefault();
-    TRight? GetRightValueOrDefault();
-
-    bool TryGetLeftValue([MaybeNullWhen(false)] out TLeft left);
-    bool TryGetLeftValue([MaybeNullWhen(false)] out TLeft left, [MaybeNullWhen(true)] out TRight right);
-    bool TryGetRightValue([MaybeNullWhen(false)] out TRight right);
-    bool TryGetRightValue([MaybeNullWhen(false)] out TRight right, [MaybeNullWhen(true)] out TLeft left);
 }

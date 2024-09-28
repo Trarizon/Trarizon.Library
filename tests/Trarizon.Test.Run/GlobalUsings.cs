@@ -61,7 +61,7 @@ public static class GlobalUsings
     public static void Print<T>(this T value)
     {
         if (typeof(string) == typeof(T))
-            Console.WriteLine(Unsafe.As<T, string>(ref value) ?? "<null>");
+            Console.WriteLine(value as string ?? "<null>");
         else
             PrintValue(value).Print();
     }

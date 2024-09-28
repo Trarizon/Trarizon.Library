@@ -1,23 +1,18 @@
-﻿using System.Runtime.CompilerServices;
+﻿using CommunityToolkit.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace Trarizon.Library.Collections.StackAlloc;
-public readonly ref struct ReversedSpan<T>
+[method: MethodImpl(MethodImplOptions.AggressiveInlining)]
+public readonly ref struct ReversedSpan<T>(Span<T> span)
 {
-    private readonly Span<T> _span;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal ReversedSpan(Span<T> span)
-        => _span = span;
-
-    public static implicit operator ReversedReadOnlySpan<T>(ReversedSpan<T> span)
-        => new(span._span);
+    internal readonly Span<T> _span = span;
 
     public int Length => _span.Length;
 
     public ref T this[int index]
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => ref _span[_span.Length - 1 - index];
+        get => ref _span[^(1 + index)];
     }
 
     public Span<T> Reverse() => _span;
@@ -28,13 +23,12 @@ public readonly ref struct ReversedSpan<T>
     public ReversedSpan<T> Slice(int index)
         => new(_span[..(Length - index)]);
 
-    public void CopyTo(Span<T> span)
+    public void CopyTo(Span<T> destination)
     {
-        if (span.Length < Length)
-            ThrowHelper.ThrowArgument("Size of destination span should not small than source", nameof(span));
+        Guard.HasSizeGreaterThanOrEqualTo(destination, Length);
 
         for (int i = 0; i < Length; i++) {
-            span[i] = this[i];
+            destination[i] = this[i];
         }
     }
 
@@ -44,9 +38,7 @@ public readonly ref struct ReversedSpan<T>
             return [];
 
         T[] array = new T[Length];
-        for (int i = 0; i < Length; i++) {
-            array[i] = this[i];
-        }
+        CopyTo(array);
         return array;
     }
 
@@ -82,3 +74,4 @@ public readonly ref struct ReversedSpan<T>
         }
     }
 }
+

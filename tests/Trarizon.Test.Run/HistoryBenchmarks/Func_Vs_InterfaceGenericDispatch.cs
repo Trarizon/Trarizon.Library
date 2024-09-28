@@ -1,4 +1,5 @@
-﻿using BenchmarkDotNet.Attributes;
+﻿#if false
+using BenchmarkDotNet.Attributes;
 using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Test.Run.HistoryBenchmarks;
@@ -198,3 +199,5 @@ public class Func_Vs_InterfaceGenericDispatch
 //        _secondEnumerator?.Dispose();
 //    }
 //}
+
+#endif

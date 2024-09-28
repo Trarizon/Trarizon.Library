@@ -1,6 +1,4 @@
-﻿using Trarizon.Library.Threading.Helpers;
-
-namespace Trarizon.Library.Threading;
+﻿namespace Trarizon.Library.Threading;
 /// <remarks>
 /// Use <see cref="TryEnterLock"/> can return a disposable wrapper
 /// of <see cref="InterlockedBooleanLock"/>, which will auto exit on 
@@ -15,41 +13,67 @@ namespace Trarizon.Library.Threading;
 /// </remarks>
 public sealed class InterlockedBooleanLock
 {
-    private InterlockedBoolean _value;
+    private volatile int _flag;
 
-    public static implicit operator bool(InterlockedBooleanLock interlocked) => interlocked._value;
-    public static bool operator true(InterlockedBooleanLock interlocked) => interlocked;
-    public static bool operator false(InterlockedBooleanLock interlocked) => interlocked;
-
-    public bool TryEnter()
+    public TryEnteredScope TryEnter()
     {
-        if (!LockHelper.InterlockedCompareExchange(ref _value, true, false))
-            return true;
-        else
-            return false;
+        return new TryEnteredScope(this, 
+            Interlocked.CompareExchange(ref _flag, 1, 0) != 0);
     }
 
     public void Enter()
     {
-        LockHelper.InterlockedExchange(ref _value, true);
+        while (true) {
+            if (Interlocked.CompareExchange(ref _flag, 1, 0) == 0)
+                return;
+
+            Thread.SpinWait(1);
+        }
+    }
+
+    public Scope EnterScope()
+    {
+        while (true) {
+            if (Interlocked.CompareExchange(ref _flag, 1, 0) == 0)
+                return new Scope(this);
+
+            Thread.SpinWait(1);
+        }
     }
 
     public void Exit()
     {
-        LockHelper.InterlockedExchange(ref _value, false);
+        Interlocked.Exchange(ref _flag, 0);
     }
 
-    public TryEnteredLock TryEnterLock() 
-        => new(this, TryEnter());
-
-    public readonly struct TryEnteredLock(InterlockedBooleanLock @lock, bool entered) : IDisposable
+    public readonly ref struct Scope
     {
-        public bool Entered { get; } = entered;
+        private readonly InterlockedBooleanLock _lock;
+
+        internal Scope(InterlockedBooleanLock @lock) => _lock = @lock;
+
+        public void Dispose()
+        {
+            _lock?.Exit();
+        }
+    }
+
+    public readonly ref struct TryEnteredScope
+    {
+        private readonly InterlockedBooleanLock _lock;
+
+        internal TryEnteredScope(InterlockedBooleanLock @lock, bool entered)
+        {
+            _lock = @lock;
+            Entered = entered;
+        }
+
+        public bool Entered { get; }
 
         public void Dispose()
         {
             if (Entered) {
-                @lock.Exit();
+                _lock?.Exit();
             }
         }
     }

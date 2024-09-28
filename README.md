@@ -1,4 +1,4 @@
-# Trarizon.Library
+﻿# Trarizon.Library
 
 Private lib, Based on .NET 8, written in C#12
 
@@ -8,20 +8,14 @@ Private lib, Based on .NET 8, written in C#12
 
 Miscellaneous thing. There will be many breaking changes (orz.
 
+Some methods depends on [`CommunityToolkit`](https://github.com/CommunityToolkit/dotnet)
+
 <details>
 <summary>brief</summary>
 
-- CodeGenerator/Analyzers
-	- MemberAccess
-		- `[FriendAccess]`: restrict access of member to specified several types
-		- `[BackingFieldAccess]`: A workaround of semi-auto-property, restrict access of a field to specified member
-	- `[Singleton]`
-	- TaggedUnion : Generate tagged union within enum type
-- Wrappers: Monads, `Optional<T>`, `Result<T, TError>`, `Either<TLeft, TRight>`
-- Collections:
-	- Queries: More Linq-like methods for `IEnumerable<>`, `IList<>`, `IReadOnlyList<>`
-	- Helpers: more extensions for BCL collection types.
-	- AllocOpt: Rewrite BCL basic collection types in `struct` as light-weighted version
+- CodeAnalysis/Generation
+- Collections: Extends `System.Collections`
+- Wrappers: Monads
 - Helpers: miscellaneous extensions for BCL types
 
 </details>
@@ -29,6 +23,10 @@ Miscellaneous thing. There will be many breaking changes (orz.
 ## [GeneratorToolkit](./src/Trarizon.Library.GeneratorToolkit/README.md)
 
 Toolkit for source generator
+
+## Trash
+
+Just for fun
 
 ## Deprecated
 

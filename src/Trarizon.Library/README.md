@@ -1,187 +1,199 @@
 ﻿# Trarizon.Library
 
-Miscellaneous
+Miscellaneous Helpers
+This library use nuget package [`CommunityToolkit.HighPerformance`](https://github.com/communitytoolkit/dotnet) and `CommunityToolkit.Diagnostics` 
 
 Contents:
 
-- [Code analysis by source generator](#CodeAnalysis)
-- [Collection extensions](#Collections)
-- [Extensions for BCL type](#Helpers)
-- [Simple wrapper types](#Wrappers)
+- [CodeAnalysis](#CodeAnalysis)
+- [CodeGeneration](#CodeGeneration)
+- [Collections and helpers](#Collections)
+- [Monads and wrappers](#Wrappers)
+- [Other helpers](#More)
 
 ## CodeAnalysis
 
-Analyers are in [Trarizon.Library.SourceGenerator](../Trarizon.Library.SourceGenerator)
+- `[BackingFieldAccess]` : a workround of .NET 9 backing field
+- `[FriendAccess]` : Opt-in ver of `friend` in c++
 
-Attribute|Analyzer|Remark
-:-:|:-:|:--
-`FriendAccess`|`FriendAccessAnalyzer`| friend in c++，限制可访问该成员的类
-`BackingField`|`BackingFieldAnalyzer`| 代替backing field，限制可访问该字段的成员
+## CodeGeneration
 
-## CodeTemplating
-
-Generators are in [Trarizon.Library.SourceGenerator](../Trarizon.Library.SourceGenerator)
-
-Attribute|Generator|Remark
-:-:|:-:|:--
-`Singleton`|`SingletonGenerator`| Generate singleton template
-`UnionTag`<br/>`TagVariant`|`TaggedUnionGenerator`|Generated tagged union struct by enum
+- `[Singleton]` : Generate a singleton class, thread safe with static field
 
 ## Collections
 
-### CollectionTypes
-
-Rewrite BCL collections in struct, to reduce alloc on heap
-
-- AllocOpt
-    - `AllocOptDictionary<,>` <- `Dictionary<,>`
-    - `AllocOptList<>` <- `List<>`
-    - `AllocOptQueue<>` <- `Queue<>`
-    - `AllocOptSet<>` <- `HashSet<>`
-    - `AllocOptStack<>` <- `Stack<>`
-- StackAlloc
-    - `(Reversed)ReadOnlyRingSpan` - (or queue span?
-    - `Reversed(ReadOnly)Span` - Use ext method `Span<>.Reverse()`
-    - `StackAllocBitArray`
-- Generic
-    - `Deque`
+- namespace `AllocOpt` : Rewrite some collections with struct
+- namespace `Generic` : Extension of `System.Collections.Generic`
+    - `ListDictionary<,>` : Generic version of `System.Collections.Specialized.ListDictionary`.
+    - `RingQueue<>` : Ring queue with fixed capacity, optional throw or overwrite when full
+    - `IByKeyEqualityComparer` : Comparer interface for compare to objects in different type
+    - `StableSortComparer` : Helper for `SortStably`
+- namespace `StackAlloc` : `ref struct` collections
+    - `ReadOnlyConcatSpan` : Concat 2 spans
+    - `(ReadOnly)ReversedSpan` : Reversed span
+    - `StackAllocBitArray` : Bit array using a `Span<byte>` as underlying items
+- `TraXXX` : Static classes with helper method, extension methods
+    - `TraAlgorithm` : 
+    - `TraArray` : Helper for `T[]`, `ImmutableArray<>`
+    - `TraDictionary` : Helper for `Dictionary<,>`
+    - `TraEnumerable` : Helper for `IEnumerable`, linq extensions
+    - `TraIter` : Value type simple Linq, this class is design for instant iterating, so it doesn't support chain linq
+    - `TraList` : Helpers for `List<>`, `I(ReadOnly)List<>`
+    - `TraSpan` : Helpers for `(ReadOnly)Span<>`
 
 ### Helpers
 
-static classes for BCL collections
+<details>
+<summary>Array</summary>
 
-- ArrayHelper : for `Array`, with `ImmutableArray<>`
-- EnumerableHelper : for `IEnumerable<>`
-- ListHelper : for `IList<>`, `IReadOnlyList<>`, with `List<>`
-- SpanHelper : for `Span<>`, `ReadOnlySpan<>`
+- `MoveTo` : Move item on `fromIndex` to `toIndex`
+- `SortStably` : Perform stable sort with BCL-built-in `Sort`, and `StableSortComparer`
+- `EmptyIfDefault` for `ImmutableArray<>` : Return empty array if source is `null` 
 
-Types:
-- ❌ : Not implemented
-- ⭕ : Rounded method exists
-- ✔ : Implicit implemented / BCL implemented
-- 🟢 : Directly implemenented
+</details>
 
-#### Array/List/Span
+<details>
+<summary>Dictionary</summary>
 
-Types|Method|Remarks
-:--|:--|:--
-||***Actions***
-|🟢🟢✔|`Fill`|Fill the collection with specific value
-|🟢🟢🟢|`SortStably`|使用内置`Sort`实现的稳定排序
-||***Aggregation***
-|⭕⭕🟢|`Sum`|
-||***Creation***
-|❌❌🟢|`AsBytes`|
-||***Element***
-|⭕🟢⭕|`AtRef`|获取`List<>`下标的值的引用
-|✔✔🟢|`TryAt`|
-|⭕⭕🟢|`IndexOf`|为Span的方法重载了从指定下标值开始查找的功能
-|🟢⭕🟢|`OffsetOf`|通过指针计算元素/子数组的下标值
-||***Sorting***
-|✔✔🟢|`Reverse`|
-||***Others***
-|⭕⭕🟢|`AsReadOnly`|
-|🟢⭕⭕<br/>`ImArr<>`|`EmptyIfNull`<br/>`EmptyIfDefault`|序列为`default`时返回空序列，否则返回自身
+- `GetOrAdd`
 
-#### Enumerable/I(RO)List
+</details>
 
-Type|Method|Rename
-:--|:--|:--
-|🟢|`ForEach`|
-||***Aggregation***
-|🟢|`CountsMoreThan/LessThan`<br/>`CountsAtLeast/Most`<br/>`CountsEqualsTo`<br/>`CountsBetween`|比较序列大小，可选out参数在小于指定值时返回当前序列大小
-|🟢|`IsDistinct(By)`|判断序列是否有重复元素
-|🟢|`IsInOrder(By)`|判断序列是否有序
-|🟢|`MinMax(By)`|一次遍历返回序列中的最小值与最大值
-||***Creation***
-|🟢|`EnumerateByWhile(NotNull)`|
-||***Element***
-|❌🟢|`TryAt`|以安全方式按下标获取值
-|✔🟢|`AtOrDefault`|以安全方式按下标获取值
-|🟢|`FirstByMaxPriorityOrDefault`|获取第一个匹配Priority的值，若无则返回Priority最大的第一个值
-|🟢|`TryFirst`|判断序列是否有值，若有，返回第一个值
-|🟢|`TrySingle`|判断序列是否仅含有1个值（或为空），并返回该值或`default`
-|🟢🟢|`StartsWith`|扩展了从指定位置开始判定的方法
-||***Filtering***
-|🟢|`OfNotNull`<br/>`OfNotNone`|`.Where(t is not null)` <br/> `.Where(t.HasValue)`
-|🟢|`TakeEvery`|每间隔n个值返回
-|🟢|`WhereSelect`|合并了LinQ的`Where`和`Select`，以此可以利用中间值
-||***Joining***
-|🟢🟢|`CartesianProduct`|返回两个序列的笛卡尔积（`SelectMany(_ => second, (_1, _2) => (_1, _2))`）
-|🟢|`Merge`|合并两个有序序列
-||***Mapping***
-|🟢🟢|`Adjacent`|返回相邻的两个值（按下标(0,1), (1,2), ...）
-|🟢|`AggregateSelect`|执行`Aggregate`，返回执行至每一个元素的结果
-|🟢🟢|`ChunkPair/Triple`|类LinQ的`Chunk`，返回结果为`ValueTuple`
-|🟢|`Index`|返回index和值的元组序列（.NET9有带）
-|🟢🟢|`Repeat`|将序列重复
-|🟢|`RepeatForever`|将序列重复
-✔🟢|`Select(Cached)`|
-||***Partition***
-|🟢|`OfTypeUntil`|`.OfType<T>().TakeWhile(t is not TExcept)`
-|🟢|`OfTypeWhile`|`.TakeWhile(t is T).Cast<T>()`
-|🟢🟢|`PopFront(While)`<br/>`PopFirst`|取出开头指定数量的元素，并返回剩下的元素
-|✔🟢|`Take`|
-||***Sorting***
-|✔🟢|`Reverse`|
-|🟢🟢|`Rotate`|交换序列前后两个部分
-||***Others***
-|🟢🟢|`AsXXX`|返回自身
-|❌🟢|`AsIListOrWrap`|如果实现了`IList`返回自身，否则wrap
-|🟢|`EmptyIfNull`|序列为`null`时返回空序列，否则返回自身
-|🟢|`ToListIfAny`|如果序列为空，返回`null`，否则等效`ToList`。作为优化方法避免`Any`的遍历
+<details>
+<summary>Enumerable</summary>
 
-#### Dictionary
+- Aggregation
+    - `CountsMoreThan/LessThan/AtMost/AtLeast/EqualsTo/Between` : Judge size of collection
+    - `IsDistinct(By)` : Check if the collection doesn't contains duplicate element
+    - `IsInOrder(By)` : Check if the elements in collection is in order
+    - `MinMax(By)` : Get minimun value and maximun value in one iteration
+- Creation
+    - `EnumerateByWhile(NotNull)` : Yield next value selected by a `Func<T, T>`, until predicate failed
+- Element
+    - `TryAt` : `TryXXX` version of `ElementAt`
+    - `TryFirst` : `TryXXX` version of `First`
+    - `FirstByMaxPriorityOrDefault` : Find the first item has priority greater than given priority, if not found, return the first item with greatest priority
+    - `TrySingle` : Returning tagged union version of `Single`
+- Filtering
+    - `Duplicates` : Return all elements that is not distinct in collection
+    - `OfNotNull` : Filter out all `null` values
+    - `TakeEvery` : Yield the values in specific interval
+- Joining
+    - `CatesianProduct` : Catesian product
+    - `Merge` : Merge 2 sorted collections
+- Mapping
+    - `Adjacent` : Yield the value and its next value
+    - `AggregateSelect` : `Aggregate` and returns all values in processing
+    - `ChunkPair/Triple` : Returning tuple version of `Chunk`
+    - `WithIndex` : Yield index and item, `Index` in .NET 9
+    - `Repeat` : Repeatly enumerate the collection
+- Partition
+    - `OfTypeWhile` : Take values until doesn't match the given type
+    - `OfTypeUntil` : Take values until reach element in given type
+    - `PopFront` : Split the collection into 2 parts, the first parts is return by `out` paramter
+    - `PopFirst` : Get the first element, and returns the rest elements.
+- Sorting
+    - `Rotate` : Split the collection into 2 parts and swap them
+- ToCollections
+    - `EmptyIfNull` : Return empty collection if source collection is `null`
+    - `ToNonEmptyListOrNull` : If collection is empty, returns `null`, else collect elements into `List<>`
 
-Type|Method|Rename
-:--|:--|:--
-||`GetOrAdd`|获取键的值，否则添加并返回值
+</details>
 
-## Helpers
+<details>
+<summary>Iter</summary>
 
-杂七杂八的扩展方法
+These methods are implements for instant iteration, so all iterators are implements with `struct`,
+but not implements `IEnumerable<>` or `IEnumerator`
 
-`this`|Method|Remarks
-:-:|:-:|:--
-`Task`<br/>`Task<>`<br/>`ValueTask`<br/>`ValueTask<>`<br/>`ValueTask?`<br/>`ValueTask<>?`|`Sync`|`GetAwaiter().GetResult()`
-`ValueTask?`<br/>`ValueTask<>?`|`GetAwaiter`|为`ValueTask?`提供`await`语法支持，泛型返回`Optional<>`
-`Task<>`<br/>`ValueTask<>`|`Select`|Monad
-IFloatNumber|`Remap`<br/>`RemapInto`|将值映射到另一个范围
-`Random`|`SelectWeighted`|按权重随机，返回结果下标
-||`Shuffle`|打乱列表
-||`NextSingle`<br/>`NextDouble`|在范围内随机一位浮点数
+Too lazy to implement all linqs, so I'll just implement what I have used.
+
+- Creation
+    - `IterateByWhile(NotNull)` : Yield next value selected by a `Func<T, T>`, until predicate failed
+    - `Range` : Enumerate `int` from `start` to `end`(not include)
+    - `RangeTo` : Iterate `int` from 0 to `count` with specific step
+- Joining
+    - `Zip` : Linq `Zip`
+- Partition
+    - `Take` : Linq `Take`
+
+</details>
+
+<details>
+<summary>List</summary>
+
+- Modification
+    - `RemoveAt/RemoveRange` : overload for `Index` and `Range`
+    - `MoveTo` : Move item on `fromIndex` to `toIndex`
+- Views
+    - `AsMemory` : Returns the `Memory` view of this list
+    - `GetLookup` : Returns a view treating the list as a set
+    - `GetKeyedLookup` : Returns a view treating the list as dictionary
+    - `GetSortedModifier` : Returns a view through which modifying the list will keep elements in order.
+
+</details>
+
+<details>
+<summary>Span</summary>
+
+- Creation
+    - `As(ReadOnly)Bytes` : Convert an `unmanaged` value into bytes
+- Index
+    - `OffsetOf` : Get the index of element by pointer substraction
+    - `FindLower/UppderBoundIndex` : find the lower/upper bound in a sorted span
+- Modifications
+    - `MoveTo` : Move item on `fromIndex` to `toIndex`
+    - `SortStably` : Perform stable sort with BCL-built-in `Sort`, and `StableSortComparer`
+- Views
+    - `AsReversed` : return `(ReadOnly)ReversedSpan` of the span
 
 </details>
 
 ## Wrappers
 
-`Type`|Remarks
-:-:|:--
-`Either<,>`|Monad Either
-`NotNull<>`|Monad Optional for notnull reference type
-`Optional<>`|Monad Optional
-`Result<,>`|Monad Result, `TError`支持任意引用类型
+- `Either<,>` : Monad either
+- `Result<,>` : Monad Result, for smaller size, `TError` only supports reference type, and if `TError` is null, the result means success
+- `Optional<>` : Monad Option
 
-Monad统一提供了`SelectXXX()`转换，`TryGetXXX()`获取值，以及一个非泛型静态类用于创建，等效`new()`。
-Monad之间提供了`ToXXX()`和`AsXXX()`相互转换
+## More
 
+The namespace structure is almost the same with `System.XXX`
 
-<details>
-<summary>小寄巧</summary>
+- namespace `IO`
+    - `TraPath` : Extends `System.IO.Path`
+    - `TraStream` : Helpers for `System.IO.Stream`
+- namespace `Threading`
+    - `AsyncSemaphoreLock` : Async lock implemented with `SemaphoreSlim`
+    - `InterlockedBoolean` : Provide `Interlocked` methods for `bool`, this maybe removed in .NET 9
+    - `InterlockedBooleanLock` : A lock implemented with `InterlockedBoolean`
+    - `TraAsync` : Helpers for async operation, `Task<>`, `ValueTask<>`, etc.
+- `TraEnum` : Helpers for enum types
+- `TraNumber` : Helpers for number types, in `System.Numerics`
+- `TraRandom` : Helpers for `Random`
+- `TraString` : Helpers for `string`, interpolated string handler
+- `TraUnsafe` : Extends `System.Runtime.CompilerServices.Unsafe`
 
-可以使用以下方式快速判断Monad并获取`Value`
-``` csharp
-if (optional.TryGetValue(out var value)) {
-    Process(value);
-}
+### Helpers
 
-// 第二个参数可省略
-if (result.TryGetValue(out var val, out var err) {
-    Process(val);
-}
-else {
-    Process(err);
-}
-```
-
-</details>
+- Path
+    - `Contains/ReplaceInvalidFileNameChar` : Operations about invalid filename characters, with cached `SearchValues<char>`
+    - `Combine` : Overload for `ReadOnlySpan<char>`
+- Stream
+    - `Read(Exactly)` : Read data into `unmanaged` span
+    - `ReadExactlyIntoArray` : Read exactly data into an `unmanaged` array with specific length
+    - `ReadWithInt32Prefix` : Read a `int` as array length, and do `ReadExactlyIntoArray`
+- Async
+    - `GetAwaiter` : Support `await` keyword for `ValueTask?`, `ValueTask<>?`
+- Enum
+    - `HasAnyFlag` : Check if a enum value has one of given flags. This method works with [Interceptor](https://github.com/dotnet/roslyn/blob/main/docs/features/interceptors.md) which is still experimental (Generated namespace is `Trarizon.Library.Generated`)
+- Number
+    - `IncAnd(Try)Wrap` : Increment the number, if the result is greater than given `max`, then wrap it
+    - `Normalize` : Linear normalize value into [0,1]
+    - `Normalize(Unclamped)` : Linear normalize value into [0,1], but not clamped
+- Random
+    - `SelectWeight` : Weighted random
+    - `NextSingle/Double` : Get a random float number in specific range
+- String
+    - `Interpolated` : provider a method for call extra constructors of `DefaultInterpolatedStringHandler`
+- Unsafe
+    - `AsReadOnly` : Perform `Unsafe.As` for `ref readonly` variables

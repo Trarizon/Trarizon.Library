@@ -1,26 +1,15 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
-using Trarizon.Library.CodeAnalysis.MemberAccess;
+﻿using CommunityToolkit.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Trarizon.Library.Wrappers;
 public static class Optional
 {
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Optional<T> Of<T>(T value) => new(value);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Optional<T> Of<T>(T value, Func<T, bool> predicate) => predicate(value) ? Of(value) : default;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Optional<T> OfNotNull<T>(T? value) where T : class => NotNull.As(value).ToOptional();
+    public static Optional<T> OfNotNull<T>(T? value) where T : class => value is null ? default : Of(value);
 
-    /// <summary>
-    /// In fact just use <c>default</c> is ok
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Optional<T> None<T>() => Optional<T>.None;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ref readonly T? GetValueRefOrDefaultRef<T>(this ref readonly Optional<T> optional)
         => ref optional._value;
 
@@ -28,11 +17,9 @@ public static class Optional
 
     #region Nullable
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Optional<T> FromNullable<T>(T? value) where T : struct
         => value.HasValue ? value.GetValueOrDefault()! : default;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T? ToNullable<T>(this in Optional<T> optional) where T : struct
         => optional.HasValue ? optional._value : null;
 
@@ -54,13 +41,6 @@ public static class Optional
 
     #endregion
 
-    #region NotNull
-
-    public static NotNull<T> ToNotNull<T>(this in Optional<T> optional) where T : class
-        => optional.HasValue ? NotNull.Of(optional._value) : default;
-
-    #endregion
-
     #region Result
 
     public static Result<T, TError> ToResult<T, TError>(this in Optional<T> optional, TError error) where TError : class
@@ -74,28 +54,29 @@ public static class Optional
     #endregion
 }
 
-public readonly struct Optional<T>(T value) : IOptional<T>
+public readonly struct Optional<T>(T value)
+#if NET9_0_OR_GREATER
+    where T : allows ref struct
+#endif
 {
     private readonly bool _hasValue = true;
-    [FriendAccess(typeof(Optional))]
     internal readonly T? _value = value;
 
     #region Accessor
 
-    /// <summary>
-    /// In fact just use <c>default</c> is ok
-    /// </summary>
-    public static Optional<T> None => default;
-
     [MemberNotNullWhen(true, nameof(_value))]
     public bool HasValue => _hasValue;
 
+    /// <summary>
+    /// Unlike <see cref="Nullable{T}.Value"/>, this property won't throw
+    /// when optional has no value.
+    /// </summary>
     public T Value => _value!;
 
     public T GetValidValue()
     {
         if (!HasValue)
-            ThrowHelper.ThrowInvalidOperation($"Optional<> has no value.");
+            ThrowHelper.ThrowInvalidOperationException($"Optional<> has no value.");
         return _value;
     }
 
@@ -127,12 +108,4 @@ public readonly struct Optional<T>(T value) : IOptional<T>
     #endregion
 
     public override string ToString() => HasValue ? _value.ToString() ?? string.Empty : string.Empty;
-}
-
-public interface IOptional<T>
-{
-    bool HasValue { get; }
-    T Value { get; }
-    T? GetValueOrDefault();
-    bool TryGetValue([MaybeNullWhen(false)] out T? Value);
 }

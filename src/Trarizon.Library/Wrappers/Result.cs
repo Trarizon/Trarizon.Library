@@ -1,90 +1,84 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
-using Trarizon.Library.CodeAnalysis.MemberAccess;
+﻿using CommunityToolkit.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Trarizon.Library.Wrappers;
 public static class Result
 {
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Result<T, TError> Success<T, TError>(T value) where TError : class
         => new(value);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Result<T, TError> Failed<T, TError>(TError error) where TError : class
         => new(error);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T GetValueOrThrow<T, TException>(this in Result<T, TException> result) where TException : Exception
     {
-        if (!result.Success)
-            ThrowHelper.Throw(result._error);
+        if (!result.IsSuccess)
+            TraThrow.Exception(result._error);
         return result._value;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ref readonly T? GetValueRefOrDefaultRef<T, TError>(this ref readonly Result<T, TError> result) where TError : class
         => ref result._value;
 
     #region Conversion
 
     public static Optional<T> ToOptional<T, TError>(this in Result<T, TError> result) where TError : class
-        => result.Success ? Optional.Of(result._value) : default;
+        => result.IsSuccess ? Optional.Of(result._value) : default;
 
     public static Either<T, TError> AsEitherLeft<T, TError>(this in Result<T, TError> result) where TError : class
-        => result.Success ? new(result._value) : new(result._error);
+        => result.IsSuccess ? new(result._value) : new(result._error);
 
     public static Either<TError, T> AsEitherRight<T, TError>(this in Result<T, TError> result) where TError : class
-        => result.Failed ? new(result._error) : new(result._value);
+        => result.IsSuccess ? new(result._value) : new(result._error);
 
     #endregion
 }
 
-public readonly struct Result<T, TError> : IOptional<T>, IEither<T, TError> where TError : class
+public readonly struct Result<T, TError>
+#if NET9_0_OR_GREATER
+    where T : allows ref struct
+#endif
+    where TError : class
 {
-    [FriendAccess(typeof(Result))]
     internal readonly T? _value;
-    [FriendAccess(typeof(Result))]
     internal readonly TError? _error;
 
     #region Accessor
 
     [MemberNotNullWhen(true, nameof(_value))]
-    [MemberNotNullWhen(false, nameof(_error))]
-    public bool Success => _error is null;
+    [MemberNotNullWhen(false, nameof(_error), nameof(Error))]
+    public bool IsSuccess => _error is null;
 
-    [MemberNotNullWhen(false, nameof(_value))]
-    [MemberNotNullWhen(true, nameof(_error))]
-    public bool Failed => !Success;
-
+    /// <summary>
+    /// Unlike <see cref="Nullable{T}.Value"/>, this property won't throw
+    /// when optional has no value.
+    /// </summary>
     public T Value => _value!;
 
-    public NotNull<TError> Error => _error;
+    public TError? Error => _error;
 
     public T GetValidValue()
     {
-        if (Failed)
-            ThrowHelper.ThrowInvalidOperation($"Result<> failed.");
+        if (!IsSuccess)
+            ThrowHelper.ThrowInvalidOperationException($"Result<> failed.");
         return _value;
     }
 
     public T? GetValueOrDefault() => _value;
-    public TError? GetErrorOrDefault() => _error;
 
-    [MemberNotNullWhen(true, nameof(_value))]
-    [MemberNotNullWhen(false, nameof(_error))]
+    [MemberNotNullWhen(true, nameof(_value)), MemberNotNullWhen(false, nameof(_error), nameof(Error))]
     public bool TryGetValue([MaybeNullWhen(false)] out T value, [MaybeNullWhen(true)] out TError error)
     {
         value = _value;
         error = _error;
-        return Success;
+        return IsSuccess;
     }
 
-    [MemberNotNullWhen(true, nameof(_value))]
-    [MemberNotNullWhen(false, nameof(_error))]
+    [MemberNotNullWhen(true, nameof(_value)), MemberNotNullWhen(false, nameof(_error), nameof(Error))]
     public bool TryGetValue([MaybeNullWhen(false)] out T value)
     {
         value = _value;
-        return Success;
+        return IsSuccess;
     }
 
     #endregion
@@ -105,45 +99,22 @@ public readonly struct Result<T, TError> : IOptional<T>, IEither<T, TError> wher
     #region Convertor
 
     public Result<TResult, TError> Select<TResult>(Func<T, TResult> selector)
-        => Success ? new(selector(_value)) : new(_error);
-
-    public Result<TResult, TNewError> Select<TResult, TNewError>(Func<T, TResult> valueSelector, Func<TError, TNewError> errorSelector) where TNewError : class
-        => Success ? new(valueSelector(_value)) : new(errorSelector(_error));
+        => IsSuccess ? new(selector(_value)) : new(_error);
 
     public Result<TResult, TError> SelectWrapped<TResult>(Func<T, Result<TResult, TError>> selector)
-        => Success ? selector(_value) : new(_error);
-
-    public Result<T, TNewError> SelectError<TNewError>(Func<TError, TNewError> selector) where TNewError : class
-        => Success ? new(_value) : new(selector(_error));
-    #endregion
-
-    public override string ToString() => (Success ? _value.ToString() : _error.ToString()) ?? string.Empty;
-
-    #region IOptional
-
-    bool IOptional<T>.HasValue => Success;
+        => IsSuccess ? selector(_value) : new(_error);
 
     #endregion
 
-    #region IEither
-
-    bool IEither<T, TError>.IsLeft => Success;
-    bool IEither<T, TError>.IsRight => Failed;
-
-    T IEither<T, TError>.LeftValue => Value;
-    TError IEither<T, TError>.RightValue => Error!;
-
-    T? IEither<T, TError>.GetLeftValueOrDefault() => GetValueOrDefault();
-    TError? IEither<T, TError>.GetRightValueOrDefault() => GetErrorOrDefault();
-
-    bool IEither<T, TError>.TryGetLeftValue([MaybeNullWhen(false)] out T left) => TryGetValue(out left);
-    bool IEither<T, TError>.TryGetRightValue([MaybeNullWhen(false)] out TError right)
+    public override string ToString()
     {
-        right = _error;
-        return Failed;
+        if (IsSuccess) {
+            var str = _value.ToString();
+            return str is null ? "Result Value" : $"Value: {str}";
+        }
+        else {
+            var str = _error.ToString();
+            return str is null ? "Result Error" : $"Error: {str}";
+        }
     }
-    bool IEither<T, TError>.TryGetLeftValue([MaybeNullWhen(false)] out T left, [MaybeNullWhen(true)] out TError right) => TryGetValue(out left, out right);
-    bool IEither<T, TError>.TryGetRightValue([MaybeNullWhen(false)] out TError right, [MaybeNullWhen(true)] out T left) => !TryGetValue(out left, out right);
-
-    #endregion
 }

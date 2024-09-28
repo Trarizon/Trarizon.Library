@@ -1,4 +1,5 @@
-﻿using BenchmarkDotNet.Attributes;
+﻿#if false
+using BenchmarkDotNet.Attributes;
 using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Test.Run;
@@ -79,3 +80,5 @@ public class ConvertDelegateBy_ExtMethod_vs_Type
 //    var result = comparison(x.Item2, y.Item2);
 //    return result != 0 ? result : x.Item1.CompareTo(y.Item1);
 //}
+
+#endif

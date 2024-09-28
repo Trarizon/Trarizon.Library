@@ -6,11 +6,14 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+		<InterceptorsPreviewNamespaces>$(InterceptorsPreviewNamespaces);Trarizon.Library.Generated</InterceptorsPreviewNamespaces>
+
+		<EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="BenchmarkDotNet" Version="0.13.12" />
-		<PackageReference Include="CommunityToolkit.HighPerformance" Version="8.2.2" />
 		<!--<PackageReference Include="Trarizon.Library" Version="0.3.0.3" />-->
 	</ItemGroup>
 
