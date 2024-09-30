@@ -15,20 +15,58 @@
 		<None Include="README.md" Pack="True" PackagePath="" />
 	</ItemGroup>
 
+	<!-- Reference -->
+
 	<ItemGroup>
-	  <ProjectReference Include="..\Trarizon.Library.SourceGenerator\Trarizon.Library.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 	  <ProjectReference Include="..\Trarizon.Library.GeneratorToolkit\Trarizon.Library.GeneratorToolkit.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-
+	  <ProjectReference Include="..\Trarizon.Library.SourceGeneration\Trarizon.Library.SourceGeneration.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="..\Trarizon.Library.SourceGenerator\bin\$(Configuration)\netstandard2.0\Trarizon.Library.SourceGenerator.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-		<None Include="..\Trarizon.Library.SourceGenerator\bin\$(Configuration)\netstandard2.0\Trarizon.Library.GeneratorToolkit.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+		<None Include="..\Trarizon.Library.SourceGeneration\bin\$(Configuration)\netstandard2.0\Trarizon.Library.SourceGeneration.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+		<None Include="..\Trarizon.Library.SourceGeneration\bin\$(Configuration)\netstandard2.0\Trarizon.Library.GeneratorToolkit.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <PackageReference Include="CommunityToolkit.Diagnostics" Version="8.3.2" />
-	  <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.3.2" />
+	<ItemGroup Condition="'$(TargetFramework)' != 'netstandard2.0'">
+		<PackageReference Include="CommunityToolkit.Diagnostics" Version="8.3.2" />
+		<PackageReference Include="CommunityToolkit.HighPerformance" Version="8.3.2" />
 	</ItemGroup>
+	
+<!--
+	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+		<PackageReference Include="CommunityToolkit.Diagnostics" Version="8.3.2" />
+		<PackageReference Include="CommunityToolkit.HighPerformance" Version="8.3.2" />
+		<PackageReference Include="PolySharp" Version="1.14.1">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="IndexRange" Version="1.0.3" />
+		<PackageReference Include="System.Collections.Immutable" Version="8.0.0" />
+	</ItemGroup>
+
+	<PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+		<GetTargetPathDependsOn>$(GetTargetPathDependsOn);GetDependencyTargetPaths</GetTargetPathDependsOn>
+	</PropertyGroup>
+
+	<Target Name="GetDependencyTargetPaths" Condition="'$(TargetFramework)' == 'netstandard2.0'">
+		<ItemGroup>
+			<TargetPathWithTargetPlatformMoniker Include="$(PKGCommunityToolkit_Diagnostics)\lib\netstandard2.0\CommunityToolkit.Diagnostics.dll" IncludeRuntimeDependency="false" />
+		</ItemGroup>
+	</Target>
+
+	<PropertyGroup Label="PolySharpSettings" Condition="'$(TargetFramework)' == 'netstandard2.0'">
+		<PolySharpIncludeGeneratedTypes>
+			System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute;
+			System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute;
+			System.Diagnostics.CodeAnalysis.NotNullWhenAttribute;
+
+			System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute;
+
+			System.Runtime.CompilerServices.IsExternalInit;
+		</PolySharpIncludeGeneratedTypes>
+	</PropertyGroup>
+-->
+	
+	<!-- Reference End -->
 
 </Project>

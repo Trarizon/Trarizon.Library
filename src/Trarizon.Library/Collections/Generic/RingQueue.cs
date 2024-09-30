@@ -4,13 +4,19 @@ using Trarizon.Library.Collections.AllocOpt.Providers;
 using Trarizon.Library.Collections.StackAlloc;
 
 namespace Trarizon.Library.Collections.Generic;
-public class RingQueue<T>(int maxCount, RingQueue<T>.CollectionFullBehaviour fullBehaviour = RingQueue<T>.CollectionFullBehaviour.Overwrite)
+public enum RingQueueFullBehaviour
+{
+    Overwrite = 0,
+    Throw,
+}
+
+public class RingQueue<T>(int maxCount, RingQueueFullBehaviour fullBehaviour = RingQueueFullBehaviour.Overwrite)
     : ICollection<T>, IReadOnlyCollection<T>
 {
     private readonly AllocOptGrowableArrayProvider<T> _array = new();
     private int _head = 0;
     private int _tail = 0;
-    private readonly CollectionFullBehaviour _fullBehaviour = fullBehaviour;
+    private readonly RingQueueFullBehaviour _fullBehaviour = fullBehaviour;
     private readonly int _maxCount = maxCount;
     private int _version = 0;
 
@@ -94,13 +100,10 @@ public class RingQueue<T>(int maxCount, RingQueue<T>.CollectionFullBehaviour ful
     public void Clear()
     {
         _array.Clear();
+        _array.FreeUnreferenced();
         _head = 0;
         _tail = 0;
         _version++;
-
-        if (RuntimeHelpers.IsReferenceOrContainsReferences<T>()) {
-            Array.Clear(_array.Array);
-        }
     }
 
     public bool Contains(T item)
@@ -128,7 +131,7 @@ public class RingQueue<T>(int maxCount, RingQueue<T>.CollectionFullBehaviour ful
 
     private void ThrowFullIfBehaviourRequires()
     {
-        if (_fullBehaviour is CollectionFullBehaviour.Throw)
+        if (_fullBehaviour is RingQueueFullBehaviour.Throw)
             throw new InvalidOperationException("Ring queue is full");
     }
 
@@ -214,11 +217,5 @@ public class RingQueue<T>(int maxCount, RingQueue<T>.CollectionFullBehaviour ful
         }
 
         public readonly void Dispose() { }
-    }
-
-    public enum CollectionFullBehaviour
-    {
-        Overwrite = 0,
-        Throw,
     }
 }

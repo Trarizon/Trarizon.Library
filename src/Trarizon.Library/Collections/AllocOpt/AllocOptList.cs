@@ -1,5 +1,4 @@
 ﻿using CommunityToolkit.Diagnostics;
-using System.Runtime.CompilerServices;
 using Trarizon.Library.Collections.AllocOpt.Providers;
 
 namespace Trarizon.Library.Collections.AllocOpt;
@@ -114,15 +113,7 @@ public struct AllocOptList<T>
     /// <summary>
     /// Clear items from index <see cref="Count"/> to end
     /// </summary>
-    public readonly void FreeUnreferenced()
-    {
-        if (!RuntimeHelpers.IsReferenceOrContainsReferences<T>())
-            return;
-
-        if (Count < Capacity) {
-            Array.Clear(_items.Array, Count, Capacity - Count);
-        }
-    }
+    public readonly void FreeUnreferenced() => _items.FreeUnreferenced();
 
     /// <summary>
     /// Ensure capacity of collection is greater than <paramref name="capacity"/>,

@@ -14,7 +14,7 @@ public static class KeyedEqualityComparer<T, TKey>
         => new DelegateByKeyEqualityComparer<T, TKey>(equals, getHashCode);
 }
 
-[Singleton(InstancePropertyName = "Default", Options = SingletonOptions.NoProvider)]
+[Singleton(InstancePropertyName = nameof(Comparer<TKey>.Default), Options = SingletonOptions.NoProvider)]
 internal sealed partial class PairByKeyEqualityComparer<TKey, TValue>
     : IKeyedEqualityComparer<(TKey, TValue), TKey>
     , IKeyedEqualityComparer<KeyValuePair<TKey, TValue>, TKey>

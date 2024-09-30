@@ -26,8 +26,10 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
     {
         get {
             ref readonly var item = ref FindRef(key);
-            if (Unsafe.IsNullRef(in item))
-                throw new KeyNotFoundException($"Cannot find key '{key}' in collection");
+            if (Unsafe.IsNullRef(in item)) {
+                TraThrow.KeyNotFound(key);
+                return default;
+            }
 
             return item.Value;
         }

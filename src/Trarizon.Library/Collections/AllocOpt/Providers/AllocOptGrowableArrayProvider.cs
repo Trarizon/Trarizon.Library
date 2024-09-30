@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Diagnostics;
-using System.Collections.Specialized;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace Trarizon.Library.Collections.AllocOpt.Providers;
 internal struct AllocOptGrowableArrayProvider<T>
@@ -164,7 +164,22 @@ internal struct AllocOptGrowableArrayProvider<T>
         _count = 0;
     }
 
-    public void EnsureCapacity(int capacity) {
+    /// <summary>
+    /// Clear items from index <see cref="Count"/> to end
+    /// </summary>
+    public readonly void FreeUnreferenced()
+    {
+#if NET8_0_OR_GREATER
+        if (!RuntimeHelpers.IsReferenceOrContainsReferences<T>())
+            return;
+#endif
+        if (Count < _array.Length) {
+            System.Array.Clear(_array, Count, _array.Length - Count);
+        }
+    }
+
+    public void EnsureCapacity(int capacity)
+    {
         if (capacity < _array.Length)
             return;
 
@@ -216,8 +231,9 @@ internal struct AllocOptGrowableArrayProvider<T>
         int newCapacity;
         if (_array.Length == 0)
             newCapacity = 4;
-        else
+        else {
             newCapacity = int.Min(_array.Length * 2, System.Array.MaxLength);
+        }
 
         if (newCapacity < expectedCapacity)
             newCapacity = expectedCapacity;

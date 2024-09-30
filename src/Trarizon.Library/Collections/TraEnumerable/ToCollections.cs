@@ -1,6 +1,13 @@
 ﻿namespace Trarizon.Library.Collections;
 partial class TraEnumerable
 {
+    public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
+    {
+        foreach (var item in source) {
+            action.Invoke(item);
+        }
+    }
+
     /// <summary>
     /// If <paramref name="source"/> is <see langword="null"/>, this method returns an empty collection,
     /// else return <paramref name="source"/> it self

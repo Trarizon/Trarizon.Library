@@ -29,11 +29,27 @@ using Trarizon.Test.Run;
 
 var arr = EnumerateLogged();
 
-StringComparison comparison=default!;
+StringComparison comparison = default!;
 comparison.HasAnyFlag(StringComparison.OrdinalIgnoreCase);
 
-[Singleton]
-partial class Proj
-{
+A.Proj.Instance.PrintType();
 
+namespace A
+{
+    [Singleton]
+    partial class Proj
+    {
+        // private Proj() { }
+    }
+}
+
+class Base
+{
+public class P { }
+
+}
+
+class Der : Base
+{
+    public static int P { get; }
 }

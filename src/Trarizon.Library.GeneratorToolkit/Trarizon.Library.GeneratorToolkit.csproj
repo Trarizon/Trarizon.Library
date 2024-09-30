@@ -3,27 +3,48 @@
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<LangVersion>12</LangVersion>
+		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 
 	<Import Project="..\..\Nuget.props" />
 
 	<ItemGroup Label="NugetItems">
+		<None Include="..\..\LICENSE" Pack="True" PackagePath="" />
 		<None Include="README.md" Pack="True" PackagePath="" />
 	</ItemGroup>
 
+	<!-- Reference -->
+
 	<ItemGroup>
+		<PackageReference Include="CommunityToolkit.Diagnostics" Version="8.3.2" GeneratePathProperty="true" PrivateAssets="all" />
+		<PackageReference Include="CommunityToolkit.HighPerformance" Version="8.3.2" GeneratePathProperty="true" PrivateAssets="all" />
+		<PackageReference Include="IndexRange" Version="1.0.3" />
 		<PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" />
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0" />
 		<PackageReference Include="PolySharp" Version="1.14.1">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 	</ItemGroup>
+
+	<PropertyGroup>
+		<GetTargetPathDependsOn>$(GetTargetPathDependsOn);GetDependencyTargetPaths</GetTargetPathDependsOn>
+	</PropertyGroup>
+
+	<Target Name="GetDependencyTargetPaths">
+		<ItemGroup>
+			<!--<TargetPathWithTargetPlatformMoniker Include="$(PKGTrarizon_Library)\lib\netstandard2.0\Trarizon.Library.dll" IncludeRuntimeDependency="false" />-->
+			<TargetPathWithTargetPlatformMoniker Include="$(PKGCommunityToolkit_Diagnostics)\lib\netstandard2.0\*.dll" IncludeRuntimeDependency="false" />
+			<TargetPathWithTargetPlatformMoniker Include="$(PKGCommunityToolkit_HighPerformance)\lib\netstandard2.0\*.dll" IncludeRuntimeDependency="false" />
+			<TargetPathWithTargetPlatformMoniker Include="$(PKGIndexRange)\lib\netstandard2.0\*.dll" IncludeRuntimeDependency="false" />
+		</ItemGroup>
+	</Target>
+
+	<!-- Reference End-->
 
 	<PropertyGroup Label="PolySharpSettings">
 		<PolySharpIncludeGeneratedTypes>
@@ -36,6 +57,7 @@
 
 			System.Runtime.CompilerServices.IsExternalInit;
 		</PolySharpIncludeGeneratedTypes>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 
 </Project>

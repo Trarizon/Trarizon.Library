@@ -3,7 +3,7 @@
 namespace Trarizon.Library.Collections;
 public abstract class StableSortComparer<T> : IComparer<(int Index, T Item)>
 {
-    public static StableSortComparer<T> Default => DefaultStableSortComparer<T>.Instance;
+    public static StableSortComparer<T> Default => DefaultStableSortComparer<T>.Default;
 
     public static StableSortComparer<T> Create(Comparison<T> comparison) => new ComparisonStableSortComparer<T>(comparison);
 
@@ -19,7 +19,7 @@ public abstract class StableSortComparer<T> : IComparer<(int Index, T Item)>
     protected abstract int CompareItem(T x, T y);
 }
 
-[Singleton(Options = SingletonOptions.NoProvider)]
+[Singleton(InstancePropertyName = nameof(Comparer<T>.Default), Options = SingletonOptions.NoProvider)]
 internal sealed partial class DefaultStableSortComparer<T> : StableSortComparer<T>
 {
     protected override int CompareItem(T x, T y) => Comparer<T>.Default.Compare(x, y);

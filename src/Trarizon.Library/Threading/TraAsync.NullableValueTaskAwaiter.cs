@@ -11,7 +11,7 @@ partial class TraAsync
 
         public bool IsCompleted => _valueTaskAwaiter?.IsCompleted ?? true;
         public void OnCompleted(Action continuation) => _valueTaskAwaiter?.OnCompleted(continuation);
-        public T? GetResult() => _valueTaskAwaiter.HasValue ? Nullable.GetValueRefOrDefaultRef(in _valueTaskAwaiter).GetResult() : default;
+        public T? GetResult() => _valueTaskAwaiter.HasValue ? _valueTaskAwaiter.GetValueOrDefault().GetResult() : default;
         public void UnsafeOnCompleted(Action continuation) => _valueTaskAwaiter?.UnsafeOnCompleted(continuation);
     }
 }

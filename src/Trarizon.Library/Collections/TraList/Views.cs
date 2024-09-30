@@ -1,19 +1,10 @@
-﻿using System.Runtime.CompilerServices;
-using Trarizon.Library.Collections.Generic;
+﻿using Trarizon.Library.Collections.Generic;
 
 namespace Trarizon.Library.Collections;
 partial class TraList
 {
-    public static Memory<T> AsMemory<T>(this List<T> list)
-    {
-#if NET9_0_OR_GREATER
-        var array = Utils<T>.GetUnderlyingArray(list);
-#else
-        var provider = Unsafe.As<StrongBox<T[]>>(list);
-        var array = provider.Value;
-#endif
-        return array.AsMemory();
-    }
+    public static Memory<T> AsMemory<T>(this List<T> list) 
+        => Utils<T>.GetUnderlyingArray(list).AsMemory(list.Count);
 
     public static Lookup<T> GetLookup<T>(this List<T> list, IEqualityComparer<T>? comparer = null)
         => new(list, comparer ?? EqualityComparer<T>.Default);

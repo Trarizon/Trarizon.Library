@@ -49,6 +49,7 @@ Contents:
 - `MoveTo` : Move item on `fromIndex` to `toIndex`
 - `SortStably` : Perform stable sort with BCL-built-in `Sort`, and `StableSortComparer`
 - `EmptyIfDefault` for `ImmutableArray<>` : Return empty array if source is `null` 
+- `TryAt` for `ImmutableArray<>`
 
 </details>
 

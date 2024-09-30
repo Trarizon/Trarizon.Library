@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-
-namespace Trarizon.Library.Collections.StackAlloc;
+﻿namespace Trarizon.Library.Collections.StackAlloc;
 /// <summary>
 /// Stack allocated bitarray, use
 /// <c>new StackAllocBitArray(stackalloc byte[StackAllocBitArray.GetArrayLength(...)])</c>
@@ -18,16 +16,23 @@ public ref struct StackAllocBitArray(Span<byte> allocatedSpace)
     public readonly bool this[int index]
     {
         get {
-            var (quo, rem) = int.DivRem(index, BitContainterSize);
-            return (_span[quo] & GetMask(rem)) != 0;
+            var (i, mask) = GetSpanIndexAndMask(index);
+            return (_span[i] & mask) != 0;
         }
         set {
-            var (quo, rem) = int.DivRem(index, BitContainterSize);
+            var (i, mask) = GetSpanIndexAndMask(index);
+
             if (value)
-                _span[quo] |= GetMask(rem);
+                _span[i] |= mask;
             else
-                _span[quo] &= (byte)~GetMask(rem);
+                _span[i] &= (byte)~mask;
         }
+    }
+
+    private static (int SpanIndex, byte Mask) GetSpanIndexAndMask(int index)
+    {
+        var (quo, rem) = int.DivRem(index, BitContainterSize);
+        return (quo, (byte)(1 << rem));
     }
 
     /// <summary>
@@ -37,12 +42,6 @@ public ref struct StackAllocBitArray(Span<byte> allocatedSpace)
     /// <returns></returns>
     public static int GetArrayLength(int bitLength)
         => bitLength > 0 ? (bitLength - 1) / BitContainterSize + 1 : 0;
-
-    private static byte GetMask(int index)
-    {
-        Debug.Assert(index < BitContainterSize);
-        return (byte)(1 << index);
-    }
 
     public readonly Enumerator GetEnumerator() => new(this);
 
@@ -56,7 +55,6 @@ public ref struct StackAllocBitArray(Span<byte> allocatedSpace)
             _array = bitArray;
             _index = -1;
         }
-
 
         public readonly bool Current => _array[_index];
 

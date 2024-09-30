@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using CommunityToolkit.HighPerformance;
+using System.Runtime.InteropServices;
 
 namespace Trarizon.Library.Collections;
 partial class TraList
@@ -13,5 +14,5 @@ partial class TraList
     }
 
     public static void MoveTo<T>(this List<T> list, Index fromIndex, Index toIndex)
-        => CollectionsMarshal.AsSpan(list).MoveTo(fromIndex.GetOffset(list.Count), toIndex.GetOffset(list.Count));
+        => list.AsSpan().MoveTo(fromIndex.GetOffset(list.Count), toIndex.GetOffset(list.Count));
 }

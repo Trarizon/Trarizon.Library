@@ -88,9 +88,9 @@ partial class TraEnumerable
 
         public bool IsSingleOrEmpty(out T? value)
         {
-            var res = _count > 1;
-            value = res ? default : _value;
-            return res;
+            var singleOrNone = _count <= 1;
+            value = singleOrNone ? _value : default;
+            return singleOrNone;
         }
     }
 }
