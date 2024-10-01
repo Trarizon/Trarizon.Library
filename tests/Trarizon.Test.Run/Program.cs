@@ -1,6 +1,4 @@
-﻿#pragma warning disable CS8500
-
-using BenchmarkDotNet.Running;
+﻿using BenchmarkDotNet.Running;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 using System.Collections;
@@ -27,12 +25,10 @@ using Trarizon.Library.Threading;
 using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 
-var arr = EnumerateLogged();
 
-StringComparison comparison = default!;
-comparison.HasAnyFlag(StringComparison.OrdinalIgnoreCase);
+Span<string> span = ["s", "t", "r"];
 
-A.Proj.Instance.PrintType();
+span.Print();
 
 namespace A
 {
@@ -45,7 +41,7 @@ namespace A
 
 class Base
 {
-public class P { }
+    public class P { }
 
 }
 

@@ -24,10 +24,9 @@ Contents:
 
 - namespace `AllocOpt` : Rewrite some collections with struct
 - namespace `Generic` : Extension of `System.Collections.Generic`
+    - `Deque<>` : Double-ended queue
     - `ListDictionary<,>` : Generic version of `System.Collections.Specialized.ListDictionary`.
     - `RingQueue<>` : Ring queue with fixed capacity, optional throw or overwrite when full
-    - `IByKeyEqualityComparer` : Comparer interface for compare to objects in different type
-    - `StableSortComparer` : Helper for `SortStably`
 - namespace `StackAlloc` : `ref struct` collections
     - `ReadOnlyConcatSpan` : Concat 2 spans
     - `(ReadOnly)ReversedSpan` : Reversed span
@@ -97,7 +96,8 @@ Contents:
     - `Rotate` : Split the collection into 2 parts and swap them
 - ToCollections
     - `EmptyIfNull` : Return empty collection if source collection is `null`
-    - `ToNonEmptyListOrNull` : If collection is empty, returns `null`, else collect elements into `List<>`
+    - `TryToNonEmptyList` : If collection is not empty, then collect items into `List<>`, in one iteration
+    - `TryGetSpan` : Get the underlying span if possible (`T[]` or `List<>`)
 
 </details>
 
@@ -109,6 +109,8 @@ but not implements `IEnumerable<>` or `IEnumerator`
 
 Too lazy to implement all linqs, so I'll just implement what I have used.
 
+All extensions methods identifiers are start with `Iter`
+
 - Creation
     - `IterateByWhile(NotNull)` : Yield next value selected by a `Func<T, T>`, until predicate failed
     - `Range` : Enumerate `int` from `start` to `end`(not include)
@@ -117,6 +119,8 @@ Too lazy to implement all linqs, so I'll just implement what I have used.
     - `Zip` : Linq `Zip`
 - Partition
     - `Take` : Linq `Take`
+- Sorting
+    - `Reverse` : `Reverse` in Linq will always cache values in collection, this won't do that because designing for instant iteration
 
 </details>
 
@@ -125,7 +129,7 @@ Too lazy to implement all linqs, so I'll just implement what I have used.
 
 - Modification
     - `RemoveAt/RemoveRange` : overload for `Index` and `Range`
-    - `MoveTo` : Move item on `fromIndex` to `toIndex`
+    - `MoveTo` : Move item(s) on `fromIndex` to `toIndex`
 - Views
     - `AsMemory` : Returns the `Memory` view of this list
     - `GetLookup` : Returns a view treating the list as a set
@@ -143,7 +147,7 @@ Too lazy to implement all linqs, so I'll just implement what I have used.
     - `OffsetOf` : Get the index of element by pointer substraction
     - `FindLower/UppderBoundIndex` : find the lower/upper bound in a sorted span
 - Modifications
-    - `MoveTo` : Move item on `fromIndex` to `toIndex`
+    - `MoveTo` : Move item(s) on `fromIndex` to `toIndex`
     - `SortStably` : Perform stable sort with BCL-built-in `Sort`, and `StableSortComparer`
 - Views
     - `AsReversed` : return `(ReadOnly)ReversedSpan` of the span
@@ -186,7 +190,7 @@ The namespace structure is almost the same with `System.XXX`
 - Async
     - `GetAwaiter` : Support `await` keyword for `ValueTask?`, `ValueTask<>?`
 - Enum
-    - `HasAnyFlag` : Check if a enum value has one of given flags. This method works with [Interceptor](https://github.com/dotnet/roslyn/blob/main/docs/features/interceptors.md) which is still experimental (Generated namespace is `Trarizon.Library.Generated`)
+    - `HasAnyFlag` : Check if a enum value has one of given flags.
 - Number
     - `IncAnd(Try)Wrap` : Increment the number, if the result is greater than given `max`, then wrap it
     - `Normalize` : Linear normalize value into [0,1]

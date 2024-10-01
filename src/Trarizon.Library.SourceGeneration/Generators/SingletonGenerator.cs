@@ -1,4 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.CodeDom.Compiler;
 using System.IO;
@@ -21,7 +22,6 @@ internal sealed class SingletonGenerator : IIncrementalGenerator
             L_Attribute_TypeName,
             (node, token) => node is TypeDeclarationSyntax,
             Emitter.Parse);
-        //.OfNotNull();
 
         context.RegisterSourceOutputAndPrintDebug(filter);
     }
@@ -43,7 +43,7 @@ internal sealed class SingletonGenerator : IIncrementalGenerator
 
             if (context.Attributes is not [var attribute])
                 return default;
-
+            
             // Instance property identifier
             var instancePropertyIdentifier = attribute.GetNamedArgument<string?>(L_Attribute_InstancePropertyName_PropertyIdentifier).Value;
             if (instancePropertyIdentifier is null) {

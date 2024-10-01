@@ -8,7 +8,10 @@ namespace Trarizon.Library.GeneratorToolkit.CSharp;
 public static class CodeFactory
 {
     public static string GeneratedCodeAttribute(string tool, string version)
-        => $@"{Literals.GeneratedCodeAttribute_TypeName}(""{tool}"", ""{version}"")";
+        => $@"global::{Literals.GeneratedCodeAttribute_TypeName}(""{tool}"", ""{version}"")";
+
+    public static string InterceptsLocationAttribute(string filePath, int line, int column)
+        => $@"global::{Literals.InterceptsLocationAttribute_TypeName}(""{filePath}"", {line}, {column})";
 
     public static string FileScopeInterceptsLocationAttributeDeclaration => """
         namespace System.Runtime.CompilerServices

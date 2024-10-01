@@ -1,6 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
-using System.Diagnostics;
 using Trarizon.Library.GeneratorToolkit.CoreLib.Wrappers;
 using Trarizon.Library.GeneratorToolkit.Wrappers;
 

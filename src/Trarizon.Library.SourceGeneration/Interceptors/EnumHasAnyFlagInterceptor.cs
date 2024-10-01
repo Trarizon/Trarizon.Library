@@ -56,8 +56,8 @@ internal class EnumHasAnyFlagInterceptor //: IIncrementalGenerator
                         var type = group.Key!;
                         var attrs = group.Select(op =>
                         {
-                            var (filePath, line, column) = GetLocation(op);
-                            return Globals.InterceptsLocation_AttributeList_Code(filePath, line, column);
+                            var (filePath, line, column) = op.GetInterceptorLocation();
+                            return $"[{CodeFactory.InterceptsLocationAttribute(filePath, line, column)}]";
                         });
                         var defination = L_InterceptorMethodDeclaration(type.ToFullQualifiedDisplayString());
                         return (attrs, defination);
@@ -95,23 +95,6 @@ internal class EnumHasAnyFlagInterceptor //: IIncrementalGenerator
 
             context.AddSource(L_FileName, sw.ToString());
         });
-    }
-
-    private static (string FilePath, int Line, int Column) GetLocation(IInvocationOperation invocation)
-    {
-        var invocationExpressionSyntax = (InvocationExpressionSyntax)invocation.Syntax;
-        var memberAccessExpressionSyntax = (MemberAccessExpressionSyntax)invocationExpressionSyntax.Expression;
-        var invocationNameSpan = memberAccessExpressionSyntax.Name.Span;
-        var syntaxTree = invocationExpressionSyntax.SyntaxTree;
-
-        var lineSpan = syntaxTree.GetLineSpan(invocationNameSpan);
-        var filePath = GetIntercepterFilePath(syntaxTree, invocation.SemanticModel?.Compilation.Options.SourceReferenceResolver);
-        return (filePath, lineSpan.StartLinePosition.Line + 1, lineSpan.StartLinePosition.Character + 1);
-    }
-
-    private static string GetIntercepterFilePath(SyntaxTree syntaxTree, SourceReferenceResolver? resolver)
-    {
-        return resolver?.NormalizePath(syntaxTree.FilePath, null) ?? syntaxTree.FilePath;
     }
 }
 

@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using CommunityToolkit.Diagnostics;
+using System.Numerics;
 
 namespace Trarizon.Library;
 public static partial class TraNumber
@@ -46,5 +47,29 @@ public static partial class TraNumber
         if (min == max)
             return T.Zero;
         return (value - min) / (max - min);
+    }
+
+    /// <summary>
+    /// <see cref="Index.GetOffset(int)"/>, and check if the offset is in [0, <paramref name="length"/>),
+    /// throw if out of range
+    /// </summary>
+    public static int GetCheckedOffset(this Index index, int length)
+    {
+        var offset = index.GetOffset(length);
+        Guard.IsInRange(offset, 0, length);
+        return offset;
+    }
+
+    /// <summary>
+    /// <see cref="Range.GetOffsetAndLength(int)"/>, and check if the offset and count is in [0, <paramref name="length"/>),
+    /// throw if out of range
+    /// </summary>
+    public static (int Offset, int Length) GetCheckedOffsetAndLength(this Range range, int length)
+    {
+        var (ofs, len) = range.GetOffsetAndLength(length);
+        ArgumentOutOfRangeException.ThrowIfNegative(ofs, nameof(range));
+        ArgumentOutOfRangeException.ThrowIfNegative(len, nameof(range));
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(ofs + len, length, nameof(range));
+        return (ofs, len);
     }
 }

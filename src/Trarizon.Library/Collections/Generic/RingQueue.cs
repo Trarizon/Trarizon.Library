@@ -1,6 +1,8 @@
 ﻿using System.Collections;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using Trarizon.Library.Collections.AllocOpt.Providers;
+using Trarizon.Library.Collections.Helpers;
 using Trarizon.Library.Collections.StackAlloc;
 
 namespace Trarizon.Library.Collections.Generic;
@@ -10,112 +12,154 @@ public enum RingQueueFullBehaviour
     Throw,
 }
 
-public class RingQueue<T>(int maxCount, RingQueueFullBehaviour fullBehaviour = RingQueueFullBehaviour.Overwrite)
-    : ICollection<T>, IReadOnlyCollection<T>
+public class RingQueue<T> : ICollection<T>, IReadOnlyCollection<T>
 {
-    private readonly AllocOptGrowableArrayProvider<T> _array = new();
-    private int _head = 0;
-    private int _tail = 0;
-    private readonly RingQueueFullBehaviour _fullBehaviour = fullBehaviour;
-    private readonly int _maxCount = maxCount;
-    private int _version = 0;
+    private T[] _array;
+    private int _count;
+    private int _head;
+    private int _tail;
+    private readonly RingQueueFullBehaviour _fullBehaviour;
+    private readonly int _maxCount;
+    private int _version;
 
-    public int Count
+    public RingQueue(int maxCount, RingQueueFullBehaviour fullBehaviour = RingQueueFullBehaviour.Overwrite)
     {
-        get {
-            if (_head < _tail) {
-                return _tail - _head;
-            }
-            if (_tail == _head) {
-                // If empty, items of _array will be cleared, so returns 0,
-                // otherwise, returns MaxCount
-                return _array.Count;
-            }
-
-            return MaxCount - _head + _tail;
-        }
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maxCount);
+        _array = [];
+        _count = _head = _tail = 0;
+        _fullBehaviour = fullBehaviour;
+        _maxCount = maxCount;
     }
 
-    public int Capacity => _array.Array.Length;
+    public RingQueue(int maxCount, int initialCapacity, RingQueueFullBehaviour fullBehaviour = RingQueueFullBehaviour.Overwrite)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maxCount);
+        ArgumentOutOfRangeException.ThrowIfNegative(initialCapacity);
+        _array = initialCapacity == 0 ? [] : new T[int.Min(maxCount, initialCapacity)];
+        _count = _head = _tail = 0;
+        _fullBehaviour = fullBehaviour;
+        _maxCount = maxCount;
+    }
+
+    public int Count => _count;
 
     public int MaxCount => _maxCount;
 
-    public bool IsFull => _head == _tail && _array.Count > 0;
-
-    public bool IsEmpty => _head == _tail && _array.Count == 0;
-
     public ReadOnlyConcatSpan<T> AsSpan()
     {
-        var array = _array.Array;
+        if (_count == 0)
+            return default;
+
         // |  ---  |
         if (_head < _tail)
-            return new(array.AsSpan(_head.._tail), default);
-        // Empty
-        else if (_head == _tail && _array.Count == 0)
-            return default;
+            return new(_array.AsSpan(_head.._tail), default);
         // |--  --|
         else
-            return new(array.AsSpan(_head), array.AsSpan(0, _tail));
+            return new(_array.AsSpan(_head), _array.AsSpan(0, _tail));
     }
+
+    #region Modifiers
 
     public void Enqueue(T item)
     {
-        if (IsFull) {
+        if (_count == _maxCount) {
             ThrowFullIfBehaviourRequires();
-            _array.Array[_tail] = item;
+            _array[_tail] = item;
             Increment(ref _head);
             Increment(ref _tail);
         }
-        else if (_array.Count == MaxCount) {
-            _array.Array[_tail] = item;
+        // If current array is full, and capacity hasn't reach _maxCount,
+        // extend array length
+        else if (_count == _array.Length) {
+            var capacity = _array.Length;
+            GrowAndCopy(capacity + 1, 0);
+            _head = 0;
+            _tail = capacity;
+            _array[_tail] = item;
             Increment(ref _tail);
+            _count++;
         }
+        // Normal queue
         else {
-            _array.Add(item);
+            _array[_tail] = item;
             Increment(ref _tail);
+            _count++;
         }
         _version++;
     }
 
-    public void DequeueFirst()
+    public T DequeueFirst()
     {
-        if (IsEmpty)
+        if (!TryDequeueFirst(out var res)) {
             TraThrow.NoElement();
-
-        _array.Array[_head] = default!;
-        Increment(ref _head);
-        _version++;
+        }
+        return res;
     }
 
-    public void DequeueLast()
+    public T DequeueLast()
     {
-        if (IsEmpty)
+        if (!TryDequeueLast(out var res)) {
             TraThrow.NoElement();
+        }
+        return res;
+    }
 
-        _array.Array[_tail] = default!;
-        Decrement(ref _tail);
+    public bool TryDequeueFirst([MaybeNullWhen(false)] out T item)
+    {
+        if (_count == 0) {
+            item = default;
+            return false;
+        }
+
+        item = _array[_head];
+        if (RuntimeHelpers.IsReferenceOrContainsReferences<T>()) {
+            _array[_head] = default!;
+        }
+        Increment(ref _head);
+        _count--;
         _version++;
+        return true;
+    }
+
+    public bool TryDequeueLast([MaybeNullWhen(false)] out T item)
+    {
+        if (_count == 0) {
+            item = default;
+            return false;
+        }
+
+        Decrement(ref _tail);
+        item = _array[_tail];
+        if (RuntimeHelpers.IsReferenceOrContainsReferences<T>()) {
+            _array[_tail] = default!;
+        }
+        _count--;
+        _version++;
+        return true;
     }
 
     public void Clear()
     {
-        _array.Clear();
-        _array.FreeUnreferenced();
-        _head = 0;
-        _tail = 0;
+        if (_count == 0)
+            return;
+        ArrayGrowHelper.FreeManaged(_array);
+        _head = _tail = 0;
+        _count = 0;
         _version++;
     }
 
+    #endregion
+
     public bool Contains(T item)
     {
-        var array = _array.Array;
-        if (_head < _tail)
-            return Array.IndexOf(array, item, _head, _tail - _head) >= 0;
-        else if (_head == _tail && _array.Count == 0)
+        if (_count == 0)
             return false;
+
+        if (_head < _tail)
+            return Array.IndexOf(_array, item, _head, _tail - _head) >= 0;
         else
-            return Array.IndexOf(array, item, _head, MaxCount - _head) >= 0
-                || Array.IndexOf(array, item, 0, _head) >= 0;
+            return Array.IndexOf(_array, item, _head, MaxCount - _head) >= 0
+                || Array.IndexOf(_array, item, 0, _head) >= 0;
     }
 
     public void CopyTo(T[] array, int arrayIndex)
@@ -129,12 +173,23 @@ public class RingQueue<T>(int maxCount, RingQueueFullBehaviour fullBehaviour = R
     bool ICollection<T>.Remove(T item) => false;
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
+    [DebuggerStepThrough]
     private void ThrowFullIfBehaviourRequires()
     {
         if (_fullBehaviour is RingQueueFullBehaviour.Throw)
             throw new InvalidOperationException("Ring queue is full");
     }
 
+    private void GrowAndCopy(int expectedCapacity, int copyToIndex)
+    {
+        Debug.Assert(expectedCapacity > _array.Length);
+        Debug.Assert(expectedCapacity <= _maxCount);
+        var span = AsSpan();
+        ArrayGrowHelper.GrowNonMove(ref _array, expectedCapacity, _maxCount);
+        span.CopyTo(_array.AsSpan(copyToIndex, span.Length));
+    }
+
+    [DebuggerStepThrough]
     private void Increment(ref int index)
     {
         index++;
@@ -142,6 +197,7 @@ public class RingQueue<T>(int maxCount, RingQueueFullBehaviour fullBehaviour = R
             index -= MaxCount;
     }
 
+    [DebuggerStepThrough]
     private void Decrement(ref int index)
     {
         if (index == 0)
@@ -154,22 +210,20 @@ public class RingQueue<T>(int maxCount, RingQueueFullBehaviour fullBehaviour = R
     {
         private readonly RingQueue<T> _queue;
         private readonly int _version;
-        private int _index = -1;
+        private int _index;
         private T? _current;
 
         public readonly T Current => _current!;
 
-        readonly object? IEnumerator.Current => Current;
+#nullable disable
+        readonly object IEnumerator.Current => Current;
+#nullable restore
 
         internal Enumerator(RingQueue<T> queue)
         {
             _queue = queue;
             _version = _queue._version;
-
-            if (_queue.IsEmpty)
-                _index = -1;
-            else
-                _index = _queue._head;
+            _index = _queue.Count == 0 ? -1 : _queue._head;
         }
 
         public bool MoveNext()
@@ -183,7 +237,7 @@ public class RingQueue<T>(int maxCount, RingQueueFullBehaviour fullBehaviour = R
 
             // |  ---  |
             if (_queue._head < _queue._tail) {
-                _current = _queue._array.Array[_index];
+                _current = _queue._array[_index];
                 if (_index + 1 == _queue._tail)
                     _index = -1;
                 else
@@ -192,10 +246,13 @@ public class RingQueue<T>(int maxCount, RingQueueFullBehaviour fullBehaviour = R
             }
             // |--  --|
             else {
-                if (_index + 1 == _queue._tail)
+                _current = _queue._array[_index];
+                var next = _index;
+                _queue.Increment(ref next);
+                if (next == _queue._tail)
                     _index = -1;
                 else
-                    _index++;
+                    _index = next;
                 return true;
             }
         }
@@ -203,17 +260,13 @@ public class RingQueue<T>(int maxCount, RingQueueFullBehaviour fullBehaviour = R
         void IEnumerator.Reset()
         {
             CheckVersion();
-            if (_queue.IsEmpty)
-                _index = -1;
-            else
-                _index = _queue._head;
+            _index = _queue.Count == 0 ? -1 : _queue._head;
         }
 
         private readonly void CheckVersion()
         {
             if (_version != _queue._version)
                 TraThrow.CollectionModified();
-            return;
         }
 
         public readonly void Dispose() { }

@@ -12,8 +12,7 @@ namespace Trarizon.Library.SourceGeneration.Generators;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 internal sealed class SingletonAnalyzer : DiagnosticAnalyzer
 {
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(
-        Diagnostic_SingletonCtorIsNotAccessable);
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = [Diagnostic_SingletonCtorIsNotAccessable];
 
     public override void Initialize(AnalysisContext context)
     {

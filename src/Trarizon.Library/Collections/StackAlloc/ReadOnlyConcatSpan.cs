@@ -1,7 +1,10 @@
 ﻿using CommunityToolkit.Diagnostics;
+using CommunityToolkit.HighPerformance;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Trarizon.Library.Collections.StackAlloc;
+[method: MethodImpl(MethodImplOptions.AggressiveInlining)]
 public readonly ref struct ReadOnlyConcatSpan<T>(ReadOnlySpan<T> first, ReadOnlySpan<T> second)
 {
     private readonly ReadOnlySpan<T> _first = first;
@@ -11,15 +14,19 @@ public readonly ref struct ReadOnlyConcatSpan<T>(ReadOnlySpan<T> first, ReadOnly
 
     public ref readonly T this[int index]
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get {
             if (index < _first.Length)
-                return ref _first[index];
+                return ref _first.DangerousGetReferenceAt(index);
             index -= _first.Length;
             // _second[index] will throw if out of range
             return ref _second[index];
         }
     }
 
+    public bool IsEmpty => _first.IsEmpty && _second.IsEmpty;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ReadOnlyConcatSpan<T> Slice(int startIndex, int length)
     {
         Guard.IsLessThanOrEqualTo(startIndex + length, Length);
@@ -43,6 +50,7 @@ public readonly ref struct ReadOnlyConcatSpan<T>(ReadOnlySpan<T> first, ReadOnly
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ReadOnlyConcatSpan<T> Slice(int startIndex)
     {
         if (startIndex < _first.Length) {
@@ -54,12 +62,23 @@ public readonly ref struct ReadOnlyConcatSpan<T>(ReadOnlySpan<T> first, ReadOnly
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void CopyTo(Span<T> destination)
     {
         Guard.HasSizeGreaterThanOrEqualTo(destination, Length);
 
         _first.CopyTo(destination);
         _second.CopyTo(destination[_first.Length..]);
+    }
+
+    public bool TryCopyTo(Span<T> destination)
+    {
+        if (destination.Length >= Length) {
+            _first.CopyTo(destination);
+            _second.CopyTo(destination[_first.Length..]);
+            return true;
+        }
+        return false;
     }
 
     public T[] ToArray()
@@ -70,6 +89,19 @@ public readonly ref struct ReadOnlyConcatSpan<T>(ReadOnlySpan<T> first, ReadOnly
         T[] array = new T[Length];
         CopyTo(array);
         return array;
+    }
+
+    public override string ToString()
+    {
+        if (typeof(T) == typeof(char)) {
+            var buffer=(stackalloc char[Length]);
+            var first = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<T, char>(ref _first.DangerousGetReference()), _first.Length);
+            var second = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<T, char>(ref _second.DangerousGetReference()), _second.Length);
+            first.CopyTo(buffer);
+            second.CopyTo(buffer[first.Length..]);
+            return new string(buffer);
+        }
+        return $"ReadOnlyConcatSpan<{typeof(T).Name}>[{Length}]";
     }
 
     public Enumerator GetEnumerator() => new(this);
@@ -103,5 +135,4 @@ public readonly ref struct ReadOnlyConcatSpan<T>(ReadOnlySpan<T> first, ReadOnly
             return false;
         }
     }
-
 }

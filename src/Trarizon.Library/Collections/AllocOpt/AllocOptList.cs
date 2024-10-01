@@ -1,14 +1,17 @@
 ﻿using CommunityToolkit.Diagnostics;
-using Trarizon.Library.Collections.AllocOpt.Providers;
+using CommunityToolkit.HighPerformance;
+using System.Diagnostics;
+using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections.AllocOpt;
 public struct AllocOptList<T>
 {
-    private AllocOptGrowableArrayProvider<T> _items;
+    private T[] _array;
+    private int _count;
 
     public AllocOptList()
     {
-        _items = new();
+        _array = [];
     }
 
     public AllocOptList(int capacity)
@@ -16,73 +19,181 @@ public struct AllocOptList<T>
         ArgumentOutOfRangeException.ThrowIfNegative(capacity);
 
         if (capacity == 0)
-            _items = new();
+            _array = [];
         else
-            _items = new(capacity);
+            _array = new T[capacity];
     }
 
-    public readonly int Count => _items.Count;
+    #region Accessors
 
-    public readonly int Capacity => _items.Array.Length;
+    public readonly int Count => _count;
+
+    public readonly int Capacity => _array.Length;
 
     public readonly T this[int index]
     {
         get {
-            Guard.IsInRange(index, 0, Count);
-            return _items.Array[index];
+            Guard.IsInRange(index, 0, _count);
+            return _array.DangerousGetReferenceAt(index);
         }
         set {
-            Guard.IsInRange(index, 0, Count);
-            _items.Array[index] = value;
+            Guard.IsInRange(index, 0, _count);
+            _array.DangerousGetReferenceAt(index) = value;
         }
     }
 
-    public void Add(T item) => _items.Add(item);
+    public readonly Span<T> AsSpan() => _array.AsSpan(0, _count);
 
-    public void AddRange(ReadOnlySpan<T> items) => _items.AddRangeSpan(items);
+    public readonly Span<T> AsSpan(Range range)
+    {
+        var (ofs, len) = range.GetOffsetAndLength(_count);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(ofs + len, _count);
+        return _array.AsSpan(ofs, len);
+    }
+
+    #endregion
+
+    public void Add(T item)
+    {
+        Debug.Assert(_count <= _array.Length);
+        if (_count == _array.Length) {
+            ArrayGrowHelper.Grow(ref _array, _count + 1, _count);
+        }
+        _array[_count++] = item;
+    }
 
     public void AddRange(IEnumerable<T> items)
     {
-        if (items is ICollection<T> collection)
-            _items.AddRangeCollection(collection);
-        else
-            _items.AddRangeEnumerable(items);
+        if (items is ICollection<T> collection) {
+            int count = collection.Count;
+            if (count <= 0)
+                return;
+
+            var newCount = _count + count;
+            if (newCount > _array.Length) {
+                ArrayGrowHelper.Grow(ref _array, newCount, _count);
+            }
+            collection.CopyTo(_array, _count);
+            _count = newCount;
+            return;
+        }
+
+        foreach (var item in items) {
+            Add(item);
+        }
+    }
+
+    public void AddRange(ReadOnlySpan<T> items)
+    {
+        if (items.Length <= 0)
+            return;
+
+        var newCount = _count + items.Length;
+        if (newCount > _array.Length) {
+            ArrayGrowHelper.Grow(ref _array, newCount, _count);
+        }
+        items.CopyTo(_array.AsSpan(_count, items.Length));
+        _count = newCount;
     }
 
     public void Insert(Index index, T item)
-        => _items.InsertRangeSpan(index.GetOffset(Count), TraSpan.AsReadOnlySpan(in item));
+    {
+        var idx = index.GetCheckedOffset(_count);
 
-    public void InsertRange(Index index, ReadOnlySpan<T> items)
-        => _items.InsertRangeSpan(index.GetOffset(Count), items);
+        EnsureArrayForInsertion(idx, 1);
+        _array[idx] = item;
+        _count++;
+    }
 
     public void InsertRange(Index index, IEnumerable<T> items)
     {
-        if (items is ICollection<T> collection)
-            _items.InsertRangeCollection(index.GetOffset(Count), collection);
-        else
-            _items.InsertRangeEnumerable(index.GetOffset(Count), items);
+        if (items is ICollection<T> collection) {
+            int count = collection.Count;
+            if (count <= 0)
+                return;
+            var idx = index.GetCheckedOffset(_count);
+            EnsureArrayForInsertion(idx, count);
+            collection.CopyTo(_array, idx);
+            _count += count;
+            return;
+        }
+        else if (items.TryGetNonEnumeratedCount(out var count)) {
+            if (count <= 0)
+                return;
+            var idx = index.GetCheckedOffset(_count);
+            EnsureArrayForInsertion(idx, count);
+            foreach (var item in items) {
+                _array[idx++] = item;
+            }
+            _count += count;
+            return;
+        }
+        else {
+            var idx = index.GetOffset(_count);
+            foreach (var item in items) {
+                Insert(idx++, item);
+            }
+            return;
+        }
+    }
+
+    public void InsertRange(Index index, ReadOnlySpan<T> items)
+    {
+        var idx = index.GetCheckedOffset(_count);
+        int count = items.Length;
+        if (count <= 0)
+            return;
+
+        EnsureArrayForInsertion(idx, count);
+        items.CopyTo(_array.AsSpan(idx, count));
+        _count += count;
+    }
+
+    private void EnsureArrayForInsertion(int index, int insertCount)
+    {
+        var newSize = _count + insertCount;
+        if (newSize > _array.Length) {
+            ArrayGrowHelper.GrowForInsertion(ref _array, newSize, _count, index, insertCount);
+        }
+        else {
+            Array.Copy(_array, index, _array, index + insertCount, _count - index);
+        }
     }
 
     public bool Remove(T item)
     {
-        var index = Array.IndexOf(_items.Array, item, 0, Count);
+        var index = Array.IndexOf(_array, item, 0, _count);
         if (index < 0)
             return false;
 
-        _items.RemoveRange(index, 1);
+        Array.Copy(_array, index + 1, _array, index, _count - index - 1);
+        _count--;
         return true;
     }
 
     public void RemoveAt(Index index)
-        => _items.RemoveRange(index.GetOffset(Count), 1);
+    {
+        var idx = index.GetCheckedOffset(_count);
+        Array.Copy(_array, idx + 1, _array, idx, _count - idx - 1);
+        _count--;
+    }
 
     public void RemoveRange(Index index, int count)
-        => _items.RemoveRange(index.GetOffset(Count), count);
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(count);
+        var idx = index.GetOffset(_count);
+        ArgumentOutOfRangeException.ThrowIfNegative(idx);
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(idx + count, _count);
+
+        Array.Copy(_array, idx + count, _array, idx, _count - idx - count);
+        _count -= count;
+    }
 
     public void RemoveRange(Range range)
     {
-        var (index, count) = range.GetOffsetAndLength(Count);
-        _items.RemoveRange(index, count);
+        var (index, count) = range.GetCheckedOffsetAndLength(_count);
+        Array.Copy(_array, index + count, _array, index, _count - index - count);
+        _count -= count;
     }
 
     public int RemoveAll(Predicate<T> predicate)
@@ -103,23 +214,28 @@ public struct AllocOptList<T>
             }
         }
 
-        var freedCount = Count - newSize;
-        _items.SetCount(newSize);
+        var freedCount = _count - newSize;
+        _count = newSize;
         return freedCount;
     }
 
-    public void Clear() => _items.SetCount(0);
+    public void Clear() => _count = 0;
 
     /// <summary>
     /// Clear items from index <see cref="Count"/> to end
     /// </summary>
-    public readonly void FreeUnreferenced() => _items.FreeUnreferenced();
+    public readonly void FreeUnreferenced() => ArrayGrowHelper.FreeManaged(_array, _count..);
 
     /// <summary>
     /// Ensure capacity of collection is greater than <paramref name="capacity"/>,
     /// unlike <see cref="List{T}.EnsureCapacity(int)"/>, this method doesn't throw if <paramref name="capacity"/> less than current
     /// </summary>
-    public void EnsureCapacity(int capacity) => _items.EnsureCapacity(capacity);
+    public void EnsureCapacity(int capacity)
+    {
+        if (capacity < _array.Length)
+            return;
+        ArrayGrowHelper.Grow(ref _array, capacity, _count);
+    }
 
     public readonly Enumerator GetEnumerator() => new(this);
 
@@ -127,30 +243,30 @@ public struct AllocOptList<T>
     {
         private readonly AllocOptList<T> _list;
         private int _index;
+        private T _current;
 
         internal Enumerator(AllocOptList<T> list)
         {
             _list = list;
             _index = 0;
+            _current = default!;
         }
 
-        public readonly T Current
-        {
-            get {
-                if (_index >= 0 && _index < _list.Count)
-                    return _list[_index];
-                return default!;
-            }
-        }
+        public readonly T Current => _current;
 
         public bool MoveNext()
         {
-            var index = _index + 1;
-            if (index < _list.Count) {
-                _index = index;
+            if (_index < 0)
+                return false;
+
+            if (_index < _list.Count) {
+                _current = _list[_index];
+                _index++;
                 return true;
             }
             else {
+                _index = -1;
+                _current = default!;
                 return false;
             }
         }

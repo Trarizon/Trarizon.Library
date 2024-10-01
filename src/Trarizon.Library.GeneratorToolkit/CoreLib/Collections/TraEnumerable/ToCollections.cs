@@ -1,4 +1,6 @@
-﻿namespace Trarizon.Library.GeneratorToolkit.CoreLib.Collections;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Trarizon.Library.GeneratorToolkit.CoreLib.Collections;
 partial class TraEnumerable
 {
     public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
@@ -15,23 +17,43 @@ partial class TraEnumerable
     public static IEnumerable<T> EmptyIfNull<T>(this IEnumerable<T>? source)
         => source ?? [];
 
-    public static List<T>? ToNonEmptyListOrNull<T>(this IEnumerable<T> source)
+    public static bool TryToNonEmptyList<T>(this IEnumerable<T> source, [NotNullWhen(true)] out List<T>? list)
     {
         if (source.TryGetNonEnumeratedCount(out var count)) {
-            if (count == 0)
-                return null;
-            else
-                return source.ToList();
+            if (count == 0) {
+                list = null;
+                return false;
+            }
+            else {
+                list = source.ToList();
+                return true;
+            }
         }
 
         using var enumerator = source.GetEnumerator();
-        if (!enumerator.MoveNext())
-            return null;
+        if (!enumerator.MoveNext()) {
+            list = null;
+            return false;
+        }
 
-        List<T> list = [enumerator.Current];
+        list = [enumerator.Current];
         while (enumerator.MoveNext()) {
             list.Add(enumerator.Current);
         }
-        return list;
+        return true;
     }
+
+    //public static bool TryGetSpan<T>(this IEnumerable<T> source, out ReadOnlySpan<T> span)
+    //{
+    //    if (source is T[] array) {
+    //        span = array.AsSpan();
+    //        return true;
+    //    }
+    //    if (source is List<T> list) {
+    //        span = list.AsSpan();
+    //        return true;
+    //    }
+    //    span = default;
+    //    return false;
+    //}
 }
