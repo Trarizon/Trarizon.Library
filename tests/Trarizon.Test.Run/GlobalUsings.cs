@@ -62,10 +62,7 @@ public static class GlobalUsings
 
     public static void Print<T>(this T value)
     {
-        if (typeof(string) == typeof(T))
-            Console.WriteLine(value as string ?? "<null>");
-        else
-            PrintValue(value).Print();
+        Console.WriteLine(PrintValue(value));
     }
 
     public static void Print<T>(this Span<T> values) => PrintValue((ReadOnlySpan<T>)values).Print();
@@ -76,7 +73,7 @@ public static class GlobalUsings
     private static string? PrintValue<T>(T value)
     {
         if (value is string strV)
-            return strV;
+            return $@"""{strV}""";
 
         if (value is IEnumerable collection) {
             return GetCollectionString(collection);

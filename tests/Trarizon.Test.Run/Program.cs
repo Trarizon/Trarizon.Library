@@ -26,9 +26,9 @@ using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 
 
-Span<string> span = ["s", "t", "r"];
-
-span.Print();
+var ints = ArrayInts();
+var strs = ArrayInts().Select(i => i.ToString());
+ints.CartesianProduct(strs).Print();
 
 namespace A
 {
