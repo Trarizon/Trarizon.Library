@@ -165,4 +165,6 @@ public static class GlobalUsings
     #endregion
 
     public static T ForceCastTo<T>(this object source) => (T)source;
+
+    public static T With<T>(this T value, Func<T, T> selector) => selector(value);
 }

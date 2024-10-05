@@ -1,29 +1,37 @@
 ﻿namespace Trarizon.Library.Collections;
 partial class TraEnumerable
 {
-    public static unsafe bool IsInOrder<T>(this IEnumerable<T> source, IComparer<T>? comparer = null, bool descending = false)
+    public static bool IsInOrder<T>(this IEnumerable<T> source)
+        => IsInOrder<T, IComparer<T>>(source, Comparer<T>.Default);
+
+    public static bool IsInOrder<T, TComparer>(this IEnumerable<T> source, TComparer comparer) where TComparer : IComparer<T>
     {
+        if (source is T[] { Length: <= 1 }) 
+            return true;
+
         using var enumerator = source.GetEnumerator();
         if (!enumerator.MoveNext())
-            // An empty array is in order
+            // An empty collection is in order
             return true;
 
         T prev = enumerator.Current;
-        comparer ??= Comparer<T>.Default;
-        delegate*<T, T, IComparer<T>, int> cmp = descending
-            ? &TraAlgorithm.Utils.CmpReverse
-            : &TraAlgorithm.Utils.Cmp;
 
         while (enumerator.TryMoveNext(out var curr)) {
-            if (cmp(prev, curr, comparer) > 0)
+            if (comparer.Compare(prev, curr) > 0)
                 return false;
             prev = curr;
         }
         return true;
     }
 
-    public static unsafe bool IsInOrderBy<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector, IComparer<TKey>? comparer = null, bool descending = false)
+    public static bool IsInOrderBy<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector)
+        => IsInOrderBy<T, TKey, IComparer<TKey>>(source, keySelector, Comparer<TKey>.Default);
+
+    public static bool IsInOrderBy<T, TKey, TComparer>(this IEnumerable<T> source, Func<T, TKey> keySelector, TComparer comparer) where TComparer : IComparer<TKey>
     {
+        if (source is T[] { Length: <= 1 })
+            return true;
+
         using var enumerator = source.GetEnumerator();
         if (!enumerator.MoveNext())
             // An empty array is in order
@@ -31,13 +39,10 @@ partial class TraEnumerable
 
         T prev = enumerator.Current;
         TKey prevKey = keySelector(prev);
-        comparer ??= Comparer<TKey>.Default;
-        delegate*<TKey, TKey, IComparer<TKey>, int> cmp = descending
-            ? &TraAlgorithm.Utils.CmpReverse : &TraAlgorithm.Utils.Cmp;
 
         while (enumerator.TryMoveNext(out var curr)) {
             TKey key = keySelector(curr);
-            if (cmp(prevKey, key, comparer) > 0)
+            if (comparer.Compare(prevKey, key) > 0)
                 return false;
             prev = curr;
             prevKey = key;

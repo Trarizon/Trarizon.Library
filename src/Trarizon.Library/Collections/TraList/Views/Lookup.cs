@@ -6,6 +6,18 @@ using Trarizon.Library.Collections.Generic;
 namespace Trarizon.Library.Collections;
 partial class TraList
 {
+    public static Lookup<T> GetLookup<T>(this List<T> list, IEqualityComparer<T>? comparer = null)
+        => new(list, comparer ?? EqualityComparer<T>.Default);
+
+    public static KeyedLookup<T, TKey> GetKeyedLookup<T, TKey>(this List<T> list, IKeyedEqualityComparer<T, TKey> comparer)
+        => new(list, comparer);
+
+    public static KeyedLookup<(TKey, TValue), TKey> GetKeyedLookup<TKey, TValue>(this List<(TKey, TValue)> list)
+        => list.GetKeyedLookup<(TKey, TValue), TKey>(PairByKeyEqualityComparer<TKey, TValue>.Default);
+
+    public static KeyedLookup<KeyValuePair<TKey, TValue>, TKey> GetKeyedLookup<TKey, TValue>(this List<KeyValuePair<TKey, TValue>> list)
+        => list.GetKeyedLookup((IKeyedEqualityComparer<KeyValuePair<TKey, TValue>, TKey>)PairByKeyEqualityComparer<TKey, TValue>.Default);
+
     public readonly struct Lookup<T>
     {
         private readonly List<T> _list;

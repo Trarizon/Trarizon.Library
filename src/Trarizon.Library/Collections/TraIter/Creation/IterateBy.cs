@@ -14,23 +14,23 @@ partial class TraIter
         => new(first, nextSelector, predicate);
 
     /// <summary>
-    /// Struct version of <see cref="TraEnumerable.EnumerateByWhileNotNull{T}(T?, Func{T, T?})"/>
+    /// Struct version of <see cref="TraEnumerable.EnumerateByNotNull{T}(T?, Func{T, T?})"/>
     /// <br/>
     /// yield <paramref name="first"/>, and then
     /// repeatly call <paramref name="nextSelector"/> to create next value.
     /// Enumerate stop until current value is null.
     /// </summary>
-    public static IterateByClassNotNullIterator<T> IterateByWhileNotNull<T>(T? first, Func<T, T?> nextSelector) where T : class
+    public static IterateByClassNotNullIterator<T> IterateByNotNull<T>(T? first, Func<T, T?> nextSelector) where T : class
         => new(first, nextSelector);
 
     /// <summary>
-    /// Struct version of <see cref="TraEnumerable.EnumerateByWhileNotNull{T}(T?, Func{T, T?})"/>
+    /// Struct version of <see cref="TraEnumerable.EnumerateByNotNull{T}(T?, Func{T, T?})"/>
     /// <br/>
     /// yield <paramref name="first"/>, and then
     /// repeatly call <paramref name="nextSelector"/> to create next value.
     /// Enumerate stop until current value is null.
     /// </summary>
-    public static IterateByStructNotNullIterator<T> IterateByWhileNotNull<T>(T? first, Func<T, T?> nextSelector) where T : struct
+    public static IterateByStructNotNullIterator<T> IterateByNotNull<T>(T? first, Func<T, T?> nextSelector) where T : struct
         => new(first, nextSelector);
 
 

@@ -25,10 +25,11 @@ using Trarizon.Library.Threading;
 using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 
+Console.WriteLine("Hello, world");
 
-var ints = ArrayInts();
-var strs = ArrayInts().Select(i => i.ToString());
-ints.CartesianProduct(strs).Print();
+ReadOnlySpan<object> span = [1, 2,"55","st,", 3, 4, 5, 6, 8, 9];
+
+
 
 namespace A
 {
@@ -39,13 +40,14 @@ namespace A
     }
 }
 
-class Base
-{
-    public class P { }
 
-}
-
-class Der : Base
+class Disposable : IDisposable
 {
-    public static int P { get; }
+    public bool IsDisposed { get; private set; }
+
+    public void Dispose()
+    {
+        IsDisposed = true;
+        Console.WriteLine("Dispose");
+    }
 }

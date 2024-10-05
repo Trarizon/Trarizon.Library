@@ -14,9 +14,5 @@ partial class TraAlgorithm
         public static bool DescOp<T>(T left, T right) where T : IComparisonOperators<T, T, bool> => left > right;
 
         public static bool DescEqOp<T>(T left, T right) where T : IComparisonOperators<T, T, bool> => left >= right;
-
-        public static int Cmp<T>(T left, T right, IComparer<T> comparer) => comparer.Compare(left, right);
-
-        public static int CmpReverse<T>(T left, T right, IComparer<T> comparer) => -comparer.Compare(left, right);
     }
 }

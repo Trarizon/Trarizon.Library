@@ -34,6 +34,7 @@ Contents:
 - `TraXXX` : Static classes with helper method, extension methods
     - `TraAlgorithm` : 
     - `TraArray` : Helper for `T[]`, `ImmutableArray<>`
+    - `TraComparison` : Helpers for `IComaprer<>`, `IComparable`, etc.
     - `TraDictionary` : Helper for `Dictionary<,>`
     - `TraEnumerable` : Helper for `IEnumerable`, linq extensions
     - `TraIter` : Value type simple Linq, this class is design for instant iterating, so it doesn't support chain linq
@@ -46,9 +47,15 @@ Contents:
 <summary>Array</summary>
 
 - `MoveTo` : Move item on `fromIndex` to `toIndex`
-- `SortStably` : Perform stable sort with BCL-built-in `Sort`, and `StableSortComparer`
 - `EmptyIfDefault` for `ImmutableArray<>` : Return empty array if source is `null` 
 - `TryAt` for `ImmutableArray<>`
+
+</details>
+
+<details>
+<summary>Comparison</summary>
+
+- `Reverse` : Reverse a `IComparer<>`
 
 </details>
 
@@ -68,7 +75,7 @@ Contents:
     - `IsInOrder(By)` : Check if the elements in collection is in order
     - `MinMax(By)` : Get minimun value and maximun value in one iteration
 - Creation
-    - `EnumerateByWhile(NotNull)` : Yield next value selected by a `Func<T, T>`, until predicate failed
+    - `EnumerateByWhile/NotNull` : Yield next value selected by a `Func<T, T>`, until predicate failed
 - Element
     - `TryAt` : `TryXXX` version of `ElementAt`
     - `TryFirst` : `TryXXX` version of `First`
@@ -112,13 +119,16 @@ Too lazy to implement all linqs, so I'll just implement what I have used.
 All extensions methods identifiers are start with `Iter`
 
 - Creation
-    - `IterateByWhile(NotNull)` : Yield next value selected by a `Func<T, T>`, until predicate failed
+    - `IterateByWhile/NotNull` : Yield next value selected by a `Func<T, T>`, until predicate failed
     - `Range` : Enumerate `int` from `start` to `end`(not include)
     - `RangeTo` : Iterate `int` from 0 to `count` with specific step
+- Filtering
+    - `OfNotNull`
+    - `OfType`
 - Joining
-    - `Zip` : Linq `Zip`
+    - `Zip`
 - Partition
-    - `Take` : Linq `Take`
+    - `Take`
 - Sorting
     - `Reverse` : `Reverse` in Linq will always cache values in collection, this won't do that because designing for instant iteration
 
@@ -131,7 +141,6 @@ All extensions methods identifiers are start with `Iter`
     - `RemoveAt/RemoveRange` : overload for `Index` and `Range`
     - `MoveTo` : Move item(s) on `fromIndex` to `toIndex`
 - Views
-    - `AsMemory` : Returns the `Memory` view of this list
     - `GetLookup` : Returns a view treating the list as a set
     - `GetKeyedLookup` : Returns a view treating the list as dictionary
     - `GetSortedModifier` : Returns a view through which modifying the list will keep elements in order.
@@ -146,6 +155,7 @@ All extensions methods identifiers are start with `Iter`
 - Index
     - `OffsetOf` : Get the index of element by pointer substraction
     - `FindLower/UppderBoundIndex` : find the lower/upper bound in a sorted span
+    - `LinearSearch(FromEnd)` : Linear search, similar to `BinarySearch`, returns `~index` when not found
 - Modifications
     - `MoveTo` : Move item(s) on `fromIndex` to `toIndex`
     - `SortStably` : Perform stable sort with BCL-built-in `Sort`, and `StableSortComparer`
@@ -157,6 +167,7 @@ All extensions methods identifiers are start with `Iter`
 ## Wrappers
 
 - `Either<,>` : Monad either
+- `LazyInitDisposable` : Wrapper for fully utilizing the `using` statement when lazy-init `IDisposable` objects.
 - `Result<,>` : Monad Result, for smaller size, `TError` only supports reference type, and if `TError` is null, the result means success
 - `Optional<>` : Monad Option
 

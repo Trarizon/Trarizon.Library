@@ -29,7 +29,6 @@ internal static class ArrayGrowHelper
         Array.Copy(originalArray, array, copyLength);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void GrowNonMove<T>(ref T[] array, int expectedLength)
     {
         Debug.Assert(expectedLength > array.Length);

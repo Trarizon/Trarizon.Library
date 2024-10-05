@@ -1,7 +1,7 @@
 ﻿namespace Trarizon.Library.GeneratorToolkit.CoreLib.Collections;
-public static class TraComparer
+public static class TraComparison
 {
-    public static IEqualityComparer<T> CreateEquality<T>(Func<T, T, bool> equals, Func<T, int> getHashCode)
+    public static IEqualityComparer<T> CreateEqualityComparer<T>(Func<T, T, bool> equals, Func<T, int> getHashCode)
         => new DelegateEqualityComparer<T>(equals, getHashCode);
 
     private sealed class DelegateEqualityComparer<T>(Func<T, T, bool> equals, Func<T, int> getHashCode) : IEqualityComparer<T>

@@ -17,10 +17,10 @@ partial class TraEnumerable
 
     /// <summary>
     /// yield <paramref name="first"/>, and then
-    /// repeatly call <paramref name="nextWhereSelector"/> to create next value.
+    /// repeatly call <paramref name="nextSelector"/> to create next value.
     /// Enumerate stop until current value is null.
     /// </summary>
-    public static IEnumerable<T> EnumerateByWhileNotNull<T>(T? first, Func<T, T?> nextSelector) where T : class
+    public static IEnumerable<T> EnumerateByNotNull<T>(T? first, Func<T, T?> nextSelector) where T : class
     {
         var val = first;
         while (val is not null) {
@@ -34,7 +34,7 @@ partial class TraEnumerable
     /// repeatly call <paramref name="nextSelector"/> to create next value.
     /// Enumerate stop until current value is null.
     /// </summary>
-    public static IEnumerable<T> EnumerateByWhileNotNull<T>(T? first, Func<T, T?> nextSelector) where T : struct
+    public static IEnumerable<T> EnumerateByNotNull<T>(T? first, Func<T, T?> nextSelector) where T : struct
     {
         var val = first;
         while (val is not null) {

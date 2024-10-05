@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.HighPerformance;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 
 namespace Trarizon.Library.Collections;
 partial class TraEnumerable
@@ -46,12 +47,12 @@ partial class TraEnumerable
 
     public static bool TryGetSpan<T>(this IEnumerable<T> source, out ReadOnlySpan<T> span)
     {
-        if (source is T[] array) {
-            span = array.AsSpan();
+        if (source.GetType() == typeof(T[])) {
+            span = Unsafe.As<T[]>(source).AsSpan();
             return true;
         }
-        if (source is List<T> list) {
-            span = list.AsSpan();
+        if (source.GetType() == typeof(List<T>)) {
+            span = Unsafe.As<List<T>>(source).AsSpan();
             return true;
         }
         span = default;
