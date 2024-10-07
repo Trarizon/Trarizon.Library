@@ -31,6 +31,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Trarizon.Test.Nuget", "test
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Trarizon.Library.SourceGeneration", "src\Trarizon.Library.SourceGeneration\Trarizon.Library.SourceGeneration.csproj", "{D71DCB7B-D09C-4DDD-A4BB-9B803CCB9638}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Trarizon.Library.Wpf", "src\Trarizon.Library.Wpf\Trarizon.Library.Wpf.csproj", "{25A82CA0-89B8-4941-A1D8-9386585F74B6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Trarizon.Library.Windows", "src\Trarizon.Library.Windows\Trarizon.Library.Windows.csproj", "{B0275C16-1C37-4107-8A62-B29804A80B47}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +73,14 @@ Global
 		{D71DCB7B-D09C-4DDD-A4BB-9B803CCB9638}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D71DCB7B-D09C-4DDD-A4BB-9B803CCB9638}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D71DCB7B-D09C-4DDD-A4BB-9B803CCB9638}.Release|Any CPU.Build.0 = Release|Any CPU
+		{25A82CA0-89B8-4941-A1D8-9386585F74B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{25A82CA0-89B8-4941-A1D8-9386585F74B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{25A82CA0-89B8-4941-A1D8-9386585F74B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{25A82CA0-89B8-4941-A1D8-9386585F74B6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0275C16-1C37-4107-8A62-B29804A80B47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0275C16-1C37-4107-8A62-B29804A80B47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0275C16-1C37-4107-8A62-B29804A80B47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0275C16-1C37-4107-8A62-B29804A80B47}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -82,6 +94,8 @@ Global
 		{019A4B0F-1CF0-4F39-AD19-6E0E6B4655A1} = {5018BEA0-DC90-469A-A85C-E46213678F6E}
 		{05B637C1-20D7-4A4D-803E-8A14133A6331} = {EB7997BE-BD2E-439B-9BBB-FD13CBB5292F}
 		{D71DCB7B-D09C-4DDD-A4BB-9B803CCB9638} = {5018BEA0-DC90-469A-A85C-E46213678F6E}
+		{25A82CA0-89B8-4941-A1D8-9386585F74B6} = {5018BEA0-DC90-469A-A85C-E46213678F6E}
+		{B0275C16-1C37-4107-8A62-B29804A80B47} = {5018BEA0-DC90-469A-A85C-E46213678F6E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0832A06C-257F-4940-A6C2-2C72400550F1}

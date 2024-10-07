@@ -191,6 +191,8 @@ The namespace structure is almost the same with `System.XXX`
 
 ### Helpers
 
+- ArrayPool
+    - `Rent` : Overload for `ArrayPool<>.Rent`, returns a auto-return object avaible with `using` statement
 - Path
     - `Contains/ReplaceInvalidFileNameChar` : Operations about invalid filename characters, with cached `SearchValues<char>`
     - `Combine` : Overload for `ReadOnlySpan<char>`

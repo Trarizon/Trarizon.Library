@@ -1,0 +1,11 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:cvt="clr-namespace:Trarizon.Library.Wpf.Converters"
+                    xmlns:s="clr-namespace:System;assembly=mscorlib">
+    
+    <cvt:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    
+    <s:Boolean x:Key="ConstantTrue">True</s:Boolean>
+    <s:Boolean x:Key="ConstantFalse">False</s:Boolean>
+
+</ResourceDictionary>
