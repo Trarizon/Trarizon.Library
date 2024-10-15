@@ -46,6 +46,7 @@ Contents:
 <details>
 <summary>Array</summary>
 
+- `AsEnumerable` for `ImmutableArray<>` : Return underlying array as `IEnumerable<>` to avoid boxing and get performance improvements with LinQ. The BCL overrided some linq method but not all(and my own linq extensions do not support)
 - `MoveTo` : Move item on `fromIndex` to `toIndex`
 - `EmptyIfDefault` for `ImmutableArray<>` : Return empty array if source is `null` 
 - `TryAt` for `ImmutableArray<>`
@@ -104,7 +105,6 @@ Contents:
 - ToCollections
     - `EmptyIfNull` : Return empty collection if source collection is `null`
     - `TryToNonEmptyList` : If collection is not empty, then collect items into `List<>`, in one iteration
-    - `TryGetSpan` : Get the underlying span if possible (`T[]` or `List<>`)
 
 </details>
 
@@ -142,7 +142,6 @@ All extensions methods identifiers are start with `Iter`
     - `MoveTo` : Move item(s) on `fromIndex` to `toIndex`
 - Views
     - `GetLookup` : Returns a view treating the list as a set
-    - `GetKeyedLookup` : Returns a view treating the list as dictionary
     - `GetSortedModifier` : Returns a view through which modifying the list will keep elements in order.
 
 </details>
@@ -153,7 +152,7 @@ All extensions methods identifiers are start with `Iter`
 - Creation
     - `As(ReadOnly)Bytes` : Convert an `unmanaged` value into bytes
 - Index
-    - `OffsetOf` : Get the index of element by pointer substraction
+    - `OffsetOf` (`DangerousOffsetOf`) : Get the index of element by pointer substraction
     - `FindLower/UppderBoundIndex` : find the lower/upper bound in a sorted span
     - `LinearSearch(FromEnd)` : Linear search, similar to `BinarySearch`, returns `~index` when not found
 - Modifications
@@ -184,10 +183,10 @@ The namespace structure is almost the same with `System.XXX`
     - `InterlockedBooleanLock` : A lock implemented with `InterlockedBoolean`
     - `TraAsync` : Helpers for async operation, `Task<>`, `ValueTask<>`, etc.
 - `TraEnum` : Helpers for enum types
-- `TraNumber` : Helpers for number types, in `System.Numerics`
+- `TraNumber` : Helpers for number types (in `System.Numerics`), `Index`, `Range`
 - `TraRandom` : Helpers for `Random`
 - `TraString` : Helpers for `string`, interpolated string handler
-- `TraUnsafe` : Extends `System.Runtime.CompilerServices.Unsafe`
+- `TraUnsafe` : Extends `Unsafe`
 
 ### Helpers
 
@@ -202,12 +201,15 @@ The namespace structure is almost the same with `System.XXX`
     - `ReadWithInt32Prefix` : Read a `int` as array length, and do `ReadExactlyIntoArray`
 - Async
     - `GetAwaiter` : Support `await` keyword for `ValueTask?`, `ValueTask<>?`
+    - `CatchCancallation` : Return a awaitable that will catch `TaskCancellationException`.
 - Enum
     - `HasAnyFlag` : Check if a enum value has one of given flags.
 - Number
     - `IncAnd(Try)Wrap` : Increment the number, if the result is greater than given `max`, then wrap it
     - `Normalize` : Linear normalize value into [0,1]
     - `Normalize(Unclamped)` : Linear normalize value into [0,1], but not clamped
+    - `MapTo` : Linear map a value from [a, b] to [c, d], no clamp
+    - `GetCheckedOffset(AndLength)` : `Index/Range.GetOffset(AndLength)` with overflow check
 - Random
     - `SelectWeight` : Weighted random
     - `NextSingle/Double` : Get a random float number in specific range

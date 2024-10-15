@@ -2,7 +2,6 @@
 using CommunityToolkit.HighPerformance;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections.AllocOpt;
 [CollectionBuilder(typeof(CollectionBuilders), nameof(CollectionBuilders.CreateAllocOptList))]
@@ -271,6 +270,11 @@ public struct AllocOptList<T>
                 _current = default!;
                 return false;
             }
+        }
+
+        internal void Reset()
+        {
+            _index = 0;
         }
     }
 }

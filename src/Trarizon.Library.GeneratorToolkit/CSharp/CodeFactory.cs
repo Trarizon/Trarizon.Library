@@ -11,7 +11,10 @@ public static class CodeFactory
         => $@"global::{Literals.GeneratedCodeAttribute_TypeName}(""{tool}"", ""{version}"")";
 
     public static string InterceptsLocationAttribute(string filePath, int line, int column)
-        => $@"global::{Literals.InterceptsLocationAttribute_TypeName}(""{filePath}"", {line}, {column})";
+        => $@"global::{Literals.InterceptsLocationAttribute_TypeName}(@""{filePath}"", {line}, {column})";
+
+    public static string InterceptsLocationAttribute((string FilePath, int Line, int Column) location)
+        => InterceptsLocationAttribute(location.FilePath, location.Line, location.Column);
 
     public static string FileScopeInterceptsLocationAttributeDeclaration => """
         namespace System.Runtime.CompilerServices

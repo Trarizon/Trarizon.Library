@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <PackageReference Include="Vanara.PInvoke.Shell32" Version="4.0.4" />
+    <PackageReference Include="Vanara.PInvoke.User32" Version="4.0.4" />
   </ItemGroup>
 
   <ItemGroup>

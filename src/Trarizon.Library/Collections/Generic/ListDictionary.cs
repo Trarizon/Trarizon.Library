@@ -2,12 +2,12 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
+using Trarizon.Library.Collections.AllocOpt;
 
 namespace Trarizon.Library.Collections.Generic;
 public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue> where TKey : notnull
 {
-    private readonly List<(TKey Key, TValue Value)> _pairs;
+    private readonly AllocOptList<(TKey Key, TValue Value)> _pairs;
     private IEqualityComparer<TKey>? _comparer;
 
     public ListDictionary(int capacity, IEqualityComparer<TKey>? comparer = null)
@@ -91,14 +91,14 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
     private ref (TKey Key, TValue Value) FindRef(TKey key)
     {
         if (typeof(TKey).IsValueType && _comparer is null) {
-            foreach (ref var pair in CollectionsMarshal.AsSpan(_pairs)) {
+            foreach (ref var pair in _pairs.AsSpan()) {
                 if (EqualityComparer<TKey>.Default.Equals(pair.Key, key))
                     return ref pair;
             }
         }
         else {
             _comparer ??= EqualityComparer<TKey>.Default;
-            foreach (ref var pair in CollectionsMarshal.AsSpan(_pairs)) {
+            foreach (ref var pair in _pairs.AsSpan()) {
                 if (_comparer.Equals(pair.Key, key))
                     return ref pair;
             }
@@ -109,7 +109,7 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
     private ref TValue FindRefOrAddDefault(TKey key, out bool exist)
     {
         if (typeof(TKey).IsValueType && _comparer is null) {
-            foreach (ref var pair in CollectionsMarshal.AsSpan(_pairs)) {
+            foreach (ref var pair in _pairs.AsSpan()) {
                 if (EqualityComparer<TKey>.Default.Equals(pair.Key, key)) {
                     exist = true;
                     return ref pair.Value;
@@ -118,7 +118,7 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
         }
         else {
             _comparer ??= EqualityComparer<TKey>.Default;
-            foreach (ref var pair in CollectionsMarshal.AsSpan(_pairs)) {
+            foreach (ref var pair in _pairs.AsSpan()) {
                 if (_comparer.Equals(pair.Key, key)) {
                     exist = true;
                     return ref pair.Value;
@@ -127,7 +127,7 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
         }
         _pairs.Add((key, default!));
         exist = false;
-        return ref CollectionsMarshal.AsSpan(_pairs)[^1].Value;
+        return ref _pairs.AsSpan()[^1].Value;
     }
 
     /// <summary>
@@ -136,7 +136,7 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
     /// <param name="item">Must be item in <see cref="_pairs"/></param>
     private void RemoveRef(ref readonly (TKey, TValue) item)
     {
-        var index = CollectionsMarshal.AsSpan(_pairs).OffsetOf(in item);
+        var index = _pairs.AsSpan().OffsetOf(in item);
         _pairs.RemoveAt(index);
     }
 
@@ -185,12 +185,12 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
 
     public struct Enumerator : IEnumerator<KeyValuePair<TKey, TValue>>
     {
-        private List<(TKey, TValue)>.Enumerator _enumerator;
+        private AllocOptList<(TKey, TValue)>.Enumerator _enumerator;
 
         internal Enumerator(ListDictionary<TKey, TValue> dictionary)
             => _enumerator = dictionary._pairs.GetEnumerator();
 
-        public KeyValuePair<TKey, TValue> Current
+        public readonly KeyValuePair<TKey, TValue> Current
         {
             get {
                 var current = _enumerator.Current;
@@ -198,11 +198,11 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
             }
         }
 
-        object IEnumerator.Current => Current;
+        readonly object IEnumerator.Current => Current;
 
-        public void Dispose() => _enumerator.Dispose();
+        public readonly void Dispose() { }
         public bool MoveNext() => _enumerator.MoveNext();
-        void IEnumerator.Reset() => ((IEnumerator)_enumerator).Reset();
+        void IEnumerator.Reset() => _enumerator.Reset();
     }
 
     public readonly struct KeyCollection : ICollection<TKey>
@@ -241,18 +241,18 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
 
         public struct Enumerator : IEnumerator<TKey>
         {
-            private List<(TKey, TValue)>.Enumerator _enumerator;
+            private AllocOptList<(TKey, TValue)>.Enumerator _enumerator;
 
             internal Enumerator(KeyCollection keys)
                 => _enumerator = keys._dict._pairs.GetEnumerator();
 
-            public TKey Current => _enumerator.Current.Item1;
+            public readonly TKey Current => _enumerator.Current.Item1;
 
-            object IEnumerator.Current => Current;
+            readonly object IEnumerator.Current => Current;
 
-            public void Dispose() => _enumerator.Dispose();
+            public readonly void Dispose() { }
             public bool MoveNext() => _enumerator.MoveNext();
-            void IEnumerator.Reset() => ((IEnumerator)_enumerator).Reset();
+            void IEnumerator.Reset() => _enumerator.Reset();
         }
     }
 
@@ -299,18 +299,18 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
 
         public struct Enumerator : IEnumerator<TValue>
         {
-            private List<(TKey, TValue)>.Enumerator _enumerator;
+            private AllocOptList<(TKey, TValue)>.Enumerator _enumerator;
 
             internal Enumerator(ValueCollection values)
                 => _enumerator = values._dict._pairs.GetEnumerator();
 
-            public TValue Current => _enumerator.Current.Item2;
+            public readonly TValue Current => _enumerator.Current.Item2;
 
-            object? IEnumerator.Current => Current;
+            readonly object? IEnumerator.Current => Current;
 
-            public void Dispose() => _enumerator.Dispose();
+            public readonly void Dispose() { }
             public bool MoveNext() => _enumerator.MoveNext();
-            void IEnumerator.Reset() => ((IEnumerator)_enumerator).Reset();
+            void IEnumerator.Reset() => _enumerator.Reset();
         }
     }
 }

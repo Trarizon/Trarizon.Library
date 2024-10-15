@@ -12,6 +12,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
 using System.Text.RegularExpressions;
 using Trarizon.Library;
 using Trarizon.Library.CodeAnalysis;
@@ -27,9 +28,11 @@ using Trarizon.Test.Run;
 
 Console.WriteLine("Hello, world");
 
-ReadOnlySpan<object> span = [1, 2,"55","st,", 3, 4, 5, 6, 8, 9];
+Span<object> span = [1, 2,"55","st,", 3, 4, 5, 6, 8, 9];
 
-
+var list = ListInts().Select(i => i * 2).ToList() ;
+list.GetSortedModifier()[^1]-=3;
+list.Print();
 
 namespace A
 {

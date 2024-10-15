@@ -45,7 +45,7 @@ partial class TraEnumerable
         return true;
     }
 
-    public static bool TryGetSpan<T>(this IEnumerable<T> source, out ReadOnlySpan<T> span)
+    internal static bool TryGetSpan<T>(this IEnumerable<T> source, out ReadOnlySpan<T> span)
     {
         if (source.GetType() == typeof(T[])) {
             span = Unsafe.As<T[]>(source).AsSpan();

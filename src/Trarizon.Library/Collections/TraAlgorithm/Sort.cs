@@ -72,7 +72,7 @@ partial class TraAlgorithm
         }
     }
 
-    public static void IsertionSort<T>(Span<T> values, IComparer<T>? comparer)
+    public static void InsertionSort<T>(Span<T> values, IComparer<T>? comparer)
         => InsertionSort<T, IComparer<T>>(values, comparer ?? Comparer<T>.Default);
 
     private static void InsertionSort<T, TComparer>(Span<T> values, TComparer comparer) where TComparer : IComparer<T>

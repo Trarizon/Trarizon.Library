@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
-namespace Trarizon.Library.Collections.Helpers;
+namespace Trarizon.Library.Collections;
 internal static class ArrayGrowHelper
 {
     public static void FreeManaged<T>(T[] array)
@@ -30,10 +30,7 @@ internal static class ArrayGrowHelper
     }
 
     public static void GrowNonMove<T>(ref T[] array, int expectedLength)
-    {
-        Debug.Assert(expectedLength > array.Length);
-        array = new T[GetNewLength(array.Length, expectedLength, Array.MaxLength)];
-    }
+        => GrowNonMove(ref array, expectedLength, Array.MaxLength);
 
     public static void GrowNonMove<T>(ref T[] array, int expectedLength, int maxLength)
     {

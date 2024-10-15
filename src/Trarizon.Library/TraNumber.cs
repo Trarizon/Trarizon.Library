@@ -50,6 +50,16 @@ public static partial class TraNumber
     }
 
     /// <summary>
+    /// Linear map a value from [<paramref name="fromMin"/>, <paramref name="fromMax"/>] 
+    /// to [<paramref name="toMin"/>, <paramref name="toMax"/>]. The method does not clamp value
+    /// </summary>
+    public static T MapTo<T>(T value, T fromMin, T fromMax, T toMin, T toMax) where T : IFloatingPointIeee754<T>
+    {
+        var lerp = (value - fromMin) / (fromMax - fromMin);
+        return (toMax - toMin) * lerp + toMin;
+    }
+
+    /// <summary>
     /// <see cref="Index.GetOffset(int)"/>, and check if the offset is in [0, <paramref name="length"/>),
     /// throw if out of range
     /// </summary>

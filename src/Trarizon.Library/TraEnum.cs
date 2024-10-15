@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 namespace Trarizon.Library;
 public static class TraEnum
 {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool HasAnyFlag<T>(this T value, T flags) where T : struct, Enum
     {
         if (Unsafe.SizeOf<T>() == 1)

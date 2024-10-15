@@ -13,9 +13,7 @@ partial class TraSpan
     public static int FindLowerBoundIndex<T, TComparable>(this ReadOnlySpan<T> span, TComparable key) where TComparable : IComparable<T>
     {
         var index = span.BinarySearch(new TraComparison.GreaterOrNotComparable<T, TComparable>(key));
-        if (index < 0)
-            index = ~index;
-        return index;
+        return index < 0 ? ~index : index;
     }
 
     public static int FindUpperBoundIndex<T, TComparer>(this Span<T> span, T key, TComparer comparer) where TComparer : IComparer<T>
@@ -30,8 +28,6 @@ partial class TraSpan
     public static int FindUpperBoundIndex<T, TComparable>(this ReadOnlySpan<T> span, TComparable key) where TComparable : IComparable<T>
     {
         var index = span.BinarySearch(new TraComparison.LessOrNotComparable<T, TComparable>(key));
-        if (index < 0)
-            index = ~index;
-        return index;
+        return index < 0 ? ~index : index;
     }
 }

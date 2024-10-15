@@ -54,13 +54,21 @@ public static class Optional
     #endregion
 }
 
-public readonly struct Optional<T>(T value)
+public readonly struct Optional<T>
 #if NET9_0_OR_GREATER
     where T : allows ref struct
 #endif
 {
     private readonly bool _hasValue = true;
-    internal readonly T? _value = value;
+    internal readonly T? _value;
+
+    internal Optional(bool hasValue, T? value)
+    {
+        _hasValue = hasValue;
+        _value = value;
+    }
+
+    public Optional(T value) : this(true, value) { }
 
     #region Accessor
 

@@ -25,6 +25,7 @@ public static class TraComparison
     /// </summary>
     internal readonly struct GreaterOrNotComparable<T, TComparable>(TComparable value) : IComparable<T> where TComparable : IComparable<T>
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int CompareTo(T? other)
         {
             var res = value.CompareTo(other);
@@ -39,6 +40,7 @@ public static class TraComparison
     /// </summary>
     internal readonly struct LessOrNotComparable<T, TComparable>(TComparable value) : IComparable<T> where TComparable : IComparable<T>
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int CompareTo(T? other)
         {
             var res = value.CompareTo(other);

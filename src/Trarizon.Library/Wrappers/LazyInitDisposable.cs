@@ -3,7 +3,7 @@
 namespace Trarizon.Library.Wrappers;
 /// <summary>
 /// A helper to use <see langword="using"/> statement easier, use
-/// <see cref="DisposableWrapperExt.Set{T}(ref readonly Trarizon.Library.Wrappers.LazyInitDisposable, T)"/>
+/// <see cref="LazyInitDisposableExt.Set{T}(ref readonly Trarizon.Library.Wrappers.LazyInitDisposable, T)"/>
 /// to assign and get the value of the wrapped field
 /// <para>
 /// Normally if we want a lazy-init <see cref="IDisposable"/>, we should do this:
@@ -32,7 +32,7 @@ public struct LazyInitDisposable : IDisposable
     public readonly void Dispose() => _value?.Dispose();
 }
 
-public static class DisposableWrapperExt
+public static class LazyInitDisposableExt
 {
     /// <summary>
     /// Set the value return the reference of wrapped field of <paramref name="wrapper"/>
