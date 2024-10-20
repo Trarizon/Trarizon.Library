@@ -24,10 +24,6 @@ Some methods depends on [`CommunityToolkit`](https://github.com/CommunityToolkit
 
 Toolkit for source generator
 
-## Trash
-
-Just for fun
-
 ## Deprecated
 
 <details>
