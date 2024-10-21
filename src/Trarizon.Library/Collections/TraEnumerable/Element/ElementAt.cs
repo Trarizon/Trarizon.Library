@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Trarizon.Library.Collections.Generic;
 
 namespace Trarizon.Library.Collections;
 partial class TraEnumerable
@@ -30,5 +31,34 @@ partial class TraEnumerable
             element = default;
             return false;
         }
+    }
+
+    public static bool TryAt<T>(this IEnumerable<T> source, Index index, [MaybeNullWhen(false)] out T element)
+    {
+        if (!index.IsFromEnd) {
+            return source.TryAt(index.Value, out element);
+        }
+        if (source.TryGetNonEnumeratedCount(out var count)) {
+            return source.TryAt(count - index.Value, out element);
+        }
+
+        using var enumerator = source.GetEnumerator();
+        if (!enumerator.MoveNext()) {
+            element = default;
+            return false;
+        }
+
+        var queue = new RingQueue<T>(index.Value);
+        queue.Enqueue(enumerator.Current);
+        while (enumerator.MoveNext()) {
+            queue.Enqueue(enumerator.Current);
+        }
+        if (queue.IsFull) {
+            element = queue.PeekFirst();
+            return true;
+        }
+
+        element = default;
+        return false;
     }
 }

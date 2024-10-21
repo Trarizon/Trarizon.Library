@@ -220,6 +220,9 @@ public struct AllocOptList<T>
         return freedCount;
     }
 
+    /// <summary>
+    /// The method does not free reference.
+    /// </summary>
     public void Clear() => _count = 0;
 
     /// <summary>

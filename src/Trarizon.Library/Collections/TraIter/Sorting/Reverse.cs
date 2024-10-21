@@ -9,11 +9,14 @@ partial class TraIter
     /// </summary>
     public static ReverseIterator<T> IterReverse<T>(this IEnumerable<T> source)
     {
-        if (source is IList<T> list) {
+        if (source is IList<T> ilist) {
+            return new ReverseIterator<T>(ilist);
+        }
+        else if (source.TryToNonEmptyList(out var list)) {
             return new ReverseIterator<T>(list);
         }
         else {
-            return new ReverseIterator<T>(source.ToList());
+            return new ReverseIterator<T>(Array.Empty<T>());
         }
     }
 

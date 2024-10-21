@@ -34,7 +34,7 @@ partial class TraEnumerable
             if (descending ? compareRes >= 0 : compareRes <= 0) {
                 yield return left;
                 if (enumerator.MoveNext())
-                    enumerator.MoveNext();
+                    goto CompareAndSetNext;
                 else
                     goto IterSecondOnly;
             }
@@ -49,8 +49,7 @@ partial class TraEnumerable
         IterFirstOnly:
             do {
                 yield return enumerator.Current;
-            }
-            while (enumerator.MoveNext());
+            } while (enumerator.MoveNext());
             yield break;
 
         IterSecondOnly:

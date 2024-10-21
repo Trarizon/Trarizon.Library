@@ -28,11 +28,7 @@ using Trarizon.Test.Run;
 
 Console.WriteLine("Hello, world");
 
-Span<object> span = [1, 2,"55","st,", 3, 4, 5, 6, 8, 9];
-
-var list = ListInts().Select(i => i * 2).ToList() ;
-list.GetSortedModifier()[^1]-=3;
-list.Print();
+RunBenchmarks();
 
 namespace A
 {
@@ -48,6 +44,7 @@ class Disposable : IDisposable
 {
     public bool IsDisposed { get; private set; }
 
+    [FriendAccess(typeof(List<>))]
     public void Dispose()
     {
         IsDisposed = true;

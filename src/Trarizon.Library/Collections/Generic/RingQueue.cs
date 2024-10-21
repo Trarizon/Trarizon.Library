@@ -44,6 +44,8 @@ public class RingQueue<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public int MaxCount => _maxCount;
 
+    public bool IsFull => _count == _maxCount;
+
     public ReadOnlyConcatSpan<T> AsSpan()
     {
         if (_count == 0)
@@ -55,6 +57,42 @@ public class RingQueue<T> : ICollection<T>, IReadOnlyCollection<T>
         // |--  --|
         else
             return new(_array.AsSpan(_head), _array.AsSpan(0, _tail));
+    }
+
+    public T PeekFirst()
+    {
+        if (!TryPeekFirst(out var item))
+            TraThrow.NoElement();
+        return item;
+    }
+
+    public T PeekLast()
+    {
+        if (!TryPeekLast(out var item))
+            TraThrow.NoElement();
+        return item;
+    }
+
+    public bool TryPeekFirst([MaybeNullWhen(false)] out T item)
+    {
+        if (_count > 0) {
+            item = _array[_head];
+            return true;
+        }
+        item = default;
+        return false;
+    }
+
+    public bool TryPeekLast([MaybeNullWhen(false)] out T item)
+    {
+        if (_count > 0) {
+            var index = _tail;
+            Decrement(ref index);
+            item = _array[index];
+            return true;
+        }
+        item = default;
+        return false;
     }
 
     #region Modifiers

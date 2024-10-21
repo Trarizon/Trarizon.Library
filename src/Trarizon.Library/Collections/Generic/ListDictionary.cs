@@ -9,6 +9,7 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
 {
     private readonly AllocOptList<(TKey Key, TValue Value)> _pairs;
     private IEqualityComparer<TKey>? _comparer;
+    private int _version;
 
     public ListDictionary(int capacity, IEqualityComparer<TKey>? comparer = null)
     {
@@ -35,6 +36,7 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
         }
         set {
             FindRefOrAddDefault(key, out var _) = value;
+            _version++;
         }
     }
 
@@ -60,10 +62,16 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
             return false;
 
         val = value;
+        _version++;
         return true;
     }
 
-    public void Clear() => _pairs.Clear();
+    public void Clear()
+    {
+        _pairs.Clear();
+        _pairs.FreeUnreferenced();
+        _version++;
+    }
 
     public bool ContainsKey(TKey key) => !Unsafe.IsNullRef(in FindRef(key));
 
@@ -74,6 +82,7 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
             return false;
 
         RemoveRef(in item);
+        _version++;
         return true;
     }
 
@@ -178,6 +187,7 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
             return false;
 
         RemoveRef(in findItem);
+        _version++;
         return true;
     }
     IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator() => GetEnumerator();
@@ -186,9 +196,15 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
     public struct Enumerator : IEnumerator<KeyValuePair<TKey, TValue>>
     {
         private AllocOptList<(TKey, TValue)>.Enumerator _enumerator;
+        private readonly int _version;
+        private readonly ListDictionary<TKey, TValue> _dict;
 
         internal Enumerator(ListDictionary<TKey, TValue> dictionary)
-            => _enumerator = dictionary._pairs.GetEnumerator();
+        {
+            _dict = dictionary;
+            _version = _dict._version;
+            _enumerator = dictionary._pairs.GetEnumerator();
+        }
 
         public readonly KeyValuePair<TKey, TValue> Current
         {
@@ -201,8 +217,23 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
         readonly object IEnumerator.Current => Current;
 
         public readonly void Dispose() { }
-        public bool MoveNext() => _enumerator.MoveNext();
-        void IEnumerator.Reset() => _enumerator.Reset();
+        public bool MoveNext()
+        {
+            CheckVersion();
+            return _enumerator.MoveNext();
+        }
+
+        void IEnumerator.Reset()
+        {
+            CheckVersion();
+            _enumerator.Reset();
+        }
+
+        private readonly void CheckVersion()
+        {
+            if (_version != _dict._version)
+                TraThrow.CollectionModified();
+        }
     }
 
     public readonly struct KeyCollection : ICollection<TKey>

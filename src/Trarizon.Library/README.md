@@ -80,6 +80,7 @@ Contents:
 - Element
     - `TryAt` : `TryXXX` version of `ElementAt`
     - `TryFirst` : `TryXXX` version of `First`
+    - `TryLast` : `TryXXX` version of `Last`
     - `FirstByMaxPriorityOrDefault` : Find the first item has priority greater than given priority, if not found, return the first item with greatest priority
     - `TrySingle` : Returning tagged union version of `Single`
 - Filtering
@@ -122,13 +123,6 @@ All extensions methods identifiers are start with `Iter`
     - `IterateByWhile/NotNull` : Yield next value selected by a `Func<T, T>`, until predicate failed
     - `Range` : Enumerate `int` from `start` to `end`(not include)
     - `RangeTo` : Iterate `int` from 0 to `count` with specific step
-- Filtering
-    - `OfNotNull`
-    - `OfType`
-- Joining
-    - `Zip`
-- Partition
-    - `Take`
 - Sorting
     - `Reverse` : `Reverse` in Linq will always cache values in collection, this won't do that because designing for instant iteration
 
@@ -193,8 +187,8 @@ The namespace structure is almost the same with `System.XXX`
 - ArrayPool
     - `Rent` : Overload for `ArrayPool<>.Rent`, returns a auto-return object avaible with `using` statement
 - Path
-    - `Contains/ReplaceInvalidFileNameChar` : Operations about invalid filename characters, with cached `SearchValues<char>`
-    - `Combine` : Overload for `ReadOnlySpan<char>`
+    - `IsValidFile/PathName` : check validation of file/path name, with `SearchValues`
+    - `ReplaceInvalidFileNameChar` : Replace invalid file name characters
 - Stream
     - `Read(Exactly)` : Read data into `unmanaged` span
     - `ReadExactlyIntoArray` : Read exactly data into an `unmanaged` array with specific length

@@ -20,4 +20,8 @@ internal static class TraThrow
     [DoesNotReturn]
     public static void Exception(Exception exception)
         => throw exception;
+
+    [DoesNotReturn]
+    public static void IteratorImmutable()
+        => throw new InvalidOperationException("Iterator is immutable");
 }

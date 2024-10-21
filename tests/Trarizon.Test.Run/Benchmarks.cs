@@ -1,43 +1,67 @@
 ﻿using BenchmarkDotNet.Attributes;
-using System.Runtime.InteropServices;
-using Trarizon.Library.Collections;
+using System.Buffers;
 
 namespace Trarizon.Test.Run;
 [MemoryDiagnoser]
 public class Benchmarks
 {
+    private static SearchValues<char> _invalidFileNameChars = SearchValues.Create(Path.GetInvalidFileNameChars());
+
+    private static char[] _chars = Path.GetInvalidFileNameChars();
+
     public IEnumerable<string[]> Args()
     {
-        yield return ["str", "asd", "ddf", "wefd", "str", "ddf"];
+        //yield return ["str", "asd", "ddf", "wefd", "str", "ddf"];
+        yield return ["str.json"];
+        yield return ["stddfsr>//$:.json"];
+        yield return ["str.fasdasjson"];
+        yield return ["stfsdfd/,./>.jdddson"];
     }
 
     [Benchmark]
     [ArgumentsSource(nameof(Args))]
-    public void ByDict(IEnumerable<string> args)
+    public bool Bysearch(string filename)
     {
-        IEnumerable<string> Iter()
-        {
-            var dict = new Dictionary<string, bool>();
-            foreach (var arg in args) {
-                if (AddOrUpdate(dict, arg))
-                    yield return arg;
-            }
+        foreach (var c in filename) {
+            if (_invalidFileNameChars.Contains(c))
+                return true;
         }
+        return false;
+    }
 
-        bool AddOrUpdate(Dictionary<string, bool> dict, string arg)
-        {
-            ref var value = ref CollectionsMarshal.GetValueRefOrAddDefault(dict, arg, out var exists);
-            if (exists) {
-                if (!value) {
-                    value = true;
-                    return true;
-                }
-            }
-            else {
-                value = false;
-            }
-            return false;
+    [Benchmark]
+    [ArgumentsSource(nameof(Args))]
+    public bool Byarr(string filename)
+    {
+        foreach (var c in filename) {
+            if (Array.IndexOf(_chars, c) >= 0)
+                return true;
         }
+        return false;
+    }
+
+    [Benchmark]
+    [ArgumentsSource(nameof(Args))]
+    public bool Bycol(string filename)
+    {
+        var coll = (ICollection<char>)_chars;
+        foreach (var c in filename) {
+            if (coll.Contains(c))
+                return true;
+        }
+        return false;
+    }
+
+    [Benchmark]
+    [ArgumentsSource(nameof(Args))]
+    public bool BySpan(string filename)
+    {
+        var span = _chars.AsSpan();
+        foreach (var c in filename) {
+            if (span.Contains(c))
+                return true;
+        }
+        return false;
     }
 }
 

@@ -22,7 +22,11 @@ partial class TraList
         // If we modified in Span, the field _version of List<> won't update, so here we manually
         // do an assignment to update the field _version;
         Debug.Assert(EqualityComparer<T>.Default.Equals(list[toOfs], item));
-        list[toIndex] = item;
+#if NET9_0_OR_GREATER
+        Utils<T>.GetVersion(list)++;
+#else
+        list[toOfs] = item;
+#endif
     }
 
     public static void MoveTo<T>(this List<T> list, int fromIndex, int toIndex, int moveCount)
@@ -31,7 +35,11 @@ partial class TraList
         list.AsSpan().MoveTo(fromIndex, toIndex, moveCount);
         // See MoveTo(List<>, Index, Index) for explanation
         Debug.Assert(EqualityComparer<T>.Default.Equals(list[toIndex], item));
+#if NET9_0_OR_GREATER
+        Utils<T>.GetVersion(list)++;
+#else
         list[toIndex] = item;
+#endif
     }
 
     public static void MoveTo<T>(this List<T> list, Range fromRange, Index toIndex)

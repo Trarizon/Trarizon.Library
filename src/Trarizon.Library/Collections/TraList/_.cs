@@ -10,6 +10,9 @@ public static partial class TraList
     private static class Utils<T>
     {
 #if NET9_0_OR_GREATER
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_version")]
+        public static extern ref int GetVersion(List<T> list);
+
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_items")]
         public static extern ref T[] GetUnderlyingArray(List<T> list);
 #else
