@@ -13,16 +13,16 @@ partial class TraEnumerable
 
         if (source is IList<T> ilist) {
             if (source is T[] array)
-                return IterateArray(array);
+                return IterateArray(array, count);
             else if (source is List<T> list)
-                return IterateList(list);
+                return IterateList(list, count);
             else
-                return IterateIList(ilist);
+                return IterateIList(ilist, count);
         }
 
-        return Iterate();
+        return Iterate(source, count);
 
-        IEnumerable<T> IterateArray(T[] array)
+        static IEnumerable<T> IterateArray(T[] array, int count)
         {
             for (int i = 0; i < count; i++) {
                 foreach (var item in array) {
@@ -31,7 +31,7 @@ partial class TraEnumerable
             }
         }
 
-        IEnumerable<T> IterateList(List<T> list)
+        static IEnumerable<T> IterateList(List<T> list, int count)
         {
             for (int i = 0; i < count; i++) {
                 foreach (var item in list) {
@@ -40,7 +40,7 @@ partial class TraEnumerable
             }
         }
 
-        IEnumerable<T> IterateIList(IList<T> list)
+        static IEnumerable<T> IterateIList(IList<T> list, int count)
         {
             for (int i = 0; i < count; i++) {
                 for (int j = 0; j < list.Count; j++) {
@@ -49,7 +49,7 @@ partial class TraEnumerable
             }
         }
 
-        IEnumerable<T> Iterate()
+        static IEnumerable<T> Iterate(IEnumerable<T> source, int count)
         {
             if (source.TryGetNonEnumeratedCount(out var srcCount)) {
                 T[] cache = new T[srcCount];

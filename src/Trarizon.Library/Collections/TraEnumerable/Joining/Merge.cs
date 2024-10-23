@@ -1,22 +1,23 @@
 ﻿namespace Trarizon.Library.Collections;
 partial class TraEnumerable
 {
-    public static IEnumerable<T> Merge<T>(this IEnumerable<T> first, IEnumerable<T> second, IComparer<T>? comparer = default, bool descending = false)
+    public static IEnumerable<T> Merge<T>(this IEnumerable<T> first, IEnumerable<T> second, IComparer<T>? comparer = default)
     {
         if (first.IsEmptyArray())
             return second;
         else if (second.IsEmptyArray())
             return first;
         else
-            return Iterate();
+            return Iterate(first, second, comparer);
 
-        IEnumerable<T> Iterate()
+        static IEnumerable<T> Iterate(IEnumerable<T> first, IEnumerable<T> second, IComparer<T>? comparer)
         {
             using var enumerator = first.GetEnumerator();
             using var enumerator2 = second.GetEnumerator();
 
             switch (enumerator.MoveNext(), enumerator2.MoveNext()) {
                 case (true, true):
+                    comparer ??= Comparer<T>.Default;
                     goto CompareAndSetNext;
                 case (false, true):
                     goto IterSecondOnly;
@@ -29,9 +30,7 @@ partial class TraEnumerable
         CompareAndSetNext:
             var left = enumerator.Current;
             var right = enumerator2.Current;
-            comparer ??= Comparer<T>.Default;
-            var compareRes = comparer.Compare(left, right);
-            if (descending ? compareRes >= 0 : compareRes <= 0) {
+            if (comparer.Compare(left, right) <= 0) {
                 yield return left;
                 if (enumerator.MoveNext())
                     goto CompareAndSetNext;

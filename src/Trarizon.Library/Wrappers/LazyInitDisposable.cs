@@ -28,7 +28,14 @@ namespace Trarizon.Library.Wrappers;
 public struct LazyInitDisposable : IDisposable
 {
     internal IDisposable? _value;
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly void Dispose() => _value?.Dispose();
+}
 
+public struct LazyInitDisposable<T> : IDisposable where T : IDisposable
+{
+    internal T? _value;
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly void Dispose() => _value?.Dispose();
 }
 
@@ -53,5 +60,12 @@ public static class LazyInitDisposableExt
         ref var w = ref Unsafe.AsRef(in wrapper);
         w._value = value;
         return value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ref readonly T Set<T>(this ref readonly LazyInitDisposable<T> wrapper, T value) where T : IDisposable
+    {
+        Unsafe.AsRef(in wrapper)._value = value;
+        return ref wrapper._value!;
     }
 }

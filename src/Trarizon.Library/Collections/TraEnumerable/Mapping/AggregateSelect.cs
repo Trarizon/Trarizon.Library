@@ -11,8 +11,8 @@ partial class TraEnumerable
         if (source.IsEmptyArray())
             return [];
 
-        return Iterate();
-        IEnumerable<TResult> Iterate()
+        return Iterate(source, seed, func, resultSelector);
+        static IEnumerable<TResult> Iterate(IEnumerable<T> source, TAccumulate seed, Func<TAccumulate, T, TAccumulate> func, Func<TAccumulate, TResult> resultSelector)
         {
             var accumulate = seed;
             foreach (var item in source) {

@@ -45,11 +45,12 @@ public struct AllocOptList<T>
 
     public readonly Span<T> AsSpan() => _array.AsSpan(0, _count);
 
+    public readonly Span<T> AsSpan(int start, int length) => _array.AsSpan(start, length);
+
     public readonly Span<T> AsSpan(Range range)
     {
-        var (ofs, len) = range.GetOffsetAndLength(_count);
-        ArgumentOutOfRangeException.ThrowIfGreaterThan(ofs + len, _count);
-        return _array.AsSpan(ofs, len);
+        var (ofs, len) = range.GetCheckedOffsetAndLength(_count);
+        return AsSpan(ofs, len);
     }
 
     #endregion
@@ -97,56 +98,52 @@ public struct AllocOptList<T>
         _count = newCount;
     }
 
-    public void Insert(Index index, T item)
+    public void Insert(int index, T item)
     {
-        var idx = index.GetCheckedOffset(_count);
+        Guard.IsInRange(index, 0, _count);
 
-        EnsureArrayForInsertion(idx, 1);
-        _array[idx] = item;
+        EnsureArrayForInsertion(index, 1);
+        _array[index] = item;
         _count++;
     }
 
-    public void InsertRange(Index index, IEnumerable<T> items)
+    public void InsertRange(int index, IEnumerable<T> items)
     {
-        if (items is ICollection<T> collection) {
-            int count = collection.Count;
+        Guard.IsInRange(index, 0, _count);
+
+        if (items.TryGetNonEnumeratedCount(out var count)) {
             if (count <= 0)
                 return;
-            var idx = index.GetCheckedOffset(_count);
-            EnsureArrayForInsertion(idx, count);
-            collection.CopyTo(_array, idx);
-            _count += count;
-            return;
-        }
-        else if (items.TryGetNonEnumeratedCount(out var count)) {
-            if (count <= 0)
-                return;
-            var idx = index.GetCheckedOffset(_count);
-            EnsureArrayForInsertion(idx, count);
-            foreach (var item in items) {
-                _array[idx++] = item;
+            EnsureArrayForInsertion(index, count);
+            if (items is ICollection<T> collection) {
+                collection.CopyTo(_array, index);
+            }
+            else {
+                foreach (var item in items) {
+                    _array[index++] = item;
+                }
             }
             _count += count;
             return;
         }
         else {
-            var idx = index.GetOffset(_count);
             foreach (var item in items) {
-                Insert(idx++, item);
+                Insert(index++, item);
             }
             return;
         }
     }
 
-    public void InsertRange(Index index, ReadOnlySpan<T> items)
+    public void InsertRange(int index, ReadOnlySpan<T> items)
     {
-        var idx = index.GetCheckedOffset(_count);
+        Guard.IsInRange(index, 0, _count);
+
         int count = items.Length;
         if (count <= 0)
             return;
 
-        EnsureArrayForInsertion(idx, count);
-        items.CopyTo(_array.AsSpan(idx, count));
+        EnsureArrayForInsertion(index, count);
+        items.CopyTo(_array.AsSpan(index, count));
         _count += count;
     }
 
@@ -172,29 +169,28 @@ public struct AllocOptList<T>
         return true;
     }
 
-    public void RemoveAt(Index index)
+    public void RemoveAt(int index)
     {
-        var idx = index.GetCheckedOffset(_count);
-        Array.Copy(_array, idx + 1, _array, idx, _count - idx - 1);
+        Guard.IsInRange(index, 0, _count);
+
+        Array.Copy(_array, index + 1, _array, index, _count - index - 1);
         _count--;
     }
 
-    public void RemoveRange(Index index, int count)
+    public void RemoveRange(int index, int count)
     {
         ArgumentOutOfRangeException.ThrowIfNegative(count);
-        var idx = index.GetOffset(_count);
-        ArgumentOutOfRangeException.ThrowIfNegative(idx);
-        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(idx + count, _count);
+        ArgumentOutOfRangeException.ThrowIfNegative(index);
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index + count, _count);
 
-        Array.Copy(_array, idx + count, _array, idx, _count - idx - count);
+        Array.Copy(_array, index + count, _array, index, _count - index - count);
         _count -= count;
     }
 
     public void RemoveRange(Range range)
     {
-        var (index, count) = range.GetCheckedOffsetAndLength(_count);
-        Array.Copy(_array, index + count, _array, index, _count - index - count);
-        _count -= count;
+        var (index, count) = range.GetOffsetAndLength(_count);
+        RemoveRange(index, count);
     }
 
     public int RemoveAll(Predicate<T> predicate)

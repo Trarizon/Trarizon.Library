@@ -49,10 +49,9 @@ partial class TraEnumerable
         }
 
         var queue = new RingQueue<T>(index.Value);
-        queue.Enqueue(enumerator.Current);
-        while (enumerator.MoveNext()) {
+        do {
             queue.Enqueue(enumerator.Current);
-        }
+        } while (enumerator.MoveNext());
         if (queue.IsFull) {
             element = queue.PeekFirst();
             return true;

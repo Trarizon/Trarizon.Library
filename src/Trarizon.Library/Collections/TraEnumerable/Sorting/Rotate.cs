@@ -11,9 +11,9 @@ partial class TraEnumerable
         if (source.TryGetNonEnumeratedCount(out var count) && splitPosition >= count)
             return source;
 
-        return Iterate();
+        return Iterate(source, splitPosition);
 
-        IEnumerable<T> Iterate()
+        static IEnumerable<T> Iterate(IEnumerable<T> source, int splitPosition)
         {
             AllocOptList<T> firstPart = new();
 

@@ -12,9 +12,9 @@ partial class TraEnumerable
                 return new ArrayAdjacentIterator<T>(array);
         }
 
-        return Iterate();
+        return Iterate(source);
 
-        IEnumerable<(T, T)> Iterate()
+        static IEnumerable<(T, T)> Iterate(IEnumerable<T> source)
         {
             using var enumerator = source.GetEnumerator();
             if (!enumerator.MoveNext())
@@ -55,9 +55,8 @@ partial class TraEnumerable
                         _current = (source[_state], source[_state + 1]);
                         return true;
                     }
-                    else {
-                        goto case End;
-                    }
+                    _state = End;
+                    return false;
             }
         }
 

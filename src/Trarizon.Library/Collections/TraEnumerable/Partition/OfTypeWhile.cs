@@ -8,9 +8,9 @@ partial class TraEnumerable
         if (source is IEnumerable<T> typed) {
             return typed;
         }
-        return Iterate();
+        return Iterate(source);
 
-        IEnumerable<T> Iterate()
+        static IEnumerable<T> Iterate(IEnumerable source)
         {
             foreach (var item in source) {
                 if (item is T t)

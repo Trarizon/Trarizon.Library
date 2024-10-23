@@ -38,13 +38,67 @@ partial class TraEnumerable
 #nullable restore
     }
 
-    private abstract class ListIteratorBase<T> : IteratorBase<T>, IList<T>, IReadOnlyList<T>
+    private abstract class CollectionIteratorBase<T> : IteratorBase<T>, ICollection<T>, IReadOnlyCollection<T>, ICollection
+    {
+        public abstract int Count { get; }
+
+        public virtual bool Contains(T item)
+        {
+            if (typeof(T).IsValueType) {
+                foreach (var val in this) {
+                    if (EqualityComparer<T>.Default.Equals(val, item))
+                        return true;
+                }
+                return false;
+            }
+            else {
+                var comparer = EqualityComparer<T>.Default;
+                foreach (var val in this) {
+                    if (comparer.Equals(val, item))
+                        return true;
+                }
+                return false;
+            }
+        }
+
+        public virtual void CopyTo(T[] array, int arrayIndex)
+        {
+            ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
+            ArgumentOutOfRangeException.ThrowIfGreaterThan(arrayIndex, array.Length - Count);
+
+            var span = array.AsSpan(arrayIndex, Count);
+            int i = 0;
+            foreach (var val in this) {
+                span[i++] = val;
+            }
+        }
+
+        void ICollection.CopyTo(Array array, int index)
+        {
+            ArgumentOutOfRangeException.ThrowIfNegative(index);
+            ArgumentOutOfRangeException.ThrowIfGreaterThan(index, array.Length - Count);
+
+            if (array.Rank != 1)
+                ThrowHelper.ThrowInvalidOperationException("Array has invalid rank.");
+
+            foreach (var val in this) {
+                array.SetValue(val, index++);
+            }
+        }
+
+        bool ICollection.IsSynchronized => true;
+        object ICollection.SyncRoot => this;
+        bool ICollection<T>.IsReadOnly => true;
+        void ICollection<T>.Add(T item) => TraThrow.IteratorImmutable();
+        void ICollection<T>.Clear() => TraThrow.IteratorImmutable();
+        bool ICollection<T>.Remove(T item) { TraThrow.IteratorImmutable(); return default; }
+    }
+
+    private abstract class ListIteratorBase<T> : CollectionIteratorBase<T>, IList<T>, IReadOnlyList<T>
     {
         public abstract T this[int index] { get; }
 
         T IList<T>.this[int index] { get => this[index]; set => TraThrow.IteratorImmutable(); }
-
-        public abstract int Count { get; }
 
         public int IndexOf(T item)
         {
@@ -65,23 +119,9 @@ partial class TraEnumerable
             }
         }
 
-        public bool Contains(T item) => IndexOf(item) != -1;
+        public sealed override bool Contains(T item) => IndexOf(item) != -1;
 
-        public void CopyTo(T[] array, int arrayIndex)
-        {
-            ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
-            ArgumentOutOfRangeException.ThrowIfGreaterThan(arrayIndex, array.Length - Count);
-
-            for (int i = 0; i < Count; i++) {
-                array[arrayIndex + i] = this[i];
-            }
-        }
-      
-        bool ICollection<T>.IsReadOnly => true;
-        void ICollection<T>.Add(T item) => TraThrow.IteratorImmutable();
-        void ICollection<T>.Clear() => TraThrow.IteratorImmutable();
         void IList<T>.Insert(int index, T item) => TraThrow.IteratorImmutable();
-        bool ICollection<T>.Remove(T item) { TraThrow.IteratorImmutable(); return default; }
         void IList<T>.RemoveAt(int index) => TraThrow.IteratorImmutable();
     }
 }

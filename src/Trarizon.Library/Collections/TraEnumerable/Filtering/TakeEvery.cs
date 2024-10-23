@@ -9,16 +9,15 @@ partial class TraEnumerable
         if (source.IsEmptyArray())
             return [];
 
-        return Iterate();
+        return Iterate(source, interval);
 
-        IEnumerable<T> Iterate()
+        static IEnumerable<T> Iterate(IEnumerable<T> source, int interval)
         {
-            int count = 0;
             using var enumerator = source.GetEnumerator();
 
             while (enumerator.MoveNext()) {
                 yield return enumerator.Current;
-                for (int i = 1; i < count; i++) {
+                for (int i = 1; i < interval; i++) {
                     if (!enumerator.MoveNext())
                         yield break;
                 }

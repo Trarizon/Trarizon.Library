@@ -44,10 +44,8 @@ class Disposable : IDisposable
 {
     public bool IsDisposed { get; private set; }
 
-    [FriendAccess(typeof(List<>))]
     public void Dispose()
     {
         IsDisposed = true;
-        Console.WriteLine("Dispose");
     }
 }

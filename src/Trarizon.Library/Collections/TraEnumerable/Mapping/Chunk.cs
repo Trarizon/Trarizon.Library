@@ -5,9 +5,9 @@ partial class TraEnumerable
     {
         if (source.IsEmptyArray())
             return [];
-        return Iterate();
+        return Iterate(source);
 
-        IEnumerable<(T, T?)> Iterate()
+        static IEnumerable<(T, T?)> Iterate(IEnumerable<T> source)
         {
             using var enumerator = source.GetEnumerator();
 
@@ -26,9 +26,9 @@ partial class TraEnumerable
     {
         if (source.IsEmptyArray())
             return [];
-        return Iterate();
+        return Iterate(source);
 
-        IEnumerable<(T, T?, T?)> Iterate()
+        static IEnumerable<(T, T?, T?)> Iterate(IEnumerable<T> source)
         {
             using var enumerator = source.GetEnumerator();
 
@@ -38,7 +38,7 @@ partial class TraEnumerable
                     yield break;
                 }
 
-                if(!enumerator.TryMoveNext(out var third)) {
+                if (!enumerator.TryMoveNext(out var third)) {
                     yield return (first, second, default);
                     yield break;
                 }
