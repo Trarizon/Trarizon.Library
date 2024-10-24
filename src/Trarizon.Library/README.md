@@ -171,6 +171,9 @@ The namespace structure is almost the same with `System.XXX`
 - namespace `IO`
     - `TraPath` : Extends `System.IO.Path`
     - `TraStream` : Helpers for `System.IO.Stream`
+- namespace `Text`
+    - namespace `Json`
+        - `WeakJsonElement` : Wrapper of `JsonElement` that auto check `JsonValueKind`
 - namespace `Threading`
     - `AsyncSemaphoreLock` : Async lock implemented with `SemaphoreSlim`
     - `InterlockedBoolean` : Provide `Interlocked` methods for `bool`, this maybe removed in .NET 9
