@@ -1,19 +1,9 @@
-using Trarizon.Library.Collections.Helpers;
-using Trarizon.Library.Wrappers;
+using Trarizon.Library.Collections;
 
 namespace Trarizon.Test.UnitTest.Collections;
 [TestClass]
 public class EnumerableQueriesTest
 {
-    [TestMethod]
-    public void WhereSelectTest()
-    {
-        var array = EnumerateInts();
-
-        AssertSequenceEqual(array.WhereSelect((x) => x % 2 == 0 ? default : Optional.Of(x.ToString())),
-            "1", "3", "5", "7");
-    }
-
     [TestMethod]
     public void PopFrontTest()
     {
@@ -22,16 +12,12 @@ public class EnumerableQueriesTest
         AssertSequenceEqual(leadings, 0, 1, 2, 3, 4);
         AssertSequenceEqual(array.PopFirst(out var first), 1, 2, 3, 4, 5, 6, 7);
         Assert.AreEqual(first, 0);
-        AssertSequenceEqual(1, array.PopFrontWhile(out leadings, i => i < 3), 3, 4, 5, 6, 7);
-        AssertSequenceEqual(leadings, 0, 1, 2);
 
         array = ArrayInts();
         AssertSequenceEqual(array.PopFront(5, out leadings), 5, 6, 7);
         AssertSequenceEqual(leadings, 0, 1, 2, 3, 4);
         AssertSequenceEqual(array.PopFirst(out first), 1, 2, 3, 4, 5, 6, 7);
         Assert.AreEqual(first, 0);
-        AssertSequenceEqual(2, array.PopFrontWhile(out leadings, i => i < 3), 3, 4, 5, 6, 7);
-        AssertSequenceEqual(leadings, 0, 1, 2);
     }
 
     [TestMethod]
@@ -43,4 +29,19 @@ public class EnumerableQueriesTest
         array = ArrayInts(5);
         AssertSequenceEqual(array.Repeat(2), [.. array, .. array]);
     }
+
+    [TestMethod]
+    public void AtOrDefaultTest()
+    {
+        var array = ArrayInts();
+        Assert.IsTrue(array.TryAt(5, out var val));
+        Assert.AreEqual(val, 5);
+        Assert.IsFalse(array.TryAt(-1, out _));
+        Assert.IsFalse(array.TryAt(8, out _));
+        Assert.IsTrue(array.TryAt(^5, out val));
+        Assert.AreEqual(val, 8 - 5);
+        Assert.IsFalse(array.TryAt(^8, out _));
+        Assert.IsFalse(array.TryAt(^9, out _));
+    }
+
 }
