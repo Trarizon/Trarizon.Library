@@ -1,4 +1,5 @@
 ﻿using BenchmarkDotNet.Running;
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 using System.Collections;
@@ -30,11 +31,26 @@ using Trarizon.Test.Run;
 
 Console.WriteLine("Hello, world");
 
-var doc = JsonDocument.Parse("");
-var root = doc.GetWeakRootElement();
-if (root["entries"] is { ArrayLength: > 0 } entries) {
-    var message = entries[0]?["message"];
-}
+var arr = ArrayInts().SelectMany(i => new int[] { i, i }).ToArray();
+arr.Print();
+arr.AsSpan().FindUpperBoundIndex(5).Print();
+arr.AsSpan(1..).FindUpperBoundIndex(5).Print();
+
+_ = arr.Select(i =>
+{
+    if (i == 0)
+        return Result.Success(i).Build<string>();
+    if (i == 1)
+        return "failed";
+    else
+        return Result.Failed("crit");
+});
+
+_ = ArrayInts().Length switch
+{
+    0 => 1,
+    _ => TraThrow.ThrowSwitchExpressionException<int>(),
+};
 
 namespace A
 {

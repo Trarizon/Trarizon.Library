@@ -183,6 +183,7 @@ The namespace structure is almost the same with `System.XXX`
 - `TraNumber` : Helpers for number types (in `System.Numerics`), `Index`, `Range`
 - `TraRandom` : Helpers for `Random`
 - `TraString` : Helpers for `string`, interpolated string handler
+- `TraThrow` : Extends `CommunityToolkit.Diagnostic.ThrowHelper`
 - `TraUnsafe` : Extends `Unsafe`
 
 ### Helpers

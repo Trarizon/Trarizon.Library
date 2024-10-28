@@ -30,7 +30,7 @@ public readonly ref struct ReversedSpan<T>
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ref T DangerousGetReferenceAt(int index)
-        => ref Unsafe.Subtract(ref _reference, (nint)(uint)index);
+        => ref Unsafe.Subtract(ref _reference, index);
 
     public int Length => _length;
 

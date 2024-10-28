@@ -21,6 +21,12 @@ partial class TraAsync
 
         public Awaiter GetAwaiter() => _awaiter;
 
+        public async Task AsTask()
+        {
+            try { await this; }
+            catch (OperationCanceledException) { return; }
+        }
+
         public readonly struct Awaiter : INotifyCompletion, ICriticalNotifyCompletion
         {
             private readonly Task _task;
@@ -39,7 +45,7 @@ partial class TraAsync
                     _task.GetAwaiter().GetResult();
                     return CancellationTaskResult.Completed;
                 }
-                catch (TaskCanceledException) {
+                catch (OperationCanceledException) {
                     return CancellationTaskResult.Cancelled;
                 }
             }
@@ -53,6 +59,12 @@ partial class TraAsync
         internal CatchCancellationAwaitable(Task<T> task) => _awaiter = new Awaiter(task);
 
         public Awaiter GetAwaiter() => _awaiter;
+
+        public async Task<T?> AsTask()
+        {
+            try { return (await this).Result; }
+            catch (OperationCanceledException) { return default; }
+        }
 
         public readonly struct Awaiter : INotifyCompletion, ICriticalNotifyCompletion
         {
@@ -71,7 +83,7 @@ partial class TraAsync
                 try {
                     return new CancellationTaskResult<T>(_task.GetAwaiter().GetResult());
                 }
-                catch (TaskCanceledException) {
+                catch (OperationCanceledException) {
                     return CancellationTaskResult<T>.Cancelled;
                 }
             }

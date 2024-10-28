@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 
 namespace Trarizon.Library.Wrappers;
 public static class Result
@@ -7,8 +8,14 @@ public static class Result
     public static Result<T, TError> Success<T, TError>(T value) where TError : class
         => new(value);
 
+    public static ResultSuccessBuilder<T> Success<T>(T value)
+        => Unsafe.As<T, ResultSuccessBuilder<T>>(ref value);
+
     public static Result<T, TError> Failed<T, TError>(TError error) where TError : class
         => new(error);
+
+    public static ResultFailedBuilder<TError> Failed<TError>(TError error) where TError : class 
+        => Unsafe.As<TError, ResultFailedBuilder<TError>>(ref error);
 
     public static T GetValueOrThrow<T, TException>(this in Result<T, TException> result) where TException : Exception
     {
@@ -94,6 +101,11 @@ public readonly struct Result<T, TError>
     public static implicit operator Result<T, TError>(T value) => new(value);
     public static implicit operator Result<T, TError>(TError error) => new(error);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator Result<T, TError>(ResultSuccessBuilder<T> builder) => new(builder._value);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator Result<T, TError>(ResultFailedBuilder<TError> builder) => new(builder._error);
+
     #endregion
 
     #region Convertor
@@ -117,4 +129,18 @@ public readonly struct Result<T, TError>
             return str is null ? "Result Error" : $"Error: {str}";
         }
     }
+}
+
+public readonly struct ResultSuccessBuilder<T>
+{
+    internal readonly T _value;
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Result<T, TError> Build<TError>() where TError : class => _value;
+}
+
+public readonly struct ResultFailedBuilder<TError> where TError : class
+{
+    internal readonly TError _error;
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Result<T, TError> Build<T>() => _error;
 }

@@ -1,27 +1,36 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 
 namespace Trarizon.Library;
 [StackTraceHidden]
-internal static class TraThrow
+public static class TraThrow
 {
     [DoesNotReturn]
-    public static void KeyNotFound<T>(T key)
+    public static void ThrowSwitchExpressionException(object? unmatchedValue = null)
+        => throw new SwitchExpressionException(unmatchedValue);
+
+    [DoesNotReturn]
+    public static T ThrowSwitchExpressionException<T>(object? unmatchedValue = null)
+        => throw new SwitchExpressionException(unmatchedValue);
+
+    [DoesNotReturn]
+    internal static void KeyNotFound<T>(T key)
         => throw new KeyNotFoundException($"Cannot find key '{key}' in collection.");
 
     [DoesNotReturn]
-    public static void CollectionModified()
+    internal static void CollectionModified()
         => throw new InvalidOperationException("Collection has been modified.");
 
     [DoesNotReturn]
-    public static void NoElement()
+    internal static void NoElement()
         => throw new InvalidOperationException("Collection has no element.");
 
     [DoesNotReturn]
-    public static void Exception(Exception exception)
+    internal static void Exception(Exception exception)
         => throw exception;
 
     [DoesNotReturn]
-    public static void IteratorImmutable()
+    internal static void IteratorImmutable()
         => throw new InvalidOperationException("Iterator is immutable");
 }

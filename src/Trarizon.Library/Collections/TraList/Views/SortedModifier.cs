@@ -113,6 +113,10 @@ partial class TraList
             }
         }
 
-        public int Search(T item) => _list.BinarySearch(item, _comparer);
+        public int BinarySearch(T item) => _list.BinarySearch(item, _comparer);
+
+        public int LinearSearch(T item) => _list.AsSpan().LinearSearch(item, _comparer);
+
+        public int LinearSearchFromEnd(T item) => _list.AsSpan().LinearSearchFromEnd(item, _comparer);
     }
 }

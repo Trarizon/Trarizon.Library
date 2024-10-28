@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.HighPerformance;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace Trarizon.Library.Collections;
 partial class TraList
@@ -20,12 +21,12 @@ partial class TraList
         var item = list[fromOfs];
         list.AsSpan().MoveTo(fromOfs, toOfs);
         // If we modified in Span, the field _version of List<> won't update, so here we manually
-        // do an assignment to update the field _version;
+        // use SetCount to update _version;
         Debug.Assert(EqualityComparer<T>.Default.Equals(list[toOfs], item));
 #if NET9_0_OR_GREATER
         Utils<T>.GetVersion(list)++;
 #else
-        list[toOfs] = item;
+        CollectionsMarshal.SetCount(list, list.Count);
 #endif
     }
 
@@ -38,7 +39,7 @@ partial class TraList
 #if NET9_0_OR_GREATER
         Utils<T>.GetVersion(list)++;
 #else
-        list[toIndex] = item;
+        CollectionsMarshal.SetCount(list, list.Count);
 #endif
     }
 
