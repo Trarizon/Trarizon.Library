@@ -31,20 +31,20 @@ using Trarizon.Test.Run;
 
 Console.WriteLine("Hello, world");
 
-var arr = ArrayInts().SelectMany(i => new int[] { i, i }).ToArray();
-arr.Print();
-arr.AsSpan().FindUpperBoundIndex(5).Print();
-arr.AsSpan(1..).FindUpperBoundIndex(5).Print();
+Trie<char> trie = new Trie<char>();
+trie.Add("string");
+trie.Add("strojdu");
+trie.Add("sjjdoi");
+trie.Add("tsj");
 
-_ = arr.Select(i =>
-{
-    if (i == 0)
-        return Result.Success(i).Build<string>();
-    if (i == 1)
-        return "failed";
-    else
-        return Result.Failed("crit");
-});
+trie.Contains("string").Print();
+trie.Contains("str").Print();
+trie.Contains("tsjj").Print();
+trie.Contains("sjjdoi").Print();
+
+foreach (var item in trie) {
+    item.Print();
+}
 
 _ = ArrayInts().Length switch
 {
