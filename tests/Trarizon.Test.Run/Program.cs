@@ -27,8 +27,20 @@ using Trarizon.Test.Run;
 
 Console.WriteLine("Hello, world");
 
-ReadOnlySpan<object> span = [1, 2,"55","st,", 3, 4, 5, 6, 8, 9];
+Trie<char> trie = new Trie<char>();
+trie.Add("string");
+trie.Add("strojdu");
+trie.Add("sjjdoi");
+trie.Add("tsj");
 
+trie.Contains("string").Print();
+trie.Contains("str").Print();
+trie.Contains("tsjj").Print();
+trie.Contains("sjjdoi").Print();
+
+foreach (var item in trie) {
+    item.Print();
+}
 
 
 namespace A
