@@ -130,4 +130,15 @@ public readonly ref struct ReadOnlyReversedSpan<T>
     public override int GetHashCode() => throw new NotImplementedException();
 
 #pragma warning restore CS0809
+
+    public override string ToString()
+    {
+        if (typeof(T) == typeof(char)) {
+            Span<char> buffer = _length > 1024 ? new char[_length] : stackalloc char[_length];
+            new ReadOnlyReversedSpan<char>(in TraUnsafe.AsReadOnly<T, char>(in _reference), _length).CopyTo(buffer);
+            return buffer.ToString();
+        }
+
+        return $"ReadOnlyReversedSpan<{typeof(T).Name}>[{_length}]";
+    }
 }

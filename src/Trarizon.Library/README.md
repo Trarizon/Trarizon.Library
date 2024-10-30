@@ -27,6 +27,7 @@ Contents:
     - `Deque<>` : Double-ended queue
     - `ListDictionary<,>` : Generic version of `System.Collections.Specialized.ListDictionary`.
     - `RingQueue<>` : Ring queue with fixed capacity, optional throw or overwrite when full
+    - `Trie<>` : Trie
 - namespace `StackAlloc` : `ref struct` collections
     - `ReadOnlyConcatSpan` : Concat 2 spans
     - `(ReadOnly)ReversedSpan` : Reversed span
@@ -182,7 +183,6 @@ The namespace structure is almost the same with `System.XXX`
 - `TraEnum` : Helpers for enum types
 - `TraNumber` : Helpers for number types (in `System.Numerics`), `Index`, `Range`
 - `TraRandom` : Helpers for `Random`
-- `TraString` : Helpers for `string`, interpolated string handler
 - `TraThrow` : Extends `CommunityToolkit.Diagnostic.ThrowHelper`
 - `TraUnsafe` : Extends `Unsafe`
 
@@ -211,7 +211,5 @@ The namespace structure is almost the same with `System.XXX`
 - Random
     - `SelectWeight` : Weighted random
     - `NextSingle/Double` : Get a random float number in specific range
-- String
-    - `Interpolated` : provider a method for call extra constructors of `DefaultInterpolatedStringHandler`
 - Unsafe
     - `AsReadOnly` : Perform `Unsafe.As` for `ref readonly` variables

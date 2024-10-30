@@ -1,4 +1,6 @@
-﻿using BenchmarkDotNet.Running;
+﻿#pragma warning disable TRAEXP
+
+using BenchmarkDotNet.Running;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
@@ -31,26 +33,35 @@ using Trarizon.Test.Run;
 
 Console.WriteLine("Hello, world");
 
-Trie<char> trie = new Trie<char>();
-trie.Add("string");
-trie.Add("strojdu");
-trie.Add("sjjdoi");
-trie.Add("tsj");
+Trie<char> trie = Trie.Create("string", "strojdu", "sjjdoi", "tsj");
+//trie.Add("string");
+//trie.Add("strojdu");
+//trie.Add("sjjdoi");
+//trie.Add("tsj");
 
 trie.Contains("string").Print();
 trie.Contains("str").Print();
 trie.Contains("tsjj").Print();
 trie.Contains("sjjdoi").Print();
+"".Print();
+trie.ContainsPrefix("str").Print();
+trie.ContainsPrefix("sk").Print();
+trie.ContainsPrefix("t").Print();
+trie.ContainsPrefix("").Print();
+"".Print();
+trie.Contains("").Print();
+trie.Add("");
+trie.Contains("").Print();
 
 foreach (var item in trie) {
     item.Print();
 }
 
-_ = ArrayInts().Length switch
-{
-    0 => 1,
-    _ => TraThrow.ThrowSwitchExpressionException<int>(),
-};
+//_ = ArrayInts().Length switch
+//{
+//    0 => 1,
+//    _ => TraThrow.ThrowSwitchExpressionException<int>(),
+//};
 
 namespace A
 {

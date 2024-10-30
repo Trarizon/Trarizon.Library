@@ -1,66 +1,131 @@
 ﻿using CommunityToolkit.HighPerformance;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 
 namespace Trarizon.Library.Collections.Generic;
+public static class Trie
+{
+    public static Trie<char> Create(IEnumerable<string> strings)
+    {
+        var trie = new Trie<char>();
+        foreach (var str in strings) {
+            trie.Add(str.AsSpan());
+        }
+        return trie;
+    }
+
+    public static Trie<char> Create(params ReadOnlySpan<string> strings)
+    {
+        var trie = new Trie<char>();
+        foreach (var str in strings) {
+            trie.Add(str.AsSpan());
+        }
+        return trie;
+    }
+}
+
 public class Trie<T>
 {
-    internal List<Entry> _items;
+    private Entry[] _entries;
+    private int _count;
     private IEqualityComparer<T>? _comparer;
 
-    private ref Entry RootEntry => ref _items.AsSpan()[0];
+    /// <summary>
+    /// Root entry represents an empty sequence
+    /// </summary>
+    internal Node RootNode => _count >= 0 ? new(this, 0) : new(this, -1);
 
     public Trie(IEqualityComparer<T>? comparer)
     {
-        _items = [new Entry(default!, -1)];
+        _entries = [];
         _comparer = comparer;
     }
 
     public Trie()
     {
-        _items = [new Entry(default!, -1)];
+        _entries = [];
         _comparer = null;
     }
 
     public bool Contains(ReadOnlySpan<T> values)
     {
-        var entry = RootEntry;
-        var items = _items.AsSpan();
-        foreach (var val in values) {
-            if (entry.ChildIndex == -1)
-                return false;
-            var child = items[entry.ChildIndex];
-            while (!EqualityComparer<T>.Default.Equals(child.Value, val)) {
-                if (child.NextSiblingIndex == -1)
-                    return false;
-                child = items[child.NextSiblingIndex];
-            }
-            entry = child;
-        }
-        return entry.HasEnd;
+        ref readonly var entry = ref FindPrefixEndEntry(values);
+        if (Unsafe.IsNullRef(in entry))
+            return false;
+        return entry.IsEnd;
     }
 
-    public void Add(ReadOnlySpan<T> values)
+    public bool ContainsPrefix(ReadOnlySpan<T> prefix)
     {
-        ref var entry = ref RootEntry;
+        ref readonly var entry = ref FindPrefixEndEntry(prefix);
+        if (Unsafe.IsNullRef(in entry))
+            return false;
+        return true;
+    }
+
+    private ref readonly Entry FindPrefixEndEntry(ReadOnlySpan<T> prefix)
+    {
+        if (_entries.Length == 0)
+            return ref Unsafe.NullRef<Entry>();
+
+        ref readonly var entry = ref _entries[0];
+
+        if (typeof(T).IsValueType && _comparer is null) {
+            foreach (var val in prefix) {
+                if (entry.ChildIndex == -1)
+                    return ref Unsafe.NullRef<Entry>();
+
+                entry = ref _entries[entry.ChildIndex];
+                while (!EqualityComparer<T>.Default.Equals(entry.Value, val)) {
+                    if (entry.NextSiblingIndex == -1)
+                        return ref Unsafe.NullRef<Entry>();
+                    entry = ref _entries[entry.NextSiblingIndex];
+                }
+            }
+        }
+        else {
+            var comparer = _comparer ??= EqualityComparer<T>.Default;
+            foreach (var val in prefix) {
+                if (entry.ChildIndex == -1)
+                    return ref Unsafe.NullRef<Entry>();
+
+                entry = ref _entries[entry.ChildIndex];
+                while (!comparer.Equals(entry.Value, val)) {
+                    if (entry.NextSiblingIndex == -1)
+                        return ref Unsafe.NullRef<Entry>();
+                    entry = ref _entries[entry.NextSiblingIndex];
+                }
+            }
+        }
+        return ref entry;
+    }
+
+    public bool Add(ReadOnlySpan<T> values)
+    {
+        if (_count == 0) {
+            AddEntry(new Entry(default!, -1));
+        }
+        ref var entry = ref _entries[0];
+
         foreach (var value in values) {
             entry = ref GetOrAddChild(ref entry, value);
         }
-        entry.HasEnd = true;
+        var exists = entry.IsEnd;
+        entry.IsEnd = true;
+        return !exists;
     }
-
 
     private ref Entry GetOrAddChild(ref Entry parent, T value)
     {
-        Debug.Assert(GetEntryIndex(in parent) < _items.Count);
-
-        // parent has no child, this is the firs child
+        Debug.Assert(DangerousGetEntryIndex(in parent) < _count);
+        // parent has no child, this is the first child
         if (parent.ChildIndex == -1) {
-            parent.ChildIndex = _items.Count;
-            _items.Add(new Entry(value, GetEntryIndex(in parent)));
-            return ref _items.AsSpan()[parent.ChildIndex];
+            parent.ChildIndex = _count;
+            AddEntry(new Entry(value, DangerousGetEntryIndex(in parent)));
+            return ref _entries[parent.ChildIndex];
         }
-
-        ref var child = ref _items.AsSpan()[parent.ChildIndex];
+        ref var child = ref _entries[parent.ChildIndex];
 
         if (typeof(T).IsValueType && _comparer is null) {
             while (true) {
@@ -71,7 +136,7 @@ public class Trie<T>
 
                 if (child.NextSiblingIndex == -1)
                     break;
-                child = ref _items.AsSpan()[child.NextSiblingIndex];
+                child = ref _entries[child.NextSiblingIndex];
             }
         }
         else {
@@ -83,114 +148,118 @@ public class Trie<T>
 
                 if (child.NextSiblingIndex == -1)
                     break;
-                child = ref _items.AsSpan()[child.NextSiblingIndex];
+                child = ref _entries[child.NextSiblingIndex];
             }
         }
 
         // Add as sibling
-        child.NextSiblingIndex = _items.Count;
-        _items.Add(new Entry(value, child.ParentIndex));
-        return ref _items.AsSpan()[child.NextSiblingIndex];
+        child.NextSiblingIndex = _count;
+        AddEntry(new Entry(value, child.ParentIndex));
+        return ref _entries[child.NextSiblingIndex];
     }
 
-    private int GetEntryIndex(ref readonly Entry entry)
-        => _items.AsSpan().OffsetOf(in entry);
+    private int DangerousGetEntryIndex(ref readonly Entry entry)
+        => _entries.AsSpan().OffsetOf(in entry);
 
-
-    /*
-         public IEnumerable<(T Value, bool HasEnd)> DFS()
+    private void AddEntry(Entry entry)
     {
-        if (_items.GetUnderlyingArray() is null or [])
-            yield break;
-
-        AllocOptStack<int> stack = [RootEntry.ChildIndex];
-
-        while (stack.Count > 0) {
-            var entry = _items[stack.Peek()];
-            yield return (entry.Value, entry.HasEnd);
-            if (entry.ChildIndex != -1) {
-                stack.Push(entry.ChildIndex);
-            }
-            else if (entry.NextSiblingIndex != -1) {
-                stack.Push(entry.NextSiblingIndex);
-            }
-            else {
-                stack.Pop();
-            }
+        if (_count == _entries.Length) {
+            ArrayGrowHelper.Grow(ref _entries, _count + 1, _count);
         }
+
+        _entries[_count] = entry;
+        _count++;
     }
 
-     */
-
-    internal struct Entry(T value, int parentIndex)
+    private struct Entry(T value, int parentIndex)
     {
         public T Value = value;
         public int ParentIndex = parentIndex;
         public int ChildIndex = -1; // Index of first child, -1 means no child
         public int NextSiblingIndex = -1; // Index of next sibling, -1 means last sibling
-        public bool HasEnd;
+        public bool IsEnd;
     }
 
-    public readonly struct Builder
+    internal readonly struct Node
     {
         private readonly Trie<T> _trie;
+        private readonly int _index;
 
-        public void Add(ReadOnlySpan<T> values)
+        public bool HasValue => _index >= 0;
+
+        internal Node(Trie<T> trie, int index)
         {
-            ref var entry = ref _trie.RootEntry;
-            foreach (var value in values) {
-                entry = ref _trie.GetOrAddChild(ref entry, value);
-            }
-            entry.HasEnd = true;
+            _trie = trie;
+            _index = index;
         }
 
-        public void Add(T[] values) => Add(values.AsSpan());
+        public T Value => Entry.Value;
 
-        public void Add(IEnumerable<T> values)
-        {
-            ref var entry = ref _trie.RootEntry;
-            foreach (var value in values) {
-                entry = ref _trie.GetOrAddChild(ref entry, value);
-            }
-            entry.HasEnd = true;
-        }
+        /// <summary>
+        /// This node is end of a <typeparamref name="T"/> sequence. Note that there may still be child of a "end" node
+        /// </summary>
+        public bool IsEnd => Entry.IsEnd;
+
+        private ref readonly Entry Entry => ref _trie._entries[_index];
+
+        public Node Parent => new(_trie, Entry.ParentIndex);
+
+        public Node Child => new(_trie, Entry.ChildIndex);
+
+        public Node NextSibling => new(_trie, Entry.NextSiblingIndex);
     }
 }
 
 public static class TrieExt
 {
+    [Experimental("TRAEXP")]
     public static IEnumerator<string> GetEnumerator(this Trie<char> trie)
     {
-        var items = trie._items;
-        Stack<char> chars = new Stack<char>();
-        var entry = items[0];
+        var node = trie.RootNode;
+        if (!node.HasValue)
+            yield break;
+        if (node.IsEnd)
+            yield return "";
+        int depth = 0;
+
         while (true) {
-            if (entry.ChildIndex != -1) {
-                entry = items[entry.ChildIndex];
-                chars.Push(entry.Value);
-                if (entry.HasEnd)
-                    yield return chars.Reverse().ToArray().AsSpan().ToString()!;
+            if (node.Child is { HasValue: true } child) {
+                node = child;
+                depth++;
+                if (node.IsEnd)
+                    yield return ToString(node, depth);
                 continue;
             }
 
             while (true) {
-                chars.Pop();
-                if (entry.NextSiblingIndex != -1) {
-                    entry = items[entry.NextSiblingIndex];
-                    chars.Push(entry.Value);
-                    if (entry.HasEnd)
-                        yield return chars.ToArray().AsSpan().ToString()!;
-                    break;
+                if (node.NextSibling is { HasValue: true } sibling) {
+                    node = sibling;
+                    if (sibling.IsEnd)
+                        yield return ToString(node, depth);
+                    break; // continue outer while
                 }
 
-                if (chars.Count == 0) {
-                    yield break;
+                if (node.Parent is { HasValue: true } parent) {
+                    node = node.Parent;
+                    depth--;
+                    continue; // search next sibling
                 }
-                else {
-                    entry = items[entry.ParentIndex]; // = chars.peek()
-                    continue;
-                }
+
+                // Node is the last sibling and the root
+                yield break;
             }
+        }
+
+        static string ToString(Trie<char>.Node node, int depth)
+        {
+            Debug.Assert(node.HasValue && node.IsEnd);
+            Span<char> chars = stackalloc char[depth];
+            foreach (ref var c in chars.AsReversed()) {
+                Debug.Assert(node.HasValue);
+                c = node.Value;
+                node = node.Parent;
+            }
+            return chars.ToString();
         }
     }
 }
