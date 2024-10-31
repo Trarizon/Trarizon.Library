@@ -34,11 +34,11 @@ public struct AllocOptList<T>
     public readonly T this[int index]
     {
         get {
-            Guard.IsInRange(index, 0, _count);
+            Guard.IsLessThan((uint)index, (uint)_count);
             return _array.DangerousGetReferenceAt(index);
         }
         set {
-            Guard.IsInRange(index, 0, _count);
+            Guard.IsLessThan((uint)index, (uint)_count);
             _array.DangerousGetReferenceAt(index) = value;
         }
     }
@@ -100,7 +100,7 @@ public struct AllocOptList<T>
 
     public void Insert(int index, T item)
     {
-        Guard.IsInRange(index, 0, _count);
+        Guard.IsLessThan((uint)index, (uint)_count);
 
         EnsureArrayForInsertion(index, 1);
         _array[index] = item;
@@ -109,7 +109,7 @@ public struct AllocOptList<T>
 
     public void InsertRange(int index, IEnumerable<T> items)
     {
-        Guard.IsInRange(index, 0, _count);
+        Guard.IsLessThan((uint)index, (uint)_count);
 
         if (items.TryGetNonEnumeratedCount(out var count)) {
             if (count <= 0)
@@ -136,7 +136,7 @@ public struct AllocOptList<T>
 
     public void InsertRange(int index, ReadOnlySpan<T> items)
     {
-        Guard.IsInRange(index, 0, _count);
+        Guard.IsLessThan((uint)index, (uint)_count);
 
         int count = items.Length;
         if (count <= 0)
@@ -171,7 +171,7 @@ public struct AllocOptList<T>
 
     public void RemoveAt(int index)
     {
-        Guard.IsInRange(index, 0, _count);
+        Guard.IsLessThan((uint)index, (uint)_count);
 
         Array.Copy(_array, index + 1, _array, index, _count - index - 1);
         _count--;

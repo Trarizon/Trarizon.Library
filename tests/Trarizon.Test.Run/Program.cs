@@ -19,6 +19,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Trarizon.Library;
+using Trarizon.Library.Buffers.Pooling;
 using Trarizon.Library.CodeAnalysis;
 using Trarizon.Library.CodeAnalysis.MemberAccess;
 using Trarizon.Library.CodeGeneration;
@@ -33,29 +34,14 @@ using Trarizon.Test.Run;
 
 Console.WriteLine("Hello, world");
 
-Trie<char> trie = Trie.Create("string", "strojdu", "sjjdoi", "tsj");
-//trie.Add("string");
-//trie.Add("strojdu");
-//trie.Add("sjjdoi");
-//trie.Add("tsj");
+var pool = ObjectPool<List<int>>.Create(() => new List<int>(), threadSafe: true);
 
-trie.Contains("string").Print();
-trie.Contains("str").Print();
-trie.Contains("tsjj").Print();
-trie.Contains("sjjdoi").Print();
-"".Print();
-trie.ContainsPrefix("str").Print();
-trie.ContainsPrefix("sk").Print();
-trie.ContainsPrefix("t").Print();
-trie.ContainsPrefix("").Print();
-"".Print();
-trie.Contains("").Print();
-trie.Add("");
-trie.Contains("").Print();
+var item = pool.Rent();
 
-foreach (var item in trie) {
-    item.Print();
-}
+var t1 = new Task(() => pool.Rent());
+var t2 = new Task(() => pool.Return(item));
+t2.Start();
+t1.Start();
 
 //_ = ArrayInts().Length switch
 //{

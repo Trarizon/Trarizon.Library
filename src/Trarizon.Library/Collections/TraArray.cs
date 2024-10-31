@@ -5,8 +5,17 @@ using System.Runtime.InteropServices;
 namespace Trarizon.Library.Collections;
 public static partial class TraArray
 {
+    public static void MoveTo<T>(this T[] array, int fromIndex, int toIndex)
+        => array.AsSpan().MoveTo(fromIndex, toIndex);
+
     public static void MoveTo<T>(this T[] array, Index fromIndex, Index toIndex)
         => array.AsSpan().MoveTo(fromIndex.GetOffset(array.Length), toIndex.GetOffset(array.Length));
+
+    public static void MoveTo<T>(this T[] array, int fromIndex, int toIndex, int length)
+        => array.AsSpan().MoveTo(fromIndex, toIndex, length);
+
+    public static void MoveTo<T>(this T[] array, Range fromRange, Index toIndex)
+        => array.AsSpan().MoveTo(fromRange, toIndex);
 
     public static ImmutableArray<T> EmptyIfDefault<T>(this ImmutableArray<T> array)
         => array.IsDefault ? [] : array;

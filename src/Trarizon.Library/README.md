@@ -169,6 +169,9 @@ All extensions methods identifiers are start with `Iter`
 
 The namespace structure is almost the same with `System.XXX`
 
+- namespace `Buffer`
+    - `TraArrayPool` : Helpers for `ArrayPool`
+    - `ObjectPool` : Object pool
 - namespace `IO`
     - `TraPath` : Extends `System.IO.Path`
     - `TraStream` : Helpers for `System.IO.Stream`

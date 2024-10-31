@@ -66,7 +66,7 @@ public static partial class TraNumber
     public static int GetCheckedOffset(this Index index, int length)
     {
         var offset = index.GetOffset(length);
-        Guard.IsInRange(offset, 0, length);
+        Guard.IsLessThan((uint)offset, (uint)length);
         return offset;
     }
 
