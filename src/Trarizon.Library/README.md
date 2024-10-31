@@ -13,6 +13,7 @@ Contents:
 
 ## CodeAnalysis
 
+- `[ExternalSealed]` : Indicates a type or interface cannot be inherited or implemented by types in another assembly
 - `[BackingFieldAccess]` : a workround of .NET 9 backing field
 - `[FriendAccess]` : Opt-in ver of `friend` in c++
 

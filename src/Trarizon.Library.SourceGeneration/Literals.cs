@@ -25,6 +25,7 @@ internal static class Literals
 
     public const string FriendAccessAnalyzer_Id = "FA";
     public const string BackingFieldAccessAnalyzer_Id = "BFA";
+    public const string ExternalSealedAnalyer_Id = "ES";
 
     public const string SingletonGenerator_Id = "SGLT";
 
