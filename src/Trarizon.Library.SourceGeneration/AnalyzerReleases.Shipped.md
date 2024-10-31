@@ -11,6 +11,7 @@ TRA0001 | Trarizon.Library.SourceGenerator | Error | Literals
 TRABFA0001 | Trarizon.Library.SourceGenerator | Error | BackingFieldAccessLiterals
 TRABFA0002 | Trarizon.Library.SourceGenerator | Error | BackingFieldAccessLiterals
 TRABFA0003 | Trarizon.Library.SourceGenerator | Error | BackingFieldAccessLiterals
+TRAES0001 | Trarizon.Library.SourceGenerator | Error | ExternalSealedLiterals
 TRAFA0001 | Trarizon.Library.SourceGenerator | Error | FriendAccessLiterals
 TRAFA0002 | Trarizon.Library.SourceGenerator | Warning | FriendAccessLiterals
 TRAFA0003 | Trarizon.Library.SourceGenerator | Warning | FriendAccessLiterals
