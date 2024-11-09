@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Diagnostics;
 using System.Numerics;
 
-namespace Trarizon.Library;
+namespace Trarizon.Library.Numerics;
 public static partial class TraNumber
 {
     public static bool IncAndTryWrap<T>(this ref T number, T delta, T max)

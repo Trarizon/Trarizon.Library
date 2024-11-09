@@ -5,11 +5,11 @@ namespace Trarizon.Library.IO;
 public static class TraPath
 {
     [BackingFieldAccess(nameof(InvalidFileNameChars))]
-    private static SearchValues<char> _invalidFileNameChars = SearchValues.Create(Path.GetInvalidFileNameChars());
+    private static SearchValues<char>? _invalidFileNameChars;
     private static SearchValues<char> InvalidFileNameChars => _invalidFileNameChars ??= SearchValues.Create(Path.GetInvalidFileNameChars());
  
     [BackingFieldAccess(nameof(InvalidPathNameChars))]
-    private static SearchValues<char> _invalidPathNameChars = SearchValues.Create(Path.GetInvalidPathChars());
+    private static SearchValues<char>? _invalidPathNameChars;
     private static SearchValues<char> InvalidPathNameChars => _invalidPathNameChars ??= SearchValues.Create(Path.GetInvalidPathChars());
 
     public static bool IsValidFileName(ReadOnlySpan<char> fileName)

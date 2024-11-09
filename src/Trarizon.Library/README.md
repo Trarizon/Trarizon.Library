@@ -48,7 +48,7 @@ Contents:
 <details>
 <summary>Array</summary>
 
-- `AsEnumerable` for `ImmutableArray<>` : Return underlying array as `IEnumerable<>` to avoid boxing and get performance improvements with LinQ. The BCL overrided some linq method but not all(and my own linq extensions do not support)
+- `As(NotNull)Enumerable` for `ImmutableArray<>` : Return underlying array as `IEnumerable<>` to avoid boxing and get performance improvements with LinQ. The BCL overloaded some linq method but not all(and my own linq extensions do not support)
 - `MoveTo` : Move item on `fromIndex` to `toIndex`
 - `EmptyIfDefault` for `ImmutableArray<>` : Return empty array if source is `null` 
 - `TryAt` for `ImmutableArray<>`
@@ -176,6 +176,9 @@ The namespace structure is almost the same with `System.XXX`
 - namespace `IO`
     - `TraPath` : Extends `System.IO.Path`
     - `TraStream` : Helpers for `System.IO.Stream`
+- namespace `Numerics`
+    - `Interval` : Represents a left-open, right-close interval
+    - `TraNumber` : Helpers for number types (in `System.Numerics`), `Index`, `Range`
 - namespace `Text`
     - namespace `Json`
         - `WeakJsonElement` : Wrapper of `JsonElement` that auto check `JsonValueKind`
@@ -185,7 +188,6 @@ The namespace structure is almost the same with `System.XXX`
     - `InterlockedBooleanLock` : A lock implemented with `InterlockedBoolean`
     - `TraAsync` : Helpers for async operation, `Task<>`, `ValueTask<>`, etc.
 - `TraEnum` : Helpers for enum types
-- `TraNumber` : Helpers for number types (in `System.Numerics`), `Index`, `Range`
 - `TraRandom` : Helpers for `Random`
 - `TraThrow` : Extends `CommunityToolkit.Diagnostic.ThrowHelper`
 - `TraUnsafe` : Extends `Unsafe`

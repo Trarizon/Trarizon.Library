@@ -2,7 +2,7 @@
 partial class TraEnumerable
 {
     public static bool IsInOrder<T>(this IEnumerable<T> source)
-        => IsInOrder<T, IComparer<T>>(source, Comparer<T>.Default);
+        => IsInOrder(source, Comparer<T>.Default);
 
     public static bool IsInOrder<T, TComparer>(this IEnumerable<T> source, TComparer comparer) where TComparer : IComparer<T>
     {
@@ -25,7 +25,7 @@ partial class TraEnumerable
     }
 
     public static bool IsInOrderBy<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector)
-        => IsInOrderBy<T, TKey, IComparer<TKey>>(source, keySelector, Comparer<TKey>.Default);
+        => IsInOrderBy(source, keySelector, Comparer<TKey>.Default);
 
     public static bool IsInOrderBy<T, TKey, TComparer>(this IEnumerable<T> source, Func<T, TKey> keySelector, TComparer comparer) where TComparer : IComparer<TKey>
     {

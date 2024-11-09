@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using Trarizon.Library.Wrappers;
 
 namespace Trarizon.Library.Threading;
 partial class TraAsync
@@ -62,7 +63,7 @@ partial class TraAsync
 
         public async Task<T?> AsTask()
         {
-            try { return (await this).Result; }
+            try { return (await this).Value; }
             catch (OperationCanceledException) { return default; }
         }
 
@@ -78,13 +79,13 @@ partial class TraAsync
             public void UnsafeOnCompleted(Action continuation)
                 => _task.GetAwaiter().UnsafeOnCompleted(continuation);
 
-            public CancellationTaskResult<T> GetResult()
+            public Optional<T> GetResult()
             {
                 try {
-                    return new CancellationTaskResult<T>(_task.GetAwaiter().GetResult());
+                    return Optional.Of(_task.GetAwaiter().GetResult());
                 }
                 catch (OperationCanceledException) {
-                    return CancellationTaskResult<T>.Cancelled;
+                    return default;
                 }
             }
         }
@@ -92,28 +93,12 @@ partial class TraAsync
 
     public readonly struct CancellationTaskResult
     {
-        public bool IsCancelled { get; }
+        public bool IsSuccess { get; }
 
-        public static CancellationTaskResult Completed => new(false);
+        public static CancellationTaskResult Completed => new(true);
 
-        public static CancellationTaskResult Cancelled => new(true);
+        public static CancellationTaskResult Cancelled => new(false);
 
-        private CancellationTaskResult(bool cancelled) => IsCancelled = cancelled;
-    }
-
-    public readonly struct CancellationTaskResult<T>
-    {
-        public T Result { get; } = default!;
-
-        internal readonly bool _hasValue;
-        public bool IsCancelled => !_hasValue;
-
-        internal CancellationTaskResult(T result)
-        {
-            Result = result;
-            _hasValue = true;
-        }
-
-        public static CancellationTaskResult<T> Cancelled => default;
+        private CancellationTaskResult(bool success) => IsSuccess = success;
     }
 }

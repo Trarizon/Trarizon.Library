@@ -1,5 +1,4 @@
-﻿
-namespace Trarizon.Library.Threading;
+﻿namespace Trarizon.Library.Threading;
 public sealed class AsyncSemaphoreLock
 {
     private readonly SemaphoreSlim _semaphore = new(0, 1);

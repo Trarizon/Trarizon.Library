@@ -1,7 +1,10 @@
 ﻿namespace Trarizon.Library.Collections;
 partial class TraEnumerable
 {
-    public static (T Min, T Max) MinMax<T>(this IEnumerable<T> source, IComparer<T>? comparer = default)
+    public static (T Min, T Max) MinMax<T>(this IEnumerable<T> source)
+        => MinMax(source, Comparer<T>.Default);
+
+    public static (T Min, T Max) MinMax<T, TComparer>(this IEnumerable<T> source, TComparer comparer) where TComparer : IComparer<T>
     {
         T min, max;
 
@@ -13,8 +16,6 @@ partial class TraEnumerable
             return default;
         }
 
-        comparer ??= Comparer<T>.Default;
-
         while (enumerator.MoveNext()) {
             var curr = enumerator.Current;
             if (comparer.Compare(curr, min) < 0)
@@ -25,7 +26,10 @@ partial class TraEnumerable
         return (min, max);
     }
 
-    public static (T Min, T Max) MinMaxBy<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector, IComparer<TKey>? comparer = default)
+    public static (T Min, T Max) MinMaxBy<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector)
+        => MinMaxBy(source, keySelector, Comparer<TKey>.Default);
+
+    public static (T Min, T Max) MinMaxBy<T, TKey, TComparer>(this IEnumerable<T> source, Func<T, TKey> keySelector, TComparer comparer) where TComparer : IComparer<TKey>
     {
         T min, max;
         TKey minKey, maxKey;
@@ -40,8 +44,6 @@ partial class TraEnumerable
             return default;
         }
 
-        comparer ??= Comparer<TKey>.Default;
-
         while (enumerator.MoveNext()) {
             var curr = enumerator.Current;
             var key = keySelector(curr);
@@ -53,7 +55,10 @@ partial class TraEnumerable
         return (min, max);
     }
 
-    public static (TResult Min, TResult Max) MinMax<T, TResult>(this IEnumerable<T> source, Func<T, TResult> selector, IComparer<TResult>? comparer = default)
+    public static (TResult Min, TResult Max) MinMax<T, TResult>(this IEnumerable<T> source, Func<T, TResult> selector)
+        => MinMax(source, selector, Comparer<TResult>.Default);
+
+    public static (TResult Min, TResult Max) MinMax<T, TResult, TComparer>(this IEnumerable<T> source, Func<T, TResult> selector, TComparer comparer) where TComparer : IComparer<TResult>
     {
         TResult min, max;
 
@@ -64,8 +69,6 @@ partial class TraEnumerable
             TraThrow.NoElement();
             return default;
         }
-
-        comparer ??= Comparer<TResult>.Default;
 
         while (enumerator.MoveNext()) {
             var curr = selector(enumerator.Current);
