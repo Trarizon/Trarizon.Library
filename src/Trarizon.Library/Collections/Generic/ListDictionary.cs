@@ -2,24 +2,24 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using Trarizon.Library.Collections.AllocOpt;
 
 namespace Trarizon.Library.Collections.Generic;
 public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue> where TKey : notnull
 {
-    private readonly AllocOptList<(TKey Key, TValue Value)> _pairs;
+    private (TKey Key, TValue Value)[] _pairs;
+    private int _count;
     private IEqualityComparer<TKey>? _comparer;
     private int _version;
 
     public ListDictionary(int capacity, IEqualityComparer<TKey>? comparer = null)
     {
-        _pairs = new(capacity);
+        _pairs = new (TKey, TValue)[capacity];
         _comparer = comparer;
     }
 
     public ListDictionary(IEqualityComparer<TKey>? comparer = null)
     {
-        _pairs = new();
+        _pairs = [];
         _comparer = comparer;
     }
 
@@ -44,9 +44,9 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
 
     public ValueCollection Values => new(this);
 
-    public int Count => _pairs.Count;
+    public int Count => _count;
 
-    public int Capacity => _pairs.Capacity;
+    public int Capacity => _pairs.Length;
 
     public void Add(TKey key, TValue value)
     {
@@ -68,8 +68,8 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
 
     public void Clear()
     {
-        _pairs.Clear();
-        _pairs.FreeUnreferenced();
+        _count = 0;
+        ArrayGrowHelper.FreeManaged(_pairs);
         _version++;
     }
 
@@ -100,14 +100,14 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
     private ref (TKey Key, TValue Value) FindRef(TKey key)
     {
         if (typeof(TKey).IsValueType && _comparer is null) {
-            foreach (ref var pair in _pairs.AsSpan()) {
+            foreach (ref var pair in _pairs.AsSpan(_count)) {
                 if (EqualityComparer<TKey>.Default.Equals(pair.Key, key))
                     return ref pair;
             }
         }
         else {
             _comparer ??= EqualityComparer<TKey>.Default;
-            foreach (ref var pair in _pairs.AsSpan()) {
+            foreach (ref var pair in _pairs.AsSpan(_count)) {
                 if (_comparer.Equals(pair.Key, key))
                     return ref pair;
             }
@@ -118,7 +118,7 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
     private ref TValue FindRefOrAddDefault(TKey key, out bool exist)
     {
         if (typeof(TKey).IsValueType && _comparer is null) {
-            foreach (ref var pair in _pairs.AsSpan()) {
+            foreach (ref var pair in _pairs.AsSpan(_count)) {
                 if (EqualityComparer<TKey>.Default.Equals(pair.Key, key)) {
                     exist = true;
                     return ref pair.Value;
@@ -127,16 +127,19 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
         }
         else {
             _comparer ??= EqualityComparer<TKey>.Default;
-            foreach (ref var pair in _pairs.AsSpan()) {
+            foreach (ref var pair in _pairs.AsSpan(_count)) {
                 if (_comparer.Equals(pair.Key, key)) {
                     exist = true;
                     return ref pair.Value;
                 }
             }
         }
-        _pairs.Add((key, default!));
+        if (_count == _pairs.Length) {
+            ArrayGrowHelper.Grow(ref _pairs, _count + 1, _count);
+        }
+        _pairs[_count] = (key, default!);
         exist = false;
-        return ref _pairs.AsSpan()[^1].Value;
+        return ref _pairs[_count++].Value;
     }
 
     /// <summary>
@@ -146,7 +149,9 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
     private void RemoveRef(ref readonly (TKey, TValue) item)
     {
         var index = _pairs.AsSpan().OffsetOf(in item);
-        _pairs.RemoveAt(index);
+        Array.Copy(_pairs, index + 1, _pairs, index, _count - index - 1);
+        _count--;
+        ArrayGrowHelper.FreeManaged(_pairs, _count, 1);
     }
 
     public Enumerator GetEnumerator() => new(this);
@@ -195,24 +200,19 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
 
     public struct Enumerator : IEnumerator<KeyValuePair<TKey, TValue>>
     {
-        private AllocOptList<(TKey, TValue)>.Enumerator _enumerator;
         private readonly int _version;
         private readonly ListDictionary<TKey, TValue> _dict;
+        private int _index;
+        private KeyValuePair<TKey, TValue> _current;
 
         internal Enumerator(ListDictionary<TKey, TValue> dictionary)
         {
             _dict = dictionary;
             _version = _dict._version;
-            _enumerator = dictionary._pairs.GetEnumerator();
+            _index = 0;
         }
 
-        public readonly KeyValuePair<TKey, TValue> Current
-        {
-            get {
-                var current = _enumerator.Current;
-                return KeyValuePair.Create(current.Item1, current.Item2);
-            }
-        }
+        public readonly KeyValuePair<TKey, TValue> Current => _current;
 
         readonly object IEnumerator.Current => Current;
 
@@ -220,13 +220,25 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
         public bool MoveNext()
         {
             CheckVersion();
-            return _enumerator.MoveNext();
+            if (_index < 0)
+                return false;
+
+            if (_index < _dict.Count) {
+                _current = _dict._pairs[_index].ToKeyValuePair();
+                _index++;
+                return true;
+            }
+            else {
+                _index = -1;
+                _current = default;
+                return false;
+            }
         }
 
-        void IEnumerator.Reset()
+        public void Reset()
         {
             CheckVersion();
-            _enumerator.Reset();
+            _index = 0;
         }
 
         private readonly void CheckVersion()
@@ -262,7 +274,7 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
             }
         }
 
-        public Enumerator GetEnumerator() => new(this);
+        public Enumerator GetEnumerator() => new(_dict);
 
         void ICollection<TKey>.Add(TKey item) => ThrowHelper.ThrowNotSupportedException();
         void ICollection<TKey>.Clear() => ThrowHelper.ThrowNotSupportedException();
@@ -272,12 +284,14 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
 
         public struct Enumerator : IEnumerator<TKey>
         {
-            private AllocOptList<(TKey, TValue)>.Enumerator _enumerator;
+            private ListDictionary<TKey, TValue>.Enumerator _enumerator;
 
-            internal Enumerator(KeyCollection keys)
-                => _enumerator = keys._dict._pairs.GetEnumerator();
+            //private AllocOptList<(TKey, TValue)>.Enumerator _enumerator;
 
-            public readonly TKey Current => _enumerator.Current.Item1;
+            internal Enumerator(ListDictionary<TKey, TValue> dict)
+                => _enumerator = dict.GetEnumerator();
+
+            public readonly TKey Current => _enumerator.Current.Key;
 
             readonly object IEnumerator.Current => Current;
 
@@ -320,7 +334,7 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
             }
         }
 
-        public Enumerator GetEnumerator() => new(this);
+        public Enumerator GetEnumerator() => new(_dict);
 
         void ICollection<TValue>.Add(TValue item) => ThrowHelper.ThrowNotSupportedException();
         void ICollection<TValue>.Clear() => ThrowHelper.ThrowNotSupportedException();
@@ -330,12 +344,12 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
 
         public struct Enumerator : IEnumerator<TValue>
         {
-            private AllocOptList<(TKey, TValue)>.Enumerator _enumerator;
+            private ListDictionary<TKey, TValue>.Enumerator _enumerator;
 
-            internal Enumerator(ValueCollection values)
-                => _enumerator = values._dict._pairs.GetEnumerator();
+            internal Enumerator(ListDictionary<TKey, TValue> dict)
+                => _enumerator = dict.GetEnumerator();
 
-            public readonly TValue Current => _enumerator.Current.Item2;
+            public readonly TValue Current => _enumerator.Current.Value;
 
             readonly object? IEnumerator.Current => Current;
 

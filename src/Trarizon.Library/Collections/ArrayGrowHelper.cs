@@ -19,6 +19,14 @@ internal static class ArrayGrowHelper
         Array.Clear(array, off, len);
     }
 
+    public static void FreeManaged<T>(T[] array, int index, int length)
+    {
+        if (!RuntimeHelpers.IsReferenceOrContainsReferences<T>())
+            return;
+
+        Array.Clear(array, index, length);
+    }
+
     public static void Grow<T>(ref T[] array, int expectedLength, int copyLength)
     {
         Debug.Assert(expectedLength > array.Length);

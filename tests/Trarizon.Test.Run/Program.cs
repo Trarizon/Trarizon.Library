@@ -34,20 +34,7 @@ using Trarizon.Test.Run;
 
 Console.WriteLine("Hello, world");
 
-var pool = ObjectPool<List<int>>.Create(() => new List<int>(), threadSafe: true);
-
-var item = pool.Rent();
-
-var t1 = new Task(() => pool.Rent());
-var t2 = new Task(() => pool.Return(item));
-t2.Start();
-t1.Start();
-
-//_ = ArrayInts().Length switch
-//{
-//    0 => 1,
-//    _ => TraThrow.ThrowSwitchExpressionException<int>(),
-//};
+EnumerateInts().ElementAtOrDefault(^5).Print();
 
 namespace A
 {

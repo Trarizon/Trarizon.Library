@@ -190,6 +190,7 @@ The namespace structure is almost the same with `System.XXX`
 - `TraEnum` : Helpers for enum types
 - `TraRandom` : Helpers for `Random`
 - `TraThrow` : Extends `CommunityToolkit.Diagnostic.ThrowHelper`
+- `TraTuple` : Helpers for `ValueTuple`s
 - `TraUnsafe` : Extends `Unsafe`
 
 ### Helpers
@@ -217,5 +218,7 @@ The namespace structure is almost the same with `System.XXX`
 - Random
     - `SelectWeight` : Weighted random
     - `NextSingle/Double` : Get a random float number in specific range
+- Tuple
+    - `ToKeyValuePair` : Convert pair to k-v pair
 - Unsafe
     - `AsReadOnly` : Perform `Unsafe.As` for `ref readonly` variables
