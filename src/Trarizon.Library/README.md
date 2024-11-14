@@ -96,7 +96,7 @@ Contents:
     - `Adjacent` : Yield the value and its next value
     - `AggregateSelect` : `Aggregate` and returns all values in processing
     - `ChunkPair/Triple` : Returning tuple version of `Chunk`
-    - `Index` : Yield index and item, `Index` in .NET 9
+    - `WithIndex` : Yield index and item, `Index` in .NET 9
     - `Repeat` : Repeatly enumerate the collection
 - Partition
     - `OfTypeWhile` : Take values until doesn't match the given type
@@ -177,15 +177,16 @@ The namespace structure is almost the same with `System.XXX`
     - `TraPath` : Extends `System.IO.Path`
     - `TraStream` : Helpers for `System.IO.Stream`
 - namespace `Numerics`
+    - `BoundedInterval` : Represents a interval 
     - `Interval` : Represents a left-open, right-close interval
+    - `Ray2D/3D` : Ray
+    - `TraGeometry` : Helpers for `Vector2/3`, `Quaternion`, etc.
     - `TraNumber` : Helpers for number types (in `System.Numerics`), `Index`, `Range`
 - namespace `Text`
     - namespace `Json`
         - `WeakJsonElement` : Wrapper of `JsonElement` that auto check `JsonValueKind`
 - namespace `Threading`
     - `AsyncSemaphoreLock` : Async lock implemented with `SemaphoreSlim`
-    - `InterlockedBoolean` : Provide `Interlocked` methods for `bool`, this maybe removed in .NET 9
-    - `InterlockedBooleanLock` : A lock implemented with `InterlockedBoolean`
     - `TraAsync` : Helpers for async operation, `Task<>`, `ValueTask<>`, etc.
 - `TraEnum` : Helpers for enum types
 - `TraRandom` : Helpers for `Random`

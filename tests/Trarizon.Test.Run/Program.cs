@@ -34,7 +34,7 @@ using Trarizon.Test.Run;
 
 Console.WriteLine("Hello, world");
 
-EnumerateInts().ElementAtOrDefault(^5).Print();
+EnumerateInts().WithIndex();
 
 namespace A
 {

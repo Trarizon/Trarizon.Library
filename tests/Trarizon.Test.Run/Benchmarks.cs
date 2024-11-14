@@ -14,7 +14,13 @@ public class Benchmarks
     public IEnumerable<string[]> Args()
     {
         //yield return ["str", "asd", "ddf", "wefd", "str", "ddf"];
-        yield return ["dd"];
+        yield return ArrayValues(i => i.ToString(), 32);
+    }
+
+    public IEnumerable<StringSplitOptions[]> Args2()
+    {
+        //yield return ["str", "asd", "ddf", "wefd", "str", "ddf"];
+        yield return ArrayValues(i => (StringSplitOptions)i, 32);
     }
 
     static void Consume<T>(T val) => val?.ToString();
@@ -22,29 +28,32 @@ public class Benchmarks
     static Disposable _dis = new();
 
     [Benchmark]
-    public void ByUsing()
+    [ArgumentsSource(nameof(Args))]
+    public void ByDefault(string[] arr)
     {
-        foreach (var _ in TraIter.RangeTo(10000)) {
-            using var scope = new LazyInitDisposable();
-            var dis = scope.Set(_dis);
-            Consume(dis);
-        }
+        arr.AsSpan().ContainsByComparer("str");
     }
 
     [Benchmark]
-    public void Byfinally()
+    [ArgumentsSource(nameof(Args))]
+    public void Bycustom(string[] arr)
     {
-        foreach (var _ in TraIter.RangeTo(10000)) {
-            Disposable? dis = null;
-            try {
-                dis = _dis;
-                Consume(dis);
-            }
-            finally {
-                dis?.Dispose();
-            }
-        }
-    } 
+        arr.AsSpan().ContainsByComparer("str", EqualityComparer<string>.Default);
+    }
+
+    [Benchmark]
+    [ArgumentsSource(nameof(Args2))]
+    public void ByDefault(StringSplitOptions[] arr)
+    {
+        arr.AsSpan().ContainsByComparer(StringSplitOptions.RemoveEmptyEntries);
+    }
+
+    [Benchmark]
+    [ArgumentsSource(nameof(Args2))]
+    public void Bycustom(StringSplitOptions[] arr)
+    {
+        arr.AsSpan().ContainsByComparer(StringSplitOptions.RemoveEmptyEntries, EqualityComparer<StringSplitOptions>.Default);
+    }
 }
 
 

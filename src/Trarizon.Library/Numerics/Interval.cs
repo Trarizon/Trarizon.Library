@@ -23,12 +23,14 @@ public struct Interval : IEquatable<Interval>, IEqualityOperators<Interval, Inte
 
     public readonly float Length => End - Start;
 
-    public readonly Interval Intersect(Interval other)
+    public static Interval Intersect(Interval left, Interval right)
     {
-        if (End <= other.Start || Start >= other.End)
+        if (left.End <= right.Start || left.Start >= right.End)
             return Empty;
-        return new Interval(float.Max(Start, other.Start), float.Min(End, other.End));
+        return new Interval(float.Max(left.Start, right.Start), float.Min(left.End, right.End));
     }
+
+    public readonly Interval Intersect(Interval other) => Intersect(this, other);
 
     public static bool operator ==(Interval left, Interval right)
         => left.Start == right.Start && left.End == right.End;

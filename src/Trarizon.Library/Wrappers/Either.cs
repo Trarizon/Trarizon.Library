@@ -59,10 +59,6 @@ public static class Either
 }
 
 public readonly struct Either<TLeft, TRight>
-#if NET9_0_OR_GREATER
-    where TLeft : allows ref struct
-    where TRight : allows ref struct
-#endif
 {
     private readonly bool _isLeft;
     internal readonly TLeft? _left;

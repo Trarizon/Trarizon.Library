@@ -33,8 +33,13 @@ partial class TraEnumerable
 
         static IEnumerable<T> IterateList(List<T> list, int count)
         {
-            for (int i = 0; i < count; i++) {
-                foreach (var item in list) {
+            AllocOptList<T> cache = new(list.Count);
+            foreach (var item in list) {
+                cache.Add(item);
+                yield return item;
+            }
+            for (int i = 1; i < count; i++) {
+                foreach (var item in cache) {
                     yield return item;
                 }
             }
@@ -42,9 +47,15 @@ partial class TraEnumerable
 
         static IEnumerable<T> IterateIList(IList<T> list, int count)
         {
-            for (int i = 0; i < count; i++) {
-                for (int j = 0; j < list.Count; j++) {
-                    yield return list[j];
+            AllocOptList<T> cache = new(list.Count);
+            for (int i = 0; i < list.Count; i++) {
+                T item = list[i];
+                cache.Add(item);
+                yield return item;
+            }
+            for (int i = 1; i < count; i++) {
+                foreach (var item in cache) {
+                    yield return item;
                 }
             }
         }

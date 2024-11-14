@@ -1,8 +1,4 @@
-﻿#if NET9_0_OR_GREATER
-using System.Runtime.CompilerServices;
-#endif
-
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 
 namespace Trarizon.Library.Collections;
 public static partial class TraList
