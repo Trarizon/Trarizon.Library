@@ -1,6 +1,8 @@
 ﻿using CommunityToolkit.Diagnostics;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace Trarizon.Library.Numerics;
 /// <summary>
@@ -23,6 +25,8 @@ public struct Interval : IEquatable<Interval>, IEqualityOperators<Interval, Inte
 
     public readonly float Length => End - Start;
 
+    public readonly bool IsEmpty => Length == 0;
+
     public static Interval Intersect(Interval left, Interval right)
     {
         if (left.End <= right.Start || left.Start >= right.End)
@@ -31,6 +35,31 @@ public struct Interval : IEquatable<Interval>, IEqualityOperators<Interval, Inte
     }
 
     public readonly Interval Intersect(Interval other) => Intersect(this, other);
+
+    /// <returns>
+    /// If the result is empty, both items are empty
+    /// If the result is one interval, the second item is empty,
+    /// </returns>
+    public static (Interval Left, Interval Right) Substract(Interval left, Interval right)
+    {
+        if (right.Start <= left.Start) {
+            if (right.End <= left.Start)
+                return (left, Empty);
+            if (right.End < left.End)
+                return (new Interval(right.End, left.End), Empty);
+            Debug.Assert(right.End >= left.End);
+            return (Empty, Empty);
+        }
+        var rtnL = new Interval(left.Start, right.Start);
+        if (right.Start <= left.End) {
+            if (right.End < left.End)
+                return (rtnL, new Interval(right.End, left.End));
+            else
+                return (rtnL, Empty);
+        }
+        Debug.Assert(right.Start >= left.End);
+        return (left, Empty);
+    }
 
     public static bool operator ==(Interval left, Interval right)
         => left.Start == right.Start && left.End == right.End;

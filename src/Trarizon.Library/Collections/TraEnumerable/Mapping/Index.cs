@@ -5,11 +5,10 @@ using System.ComponentModel;
 namespace Trarizon.Library.Collections;
 partial class TraEnumerable
 {
-#if NET9_0_OR_GREATER
-    [EditorBrowsable(EditorBrowsableState.Never)]
-#endif
     public static IEnumerable<(int Index, T Item)> WithIndex<T>(this IEnumerable<T> source)
     {
+        if (source is T[] array)
+            return array.Length == 0 ? [] : new ListWithIndexIterator<T>(array);
         if (source.IsEmptyArray())
             return [];
         return Iterate(source);
@@ -21,5 +20,19 @@ partial class TraEnumerable
                 yield return (i++, item);
             }
         }
+    }
+
+    private sealed class ListWithIndexIterator<T>(T[] array) : ListIteratorBase<(int, T)>
+    {
+        public override (int, T) this[int index] => (index, array[index]);
+
+        public override int Count => array.Length;
+
+        private (int, T) _current;
+        public override (int, T) Current => _current;
+
+        public override bool MoveNext() => MoveNext_Array(array, ref _current);
+
+        protected override IteratorBase<(int, T)> Clone() => new ListWithIndexIterator<T>(array);
     }
 }

@@ -37,7 +37,7 @@ public static partial class TraArray
     /// <returns>
     /// A <see cref="IEnumerable{T}"/> representing the array, <see cref="null"/> if <paramref name="array"/> is default.
     /// </returns>
-    public static IEnumerable<T>? AsEnumerable<T>(this ImmutableArray<T> array)
+    public static IEnumerable<T>? AsEnumerableOrNull<T>(this ImmutableArray<T> array)
         => ImmutableCollectionsMarshal.AsArray(array)!;
 
     /// <summary>
@@ -46,6 +46,6 @@ public static partial class TraArray
     /// <returns>
     /// A <see cref="IEnumerable{T}"/> representing the array, if <paramref name="array"/> is default, returns empty array
     /// </returns>
-    public static IEnumerable<T> AsNotNullEnumerable<T>(this ImmutableArray<T> array)
-        => array.IsDefault ? [] : array.AsEnumerable()!;
+    public static IEnumerable<T> AsEnumerable<T>(this ImmutableArray<T> array)
+        => array.IsDefault ? [] : array.AsEnumerableOrNull()!;
 }

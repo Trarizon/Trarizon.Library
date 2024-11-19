@@ -8,5 +8,5 @@ partial class TraEnumerable
         => source.Where(x => x is not null)!;
 
     public static IEnumerable<T> OfNotNull<T>(this IEnumerable<T?> source) where T : struct
-        => source.Where(x => x is not null).Select(x => x!.Value);
+        => source.Where(x => x is not null).Select(x => x.GetValueOrDefault());
 }

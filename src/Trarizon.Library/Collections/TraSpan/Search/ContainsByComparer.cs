@@ -4,7 +4,6 @@ using System.Runtime.InteropServices;
 namespace Trarizon.Library.Collections;
 partial class TraSpan
 {
-    // TODO: 我觉得应该考虑改成Contains然后overload priority -1
     public static bool ContainsByComparer<T>(this ReadOnlySpan<T> span, T item)
     {
         if (typeof(T).IsValueType) {

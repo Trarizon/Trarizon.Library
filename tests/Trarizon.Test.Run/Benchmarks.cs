@@ -1,5 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
 using System.Buffers;
+using System.Runtime.CompilerServices;
 using Trarizon.Library.Collections;
 using Trarizon.Library.Wrappers;
 
@@ -11,48 +12,28 @@ public class Benchmarks
 
     private static char[] _chars = Path.GetInvalidFileNameChars();
 
-    public IEnumerable<string[]> Args()
+    public IEnumerable<IEnumerable<string>> Args()
     {
-        //yield return ["str", "asd", "ddf", "wefd", "str", "ddf"];
-        yield return ArrayValues(i => i.ToString(), 32);
+        yield return EnumerateCollection("str", "str", null, "val", "va", "str", null, "val", "rig", "v", "rig")!;
     }
 
-    public IEnumerable<StringSplitOptions[]> Args2()
-    {
-        //yield return ["str", "asd", "ddf", "wefd", "str", "ddf"];
-        yield return ArrayValues(i => (StringSplitOptions)i, 32);
-    }
+    //[MethodImpl(MethodImplOptions.NoInlining)]
+    static void Consume<T>(T val) => _ = val;
 
-    static void Consume<T>(T val) => val?.ToString();
-
-    static Disposable _dis = new();
 
     [Benchmark]
     [ArgumentsSource(nameof(Args))]
-    public void ByDefault(string[] arr)
+    public void ByFor(IEnumerable<string> strs)
     {
-        arr.AsSpan().ContainsByComparer("str");
+        foreach (var item in strs.DuplicatesBy(str => str)) {
+
+        }
     }
 
     [Benchmark]
     [ArgumentsSource(nameof(Args))]
-    public void Bycustom(string[] arr)
+    public void ByForeach(IEnumerable<string> strs)
     {
-        arr.AsSpan().ContainsByComparer("str", EqualityComparer<string>.Default);
-    }
-
-    [Benchmark]
-    [ArgumentsSource(nameof(Args2))]
-    public void ByDefault(StringSplitOptions[] arr)
-    {
-        arr.AsSpan().ContainsByComparer(StringSplitOptions.RemoveEmptyEntries);
-    }
-
-    [Benchmark]
-    [ArgumentsSource(nameof(Args2))]
-    public void Bycustom(StringSplitOptions[] arr)
-    {
-        arr.AsSpan().ContainsByComparer(StringSplitOptions.RemoveEmptyEntries, EqualityComparer<StringSplitOptions>.Default);
     }
 }
 

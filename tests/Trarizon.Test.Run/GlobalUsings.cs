@@ -23,6 +23,9 @@ public static class GlobalUsings
         return res;
     }
 
+    public static T[] ArrayValues<T>(Func<int, T> factory, int count = 8)
+        => ArrayInts(count).Select(factory).ToArray();
+
     public static List<int> ListInts(int length = 8)
     {
         var res = new List<int>(length);
@@ -32,17 +35,16 @@ public static class GlobalUsings
         return res;
     }
 
+    public static List<T> ListValues<T>(Func<int, T> factory, int count = 8)
+        => ArrayInts(count).Select(factory).ToList();
+
     public static IEnumerable<int> EnumerateInts(int length = 8)
     {
         for (int i = 0; i < length; i++)
             yield return i;
     }
 
-    public static T[] ArrayValues<T>(Func<int, T> factory, int count = 8)
-        => ArrayInts(count).Select(factory).ToArray();
-
-    public static List<T> ListValues<T>(Func<int, T> factory, int count = 8)
-        => ArrayInts(count).Select(factory).ToList();
+    public static IEnumerable<T> EnumerateCollection<T>(params IEnumerable<T> collection) => collection;
 
     public static IEnumerable<T> EnumerateValues<T>(Func<int, T> factory, int count = 8)
         => EnumerateInts(count).Select(factory);

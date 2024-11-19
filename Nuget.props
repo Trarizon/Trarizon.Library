@@ -6,7 +6,7 @@
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<RepositoryUrl>https://github.com/Trarizon/Trarizon.Library</RepositoryUrl>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
-		<AssemblyVersion>0.4.1.9</AssemblyVersion>
+		<AssemblyVersion>0.4.1.13</AssemblyVersion>
 		<Version>$(AssemblyVersion)</Version>
 		<FileVersion>$(AssemblyVersion)</FileVersion>
 	</PropertyGroup>

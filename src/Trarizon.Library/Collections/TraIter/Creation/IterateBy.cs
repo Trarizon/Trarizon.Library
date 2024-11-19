@@ -38,7 +38,7 @@ partial class TraIter
     public struct IterateByIterator<T>(T first, Func<T, T> nextSelector, Func<T, bool> predicate)
     {
         private int _state;
-        private T _current;
+        private T _current = default!;
 
         public IterateByIterator<T> GetEnumerator() => this with { _state = -1 };
 
@@ -79,7 +79,8 @@ partial class TraIter
         where T : class
     {
         private int _state;
-        private T _current;
+        private T _current = default!;
+
         public IterateByClassNotNullIterator<T> GetEnumerator() => this with { _state = -1 };
 
         public readonly T Current => _current;

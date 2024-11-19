@@ -16,6 +16,7 @@ internal sealed class DefaultObjectPool<T> : ObjectPool<T> where T : class
         _createFactory = createFactory;
         _onRent = onRent;
         _onReturn = onReturn;
+        _onDispose = onDispose;
         _pooled = new();
         _rented = [];
         _maxCount = maxCount < 0 ? Array.MaxLength : maxCount;
@@ -26,25 +27,21 @@ internal sealed class DefaultObjectPool<T> : ObjectPool<T> where T : class
     /// </summary>
     public override void TrimExcess()
     {
-        while (_pooled.TryPop(out var item))
-        {
+        while (_pooled.TryPop(out var item)) {
             _onDispose?.Invoke(item);
         }
     }
 
     public override AutoReturnScope Rent(out T item)
     {
-        if (_pooled.TryPop(out var resItem))
-        {
+        if (_pooled.TryPop(out var resItem)) {
             item = resItem;
             _onRent?.Invoke(item);
             _rented.Add(item);
             return new AutoReturnScope(this, item);
         }
-        else
-        {
-            if (_rented.Count == _maxCount)
-            {
+        else {
+            if (_rented.Count == _maxCount) {
                 item = default!;
                 return ThrowHelper.ThrowInvalidOperationException<AutoReturnScope>("Failed to rent new item, object pool is full");
             }
@@ -57,8 +54,7 @@ internal sealed class DefaultObjectPool<T> : ObjectPool<T> where T : class
     public override void Return(T item)
     {
         var index = _rented.IndexOf(item);
-        if (index < 0)
-        {
+        if (index < 0) {
             ThrowHelper.ThrowInvalidOperationException("Try to return a object that is not pooled.");
         }
 

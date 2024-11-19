@@ -1,16 +1,14 @@
 ﻿using System.Buffers;
-using Trarizon.Library.CodeAnalysis.MemberAccess;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Trarizon.Library.IO;
 public static class TraPath
 {
-    [BackingFieldAccess(nameof(InvalidFileNameChars))]
-    private static SearchValues<char>? _invalidFileNameChars;
-    private static SearchValues<char> InvalidFileNameChars => _invalidFileNameChars ??= SearchValues.Create(Path.GetInvalidFileNameChars());
- 
-    [BackingFieldAccess(nameof(InvalidPathNameChars))]
-    private static SearchValues<char>? _invalidPathNameChars;
-    private static SearchValues<char> InvalidPathNameChars => _invalidPathNameChars ??= SearchValues.Create(Path.GetInvalidPathChars());
+    [field: MaybeNull]
+    private static SearchValues<char> InvalidFileNameChars => field ??= SearchValues.Create(Path.GetInvalidFileNameChars());
+
+    [field: MaybeNull]
+    private static SearchValues<char> InvalidPathNameChars => field ??= SearchValues.Create(Path.GetInvalidPathChars());
 
     public static bool IsValidFileName(ReadOnlySpan<char> fileName)
     {

@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Trarizon.Library.Collections;
 partial class TraEnumerable
@@ -52,7 +53,7 @@ partial class TraEnumerable
                     Debug.Assert(_state >= 0);
                     var index2 = _state + 1;
                     if (index2 < source.Length) {
-                        _current = (source[_state], source[_state + 1]);
+                        _current = (_current.Item2, source[_state + 1]);
                         return true;
                     }
                     _state = End;

@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Diagnostics;
 using System.Collections;
+using System.Diagnostics;
 
 namespace Trarizon.Library.Collections;
 partial class TraEnumerable
@@ -123,5 +124,29 @@ partial class TraEnumerable
 
         void IList<T>.Insert(int index, T item) => TraThrow.IteratorImmutable();
         void IList<T>.RemoveAt(int index) => TraThrow.IteratorImmutable();
+
+        protected bool MoveNext_Array<TItem>(TItem[] array, ref T currentField)
+        {
+            const int End = MinPreservedState - 1;
+
+            switch (_state) {
+                case InitState:
+                    _state = 0;
+                    goto default;
+                case End:
+                    return false;
+                default:
+                    Debug.Assert(_state >= 0);
+                    var index = _state + 1;
+                    if (index < array.Length) {
+                        currentField = this[_state];
+                        _state = index;
+                        return true;
+                    }
+                    _state = End;
+                    return false;
+            }
+        }
     }
 }
+

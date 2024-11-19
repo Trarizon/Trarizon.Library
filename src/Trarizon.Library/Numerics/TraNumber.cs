@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Diagnostics;
+using CommunityToolkit.HighPerformance;
 using System.Numerics;
 
 namespace Trarizon.Library.Numerics;
@@ -59,6 +60,63 @@ public static partial class TraNumber
         return (toMax - toMin) * lerp + toMin;
     }
 
+    #region MinMax
+
+    public static T Min<T>(params ReadOnlySpan<T> values) where T : INumber<T>
+    {
+        var rtn = values[0];
+        for (int i = 1; i < values.Length; i++) {
+            var val = values.DangerousGetReferenceAt(i);
+            if (val < rtn)
+                rtn = val;
+        }
+        return rtn;
+    }
+
+    public static T Max<T>(params ReadOnlySpan<T> values) where T : INumber<T>
+    {
+        var rtn = values[0];
+        for (int i = 1; i < values.Length; i++) {
+            var val = values.DangerousGetReferenceAt(i);
+            if (val > rtn)
+                rtn = val;
+        }
+        return rtn;
+    }
+
+    /// <summary>
+    /// Returns min, max in one time
+    /// </summary>
+    /// <returns>
+    /// If <paramref name="left"/> equals <paramref name="right"/>, the return value is (<paramref name="left"/>, <paramref name="right"/>),
+    /// else Min is the less one
+    /// </returns>
+    public static (T Min, T Max) MinMax<T>(T left, T right) where T : INumber<T>
+    {
+        if (left <= right)
+            return (left, right);
+        else
+            return (right, left);
+    }
+
+    public static (T Min, T Max) MinMax<T>(params ReadOnlySpan<T> values) where T : INumber<T>
+    {
+        var min = values[0];
+        var max = min;
+        for (int i = 1; i < values.Length; i++) {
+            var val = values.DangerousGetReferenceAt(i);
+            if (val < min)
+                min = val;
+            else if (val > max)
+                max = val;
+        }
+        return (min, max);
+    }
+
+    #endregion
+
+    #region IndexRange
+
     /// <summary>
     /// <see cref="Index.GetOffset(int)"/>, and check if the offset is in [0, <paramref name="length"/>),
     /// throw if out of range
@@ -82,4 +140,6 @@ public static partial class TraNumber
         ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(ofs + len, length, nameof(range));
         return (ofs, len);
     }
+
+    #endregion
 }

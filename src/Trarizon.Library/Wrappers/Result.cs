@@ -14,7 +14,7 @@ public static class Result
     public static Result<T, TError> Failed<T, TError>(TError error) where TError : class
         => new(error);
 
-    public static ResultFailedBuilder<TError> Failed<TError>(TError error) where TError : class 
+    public static ResultFailedBuilder<TError> Failed<TError>(TError error) where TError : class
         => Unsafe.As<TError, ResultFailedBuilder<TError>>(ref error);
 
     public static T GetValueOrThrow<T, TException>(this in Result<T, TException> result) where TException : Exception
@@ -128,6 +128,8 @@ public readonly struct Result<T, TError>
     }
 }
 
+#nullable disable
+
 public readonly struct ResultSuccessBuilder<T>
 {
     internal readonly T _value;
@@ -141,3 +143,5 @@ public readonly struct ResultFailedBuilder<TError> where TError : class
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Result<T, TError> Build<T>() => _error;
 }
+
+#nullable restore

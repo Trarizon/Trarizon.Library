@@ -8,15 +8,6 @@ public static partial class TraList
 #if NET9_0_OR_GREATER
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_version")]
         public static extern ref int GetVersion(List<T> list);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_items")]
-        public static extern ref T[] GetUnderlyingArray(List<T> list);
-#else
-        public static ref T[] GetUnderlyingArray(List<T> list)
-        {
-            var provider = Unsafe.As<StrongBox<T[]>>(list);
-            return ref provider.Value!;
-        }
 #endif
     }
 }

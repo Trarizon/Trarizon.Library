@@ -48,7 +48,7 @@ Contents:
 <details>
 <summary>Array</summary>
 
-- `As(NotNull)Enumerable` for `ImmutableArray<>` : Return underlying array as `IEnumerable<>` to avoid boxing and get performance improvements with LinQ. The BCL overloaded some linq method but not all(and my own linq extensions do not support)
+- `AsEnumerable(OrNull)` for `ImmutableArray<>` : Return underlying array as `IEnumerable<>` to avoid boxing and get performance improvements with LinQ. The BCL overloaded some linq method but not all(and my own linq extensions do not support)
 - `MoveTo` : Move item on `fromIndex` to `toIndex`
 - `EmptyIfDefault` for `ImmutableArray<>` : Return empty array if source is `null` 
 - `TryAt` for `ImmutableArray<>`
@@ -83,7 +83,7 @@ Contents:
     - `TryAt` : `TryXXX` version of `ElementAt`
     - `TryFirst` : `TryXXX` version of `First`
     - `TryLast` : `TryXXX` version of `Last`
-    - `FirstByMaxPriorityOrDefault` : Find the first item has priority greater than given priority, if not found, return the first item with greatest priority
+    - `FirstNearToMax(By)(OrDefault)` : Find the first item has priority greater than given priority, if not found, return the first item with greatest priority
     - `TrySingle` : Returning tagged union version of `Single`
 - Filtering
     - `Duplicates` : Return all elements that is not distinct in collection
@@ -183,6 +183,7 @@ The namespace structure is almost the same with `System.XXX`
     - `TraGeometry` : Helpers for `Vector2/3`, `Quaternion`, etc.
     - `TraNumber` : Helpers for number types (in `System.Numerics`), `Index`, `Range`
 - namespace `Text`
+    - `TraString` : Helper for `string`
     - namespace `Json`
         - `WeakJsonElement` : Wrapper of `JsonElement` that auto check `JsonValueKind`
 - namespace `Threading`
@@ -215,6 +216,9 @@ The namespace structure is almost the same with `System.XXX`
     - `Normalize` : Linear normalize value into [0,1]
     - `Normalize(Unclamped)` : Linear normalize value into [0,1], but not clamped
     - `MapTo` : Linear map a value from [a, b] to [c, d], no clamp
+    - `Min/Max` : Overloads for `params ReadOnlySpan<>`
+    - `MinMax(T, T)` : Reorder input 2 args
+    - `MinMax(ROS<T>)` : Get min and max in one iteration
     - `GetCheckedOffset(AndLength)` : `Index/Range.GetOffset(AndLength)` with overflow check
 - Random
     - `SelectWeight` : Weighted random
