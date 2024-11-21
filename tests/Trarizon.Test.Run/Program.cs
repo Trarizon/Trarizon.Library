@@ -25,6 +25,7 @@ using Trarizon.Library.CodeGeneration;
 using Trarizon.Library.Collections;
 using Trarizon.Library.Collections.AllocOpt;
 using Trarizon.Library.Collections.Generic;
+using Trarizon.Library.Numerics;
 using Trarizon.Library.RunTest.Examples;
 using Trarizon.Library.Text;
 using Trarizon.Library.Text.Json;
@@ -33,39 +34,35 @@ using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 
 Console.WriteLine("Hello, world");
+var a = new A("str", 15);
+Console.WriteLine(a.Prop);
+Console.WriteLine(a.S);
+ArgumentNullException.ThrowIfNull(a);
 
-Stack<int> ints= new Stack<int>();
-ints.Push(0);
-ints.Push(1);
-ints.Push(2);
-ints.Push(3);
-#if NET9_0_OR_GREATER
-foreach (var item in TraCollection.AsSpan(ints).Reverse()) {
-    item.Print();
-}
-#endif
-namespace A
+Trie.Create(ArrayValues(i => i.ToString()));
+
+class A
 {
-    [Singleton]
-    partial class Proj
+    public readonly string Field;
+    public string Prop { get; }
+
+    public readonly double R;
+    public readonly double S;
+
+    public A(string str, double r)
     {
+        if (str == "str") {
+            Field = "f";
+            Prop = "p";
+        }
+        else {
+            Field = "F";
+            Prop = "P";
+        }
+        Field = "Field";
+        Prop = "Prop";
+
+        R = r;
+        S = this.R * this.R * Math.PI;
     }
-}
-
-
-class Disposable : IDisposable
-{
-    public bool IsDisposed { get; private set; }
-
-    public void Dispose()
-    {
-        IsDisposed = true;
-    }
-}
-
-static class E
-{
-    public static void A(this Span<int> span) { }
-
-    public static void A(this ReadOnlySpan<int> span) { }
 }

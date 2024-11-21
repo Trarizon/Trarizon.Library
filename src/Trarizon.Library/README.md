@@ -206,20 +206,23 @@ The namespace structure is almost the same with `System.XXX`
     - `Read(Exactly)` : Read data into `unmanaged` span
     - `ReadExactlyIntoArray` : Read exactly data into an `unmanaged` array with specific length
     - `ReadWithInt32Prefix` : Read a `int` as array length, and do `ReadExactlyIntoArray`
-- Async
-    - `GetAwaiter` : Support `await` keyword for `ValueTask?`, `ValueTask<>?`
-    - `CatchCancallation` : Return a awaitable that will catch `TaskCancellationException`.
-- Enum
-    - `HasAnyFlag` : Check if a enum value has one of given flags.
 - Number
     - `IncAnd(Try)Wrap` : Increment the number, if the result is greater than given `max`, then wrap it
     - `Normalize` : Linear normalize value into [0,1]
-    - `Normalize(Unclamped)` : Linear normalize value into [0,1], but not clamped
+    - `NormalizeUnclamped` : Linear normalize value into [0,1], but not clamped
     - `MapTo` : Linear map a value from [a, b] to [c, d], no clamp
     - `Min/Max` : Overloads for `params ReadOnlySpan<>`
     - `MinMax(T, T)` : Reorder input 2 args
     - `MinMax(ROS<T>)` : Get min and max in one iteration
     - `GetCheckedOffset(AndLength)` : `Index/Range.GetOffset(AndLength)` with overflow check
+- Geometry
+    - `ToNormalized` : Normalize `Vector2/3`, `Quaternion`
+    - `ToEulerAngles`
+- Async
+    - `GetAwaiter` : Support `await` keyword for `ValueTask?`, `ValueTask<>?`
+    - `CatchCancallation` : Return a awaitable that will catch `TaskCancellationException`.
+- Enum
+    - `HasAnyFlag` : Check if a enum value has one of given flags.
 - Random
     - `SelectWeight` : Weighted random
     - `NextSingle/Double` : Get a random float number in specific range

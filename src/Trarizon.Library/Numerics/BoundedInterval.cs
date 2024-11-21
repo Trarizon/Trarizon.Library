@@ -14,6 +14,8 @@ public struct BoundedInterval : IEquatable<BoundedInterval>, IEqualityOperators<
 
     public readonly float Length => End - Start;
 
+    public readonly bool IsEmpty => Start == End && !(IsClosedStart && IsClosedEnd);
+
     public BoundedInterval(float start, bool closedStart, float end, bool closedEnd)
     {
         if (start > end)
@@ -40,10 +42,67 @@ public struct BoundedInterval : IEquatable<BoundedInterval>, IEqualityOperators<
         return new BoundedInterval(start, closedS, end, closede);
     }
 
-    public readonly BoundedInterval Intersect(BoundedInterval other) => Intersect(this, other);
+    public static (BoundedInterval Left, BoundedInterval Right) Substract(BoundedInterval left, BoundedInterval right)
+    {
+        if (right.End < left.Start)
+            return (left, Empty);
+
+        if (right.Start > left.End)
+            return (left, Empty);
+
+        if (right.IsEmpty)
+            return (left, Empty);
+
+        BoundedInterval rtnl;
+        if (right.Start < left.Start)
+            rtnl = Empty;
+        else
+            rtnl = new BoundedInterval(left.Start, left.IsClosedStart, right.Start, !right.IsClosedStart);
+
+        BoundedInterval rtnr;
+        if (right.End > left.End)
+            rtnr = Empty;
+        else
+            rtnr = new BoundedInterval(right.End, !right.IsClosedEnd, left.End, left.IsClosedEnd);
+
+        return (rtnl, rtnr);
+    }
+
+    public static (BoundedInterval Left, BoundedInterval Right) Union(BoundedInterval left, BoundedInterval right)
+    {
+        if (right.End < left.Start)
+            return (right, left);
+        if (right.End == left.Start && !right.IsClosedEnd && !left.IsClosedStart)
+            return (right, left);
+
+        if (left.End < right.Start)
+            return (left, right);
+        if (left.End == right.Start && !left.IsClosedEnd && !right.IsClosedStart)
+            return (left, right);
+
+        (float, bool) start;
+        if (right.Start < left.Start)
+            start = (right.Start, right.IsClosedStart);
+        else if (right.Start == left.Start)
+            start = (right.Start, right.IsClosedStart || left.IsClosedStart);
+        else
+            start = (left.Start, left.IsClosedStart);
+
+        (float, bool) end;
+        if (right.End > left.End)
+            end = (right.End, right.IsClosedEnd);
+        else if (right.End == left.End)
+            end = (right.End, right.IsClosedEnd || left.IsClosedEnd);
+        else
+            end = (left.End, left.IsClosedEnd);
+
+        return (new(start.Item1, start.Item2, end.Item1, end.Item2), Empty);
+    }
 
     public static implicit operator BoundedInterval(Interval interval)
         => new(interval.Start, true, interval.End, false);
+
+    #region Equality
 
     public static bool operator ==(BoundedInterval left, BoundedInterval right)
         => left.Start == right.Start && left.End == right.End
@@ -56,5 +115,12 @@ public struct BoundedInterval : IEquatable<BoundedInterval>, IEqualityOperators<
 
     public override readonly int GetHashCode() => HashCode.Combine(Start, End, IsClosedStart, IsClosedEnd);
 
+    #endregion
+
+    public readonly void Deconstruct(out float start, out bool isClosedStart, out float end, out bool isClosedEnd)
+        => (start, isClosedStart, end, isClosedEnd) = (Start, IsClosedStart, End, IsClosedEnd);
+
     public override readonly string ToString() => $"{(IsClosedStart ? '[' : '(')}{Start}, {End}{(IsClosedEnd ? ']' : ')')}";
+
+    public readonly string ToString(string? format) => $"{(IsClosedStart ? '[' : '(')}{Start.ToString(format)}, {End.ToString(format)}{(IsClosedEnd ? ']' : ')')}";
 }

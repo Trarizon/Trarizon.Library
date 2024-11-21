@@ -1,8 +1,6 @@
 ﻿using CommunityToolkit.Diagnostics;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
-using System.Runtime.CompilerServices;
 
 namespace Trarizon.Library.Numerics;
 /// <summary>
@@ -25,7 +23,7 @@ public struct Interval : IEquatable<Interval>, IEqualityOperators<Interval, Inte
 
     public readonly float Length => End - Start;
 
-    public readonly bool IsEmpty => Length == 0;
+    public readonly bool IsEmpty => Start == End;
 
     public static Interval Intersect(Interval left, Interval right)
     {
@@ -34,32 +32,47 @@ public struct Interval : IEquatable<Interval>, IEqualityOperators<Interval, Inte
         return new Interval(float.Max(left.Start, right.Start), float.Min(left.End, right.End));
     }
 
-    public readonly Interval Intersect(Interval other) => Intersect(this, other);
-
     /// <returns>
     /// If the result is empty, both items are empty
     /// If the result is one interval, the second item is empty,
     /// </returns>
     public static (Interval Left, Interval Right) Substract(Interval left, Interval right)
     {
-        if (right.Start <= left.Start) {
-            if (right.End <= left.Start)
-                return (left, Empty);
-            if (right.End < left.End)
-                return (new Interval(right.End, left.End), Empty);
-            Debug.Assert(right.End >= left.End);
-            return (Empty, Empty);
-        }
-        var rtnL = new Interval(left.Start, right.Start);
-        if (right.Start <= left.End) {
-            if (right.End < left.End)
-                return (rtnL, new Interval(right.End, left.End));
-            else
-                return (rtnL, Empty);
-        }
-        Debug.Assert(right.Start >= left.End);
-        return (left, Empty);
+        if (right.End < left.Start)
+            return (left, Empty);
+        if (right.Start > left.End)
+            return (left, Empty);
+
+        if (right.IsEmpty)
+            return (left, Empty);
+
+        Interval rtnl;
+        if (right.Start < left.Start)
+            rtnl = Empty;
+        else
+            rtnl = new Interval(left.Start, right.Start);
+
+        Interval rtnr;
+        if (right.End > left.End)
+            rtnr = Empty;
+        else
+            rtnr = new Interval(right.End, left.End);
+
+        return (rtnl, rtnr);
     }
+
+    public static (Interval Left, Interval Right) Union(Interval left, Interval right)
+    {
+        if (right.End < left.Start)
+            return (right, left);
+
+        if (right.Start > left.End)
+            return (left, right);
+
+        return (new Interval(float.Min(left.Start, right.Start), float.Max(left.End, right.End)), Empty);
+    }
+
+    #region Equality
 
     public static bool operator ==(Interval left, Interval right)
         => left.Start == right.Start && left.End == right.End;
@@ -71,5 +84,11 @@ public struct Interval : IEquatable<Interval>, IEqualityOperators<Interval, Inte
 
     public override readonly int GetHashCode() => HashCode.Combine(Start, End);
 
+    #endregion
+
+    public readonly void Deconstruct(out float start, out float end) => (start, end) = (Start, End);
+
     public override readonly string ToString() => $"[{Start}, {End})";
+
+    public readonly string ToString(string? format) => $"[{Start.ToString(format)}, {End.ToString(format)})";
 }

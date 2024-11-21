@@ -6,6 +6,9 @@ using System.Runtime.CompilerServices;
 namespace Trarizon.Library.Collections.Generic;
 public static class Trie
 {
+#if NET9_0_OR_GREATER
+    [OverloadResolutionPriority(-1)]
+#endif
     public static Trie<char> Create(IEnumerable<string> strings)
     {
         var trie = new Trie<char>();
