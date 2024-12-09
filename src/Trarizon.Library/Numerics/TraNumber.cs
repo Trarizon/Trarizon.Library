@@ -60,6 +60,17 @@ public static partial class TraNumber
         return (toMax - toMin) * lerp + toMin;
     }
 
+    /// <summary>
+    /// if (value < 0) value = ~value
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="value"></param>
+    public static void FlipNegative<T>(ref T value) where T : IBinaryInteger<T>
+    {
+        if (value < T.Zero)
+            value = ~value;
+    }
+
     #region MinMax
 
     public static T Min<T>(params ReadOnlySpan<T> values) where T : INumber<T>

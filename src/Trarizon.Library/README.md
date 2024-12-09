@@ -25,6 +25,7 @@ Contents:
 
 - namespace `AllocOpt` : Rewrite some collections with struct
 - namespace `Generic` : Extension of `System.Collections.Generic`
+    - `ILinkNode` & `LinkNodeHelper` : Abstraction of linked list node, provides some helper methods in `LinkNodeHelper`
     - `Deque<>` : Double-ended queue
     - `ListDictionary<,>` : Generic version of `System.Collections.Specialized.ListDictionary`.
     - `RingQueue<>` : Ring queue with fixed capacity, optional throw or overwrite when full
@@ -173,6 +174,11 @@ The namespace structure is almost the same with `System.XXX`
 - namespace `Buffer`
     - `TraArrayPool` : Helpers for `ArrayPool`
     - `ObjectPool` : Object pool
+- namespace `Components`
+    - `IFlagNotifiable` : Interface for notification, a cheaper and stricter `INotifyPropertyChanged`
+        - `FlagNotifiable` : Extensions and static methods for global notification
+        - `FlagNotifiable<>/<,>` : Abstract classes that implements `IFlagNotifiable` and provide a method `InvokeNotification`, not thread-safe
+        - `FlagNotifier` : Designed as a field to help implements `IFlagNotifiable`
 - namespace `IO`
     - `TraPath` : Extends `System.IO.Path`
     - `TraStream` : Helpers for `System.IO.Stream`
@@ -189,6 +195,7 @@ The namespace structure is almost the same with `System.XXX`
 - namespace `Threading`
     - `AsyncSemaphoreLock` : Async lock implemented with `SemaphoreSlim`
     - `TraAsync` : Helpers for async operation, `Task<>`, `ValueTask<>`, etc.
+- `TraDelegate` : Helpers for delegates
 - `TraEnum` : Helpers for enum types
 - `TraRandom` : Helpers for `Random`
 - `TraThrow` : Extends `CommunityToolkit.Diagnostic.ThrowHelper`
@@ -211,6 +218,7 @@ The namespace structure is almost the same with `System.XXX`
     - `Normalize` : Linear normalize value into [0,1]
     - `NormalizeUnclamped` : Linear normalize value into [0,1], but not clamped
     - `MapTo` : Linear map a value from [a, b] to [c, d], no clamp
+    - `FlipNegative` : `if (value < 0) value = ~value`, useful on `BinarySearch` result
     - `Min/Max` : Overloads for `params ReadOnlySpan<>`
     - `MinMax(T, T)` : Reorder input 2 args
     - `MinMax(ROS<T>)` : Get min and max in one iteration
@@ -221,6 +229,8 @@ The namespace structure is almost the same with `System.XXX`
 - Async
     - `GetAwaiter` : Support `await` keyword for `ValueTask?`, `ValueTask<>?`
     - `CatchCancallation` : Return a awaitable that will catch `TaskCancellationException`.
+- Delegate
+    - `Create` : Create delegate with an `object` and a static method. It is actually the way compiler use to create delegate for extension methods.
 - Enum
     - `HasAnyFlag` : Check if a enum value has one of given flags.
 - Random

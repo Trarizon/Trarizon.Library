@@ -26,6 +26,8 @@ public struct BoundedInterval : IEquatable<BoundedInterval>, IEqualityOperators<
         IsClosedEnd = closedEnd;
     }
 
+    #region Math operators
+
     public static BoundedInterval Intersect(BoundedInterval left, BoundedInterval right)
     {
         if (left.End < right.Start || left.Start < right.End)
@@ -98,6 +100,11 @@ public struct BoundedInterval : IEquatable<BoundedInterval>, IEqualityOperators<
 
         return (new(start.Item1, start.Item2, end.Item1, end.Item2), Empty);
     }
+
+    #endregion
+
+    public readonly bool Contains(float value) 
+        => (IsClosedStart ? value >= Start : value > Start) && (IsClosedEnd ? value <= End : value < End);
 
     public static implicit operator BoundedInterval(Interval interval)
         => new(interval.Start, true, interval.End, false);

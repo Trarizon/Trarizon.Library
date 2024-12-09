@@ -18,6 +18,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using Trarizon.Library;
 using Trarizon.Library.Buffers.Pooling;
 using Trarizon.Library.CodeAnalysis;
 using Trarizon.Library.CodeAnalysis.MemberAccess;
@@ -34,35 +35,18 @@ using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 
 Console.WriteLine("Hello, world");
-var a = new A("str", 15);
-Console.WriteLine(a.Prop);
-Console.WriteLine(a.S);
-ArgumentNullException.ThrowIfNull(a);
+new Func<string, int, int>(C.M).Invoke("Str",6);
+var str = new string('c', 10);
+#if NET9_0_OR_GREATER
+unsafe {
+    var func = TraDelegate.Create<string, int, int>(str, &C.M);
+    func.Invoke(1);
+}
+#endif
 
-Trie.Create(ArrayValues(i => i.ToString()));
 
-class A
+static class C
 {
-    public readonly string Field;
-    public string Prop { get; }
 
-    public readonly double R;
-    public readonly double S;
-
-    public A(string str, double r)
-    {
-        if (str == "str") {
-            Field = "f";
-            Prop = "p";
-        }
-        else {
-            Field = "F";
-            Prop = "P";
-        }
-        Field = "Field";
-        Prop = "Prop";
-
-        R = r;
-        S = this.R * this.R * Math.PI;
-    }
+    public static int M(string str, int anto) => str.Length;
 }

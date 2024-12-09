@@ -25,6 +25,8 @@ public struct Interval : IEquatable<Interval>, IEqualityOperators<Interval, Inte
 
     public readonly bool IsEmpty => Start == End;
 
+    #region Math operators
+
     public static Interval Intersect(Interval left, Interval right)
     {
         if (left.End <= right.Start || left.Start >= right.End)
@@ -71,6 +73,10 @@ public struct Interval : IEquatable<Interval>, IEqualityOperators<Interval, Inte
 
         return (new Interval(float.Min(left.Start, right.Start), float.Max(left.End, right.End)), Empty);
     }
+
+    #endregion
+
+    public readonly bool Contains(float value) => value >= Start && value < End;
 
     #region Equality
 

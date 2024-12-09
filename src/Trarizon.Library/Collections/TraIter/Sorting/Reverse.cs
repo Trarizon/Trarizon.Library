@@ -4,8 +4,9 @@ namespace Trarizon.Library.Collections;
 partial class TraIter
 {
     /// <summary>
-    /// Reverse, because official Linq will always create a cache, so this will be
-    /// better when only iterate once,,, maybe
+    /// Reverse. If <paramref name="source"/> is an <c>IList&lt;T></c>, this method iterates
+    /// the collection based on index, as LinQ always create a cache array. So this may perform
+    /// better in some case that you just want to iterate a list directly
     /// </summary>
     public static ReverseIterator<T> IterReverse<T>(this IEnumerable<T> source)
     {
