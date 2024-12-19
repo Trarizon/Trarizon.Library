@@ -4,7 +4,7 @@ using System.Numerics;
 
 namespace Trarizon.Library.Numerics;
 /// <summary>
-/// Left open, right closed interval, in <see cref="float"/>
+/// Left close, right open interval, in <see cref="float"/>
 /// </summary>
 public struct Interval : IEquatable<Interval>
 #if NET7_0_OR_GREATER

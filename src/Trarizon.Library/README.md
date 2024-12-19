@@ -183,7 +183,7 @@ The namespace structure is almost the same with `System.XXX`
     - `TraStream` : Helpers for `System.IO.Stream`
 - namespace `Numerics`
     - `BoundedInterval` : Represents a interval 
-    - `Interval` : Represents a left-open, right-close interval
+    - `Interval` : Represents a left-close, right-open interval
     - `Ray2D/3D` : Ray
     - `TraGeometry` : Helpers for `Vector2/3`, `Quaternion`, etc.
     - `TraNumber` : Helpers for number types (in `System.Numerics`), `Index`, `Range`
