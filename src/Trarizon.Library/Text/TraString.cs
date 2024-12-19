@@ -2,8 +2,9 @@
 using System.Runtime.CompilerServices;
 
 namespace Trarizon.Library.Text;
-public static class TraString
+public static partial class TraString
 {
+#if NET8_0_OR_GREATER
     /// <summary>
     /// Create string by <see cref="DefaultInterpolatedStringHandler"/>, directly return inner ReadOnlySpan without allocate string
     /// </summary>
@@ -17,4 +18,5 @@ public static class TraString
         [UnsafeAccessor(UnsafeAccessorKind.Method, Name = "get_Text")]
         public static extern ReadOnlySpan<char> GetTextSpan(ref DefaultInterpolatedStringHandler handler);
     }
+#endif
 }

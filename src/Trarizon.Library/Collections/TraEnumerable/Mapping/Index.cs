@@ -1,8 +1,4 @@
-﻿#if NET9_0_OR_GREATER
-using System.ComponentModel;
-#endif
-
-namespace Trarizon.Library.Collections;
+﻿namespace Trarizon.Library.Collections;
 partial class TraEnumerable
 {
     public static IEnumerable<(int Index, T Item)> WithIndex<T>(this IEnumerable<T> source)

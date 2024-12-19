@@ -20,6 +20,8 @@ partial class TraList
         // use SetCount to update _version;
 #if NET9_0_OR_GREATER
         Utils<T>.GetVersion(list)++;
+#elif NETSTANDARD2_0
+        list[0] = list[0];
 #else
         CollectionsMarshal.SetCount(list, list.Count);
 #endif
@@ -37,6 +39,8 @@ partial class TraList
         // See MoveTo(List<>, int, int) for explanation
 #if NET9_0_OR_GREATER
         Utils<T>.GetVersion(list)++;
+#elif NETSTANDARD2_0
+        list[0] = list[0];
 #else
         CollectionsMarshal.SetCount(list, list.Count);
 #endif

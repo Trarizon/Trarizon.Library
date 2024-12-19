@@ -1,4 +1,8 @@
-﻿using System.ComponentModel;
+﻿#if NETSTANDARD2_0
+#pragma warning disable CS8604 // 引用类型参数可能为 null。
+#endif
+
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
 namespace Trarizon.Library.Collections;

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using CommunityToolkit.Diagnostics;
+using System.Collections;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
@@ -23,7 +24,7 @@ public class RingQueue<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public RingQueue(int maxCount, RingQueueFullBehaviour fullBehaviour = RingQueueFullBehaviour.Overwrite)
     {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maxCount);
+        Guard.IsGreaterThan(maxCount, 0);
         _array = [];
         _count = _head = _tail = 0;
         _fullBehaviour = fullBehaviour;
@@ -32,9 +33,9 @@ public class RingQueue<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public RingQueue(int maxCount, int initialCapacity, RingQueueFullBehaviour fullBehaviour = RingQueueFullBehaviour.Overwrite)
     {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maxCount);
-        ArgumentOutOfRangeException.ThrowIfNegative(initialCapacity);
-        _array = initialCapacity == 0 ? [] : new T[int.Min(maxCount, initialCapacity)];
+        Guard.IsGreaterThan(maxCount, 0);
+        Guard.IsGreaterThanOrEqualTo(initialCapacity, 0);
+        _array = initialCapacity == 0 ? [] : new T[Math.Min(maxCount, initialCapacity)];
         _count = _head = _tail = 0;
         _fullBehaviour = fullBehaviour;
         _maxCount = maxCount;
@@ -149,9 +150,13 @@ public class RingQueue<T> : ICollection<T>, IReadOnlyCollection<T>
         }
 
         item = _array[_head];
+#if NETSTANDARD2_0
+        _array[_head] = default!;
+#else
         if (RuntimeHelpers.IsReferenceOrContainsReferences<T>()) {
             _array[_head] = default!;
         }
+#endif
         Increment(ref _head);
         _count--;
         _version++;
@@ -167,9 +172,13 @@ public class RingQueue<T> : ICollection<T>, IReadOnlyCollection<T>
 
         Decrement(ref _tail);
         item = _array[_tail];
-        if (RuntimeHelpers.IsReferenceOrContainsReferences<T>()) {
+#if NETSTANDARD2_0
+        _array[_tail] = default!;
+#else
+      if (RuntimeHelpers.IsReferenceOrContainsReferences<T>()) {
             _array[_tail] = default!;
         }
+#endif
         _count--;
         _version++;
         return true;

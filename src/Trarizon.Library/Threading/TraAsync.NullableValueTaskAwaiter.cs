@@ -4,9 +4,14 @@ namespace Trarizon.Library.Threading;
 partial class TraAsync
 {
     /// <remarks>
-     /// Provide <see langword="await"/> feature support for nullable <see cref="ValueTask"/>
-     /// </remarks>
-    public static ValueTaskAwaiter GetAwaiter(this ValueTask? task) => (task ?? ValueTask.CompletedTask).GetAwaiter();
+    /// Provide <see langword="await"/> feature support for nullable <see cref="ValueTask"/>
+    /// </remarks>
+    public static ValueTaskAwaiter GetAwaiter(this ValueTask? task)
+#if NETSTANDARD2_0
+        => task.GetValueOrDefault().GetAwaiter();
+#else
+        => (task ?? ValueTask.CompletedTask).GetAwaiter();
+#endif
 
     /// <remarks>
     /// Provide <see langword="await"/> feature support for nullable <see cref="ValueTask"/>

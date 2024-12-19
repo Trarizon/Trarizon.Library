@@ -2,6 +2,9 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+#if NETSTANDARD2_0
+using Unsafe = Trarizon.Library.Netstd.NetstdFix_Unsafe;
+#endif
 
 namespace Trarizon.Library.Collections.Generic;
 public static class Trie
@@ -257,7 +260,8 @@ public static class TrieExt
         {
             Debug.Assert(node.HasValue && node.IsEnd);
             Span<char> chars = stackalloc char[depth];
-            foreach (ref var c in chars.AsReversed()) {
+            for (int i = chars.Length - 1; i >= 0; i--) {
+                ref var c = ref chars[i];
                 Debug.Assert(node.HasValue);
                 c = node.Value;
                 node = node.Parent;

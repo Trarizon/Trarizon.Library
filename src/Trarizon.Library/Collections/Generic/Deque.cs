@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using CommunityToolkit.Diagnostics;
+using System.Collections;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
@@ -20,7 +21,7 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public Deque(int capacity)
     {
-        ArgumentOutOfRangeException.ThrowIfNegative(capacity);
+        Guard.IsGreaterThanOrEqualTo(capacity, 0);
         _array = new T[capacity];
     }
 
@@ -268,9 +269,13 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
 
         item = _array[_head];
 
+#if NETSTANDARD2_0
+        _array[_head] = default!;
+#else
         if (RuntimeHelpers.IsReferenceOrContainsReferences<T>()) {
             _array[_head] = default!;
         }
+#endif
         _head = Increment(_head);
         _count--;
         _version++;
@@ -287,9 +292,13 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
         _tail = Decrement(_tail);
         item = _array[_tail];
 
-        if (RuntimeHelpers.IsReferenceOrContainsReferences<T>()) {
+#if NETSTANDARD2_0
+        _array[_tail] = default!;
+#else
+       if (RuntimeHelpers.IsReferenceOrContainsReferences<T>()) {
             _array[_tail] = default!;
         }
+#endif
         _count--;
         _version++;
         return true;
@@ -309,7 +318,7 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public int EnsureCapacity(int capacity)
     {
-        ArgumentOutOfRangeException.ThrowIfNegative(capacity);
+        Guard.IsGreaterThanOrEqualTo(capacity, 0);
         if (_array.Length < capacity) {
             GrowAndCopy(capacity, 0);
         }
@@ -326,12 +335,11 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public void TrimExcess(int capacity)
     {
-        ArgumentOutOfRangeException.ThrowIfNegative(capacity);
-        ArgumentOutOfRangeException.ThrowIfLessThan(capacity, _count);
+        Guard.IsGreaterThanOrEqualTo(capacity, _count);
         if (capacity == _array.Length)
             return;
 
-        var newArray=new T[capacity];
+        var newArray = new T[capacity];
         CopyTo(newArray, 0);
         _array = newArray;
     }

@@ -64,10 +64,11 @@ partial class TraEnumerable
 
         public virtual void CopyTo(T[] array, int arrayIndex)
         {
-            ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
-            ArgumentOutOfRangeException.ThrowIfGreaterThan(arrayIndex, array.Length - Count);
+            int count = Count;
+            Guard.IsGreaterThanOrEqualTo(arrayIndex, 0);
+            Guard.IsLessThanOrEqualTo(arrayIndex, array.Length - count);
 
-            var span = array.AsSpan(arrayIndex, Count);
+            var span = array.AsSpan(arrayIndex, count);
             int i = 0;
             foreach (var val in this) {
                 span[i++] = val;
@@ -76,8 +77,8 @@ partial class TraEnumerable
 
         void ICollection.CopyTo(Array array, int index)
         {
-            ArgumentOutOfRangeException.ThrowIfNegative(index);
-            ArgumentOutOfRangeException.ThrowIfGreaterThan(index, array.Length - Count);
+            Guard.IsGreaterThanOrEqualTo(index, 0);
+            Guard.IsLessThanOrEqualTo(index, array.Length - Count);
 
             if (array.Rank != 1)
                 ThrowHelper.ThrowInvalidOperationException("Array has invalid rank.");

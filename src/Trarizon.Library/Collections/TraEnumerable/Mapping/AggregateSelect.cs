@@ -28,9 +28,13 @@ partial class TraEnumerable
     public static IEnumerable<TAccumulate> AggregateSelect<T, TAccumulate>(this IEnumerable<T> source, TAccumulate seed, Func<TAccumulate, T, TAccumulate> func)
         => source.AggregateSelect(seed, func, x => x);
 
+#if NET7_0_OR_GREATER
+
     /// <summary>
     /// Aggregate, and returns all values in process
     /// </summary>
     public static IEnumerable<T> AggregateSelect<T>(this IEnumerable<T> source, Func<T, T, T> func) where T : INumberBase<T>
         => source.AggregateSelect(T.Zero, func);
+
+#endif
 }

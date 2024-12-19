@@ -48,10 +48,17 @@ partial class TraEnumerable
             Dictionary<ValueTuple<TKey>, (bool Duplicated, T Value)> dict = comparer is null ? new() : new(new ValueTupleWrapEqualityComparer<TKey>(comparer));
 
             foreach (var item in source) {
+#if NETSTANDARD2_0
+                var key = new ValueTuple<TKey>(keySelector(item));
+                if (!dict.TryGetValue(new(keySelector(item)), out var val)) {
+                    dict.Add(key, (false, item));
+                }
+#else
                 ref var val = ref CollectionsMarshal.GetValueRefOrAddDefault(dict, new(keySelector(item)), out var exists);
                 if (!exists) {
                     val = (false, item);
                 }
+#endif
                 else if (val.Duplicated) {
                     yield return item;
                 }

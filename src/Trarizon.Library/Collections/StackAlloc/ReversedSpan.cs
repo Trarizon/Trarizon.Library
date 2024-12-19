@@ -1,4 +1,6 @@
-﻿using CommunityToolkit.Diagnostics;
+﻿#if !NETSTANDARD2_0
+
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -144,3 +146,4 @@ public readonly ref struct ReversedSpan<T>
     }
 }
 
+#endif

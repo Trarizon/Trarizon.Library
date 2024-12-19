@@ -6,14 +6,18 @@ internal static class ArrayGrowHelper
 {
     public static void FreeManaged<T>(T[] array)
     {
+#if !NETSTANDARD2_0
         if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
-            Array.Clear(array, 0, array.Length);
+#endif
+        Array.Clear(array, 0, array.Length);
     }
 
     public static void FreeManaged<T>(T[] array, Range range)
     {
+#if !NETSTANDARD2_0
         if (!RuntimeHelpers.IsReferenceOrContainsReferences<T>())
             return;
+#endif
 
         var (off, len) = range.GetOffsetAndLength(array.Length);
         Array.Clear(array, off, len);
@@ -21,8 +25,10 @@ internal static class ArrayGrowHelper
 
     public static void FreeManaged<T>(T[] array, int index, int length)
     {
+#if !NETSTANDARD2_0
         if (!RuntimeHelpers.IsReferenceOrContainsReferences<T>())
             return;
+#endif
 
         Array.Clear(array, index, length);
     }
@@ -33,13 +39,20 @@ internal static class ArrayGrowHelper
         Debug.Assert(copyLength <= array.Length);
 
         var originalArray = array;
+#if NETSTANDARD2_0
+        array = new T[GetNewLength(array.Length, expectedLength, TraArray.MaxLength)];
+#else
         array = new T[GetNewLength(array.Length, expectedLength, Array.MaxLength)];
+#endif
         Array.Copy(originalArray, array, copyLength);
     }
 
     public static void GrowNonMove<T>(ref T[] array, int expectedLength)
+#if NETSTANDARD2_0
+        => GrowNonMove(ref array, expectedLength, TraArray.MaxLength);
+#else
         => GrowNonMove(ref array, expectedLength, Array.MaxLength);
-
+#endif
     public static void GrowNonMove<T>(ref T[] array, int expectedLength, int maxLength)
     {
         Debug.Assert(expectedLength > array.Length);
@@ -72,7 +85,7 @@ internal static class ArrayGrowHelper
         if (length == 0)
             newLen = 4;
         else
-            newLen = int.Min(length * 2, maxLength);
+            newLen = Math.Min(length * 2, maxLength);
 
         if (newLen < expectedLength)
             newLen = expectedLength;

@@ -2,6 +2,9 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+#if NETSTANDARD2_0
+using Unsafe = Trarizon.Library.Netstd.NetstdFix_Unsafe;
+#endif
 
 namespace Trarizon.Library.Collections.Generic;
 public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue> where TKey : notnull
@@ -162,6 +165,13 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
     IEnumerable<TKey> IReadOnlyDictionary<TKey, TValue>.Keys => Keys;
     IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values => Values;
 
+#if NETSTANDARD2_0
+
+    bool IDictionary<TKey, TValue>.TryGetValue(TKey key, out TValue value) => TryGetValue(key, out value!);
+    bool IReadOnlyDictionary<TKey, TValue>.TryGetValue(TKey key, out TValue value) => TryGetValue(key, out value!);
+
+#endif
+
     void ICollection<KeyValuePair<TKey, TValue>>.Add(KeyValuePair<TKey, TValue> item) => Add(item.Key, item.Value);
     bool ICollection<KeyValuePair<TKey, TValue>>.Contains(KeyValuePair<TKey, TValue> item)
     {
@@ -173,14 +183,14 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
     }
     void ICollection<KeyValuePair<TKey, TValue>>.CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
     {
-        ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
+        Guard.IsGreaterThanOrEqualTo(arrayIndex, 0);
         Guard.HasSizeGreaterThanOrEqualTo(array, arrayIndex + Count);
 
         if (Count == 0)
             return;
 
         foreach (var (k, v) in _pairs) {
-            array[arrayIndex++] = KeyValuePair.Create(k, v);
+            array[arrayIndex++] = new KeyValuePair<TKey, TValue>(k, v);
         }
     }
     bool ICollection<KeyValuePair<TKey, TValue>>.Remove(KeyValuePair<TKey, TValue> item)
@@ -263,7 +273,7 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
 
         public void CopyTo(TKey[] array, int arrayIndex)
         {
-            ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
+            Guard.IsGreaterThanOrEqualTo(arrayIndex, 0);
             Guard.HasSizeGreaterThanOrEqualTo(array, arrayIndex + Count);
 
             if (Count == 0)
@@ -323,7 +333,7 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
 
         public void CopyTo(TValue[] array, int arrayIndex)
         {
-            ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
+            Guard.IsGreaterThanOrEqualTo(arrayIndex, 0);
             Guard.HasSizeGreaterThanOrEqualTo(array, arrayIndex + Count);
 
             if (Count == 0)

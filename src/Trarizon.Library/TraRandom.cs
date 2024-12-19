@@ -1,11 +1,12 @@
-﻿using System.Diagnostics;
+﻿using CommunityToolkit.HighPerformance;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
+using Trarizon.Library.Collections;
+using Trarizon.Library.Numerics;
 
 namespace Trarizon.Library;
-public static class TraRandom
+public static partial class TraRandom
 {
-    #region SelectWeighted
-
     /// <summary>
     /// Weight random
     /// </summary>
@@ -34,17 +35,19 @@ public static class TraRandom
     /// </summary>
     /// <returns>The index of result in <paramref name="weights"/></returns>
     public static int SelectWeighted(this Random random, List<float> weights)
-        => random.SelectWeighted(CollectionsMarshal.AsSpan(weights));
-
-    #endregion
-
-    #region NextFloat
+        => random.SelectWeighted(weights.AsSpan());
 
     public static float NextSingle(this Random random, float min, float max)
+#if NETSTANDARD2_0
+        => TraNumber.Lerp(min, max, random.NextSingle());
+#else
         => float.Lerp(min, max, random.NextSingle());
+#endif
 
     public static double NextDouble(this Random random, double min, double max)
+#if NETSTANDARD2_0
+        => min + random.NextDouble() * (max - min);
+#else
         => double.Lerp(min, max, random.NextDouble());
-
-    #endregion
+#endif
 }

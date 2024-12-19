@@ -1,42 +1,21 @@
-﻿using CommunityToolkit.HighPerformance;
-using System.Numerics;
+﻿// This file mirrors TraNumber.cs, for .NET Standard as abstract static method appears from .NET 7
 
-#if !NETSTANDARD2_0
+#if NETSTANDARD2_0
+
+using CommunityToolkit.HighPerformance;
 
 namespace Trarizon.Library.Numerics;
-public static partial class TraNumber
+partial class TraNumber
 {
-    public static bool IncAndTryWrap<T>(this ref T number, T delta, T max)
-        where T : struct, INumberBase<T>, IComparisonOperators<T, T, bool>, IModulusOperators<T, T, T>
-    {
-        number += delta;
-        if (number > max) {
-            number %= max;
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-
-    public static void IncAndWrap<T>(this ref T number, T delta, T max)
-        where T : struct, INumberBase<T>, IComparisonOperators<T, T, bool>, IModulusOperators<T, T, T>
-    {
-        number += delta;
-        if (number > max) {
-            number %= max;
-        }
-    }
-
     /// <summary>
     /// Linear normalize value into [0,1]
     /// </summary>
-    public static T Normalize<T>(T min, T max, T value) where T : IFloatingPointIeee754<T>
+    public static float Normalize(float min, float max, float value)
     {
         if (min == max)
-            return T.Zero;
+            return 0;
 
-        return T.Clamp((value - min) / (max - min), T.Zero, T.One);
+        return Clamp((value - min) / (max - min), 0f, 1f);
     }
 
     /// <summary>
@@ -44,10 +23,10 @@ public static partial class TraNumber
     /// <br/>
     /// eg in range [5,10], 15 result in 5, 0 result in -1
     /// </summary>
-    public static T NormalizeUnclamped<T>(T min, T max, T value) where T : IFloatingPointIeee754<T>
+    public static float NormalizeUnclamped(float min, float max, float value)
     {
         if (min == max)
-            return T.Zero;
+            return 0;
         return (value - min) / (max - min);
     }
 
@@ -55,26 +34,18 @@ public static partial class TraNumber
     /// Linear map a value from [<paramref name="fromMin"/>, <paramref name="fromMax"/>] 
     /// to [<paramref name="toMin"/>, <paramref name="toMax"/>]. The method does not clamp value
     /// </summary>
-    public static T MapTo<T>(T value, T fromMin, T fromMax, T toMin, T toMax) where T : IFloatingPointIeee754<T>
+    public static float MapTo(float value, float fromMin, float fromMax, float toMin, float toMax)
     {
         var lerp = (value - fromMin) / (fromMax - fromMin);
         return (toMax - toMin) * lerp + toMin;
     }
 
-    /// <summary>
-    /// if (value < 0) value = ~value, this method is useful with return value of <c>Search</c>s
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="value"></param>
-    public static void FlipNegative<T>(ref T value) where T : IBinaryInteger<T>
-    {
-        if (value < T.Zero)
-            value = ~value;
-    }
-
     #region MinMax
 
-    public static T Min<T>(params ReadOnlySpan<T> values) where T : INumber<T>
+    public static float Min(float v0, float v1, float v2)
+        => v0 > v1 ? v1 : v0 > v2 ? v2 : v0;
+
+    public static float Min(params ReadOnlySpan<float> values)
     {
         var rtn = values[0];
         for (int i = 1; i < values.Length; i++) {
@@ -85,7 +56,10 @@ public static partial class TraNumber
         return rtn;
     }
 
-    public static T Max<T>(params ReadOnlySpan<T> values) where T : INumber<T>
+    public static float Max(float v0, float v1, float v2)
+        => v0 < v1 ? v1 : v0 < v2 ? v2 : v0;
+
+    public static float Max(params ReadOnlySpan<float> values)
     {
         var rtn = values[0];
         for (int i = 1; i < values.Length; i++) {
@@ -103,7 +77,7 @@ public static partial class TraNumber
     /// If <paramref name="left"/> equals <paramref name="right"/>, the return value is (<paramref name="left"/>, <paramref name="right"/>),
     /// else Min is the less one
     /// </returns>
-    public static (T Min, T Max) MinMax<T>(T left, T right) where T : INumber<T>
+    public static (float Min, float Max) MinMax(float left, float right)
     {
         if (left <= right)
             return (left, right);
@@ -111,7 +85,7 @@ public static partial class TraNumber
             return (right, left);
     }
 
-    public static (T Min, T Max) MinMax<T>(params ReadOnlySpan<T> values) where T : INumber<T>
+    public static (float Min, float Max) MinMax(params ReadOnlySpan<float> values)
     {
         var min = values[0];
         var max = min;
@@ -126,6 +100,7 @@ public static partial class TraNumber
     }
 
     #endregion
+
 }
 
 #endif

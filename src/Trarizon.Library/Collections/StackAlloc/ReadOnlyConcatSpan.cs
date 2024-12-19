@@ -94,12 +94,17 @@ public readonly ref struct ReadOnlyConcatSpan<T>(ReadOnlySpan<T> first, ReadOnly
     public override string ToString()
     {
         if (typeof(T) == typeof(char)) {
-            var buffer=(stackalloc char[Length]);
+#if NETSTANDARD2_0
+            return $"{_first.ToString()}{_second.ToString()}";
+#else
+            var buffer = (stackalloc char[Length]);
+
             var first = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<T, char>(ref _first.DangerousGetReference()), _first.Length);
             var second = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<T, char>(ref _second.DangerousGetReference()), _second.Length);
             first.CopyTo(buffer);
             second.CopyTo(buffer[first.Length..]);
             return new string(buffer);
+#endif
         }
         return $"ReadOnlyConcatSpan<{typeof(T).Name}>[{Length}]";
     }

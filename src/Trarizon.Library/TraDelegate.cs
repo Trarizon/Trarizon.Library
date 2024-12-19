@@ -1,4 +1,6 @@
-﻿using System.Runtime.CompilerServices;
+﻿#if !NETSTANDARD2_0
+
+using System.Runtime.CompilerServices;
 
 namespace Trarizon.Library;
 public static class TraDelegate
@@ -76,3 +78,5 @@ public static class TraDelegate
 
 #endif
 }
+
+#endif

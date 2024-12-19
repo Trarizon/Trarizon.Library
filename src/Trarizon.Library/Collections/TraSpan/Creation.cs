@@ -1,5 +1,8 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+#if NETSTANDARD2_0
+using MemoryMarshal = Trarizon.Library.Netstd.NetstdFix_MemoryMarshal;
+#endif
 
 namespace Trarizon.Library.Collections;
 partial class TraSpan

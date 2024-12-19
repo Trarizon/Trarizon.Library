@@ -18,8 +18,8 @@ public struct AllocOptList<T>
 
     public AllocOptList(int capacity)
     {
-        ArgumentOutOfRangeException.ThrowIfNegative(capacity);
-
+        Guard.IsGreaterThanOrEqualTo(capacity, 0);
+     
         if (capacity == 0)
             _array = [];
         else
@@ -180,9 +180,9 @@ public struct AllocOptList<T>
 
     public void RemoveRange(int index, int count)
     {
-        ArgumentOutOfRangeException.ThrowIfNegative(count);
-        ArgumentOutOfRangeException.ThrowIfNegative(index);
-        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index + count, _count);
+        Guard.IsGreaterThanOrEqualTo(count, 0);
+        Guard.IsGreaterThanOrEqualTo(index, 0);
+        Guard.IsLessThan(index + count, _count);
 
         Array.Copy(_array, index + count, _array, index, _count - index - count);
         _count -= count;

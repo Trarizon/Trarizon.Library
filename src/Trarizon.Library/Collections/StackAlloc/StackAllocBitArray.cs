@@ -31,7 +31,11 @@ public ref struct StackAllocBitArray(Span<byte> allocatedSpace)
 
     private static (int SpanIndex, byte Mask) GetSpanIndexAndMask(int index)
     {
+#if NETSTANDARD2_0
+        var quo = Math.DivRem(index, BitContainterSize, out var rem);
+#else
         var (quo, rem) = int.DivRem(index, BitContainterSize);
+#endif
         return (quo, (byte)(1 << rem));
     }
 

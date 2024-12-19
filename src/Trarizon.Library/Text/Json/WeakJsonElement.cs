@@ -1,4 +1,6 @@
-﻿using CommunityToolkit.Diagnostics;
+﻿#if !NETSTANDARD2_0
+
+using CommunityToolkit.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -202,3 +204,5 @@ public readonly struct WeakJsonElement(JsonElement element)
         return false;
     }
 }
+
+#endif

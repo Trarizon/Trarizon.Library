@@ -1,19 +1,10 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 
 namespace Trarizon.Library;
 [StackTraceHidden]
-public static class TraThrow
+internal static class TraThrow
 {
-    [DoesNotReturn]
-    public static void ThrowSwitchExpressionException(object? unmatchedValue = null)
-        => throw new SwitchExpressionException(unmatchedValue);
-
-    [DoesNotReturn]
-    public static T ThrowSwitchExpressionException<T>(object? unmatchedValue = null)
-        => throw new SwitchExpressionException(unmatchedValue);
-
     [DoesNotReturn]
     internal static void KeyNotFound<T>(T key)
         => throw new KeyNotFoundException($"Cannot find key '{key}' in collection.");

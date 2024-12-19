@@ -1,14 +1,22 @@
 ﻿using System.Buffers;
 using System.Diagnostics.CodeAnalysis;
+using Trarizon.Library.Text;
 
 namespace Trarizon.Library.IO;
 public static class TraPath
 {
+#if NETSTANDARD2_0
+    [field: MaybeNull]
+    private static char[] InvalidFileNameChars => field ??= Path.GetInvalidFileNameChars();
+    [field: MaybeNull]
+    private static char[] InvalidPathNameChars => field ??= Path.GetInvalidPathChars();
+#else
     [field: MaybeNull]
     private static SearchValues<char> InvalidFileNameChars => field ??= SearchValues.Create(Path.GetInvalidFileNameChars());
 
     [field: MaybeNull]
     private static SearchValues<char> InvalidPathNameChars => field ??= SearchValues.Create(Path.GetInvalidPathChars());
+#endif
 
     public static bool IsValidFileName(ReadOnlySpan<char> fileName)
     {

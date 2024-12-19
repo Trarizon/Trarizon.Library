@@ -3,7 +3,10 @@ using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 
 namespace Trarizon.Library.Numerics;
-public struct BoundedInterval : IEquatable<BoundedInterval>, IEqualityOperators<BoundedInterval, BoundedInterval, bool>
+public struct BoundedInterval : IEquatable<BoundedInterval>
+#if NET7_0_OR_GREATER
+    , IEqualityOperators<BoundedInterval, BoundedInterval, bool>
+#endif
 {
     public float Start;
     public float End;
@@ -103,7 +106,7 @@ public struct BoundedInterval : IEquatable<BoundedInterval>, IEqualityOperators<
 
     #endregion
 
-    public readonly bool Contains(float value) 
+    public readonly bool Contains(float value)
         => (IsClosedStart ? value >= Start : value > Start) && (IsClosedEnd ? value <= End : value < End);
 
     public static implicit operator BoundedInterval(Interval interval)

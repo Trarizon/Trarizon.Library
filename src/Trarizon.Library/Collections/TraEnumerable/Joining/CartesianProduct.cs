@@ -51,7 +51,11 @@ partial class TraEnumerable
         public override (T, T2) this[int index]
         {
             get {
+#if NETSTANDARD2_0
+                var div = Math.DivRem(index, second.Length, out var rem);
+#else
                 var (div, rem) = int.DivRem(index, second.Length);
+#endif
                 return (first[div], second[rem]);
             }
         }

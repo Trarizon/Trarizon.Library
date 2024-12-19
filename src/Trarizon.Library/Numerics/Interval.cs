@@ -6,7 +6,10 @@ namespace Trarizon.Library.Numerics;
 /// <summary>
 /// Left open, right closed interval, in <see cref="float"/>
 /// </summary>
-public struct Interval : IEquatable<Interval>, IEqualityOperators<Interval, Interval, bool>
+public struct Interval : IEquatable<Interval>
+#if NET7_0_OR_GREATER
+    , IEqualityOperators<Interval, Interval, bool>
+#endif
 {
     public float Start;
     public float End;
@@ -31,7 +34,7 @@ public struct Interval : IEquatable<Interval>, IEqualityOperators<Interval, Inte
     {
         if (left.End <= right.Start || left.Start >= right.End)
             return Empty;
-        return new Interval(float.Max(left.Start, right.Start), float.Min(left.End, right.End));
+        return new Interval(Math.Max(left.Start, right.Start), Math.Min(left.End, right.End));
     }
 
     /// <returns>
@@ -71,10 +74,10 @@ public struct Interval : IEquatable<Interval>, IEqualityOperators<Interval, Inte
         if (right.Start > left.End)
             return (left, right);
 
-        return (new Interval(float.Min(left.Start, right.Start), float.Max(left.End, right.End)), Empty);
+        return (new Interval(Math.Min(left.Start, right.Start), Math.Max(left.End, right.End)), Empty);
     }
 
-    #endregion
+#endregion
 
     public readonly bool Contains(float value) => value >= Start && value < End;
 

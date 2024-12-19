@@ -4,6 +4,8 @@ using System.Numerics;
 namespace Trarizon.Library.Collections;
 partial class TraAlgorithm
 {
+#if NET7_0_OR_GREATER
+
     public static unsafe void BubbleSort<T>(Span<T> values, bool descending = false) where T : IComparisonOperators<T, T, bool>
     {
         if (values.Length <= 1)
@@ -26,6 +28,8 @@ partial class TraAlgorithm
                 return;
         }
     }
+
+#endif
 
     public static void BubbleSort<T>(Span<T> values, IComparer<T>? comparer)
         => BubbleSort<T, IComparer<T>>(values, comparer ?? Comparer<T>.Default);
@@ -52,6 +56,8 @@ partial class TraAlgorithm
         }
     }
 
+#if NET7_0_OR_GREATER
+
     public static unsafe void InsertionSort<T>(Span<T> values, bool descending = false) where T : IComparisonOperators<T, T, bool>
     {
         if (values.Length <= 1)
@@ -71,6 +77,8 @@ partial class TraAlgorithm
             values.MoveTo(i, j + 1);
         }
     }
+
+#endif
 
     public static void InsertionSort<T>(Span<T> values, IComparer<T>? comparer)
         => InsertionSort<T, IComparer<T>>(values, comparer ?? Comparer<T>.Default);

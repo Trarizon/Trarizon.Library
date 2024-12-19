@@ -32,8 +32,8 @@ partial class TraSpan
 
     public static void MoveTo<T>(this Span<T> span, int fromIndex, int toIndex, int length)
     {
-        ArgumentOutOfRangeException.ThrowIfNegative(fromIndex);
-        ArgumentOutOfRangeException.ThrowIfNegative(toIndex);
+        Guard.IsGreaterThanOrEqualTo(fromIndex, 0);
+        Guard.IsGreaterThanOrEqualTo(toIndex, 0);
 
         if (length <= 0)
             return;
@@ -41,11 +41,11 @@ partial class TraSpan
             return;
 
         if (fromIndex > toIndex) {
-            ArgumentOutOfRangeException.ThrowIfGreaterThan(fromIndex + length, span.Length);
+            Guard.IsLessThanOrEqualTo(fromIndex + length, span.Length);
             Core(span, toIndex, toIndex + length, length, fromIndex - toIndex);
         }
         else {
-            ArgumentOutOfRangeException.ThrowIfGreaterThan(toIndex + length, span.Length);
+            Guard.IsLessThanOrEqualTo(toIndex + length, span.Length);
             Core(span, fromIndex, toIndex, toIndex - fromIndex, length);
         }
 
@@ -78,15 +78,4 @@ partial class TraSpan
         var to = toIndex.GetOffset(span.Length);
         span.MoveTo(ofs, to, len);
     }
-
-    public static void SortStably<T>(this Span<T> span, StableSortComparer<T>? comparer = null)
-    {
-        using var spanOwner = SpanOwner<(int, T)>.Allocate(span.Length);
-        var keys = spanOwner.Span;
-        for (int i = 0; i < span.Length; i++)
-            keys.Sort(span, comparer ?? StableSortComparer<T>.Default);
-    }
-
-    public static void SortStably<T>(this Span<T> span, Comparison<T> comparison)
-        => span.SortStably(StableSortComparer<T>.Create(comparison));
 }

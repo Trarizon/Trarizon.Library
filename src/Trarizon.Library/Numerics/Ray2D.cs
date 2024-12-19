@@ -2,7 +2,10 @@
 using System.Numerics;
 
 namespace Trarizon.Library.Numerics;
-public struct Ray2D(Vector2 origin, Vector2 direction) : IEquatable<Ray2D>, IEqualityOperators<Ray2D, Ray2D, bool>
+public struct Ray2D(Vector2 origin, Vector2 direction) : IEquatable<Ray2D>
+#if NET7_0_OR_GREATER
+    , IEqualityOperators<Ray2D, Ray2D, bool>
+#endif
 {
     public Vector2 Origin = origin;
     public Vector2 Direction = direction.ToNormalized();

@@ -2,7 +2,7 @@
 using Trarizon.Library.Collections.StackAlloc;
 
 namespace Trarizon.Library.Collections;
-public static class TraCollection
+public static partial class TraCollection
 {
 #if NET9_0_OR_GREATER
     public static ReversedSpan<T> AsSpan<T>(Stack<T> stack) 

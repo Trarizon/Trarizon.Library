@@ -1,7 +1,9 @@
 ﻿using CommunityToolkit.HighPerformance;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using Trarizon.Library.Collections.Generic;
+#if NETSTANDARD2_0
+using Unsafe = Trarizon.Library.Netstd.NetstdFix_Unsafe;
+#endif
 
 namespace Trarizon.Library.Collections;
 partial class TraList

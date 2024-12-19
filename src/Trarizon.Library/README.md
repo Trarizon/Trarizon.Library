@@ -154,7 +154,6 @@ All extensions methods identifiers are start with `Iter`
     - `LinearSearch(FromEnd)` : Linear search, similar to `BinarySearch`, returns `~index` when not found
 - Modifications
     - `MoveTo` : Move item(s) on `fromIndex` to `toIndex`
-    - `SortStably` : Perform stable sort with BCL-built-in `Sort`, and `StableSortComparer`
 - Views
     - `AsReversed` : return `(ReadOnly)ReversedSpan` of the span
 
@@ -198,7 +197,6 @@ The namespace structure is almost the same with `System.XXX`
 - `TraDelegate` : Helpers for delegates
 - `TraEnum` : Helpers for enum types
 - `TraRandom` : Helpers for `Random`
-- `TraThrow` : Extends `CommunityToolkit.Diagnostic.ThrowHelper`
 - `TraTuple` : Helpers for `ValueTuple`s
 - `TraUnsafe` : Extends `Unsafe`
 
