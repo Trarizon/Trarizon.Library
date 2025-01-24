@@ -26,4 +26,12 @@ partial class TraNumber
         Guard.IsLessThan(ofs + len, length);
         return (ofs, len);
     }
+
+    public static bool CheckSliceArgs(int start, int length, int count)
+    {
+        Guard.IsGreaterThanOrEqualTo(start, 0);
+        Guard.IsGreaterThanOrEqualTo(length, 0);
+        Guard.IsLessThanOrEqualTo(start + length, count);
+        return true;
+    }
 }

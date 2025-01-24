@@ -35,14 +35,8 @@ using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 
 Console.WriteLine("Hello, world");
-new Func<string, int, int>(C.M).Invoke("Str",6);
-var str = new string('c', 10);
-#if NET9_0_OR_GREATER
-unsafe {
-    var func = TraDelegate.Create<string, int, int>(str, &C.M);
-    func.Invoke(1);
-}
-#endif
+
+EnumerateInts().Select(i => i + 1).IterWithIndex().Print();
 
 
 static class C

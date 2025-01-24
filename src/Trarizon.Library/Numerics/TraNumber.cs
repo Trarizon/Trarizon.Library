@@ -61,6 +61,12 @@ public static partial class TraNumber
         return (toMax - toMin) * lerp + toMin;
     }
 
+    public static T MapToClamped<T>(T value, T fromMin, T fromMax, T toMin, T toMax) where T : IFloatingPointIeee754<T>
+    {
+        var lerp = (value - fromMin) / (fromMax - fromMin);
+        return T.Clamp((toMax - toMin) * lerp + toMin, toMin, toMax);
+    }
+
     /// <summary>
     /// if (value < 0) value = ~value, this method is useful with return value of <c>Search</c>s
     /// </summary>

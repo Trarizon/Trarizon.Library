@@ -24,4 +24,12 @@ internal static class TraThrow
     [DoesNotReturn]
     internal static void IteratorImmutable()
         => throw new InvalidOperationException("Iterator is immutable");
+
+    [DoesNotReturn]
+    public static void InvalidEnumState(Enum state)
+        => throw new InvalidOperationException($"Invalid enum state: {state}");
+
+    [DoesNotReturn]
+    public static T InvalidEnumState<T>(Enum state)
+        => throw new InvalidOperationException($"Invalid enum state: {state}");
 }

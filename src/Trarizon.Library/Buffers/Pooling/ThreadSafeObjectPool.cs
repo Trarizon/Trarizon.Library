@@ -27,7 +27,7 @@ internal sealed class ThreadSafeObjectPool<T> : ObjectPool<T> where T : class
         _maxCount = maxCount;
     }
 
-    public override void TrimExcess()
+    public override void ReleasePooled()
     {
         while (_pooled.TryTake(out var item))
         {

@@ -23,7 +23,7 @@ internal static class NetstdFix_MemoryMarshal
         }
     }
 
-    public static unsafe ReadOnlySpan<T> CreateReadOnlySpan<T>(ref T reference,int length) where T : unmanaged
+    public static unsafe ReadOnlySpan<T> CreateReadOnlySpan<T>(ref T reference, int length) where T : unmanaged
     {
         fixed (T* ptr = &reference) {
             return new ReadOnlySpan<T>(ptr, length);

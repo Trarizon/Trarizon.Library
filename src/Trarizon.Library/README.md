@@ -24,10 +24,13 @@ Contents:
 ## Collections
 
 - namespace `AllocOpt` : Rewrite some collections with struct
+- namespace `AutoAlloc` : Collections with auto allocation and release while modifying
+    - `AutoAllocList<>` : List
 - namespace `Generic` : Extension of `System.Collections.Generic`
     - `ILinkNode` & `LinkNodeHelper` : Abstraction of linked list node, provides some helper methods in `LinkNodeHelper`
     - `Deque<>` : Double-ended queue
     - `ListDictionary<,>` : Generic version of `System.Collections.Specialized.ListDictionary`.
+    - `Memento<>` : Memento pattern implementation, with `Add`, `Rollback`, `Reapply` methods
     - `RingQueue<>` : Ring queue with fixed capacity, optional throw or overwrite when full
     - `Trie<>` : Trie
 - namespace `StackAlloc` : `ref struct` collections
@@ -126,6 +129,8 @@ All extensions methods identifiers are start with `Iter`
     - `IterateByWhile/NotNull` : Yield next value selected by a `Func<T, T>`, until predicate failed
     - `Range` : Enumerate `int` from `start` to `end`(not include)
     - `RangeTo` : Iterate `int` from 0 to `count` with specific step
+- Mapping
+    - `WithIndex`
 - Sorting
     - `Reverse` : `Reverse` in Linq will always cache values in collection, this won't do that because designing for instant iteration
 
@@ -221,6 +226,7 @@ The namespace structure is almost the same with `System.XXX`
     - `MinMax(T, T)` : Reorder input 2 args
     - `MinMax(ROS<T>)` : Get min and max in one iteration
     - `GetCheckedOffset(AndLength)` : `Index/Range.GetOffset(AndLength)` with overflow check
+    - `CheckSliceArgs` : Check if `start` and `length` is valid within a collection
 - Geometry
     - `ToNormalized` : Normalize `Vector2/3`, `Quaternion`
     - `ToEulerAngles`
@@ -234,6 +240,8 @@ The namespace structure is almost the same with `System.XXX`
 - Random
     - `SelectWeight` : Weighted random
     - `NextSingle/Double` : Get a random float number in specific range
+    - `NextBoolean` : Get a random boolean value
+    - `NextItem` : Get a random item in collection
 - Tuple
     - `ToKeyValuePair` : Convert pair to k-v pair
 - Unsafe

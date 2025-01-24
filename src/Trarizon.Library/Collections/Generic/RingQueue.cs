@@ -110,7 +110,7 @@ public class RingQueue<T> : ICollection<T>, IReadOnlyCollection<T>
         // extend array length
         else if (_count == _array.Length) {
             var capacity = _array.Length;
-            GrowAndCopy(capacity + 1, 0);
+            GrowAndCopy(capacity + 1);
             _head = 0;
             _tail = capacity;
             _array[_tail] = item;
@@ -226,28 +226,28 @@ public class RingQueue<T> : ICollection<T>, IReadOnlyCollection<T>
             throw new InvalidOperationException("Ring queue is full");
     }
 
-    private void GrowAndCopy(int expectedCapacity, int copyToIndex)
+    private void GrowAndCopy(int expectedCapacity)
     {
         Debug.Assert(expectedCapacity > _array.Length);
         Debug.Assert(expectedCapacity <= _maxCount);
         var span = AsSpan();
         ArrayGrowHelper.GrowNonMove(ref _array, expectedCapacity, _maxCount);
-        span.CopyTo(_array.AsSpan(copyToIndex, span.Length));
+        span.CopyTo(_array.AsSpan(0, span.Length));
     }
 
     [DebuggerStepThrough]
     private void Increment(ref int index)
     {
         index++;
-        if (index >= MaxCount)
-            index -= MaxCount;
+        if (index >= _array.Length)
+            index -= _array.Length;
     }
 
     [DebuggerStepThrough]
     private void Decrement(ref int index)
     {
         if (index == 0)
-            index = MaxCount;
+            index = _array.Length - 1;
         else
             index--;
     }

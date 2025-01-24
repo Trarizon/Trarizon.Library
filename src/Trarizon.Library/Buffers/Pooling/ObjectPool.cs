@@ -1,20 +1,40 @@
-﻿namespace Trarizon.Library.Buffers.Pooling;
-public abstract class ObjectPool<T> where T : class
+﻿using CommunityToolkit.Diagnostics;
+
+namespace Trarizon.Library.Buffers.Pooling;
+public enum ObjectPoolKind
+{
+    /// <summary>
+    /// The default object pool, with tracking rented objects.
+    /// </summary>
+    Default,
+    /// <summary>
+    /// The simplest object pool, without tracking rented objects.
+    /// </summary>
+    Simple,
+    /// <summary>
+    /// The thread-safe object pool, with tracking rented objects.
+    /// </summary>
+    ThreadSafe,
+}
+public abstract class ObjectPool<T> : IObjectAllocator<T> where T : class
 {
     public static ObjectPool<T> Create(Func<T> createFactory,
         Action<T>? onRent = null, Action<T>? onReturn = null, Action<T>? onDispose = null,
-        bool threadSafe = false, int maxCount = -1)
+        ObjectPoolKind kind = ObjectPoolKind.Default, int maxCount = -1)
     {
-        if (threadSafe)
-            return new ThreadSafeObjectPool<T>(createFactory, onRent, onReturn, onDispose, maxCount);
-        else
-            return new DefaultObjectPool<T>(createFactory, onRent, onReturn, onDispose, maxCount);
+        return kind switch
+        {
+            ObjectPoolKind.Default => new DefaultObjectPool<T>(createFactory, onRent, onReturn, onDispose, maxCount),
+            ObjectPoolKind.Simple => new SimpleObjectPool<T>(createFactory, onRent, onReturn, onDispose, maxCount),
+            ObjectPoolKind.ThreadSafe => new ThreadSafeObjectPool<T>(createFactory, onRent, onReturn, onDispose, maxCount),
+            _ => TraThrow.InvalidEnumState<ObjectPool<T>>(kind),
+        };
     }
 
     /// <summary>
     /// Dispose all unrented objects.
     /// </summary>
-    public abstract void TrimExcess();
+    public abstract void ReleasePooled();
 
     public abstract AutoReturnScope Rent(out T item);
 
@@ -25,6 +45,9 @@ public abstract class ObjectPool<T> where T : class
         Rent(out var item);
         return item;
     }
+
+    T IObjectAllocator<T>.Allocate() => Rent();
+    void IObjectAllocator<T>.Release(T item) => Return(item);
 
     public readonly struct AutoReturnScope : IDisposable
     {

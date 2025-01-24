@@ -40,6 +40,12 @@ partial class TraNumber
         return (toMax - toMin) * lerp + toMin;
     }
 
+    public static float MapToClamped(float value, float fromMin, float fromMax, float toMin, float toMax)
+    {
+        var lerp = (value - fromMin) / (fromMax - fromMin);
+        return Clamp((toMax - toMin) * lerp + toMin, toMin, toMax);
+    }
+
     #region MinMax
 
     public static float Min(float v0, float v1, float v2)
