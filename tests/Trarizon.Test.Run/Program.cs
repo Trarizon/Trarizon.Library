@@ -38,9 +38,19 @@ Console.WriteLine("Hello, world");
 
 EnumerateInts().Select(i => i + 1).IterWithIndex().Print();
 
-
-static class C
+static partial class C
 {
 
     public static int M(string str, int anto) => str.Length;
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="s"></param>
+    /// <param name="b"></param>
+    /// <param name="v"></param>
+    public static void M(ref readonly int s, [OptionalOut] out ValueTuple b, int v)
+    {
+        v = 0;
+    }
 }

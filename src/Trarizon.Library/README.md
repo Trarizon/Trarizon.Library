@@ -20,6 +20,8 @@ Contents:
 ## CodeGeneration
 
 - `[Singleton]` : Generate a singleton class, thread safe with static field
+- `[OptionalOut]` : Mark it on a `out` parameter, a method with same signature without the `out` parameter will be generated
+    - Currently does not support multiple `out` parameters
 
 ## Collections
 

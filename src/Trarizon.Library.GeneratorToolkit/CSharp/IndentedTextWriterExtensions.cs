@@ -8,6 +8,8 @@ using Trarizon.Library.GeneratorToolkit.CoreLib.Collections;
 namespace Trarizon.Library.GeneratorToolkit.CSharp;
 public static class IndentedTextWriterExtensions
 {
+    private static readonly string[] _lineSplitSeperator = ["\r\n", "\n"];
+
     /// <summary>
     /// Write a bracket and indent, auto indent back
     /// </summary>
@@ -22,7 +24,7 @@ public static class IndentedTextWriterExtensions
 
     public static void WriteMultipleLines(this IndentedTextWriter writer, string text)
     {
-        foreach (var line in text.Split('\n')) {
+        foreach (var line in text.Split(_lineSplitSeperator, StringSplitOptions.None)) {
             writer.WriteLine(line);
         }
     }
