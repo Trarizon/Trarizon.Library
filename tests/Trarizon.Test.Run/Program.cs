@@ -36,7 +36,9 @@ using Trarizon.Test.Run;
 
 Console.WriteLine("Hello, world");
 
-EnumerateInts().Select(i => i + 1).IterWithIndex().Print();
+foreach (var item in EnumerateInts().PopFront(1,out var lead)) {
+
+}
 
 static partial class C
 {

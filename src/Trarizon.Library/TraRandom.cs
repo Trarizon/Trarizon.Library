@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.HighPerformance;
 using System.Diagnostics;
+using Trarizon.Library.CodeGeneration;
 using Trarizon.Library.Collections;
 using Trarizon.Library.Numerics;
 
@@ -55,22 +56,15 @@ public static partial class TraRandom
     public static bool NextBoolean(this Random random)
         => random.Next(2) != 0;
 
-    public static T NextItem<T>(this Random random, ReadOnlySpan<T> items) => items[random.Next(items.Length)];
-
-    public static T NextItem<T>(this Random random, ReadOnlySpan<T> items, out int index)
+    public static T NextItem<T>(this Random random, ReadOnlySpan<T> items, [OptionalOut] out int index)
     {
         index = random.Next(items.Length);
         return items[index];
     }
-
-    public static T NextItem<T>(this Random random, Span<T> items) => items[random.Next(items.Length)];
-    public static T NextItem<T>(this Random random, Span<T> items, out int index) => random.NextItem((ReadOnlySpan<T>)items, out index);
-    public static T NextItem<T>(this Random random, T[] items) => random.NextItem(items.AsSpan());
-    public static T NextItem<T>(this Random random, T[] items, out int index) => random.NextItem(items.AsSpan(), out index);
-    public static T NextItem<T>(this Random random, List<T> items) => random.NextItem(items.AsSpan());
-    public static T NextItem<T>(this Random random, List<T> items, out int index) => random.NextItem(items.AsSpan(), out index);
-    public static T NextItem<T>(this Random random, IReadOnlyList<T> items) => items[random.Next(items.Count)];
-    public static T NextItem<T>(this Random random, IReadOnlyList<T> items, out int index)
+    public static T NextItem<T>(this Random random, Span<T> items, [OptionalOut] out int index) => random.NextItem((ReadOnlySpan<T>)items, out index);
+    public static T NextItem<T>(this Random random, T[] items, [OptionalOut] out int index) => random.NextItem(items.AsSpan(), out index);
+    public static T NextItem<T>(this Random random, List<T> items, [OptionalOut] out int index) => random.NextItem(items.AsSpan(), out index);
+    public static T NextItem<T>(this Random random, IReadOnlyList<T> items, [OptionalOut] out int index)
     {
         index = random.Next(items.Count);
         return items[index];

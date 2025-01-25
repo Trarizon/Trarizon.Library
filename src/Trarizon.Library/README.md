@@ -72,6 +72,7 @@ Contents:
 <summary>Dictionary</summary>
 
 - `GetOrAdd`
+- `AddOrUpdate`
 
 </details>
 
