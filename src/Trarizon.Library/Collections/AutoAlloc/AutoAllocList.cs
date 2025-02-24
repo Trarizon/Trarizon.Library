@@ -3,7 +3,7 @@
 namespace Trarizon.Library.Collections.AutoAlloc;
 public class AutoAllocList<T> : AutoAllocListBase<T> where T : class
 {
-    private IObjectAllocator<T> _allocator;
+    private readonly IObjectAllocator<T> _allocator;
 
     public AutoAllocList(IObjectAllocator<T> allocator)
     {

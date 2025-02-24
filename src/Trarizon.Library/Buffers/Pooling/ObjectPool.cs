@@ -19,20 +19,20 @@ public enum ObjectPoolKind
 public abstract class ObjectPool<T> : IObjectAllocator<T> where T : class
 {
     public static ObjectPool<T> Create(Func<T> createFactory,
-        Action<T>? onRent = null, Action<T>? onReturn = null, Action<T>? onDispose = null,
+        Action<T>? onRented = null, Action<T>? onReturned = null, Action<T>? onReleased = null,
         ObjectPoolKind kind = ObjectPoolKind.Default, int maxCount = -1)
     {
         return kind switch
         {
-            ObjectPoolKind.Default => new DefaultObjectPool<T>(createFactory, onRent, onReturn, onDispose, maxCount),
-            ObjectPoolKind.Simple => new SimpleObjectPool<T>(createFactory, onRent, onReturn, onDispose, maxCount),
-            ObjectPoolKind.ThreadSafe => new ThreadSafeObjectPool<T>(createFactory, onRent, onReturn, onDispose, maxCount),
+            ObjectPoolKind.Default => new DefaultObjectPool<T>(createFactory, onRented, onReturned, onReleased, maxCount),
+            ObjectPoolKind.Simple => new SimpleObjectPool<T>(createFactory, onRented, onReturned, onReleased, maxCount),
+            ObjectPoolKind.ThreadSafe => new ThreadSafeObjectPool<T>(createFactory, onRented, onReturned, onReleased, maxCount),
             _ => TraThrow.InvalidEnumState<ObjectPool<T>>(kind),
         };
     }
 
     /// <summary>
-    /// Dispose all unrented objects.
+    /// Release all unrented objects.
     /// </summary>
     public abstract void ReleasePooled();
 
