@@ -1,7 +1,7 @@
 ﻿using Trarizon.Library.Collections;
 
 namespace Trarizon.Library.Buffers.Pooling;
-internal sealed class SimpleObjectPool<T> : ObjectPool<T> where T : class
+public sealed partial class SimpleObjectPool<T> : ObjectPool<T> where T : class
 {
     private readonly Stack<T> _pooled;
     private readonly int _maxCount;
@@ -37,17 +37,18 @@ internal sealed class SimpleObjectPool<T> : ObjectPool<T> where T : class
         }
     }
 
-    public override AutoReturnScope Rent(out T item)
+    public override T Rent()
     {
+        T item;
         if (_pooled.TryPop(out var resItem)) {
             item = resItem;
             _onRent?.Invoke(item);
-            return new AutoReturnScope(this, item);
+            return item;
         }
         else {
             item = _createFactory();
-            return new AutoReturnScope(this, item);
         }
+        return item;
     }
 
     public override void Return(T item)

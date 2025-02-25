@@ -1,7 +1,7 @@
 ﻿using Trarizon.Library.Buffers;
 
 namespace Trarizon.Library.Collections.AutoAlloc;
-public class AutoAllocList<T> : AutoAllocListBase<T> where T : class
+public class AutoAllocList<T> : BaseAutoAllocList<T> where T : class
 {
     private readonly IObjectAllocator<T> _allocator;
 

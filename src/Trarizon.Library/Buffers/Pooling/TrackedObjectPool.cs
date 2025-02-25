@@ -2,7 +2,7 @@
 using Trarizon.Library.Collections;
 
 namespace Trarizon.Library.Buffers.Pooling;
-internal sealed class DefaultObjectPool<T> : ObjectPool<T> where T : class
+public sealed class TrackedObjectPool<T> : ObjectPool<T> where T : class
 {
     private readonly Stack<T> _pooled;
     private readonly List<T> _rented;
@@ -12,7 +12,7 @@ internal sealed class DefaultObjectPool<T> : ObjectPool<T> where T : class
     private readonly Action<T>? _onReturn;
     private readonly Action<T>? _onDispose;
 
-    public DefaultObjectPool(Func<T> createFactory, Action<T>? onRent = null, Action<T>? onReturn = null, Action<T>? onDispose = null, int maxCount = -1)
+    public TrackedObjectPool(Func<T> createFactory, Action<T>? onRent = null, Action<T>? onReturn = null, Action<T>? onDispose = null, int maxCount = -1)
     {
         _createFactory = createFactory;
         _onRent = onRent;
@@ -35,13 +35,13 @@ internal sealed class DefaultObjectPool<T> : ObjectPool<T> where T : class
         }
     }
 
-    public override AutoReturnScope Rent(out T item)
+    public override T Rent()
     {
+        T item;
         if (_pooled.TryPop(out var resItem)) {
             item = resItem;
             _onRent?.Invoke(item);
             _rented.Add(item);
-            return new AutoReturnScope(this, item);
         }
         else {
             if (_rented.Count == _maxCount) {
@@ -50,8 +50,8 @@ internal sealed class DefaultObjectPool<T> : ObjectPool<T> where T : class
             }
             item = _createFactory();
             _rented.Add(item);
-            return new AutoReturnScope(this, item);
         }
+        return item;
     }
 
     public override void Return(T item)

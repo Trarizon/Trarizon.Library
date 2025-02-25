@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 
 namespace Trarizon.Library.Buffers.Pooling;
-internal sealed class ThreadSafeObjectPool<T> : ObjectPool<T> where T : class
+public sealed class ThreadSafeObjectPool<T> : ObjectPool<T> where T : class
 {
     private readonly ConcurrentBag<T> _pooled;
     private readonly ConcurrentDictionary<T, ValueTuple> _rented;
@@ -29,52 +29,43 @@ internal sealed class ThreadSafeObjectPool<T> : ObjectPool<T> where T : class
 
     public override void ReleasePooled()
     {
-        while (_pooled.TryTake(out var item))
-        {
+        while (_pooled.TryTake(out var item)) {
             _onDispose?.Invoke(item);
         }
     }
 
-    public override AutoReturnScope Rent(out T item)
+    public override T Rent()
     {
-        if (_pooled.TryTake(out var resItem))
-        {
-            item = resItem;
+        if (_pooled.TryTake(out var resItem)) {
+            var item = resItem;
             _onRent?.Invoke(item);
             var added = _rented.TryAdd(item, default);
             Debug.Assert(added);
-            return new AutoReturnScope(this, item);
+            return item;
         }
-        else
-        {
-            while (true)
-            {
+        else {
+            while (true) {
                 var curCount = _count;
-                if (_count == _maxCount)
-                {
+                if (_count == _maxCount) {
                     // Final check if there's item returned
-                    if (_pooled.TryTake(out resItem))
-                    {
-                        item = resItem;
+                    if (_pooled.TryTake(out resItem)) {
+                        var item = resItem;
                         _onRent?.Invoke(item);
                         var added = _rented.TryAdd(item, default);
                         Debug.Assert(added);
-                        return new AutoReturnScope(this, item);
+                        return item;
                     }
-                    else
-                    {
-                        item = default!;
-                        return ThrowHelper.ThrowInvalidOperationException<AutoReturnScope>("Failed to rent new item, object pool is full");
+                    else {
+                        return ThrowHelper.ThrowInvalidOperationException<T>("Failed to rent new item, object pool is full");
                     }
                 }
 
                 // _count not modified, create new item
-                if (Interlocked.CompareExchange(ref _count, curCount + 1, curCount) == curCount)
-                {
-                    item = _createFactory();
+                if (Interlocked.CompareExchange(ref _count, curCount + 1, curCount) == curCount) {
+                    var item = _createFactory();
                     var added = _rented.TryAdd(item, default);
                     Debug.Assert(added);
-                    return new AutoReturnScope(this, item);
+                    return item;
                 }
                 // _count is modified, continue loop to re-check
             }
@@ -83,8 +74,7 @@ internal sealed class ThreadSafeObjectPool<T> : ObjectPool<T> where T : class
 
     public override void Return(T item)
     {
-        if (_rented.TryRemove(item, out _))
-        {
+        if (_rented.TryRemove(item, out _)) {
             _onReturn?.Invoke(item);
             _pooled.Add(item);
         }

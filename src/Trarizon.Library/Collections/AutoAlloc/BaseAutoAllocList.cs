@@ -4,7 +4,7 @@ using System.Collections;
 using Trarizon.Library.Numerics;
 
 namespace Trarizon.Library.Collections.AutoAlloc;
-public abstract class AutoAllocListBase<T> : IList<T>, IReadOnlyList<T>
+public abstract class BaseAutoAllocList<T> : IList<T>, IReadOnlyList<T>
     where T : class
 {
     private readonly List<T> _items;
@@ -13,7 +13,7 @@ public abstract class AutoAllocListBase<T> : IList<T>, IReadOnlyList<T>
 
     public int Count => _items.Count;
 
-    protected AutoAllocListBase()
+    protected BaseAutoAllocList()
     {
         _items = new();
     }
@@ -142,10 +142,10 @@ public abstract class AutoAllocListBase<T> : IList<T>, IReadOnlyList<T>
 
     public struct ResettingScope : IDisposable
     {
-        private readonly AutoAllocListBase<T> _list;
+        private readonly BaseAutoAllocList<T> _list;
         private int _count;
 
-        internal ResettingScope(AutoAllocListBase<T> list)
+        internal ResettingScope(BaseAutoAllocList<T> list)
         {
             _list = list;
             _count = 0;
@@ -175,7 +175,7 @@ public abstract class AutoAllocListBase<T> : IList<T>, IReadOnlyList<T>
     {
         private List<T>.Enumerator _enumerator;
 
-        internal Enumerator(AutoAllocListBase<T> list)
+        internal Enumerator(BaseAutoAllocList<T> list)
         {
             _enumerator = list._items.GetEnumerator();
         }
