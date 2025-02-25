@@ -5,10 +5,12 @@
 		<Authors>Trarizon</Authors>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<RepositoryUrl>https://github.com/Trarizon/Trarizon.Library</RepositoryUrl>
+        <PackageProjectUrl>$(RepositoryUrl)</PackageProjectUrl>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<AssemblyVersion>1.0.0</AssemblyVersion>
 		<Version>$(AssemblyVersion)</Version>
 		<FileVersion>$(AssemblyVersion)</FileVersion>
+        <Description>Trarizon's personal library, containing miscellaneous stuff</Description>
 	</PropertyGroup>
 
 </Project>

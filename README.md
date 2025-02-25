@@ -1,12 +1,12 @@
 ﻿# Trarizon.Library
 
-Private lib, Based on .NET 8, written in C#12
+Personal library, supports .NET 8/9, .NET Standard 2.0/2.1
 
 ~some method are just for fun though~
 
 ## [Library](./src/Trarizon.Library/README.md)
 
-Miscellaneous thing. There will be many breaking changes (orz.
+Miscellaneous stuff. Breaking changes may be frequent (orz.
 
 Some methods depends on [`CommunityToolkit`](https://github.com/CommunityToolkit/dotnet)
 
@@ -14,20 +14,20 @@ Some methods depends on [`CommunityToolkit`](https://github.com/CommunityToolkit
 <summary>brief</summary>
 
 - CodeAnalysis/Generation
-- Collections: Extends `System.Collections`
-- Wrappers: Monads
-- Helpers: miscellaneous extensions for BCL types
+- More collections, more extensions
+- Simple struct monads
+- Many utility methods extends from BCL
 
 </details>
 
-## [GeneratorToolkit](./src/Trarizon.Library.GeneratorToolkit/README.md)
+## GeneratorToolkit
 
 Toolkit for source generator
 
-## Deprecated
-
 <details>
-<summary>Expand</summary>
+<summary>Deprecated</summary>
+
+## Deprecated
 
 ### [Yieliception](./Trarizon.Yieliception/README.md) ([EN](./Trarizon.Yieliception/README.en.md))
 
