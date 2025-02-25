@@ -249,3 +249,5 @@ The namespace structure is almost the same with `System.XXX`
     - `ToKeyValuePair` : Convert pair to k-v pair
 - Unsafe
     - `AsReadOnly` : Perform `Unsafe.As` for `ref readonly` variables
+- Utils
+    - `SetField` : If given value is not equals to field, set value and return `true`, otherwise return `false`
