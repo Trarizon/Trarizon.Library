@@ -72,7 +72,7 @@ public static partial class TraNumber
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="value"></param>
-    public static void FlipNegative<T>(ref T value) where T : IBinaryInteger<T>
+    public static void FlipNegative<T>(ref T value) where T : IBinaryInteger<T>, ISignedNumber<T>
     {
         if (value < T.Zero)
             value = ~value;

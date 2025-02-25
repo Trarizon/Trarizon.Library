@@ -27,11 +27,11 @@ public static partial class TraNumber
         return (ofs, len);
     }
 
-    public static bool CheckSliceArgs(int start, int length, int count)
+    public static bool CheckSliceArgs(int start, int sliceLength, int count)
     {
         Guard.IsGreaterThanOrEqualTo(start, 0);
-        Guard.IsGreaterThanOrEqualTo(length, 0);
-        Guard.IsLessThanOrEqualTo(start + length, count);
+        Guard.IsGreaterThanOrEqualTo(sliceLength, 0);
+        Guard.IsLessThanOrEqualTo(start + sliceLength, count);
         return true;
     }
 }
