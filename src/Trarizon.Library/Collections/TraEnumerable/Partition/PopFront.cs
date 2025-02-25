@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 
 namespace Trarizon.Library.Collections;
-partial class TraEnumerable
+public static partial class TraEnumerable
 {
     public static IEnumerable<T> PopFront<T>(this IEnumerable<T> source, int count, out IEnumerable<T> leading)
     {

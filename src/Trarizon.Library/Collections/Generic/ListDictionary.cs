@@ -2,8 +2,12 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-#if NETSTANDARD2_0
+#if NETSTANDARD
 using Unsafe = Trarizon.Library.Netstd.NetstdFix_Unsafe;
+#endif
+
+#if NETSTANDARD
+#pragma warning disable CS8767
 #endif
 
 namespace Trarizon.Library.Collections.Generic;

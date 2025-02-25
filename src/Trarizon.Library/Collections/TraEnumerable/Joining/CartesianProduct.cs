@@ -1,7 +1,7 @@
 ﻿using Trarizon.Library.Collections.AllocOpt;
 
 namespace Trarizon.Library.Collections;
-partial class TraEnumerable
+public static partial class TraEnumerable
 {
     public static IEnumerable<(T, T2)> CartesianProduct<T, T2>(this IEnumerable<T> first, IEnumerable<T2> second)
     {
@@ -51,7 +51,7 @@ partial class TraEnumerable
         public override (T, T2) this[int index]
         {
             get {
-#if NETSTANDARD2_0
+#if NETSTANDARD
                 var div = Math.DivRem(index, second.Length, out var rem);
 #else
                 var (div, rem) = int.DivRem(index, second.Length);

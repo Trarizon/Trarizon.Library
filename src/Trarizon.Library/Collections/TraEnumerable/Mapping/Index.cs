@@ -1,5 +1,5 @@
 ﻿namespace Trarizon.Library.Collections;
-partial class TraEnumerable
+public static partial class TraEnumerable
 {
     public static IEnumerable<(int Index, T Item)> WithIndex<T>(this IEnumerable<T> source)
     {

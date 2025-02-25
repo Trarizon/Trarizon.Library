@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 
 namespace Trarizon.Library.Collections;
-partial class TraIter
+public static partial class TraIter
 {
     /// <summary>
     /// Enumerate from <paramref name="start"/> to <paramref name="end"/>,

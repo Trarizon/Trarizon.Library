@@ -3,7 +3,7 @@
 namespace Trarizon.Library.Collections;
 public static class TraDictionary
 {
-#if !NETSTANDARD2_0
+#if !NETSTANDARD
 
     public static TValue GetOrAdd<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key, TValue addValue) where TKey : notnull
     {

@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
 namespace Trarizon.Library.Collections;
-partial class TraSpan
+public static partial class TraSpan
 {
     public static bool TryAt<T>(this ReadOnlySpan<T> span, int index, [MaybeNullWhen(false)] out T item)
     {

@@ -18,7 +18,7 @@ public static class TraGeometry
             return new(q.X / len, q.Y / len, q.Z / len, q.W / len);
     }
 
-#if !NETSTANDARD2_0 // 反正这东西纯粹写着玩的
+#if !NETSTANDARD // 反正这东西纯粹写着玩的
 
     public static Vector3 ToEulerAngles(this Quaternion q)
     {

@@ -1,5 +1,5 @@
 ﻿namespace Trarizon.Library.Collections;
-partial class TraEnumerable
+public static partial class TraEnumerable
 {
     public static (T Min, T Max) MinMax<T>(this IEnumerable<T> source)
         => MinMax(source, Comparer<T>.Default);

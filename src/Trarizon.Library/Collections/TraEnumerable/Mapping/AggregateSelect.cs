@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
 
 namespace Trarizon.Library.Collections;
-partial class TraEnumerable
+public static partial class TraEnumerable
 {
     /// <summary>
     /// Aggregate, and returns all values in process

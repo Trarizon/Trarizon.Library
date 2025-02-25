@@ -1,11 +1,11 @@
 ﻿// This file mirrors TraNumber.cs, for .NET Standard as abstract static method appears from .NET 7
 
-#if NETSTANDARD2_0
+#if NETSTANDARD
 
 using CommunityToolkit.HighPerformance;
 
 namespace Trarizon.Library.Numerics;
-partial class TraNumber
+public static partial class TraNumber
 {
     /// <summary>
     /// Linear normalize value into [0,1]

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 
 namespace Trarizon.Library.Collections;
-partial class TraIter
+public static partial class TraIter
 {
     /// <summary>
     /// Struct version of <see cref="TraEnumerable.EnumerateByWhile{T}(T, Func{T, T}, Func{T, bool})"/>

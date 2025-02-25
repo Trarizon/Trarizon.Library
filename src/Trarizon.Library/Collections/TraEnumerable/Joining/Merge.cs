@@ -1,5 +1,5 @@
 ﻿namespace Trarizon.Library.Collections;
-partial class TraEnumerable
+public static partial class TraEnumerable
 {
     public static IEnumerable<T> Merge<T>(this IEnumerable<T> first, IEnumerable<T> second)
         => Merge(first, second, Comparer<T>.Default);

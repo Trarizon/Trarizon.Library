@@ -1,11 +1,11 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-#if NETSTANDARD2_0
+#if NETSTANDARD
 using Unsafe = Trarizon.Library.Netstd.NetstdFix_Unsafe;
 #endif
 
 namespace Trarizon.Library.Collections;
-partial class TraSpan
+public static partial class TraSpan
 {
     public static int OffsetOf<T>(this Span<T> span, ref readonly T item)
         => ((ReadOnlySpan<T>)span).OffsetOf(in item);

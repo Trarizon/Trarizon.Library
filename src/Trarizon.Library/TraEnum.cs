@@ -8,16 +8,7 @@ public static class TraEnum
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool HasAnyFlag<T>(this T value, T flags) where T : struct, Enum
     {
-#if NETSTANDARD2_0
-        if (Unsafe.SizeOf<T>() == 1)
-            return (Unsafe.As<T, byte>(ref value) & Unsafe.As<T, byte>(ref flags)) != 0;
-        if (Unsafe.SizeOf<T>() == 2)
-            return (Unsafe.As<T, short>(ref value) & Unsafe.As<T, short>(ref flags)) != 0;
-        if (Unsafe.SizeOf<T>() == 4)
-            return (Unsafe.As<T, int>(ref value) & Unsafe.As<T, int>(ref flags)) != 0;
-        if (Unsafe.SizeOf<T>() == 8)
-            return (Unsafe.As<T, long>(ref value) & Unsafe.As<T, long>(ref flags)) != 0L;
-#else
+#if NET7_0_OR_GREATER
         if (Unsafe.SizeOf<T>() == 1)
             return Cmp<byte>();
         if (Unsafe.SizeOf<T>() == 2)
@@ -32,6 +23,15 @@ public static class TraEnum
         {
             return (Unsafe.BitCast<T, TTarget>(value) & Unsafe.BitCast<T, TTarget>(flags)) != TTarget.Zero;
         }
+#else
+        if (Unsafe.SizeOf<T>() == 1)
+            return (Unsafe.As<T, byte>(ref value) & Unsafe.As<T, byte>(ref flags)) != 0;
+        if (Unsafe.SizeOf<T>() == 2)
+            return (Unsafe.As<T, short>(ref value) & Unsafe.As<T, short>(ref flags)) != 0;
+        if (Unsafe.SizeOf<T>() == 4)
+            return (Unsafe.As<T, int>(ref value) & Unsafe.As<T, int>(ref flags)) != 0;
+        if (Unsafe.SizeOf<T>() == 8)
+            return (Unsafe.As<T, long>(ref value) & Unsafe.As<T, long>(ref flags)) != 0L;
 #endif
         return ThrowHelper.ThrowNotSupportedException<bool>("Not supported enum size");
     }

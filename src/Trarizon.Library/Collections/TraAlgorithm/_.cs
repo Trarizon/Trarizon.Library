@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
 
 namespace Trarizon.Library.Collections;
-partial class TraAlgorithm
+public static partial class TraAlgorithm
 {
     internal static class Utils
     {

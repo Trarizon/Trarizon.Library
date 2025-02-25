@@ -1,5 +1,5 @@
 ﻿namespace Trarizon.Library.Collections;
-partial class TraSpan
+public static partial class TraSpan
 {
     public static int LinearSearch<T, TComparer>(this Span<T> span, T item, TComparer comparer) where TComparer : IComparer<T>
         => LinearSearch((ReadOnlySpan<T>)span, new TraComparison.ComparerComparable<T, TComparer>(item, comparer));

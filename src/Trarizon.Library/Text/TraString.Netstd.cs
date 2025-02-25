@@ -1,9 +1,9 @@
-﻿#if NETSTANDARD2_0
+﻿#if NETSTANDARD
 
 using Trarizon.Library.Numerics;
 
 namespace Trarizon.Library.Text;
-partial class TraString
+public static partial class TraString
 {
     public static ReadOnlySpan<char> AsSpan(this string str, Range range)
     {

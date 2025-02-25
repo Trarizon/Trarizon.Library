@@ -1,5 +1,5 @@
 ﻿namespace Trarizon.Library.Collections;
-partial class TraEnumerable
+public static partial class TraEnumerable
 {
     public static bool IsDistinct<T>(this IEnumerable<T> source, IEqualityComparer<T>? comparer = null)
     {

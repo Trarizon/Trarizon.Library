@@ -20,7 +20,7 @@ internal sealed class DefaultObjectPool<T> : ObjectPool<T> where T : class
         _onDispose = onDispose;
         _pooled = new();
         _rented = [];
-#if NETSTANDARD2_0
+#if NETSTANDARD
         _maxCount = maxCount < 0 ? TraArray.MaxLength : maxCount;
 #else
         _maxCount = maxCount < 0 ? Array.MaxLength : maxCount;

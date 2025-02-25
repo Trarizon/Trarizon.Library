@@ -1,5 +1,5 @@
 ﻿namespace Trarizon.Library.Collections;
-partial class TraSpan
+public static partial class TraSpan
 {
     public static int FindLowerBoundIndex<T, TComparer>(this Span<T> span, T key, TComparer comparer) where TComparer : IComparer<T>
         => FindLowerBoundIndex((ReadOnlySpan<T>)span, new TraComparison.ComparerComparable<T, TComparer>(key, comparer));

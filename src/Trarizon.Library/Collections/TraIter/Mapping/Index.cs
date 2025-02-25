@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 
 namespace Trarizon.Library.Collections;
-partial class TraIter
+public static partial class TraIter
 {
     public static WithIndexIterator<T> IterWithIndex<T>(this IEnumerable<T> source)
         => new(source);

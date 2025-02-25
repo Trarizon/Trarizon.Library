@@ -1,5 +1,5 @@
 ﻿namespace Trarizon.Library.Collections;
-partial class TraEnumerable
+public static partial class TraEnumerable
 {
     // LinQ optimized chained call Where().Select(), so we use official LinQ
     // for better performance on LinQ chain

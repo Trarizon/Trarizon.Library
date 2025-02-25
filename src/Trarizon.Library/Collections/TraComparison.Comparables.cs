@@ -1,11 +1,11 @@
-﻿#if NETSTANDARD2_0
+﻿#if NETSTANDARD
 #pragma warning disable CS8604 // 引用类型参数可能为 null。
 #endif
 
 using System.Runtime.CompilerServices;
 
 namespace Trarizon.Library.Collections;
-partial class TraComparison
+public static partial class TraComparison
 {
     internal readonly struct ComparerComparable<T, TComparer>(T value, TComparer comparer) : IComparable<T> where TComparer : IComparer<T>
     {

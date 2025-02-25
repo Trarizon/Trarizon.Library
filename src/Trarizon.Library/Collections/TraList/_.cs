@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 namespace Trarizon.Library.Collections;
 public static partial class TraList
 {
-#if NETSTANDARD2_0
+#if NETSTANDARD
     /// <remarks>
     /// As CollectionsMarshal doesnt exists on .NET Standard 2.0, this use a very tricky way
     /// to get the underlying array. Actually I'm not sure if this works correctly in all runtime...

@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Diagnostics;
 
-#if NETSTANDARD2_0
+#if NETSTANDARD
 
 namespace Trarizon.Library.Numerics;
 public static partial class TraNumber

@@ -3,7 +3,7 @@ using CommunityToolkit.HighPerformance.Buffers;
 using System.Diagnostics;
 
 namespace Trarizon.Library.Collections;
-partial class TraSpan
+public static partial class TraSpan
 {
     public static void MoveTo<T>(this Span<T> span, int fromIndex, int toIndex)
     {

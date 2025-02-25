@@ -3,7 +3,7 @@
 using System.Diagnostics.CodeAnalysis;
 
 namespace Trarizon.Library.Collections;
-partial class TraCollection
+public static partial class TraCollection
 {
     public static bool TryPop<T>(this Stack<T> stack, [MaybeNullWhen(false)] out T value)
     {

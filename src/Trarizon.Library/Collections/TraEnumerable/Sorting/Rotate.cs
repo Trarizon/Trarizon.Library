@@ -1,7 +1,7 @@
 ﻿using Trarizon.Library.Collections.AllocOpt;
 
 namespace Trarizon.Library.Collections;
-partial class TraEnumerable
+public static partial class TraEnumerable
 {
     public static IEnumerable<T> Rotate<T>(this IEnumerable<T> source, int splitPosition)
     {

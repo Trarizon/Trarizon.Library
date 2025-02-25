@@ -1,5 +1,5 @@
 ﻿namespace Trarizon.Library.Collections;
-partial class TraAlgorithm
+public static partial class TraAlgorithm
 {
     public static int LinearSearch<T, TComparable>(ReadOnlySpan<T> items, TComparable item) where TComparable : IComparable<T>
     {

@@ -2,7 +2,7 @@
 using Trarizon.Library.Wrappers;
 
 namespace Trarizon.Library.Threading;
-partial class TraAsync
+public static partial class TraAsync
 {
     /// <summary>
     /// Returns a awaitable that will catch <see cref="TaskCanceledException"/>

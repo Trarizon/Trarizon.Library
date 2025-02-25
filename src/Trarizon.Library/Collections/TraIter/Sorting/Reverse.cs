@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 
 namespace Trarizon.Library.Collections;
-partial class TraIter
+public static partial class TraIter
 {
     /// <summary>
     /// Reverse. If <paramref name="source"/> is an <c>IList&lt;T></c>, this method iterates

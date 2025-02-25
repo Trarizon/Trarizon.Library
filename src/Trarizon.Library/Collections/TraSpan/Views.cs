@@ -2,9 +2,9 @@
 using Trarizon.Library.Collections.StackAlloc;
 
 namespace Trarizon.Library.Collections;
-partial class TraSpan
+public static partial class TraSpan
 {
-#if !NETSTANDARD2_0
+#if !NETSTANDARD
     
     public static ReversedSpan<T> AsReversed<T>(this Span<T> span)
         => new(ref span.DangerousGetReferenceAt(span.Length - 1), span.Length);

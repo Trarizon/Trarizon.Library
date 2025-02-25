@@ -1,4 +1,4 @@
-﻿#if NETSTANDARD2_0
+﻿#if NETSTANDARD
 #pragma warning disable CS8604 // 引用类型参数可能为 null。
 #endif
 

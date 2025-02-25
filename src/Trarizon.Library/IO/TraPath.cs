@@ -5,7 +5,7 @@ using Trarizon.Library.Text;
 namespace Trarizon.Library.IO;
 public static class TraPath
 {
-#if NETSTANDARD2_0
+#if NETSTANDARD
     [field: MaybeNull]
     private static char[] InvalidFileNameChars => field ??= Path.GetInvalidFileNameChars();
     [field: MaybeNull]

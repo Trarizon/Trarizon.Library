@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.HighPerformance;
 
 namespace Trarizon.Library.Collections;
-partial class TraList
+public static partial class TraList
 {
     /// <summary>
     /// Returns a view through which modifying the list will keep elements in order.
@@ -93,6 +93,11 @@ partial class TraList
             return index;
         }
 
+        /// <summary>
+        /// Notify that the item at <paramref name="index"/> is edited,
+        /// the method will move the item to the correct position to keep list in order
+        /// </summary>
+        /// <param name="index"></param>
         public void NotifyEdited(int index)
         {
             var editItem = _list[index];

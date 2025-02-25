@@ -1,5 +1,5 @@
 ﻿namespace Trarizon.Library.Collections;
-partial class TraEnumerable
+public static partial class TraEnumerable
 {
     public static bool IsInOrder<T>(this IEnumerable<T> source)
         => IsInOrder(source, Comparer<T>.Default);

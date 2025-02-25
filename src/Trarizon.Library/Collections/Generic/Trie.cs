@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-#if NETSTANDARD2_0
+#if NETSTANDARD
 using Unsafe = Trarizon.Library.Netstd.NetstdFix_Unsafe;
 #endif
 

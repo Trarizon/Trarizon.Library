@@ -1,11 +1,11 @@
 ﻿// This file mirrors TraNumber.cs for .NET Standard, as abstract static method appears from .NET 7
 
-#if NETSTANDARD2_0
+#if NETSTANDARD
 
 using CommunityToolkit.HighPerformance;
 
 namespace Trarizon.Library.Numerics;
-partial class TraNumber
+public static partial class TraNumber
 {
     public static bool IncAndTryWrap(this ref int number, int delta, int max)
     {

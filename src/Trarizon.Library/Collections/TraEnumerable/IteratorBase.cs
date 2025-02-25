@@ -3,7 +3,7 @@ using System.Collections;
 using System.Diagnostics;
 
 namespace Trarizon.Library.Collections;
-partial class TraEnumerable
+public static partial class TraEnumerable
 {
     private abstract class IteratorBase<T> : IEnumerable<T>, IEnumerator<T>
     {

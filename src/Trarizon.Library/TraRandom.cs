@@ -40,14 +40,14 @@ public static partial class TraRandom
     #region Next Value
 
     public static float NextSingle(this Random random, float min, float max)
-#if NETSTANDARD2_0
+#if NETSTANDARD
         => TraNumber.Lerp(min, max, random.NextSingle());
 #else
         => float.Lerp(min, max, random.NextSingle());
 #endif
 
     public static double NextDouble(this Random random, double min, double max)
-#if NETSTANDARD2_0
+#if NETSTANDARD
         => min + random.NextDouble() * (max - min);
 #else
         => double.Lerp(min, max, random.NextDouble());

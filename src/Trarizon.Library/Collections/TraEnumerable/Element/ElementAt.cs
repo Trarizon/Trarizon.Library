@@ -2,7 +2,7 @@
 using Trarizon.Library.Collections.Generic;
 
 namespace Trarizon.Library.Collections;
-partial class TraEnumerable
+public static partial class TraEnumerable
 {
     public static bool TryAt<T>(this IEnumerable<T> source, int index, [MaybeNullWhen(false)] out T element)
     {

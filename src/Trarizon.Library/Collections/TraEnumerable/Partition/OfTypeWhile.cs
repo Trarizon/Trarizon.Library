@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 
 namespace Trarizon.Library.Collections;
-partial class TraEnumerable
+public static partial class TraEnumerable
 {
     public static IEnumerable<T> OfTypeWhile<T>(this IEnumerable source)
     {

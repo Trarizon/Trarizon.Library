@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Diagnostics;
 
 namespace Trarizon.Library.Numerics;
-partial class TraNumber
+public static partial class TraNumber
 {
     /// <summary>
     /// <see cref="Index.GetOffset(int)"/>, and check if the offset is in [0, <paramref name="length"/>),

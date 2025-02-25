@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 
 namespace Trarizon.Library.Collections;
-partial class TraEnumerable
+public static partial class TraEnumerable
 {
     public static IEnumerable<T> Duplicates<T>(this IEnumerable<T> source, IEqualityComparer<T>? comparer = null)
         => source.DuplicatesBy(x => x, comparer);
@@ -48,7 +48,7 @@ partial class TraEnumerable
             Dictionary<ValueTuple<TKey>, (bool Duplicated, T Value)> dict = comparer is null ? new() : new(new ValueTupleWrapEqualityComparer<TKey>(comparer));
 
             foreach (var item in source) {
-#if NETSTANDARD2_0
+#if NETSTANDARD
                 var key = new ValueTuple<TKey>(keySelector(item));
                 if (!dict.TryGetValue(new(keySelector(item)), out var val)) {
                     dict.Add(key, (false, item));

@@ -1,4 +1,4 @@
-﻿#if !NETSTANDARD2_0
+﻿#if !NETSTANDARD
 
 using CommunityToolkit.Diagnostics;
 using System.Diagnostics.CodeAnalysis;

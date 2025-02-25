@@ -1,5 +1,5 @@
 ﻿// Add nuget System.Text.Json for .NET Standard is ok, but i wonder it is really neccessary to add a json lib in it
-#if !NETSTANDARD2_0
+#if !NETSTANDARD
 
 using System.Text.Json;
 

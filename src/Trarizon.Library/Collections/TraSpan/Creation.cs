@@ -5,7 +5,7 @@ using MemoryMarshal = Trarizon.Library.Netstd.NetstdFix_MemoryMarshal;
 #endif
 
 namespace Trarizon.Library.Collections;
-partial class TraSpan
+public static partial class TraSpan
 {
     public static Span<byte> AsBytes<T>(ref T value) where T : unmanaged
         => MemoryMarshal.CreateSpan(ref Unsafe.As<T, byte>(ref value), Unsafe.SizeOf<T>());

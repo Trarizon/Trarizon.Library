@@ -2,17 +2,17 @@
 using System.Runtime.InteropServices;
 
 namespace Trarizon.Library.Collections;
-partial class TraSpan
+public static partial class TraSpan
 {
     public static bool ContainsByComparer<T>(this ReadOnlySpan<T> span, T item)
     {
-#if !NETSTANDARD2_0
+#if !NETSTANDARD
         if (typeof(T).IsValueType) {
             ref readonly var newref = ref Unsafe.As<T, TraComparison.DefaultComparerEquatable<T>>(ref MemoryMarshal.GetReference(span));
             return MemoryMarshal.CreateReadOnlySpan(in newref, span.Length).Contains(new TraComparison.DefaultComparerEquatable<T>(item));
         }
 #endif
-     
+
         return ContainsByComparer(span, item, EqualityComparer<T>.Default);
     }
 

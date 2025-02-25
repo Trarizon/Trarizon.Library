@@ -1,7 +1,7 @@
 ﻿using Trarizon.Library.Collections.AllocOpt;
 
 namespace Trarizon.Library.Collections;
-partial class TraEnumerable
+public static partial class TraEnumerable
 {
     public static IEnumerable<T> Repeat<T>(this IEnumerable<T> source, int count)
     {

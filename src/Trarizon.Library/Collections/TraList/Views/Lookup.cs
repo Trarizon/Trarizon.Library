@@ -1,12 +1,12 @@
 ﻿using CommunityToolkit.HighPerformance;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-#if NETSTANDARD2_0
+#if NETSTANDARD
 using Unsafe = Trarizon.Library.Netstd.NetstdFix_Unsafe;
 #endif
 
 namespace Trarizon.Library.Collections;
-partial class TraList
+public static partial class TraList
 {
     public static Lookup<T> GetLookup<T>(this List<T> list, IEqualityComparer<T>? comparer = null)
         => new(list, comparer ?? EqualityComparer<T>.Default);

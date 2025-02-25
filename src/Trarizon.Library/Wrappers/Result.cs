@@ -128,7 +128,7 @@ public readonly struct Result<T, TError>
     }
 }
 
-#nullable disable
+#pragma warning disable CS0649
 
 public readonly struct ResultSuccessBuilder<T>
 {

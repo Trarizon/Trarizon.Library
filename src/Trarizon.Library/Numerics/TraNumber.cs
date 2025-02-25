@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.HighPerformance;
 using System.Numerics;
 
-#if !NETSTANDARD2_0
+#if NET7_0_OR_GREATER
 
 namespace Trarizon.Library.Numerics;
 public static partial class TraNumber

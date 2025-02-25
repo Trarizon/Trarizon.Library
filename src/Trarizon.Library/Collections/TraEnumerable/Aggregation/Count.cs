@@ -1,5 +1,5 @@
 ﻿namespace Trarizon.Library.Collections;
-partial class TraEnumerable
+public static partial class TraEnumerable
 {
     /// <summary>
     /// Check if the size of collection is greater than <paramref name="count"/>

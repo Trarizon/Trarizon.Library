@@ -17,7 +17,7 @@ internal sealed class SimpleObjectPool<T> : ObjectPool<T> where T : class
         _onReturn = onReturn;
         _onDispose = onDispose;
         _pooled = new();
-#if NETSTANDARD2_0
+#if NETSTANDARD
         _maxCount = maxCount < 0 ? TraArray.MaxLength : maxCount;
 #else
         _maxCount = maxCount < 0 ? Array.MaxLength : maxCount;

@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using Trarizon.Library.Wrappers;
 
 namespace Trarizon.Library.Collections;
-partial class TraEnumerable
+public static partial class TraEnumerable
 {
     /// <remarks>
     /// Official LinQ has some internal optimizations for linq chain on <see cref="Enumerable.FirstOrDefault{TSource}(IEnumerable{TSource})"/>,
