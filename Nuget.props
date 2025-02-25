@@ -3,6 +3,7 @@
 	<PropertyGroup Label="NugetProperties">
 		<Title>Trarizon.Library</Title>
 		<Authors>Trarizon</Authors>
+        <Copyright>Copyright (c) Trarizon 2023</Copyright>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<RepositoryUrl>https://github.com/Trarizon/Trarizon.Library</RepositoryUrl>
         <PackageProjectUrl>$(RepositoryUrl)</PackageProjectUrl>
