@@ -71,7 +71,7 @@ public abstract class BaseAutoAllocList<T> : IList<T>, IReadOnlyList<T>
 
     public void RemoveRange(int index, int length)
     {
-        TraNumber.CheckSliceArgs(index, length, _items.Count);
+        TraNumber.ValidateSliceArgs(index, length, _items.Count);
         var range = _items.AsSpan().Slice(index, length);
         Release(range);
         RemoveRange(index, length);
