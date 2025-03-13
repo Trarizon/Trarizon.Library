@@ -9,7 +9,7 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
     private T[] _array;
     private int _count;
     private int _version;
-    private readonly IComparer<T> _comparer;
+    private IComparer<T> _comparer;
 
     public T this[int index]
     {
@@ -26,9 +26,29 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
 
     public int Count => _count;
 
-    public int Capacity => _array.Length;
+    public int Capacity
+    {
+        get => _array.Length;
+        set {
+            Guard.IsGreaterThanOrEqualTo(value, _count);
+            if (value == _count)
+                return;
+            T[] array = new T[value];
+            if (_count > 0) {
+                Array.Copy(_array, array, _count);
+            }
+            _array = array;
+        }
+    }
 
-    bool ICollection<T>.IsReadOnly => throw new NotImplementedException();
+    public IComparer<T> Comparer
+    {
+        get => _comparer;
+        set {
+            _comparer = value;
+            Array.Sort(_array, 0, _count, _comparer);
+        }
+    }
 
     public SortedList(IComparer<T> comparer)
     {
@@ -44,15 +64,36 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
 
     public ReadOnlySpan<T> AsSpan() => _array.AsSpan(0, _count);
 
+    public ReadOnlySpan<T> AsSpan(int start, int length)
+    {
+        TraNumber.ValidateSliceArgs(start, length, _count);
+        return _array.AsSpan(start, length);
+    }
+
+    public ReadOnlySpan<T> AsSpan(Range range)
+    {
+        var (ofs, len) = range.GetOffsetAndLength(_count);
+        return AsSpan(ofs, len);
+    }
+
     public int BinarySearch(T item) => AsSpan().BinarySearch(item, _comparer);
 
-    public void Add(T item)
+    public int BinarySearch<TComparable>(TComparable comparable) where TComparable : IComparable<T>
+        => AsSpan().BinarySearch(comparable);
+
+    public int LinearSearch(T item) => AsSpan().LinearSearch(item, _comparer);
+
+    public int LinearSearchFromEnd(T item) => AsSpan().LinearSearchFromEnd(item, _comparer);
+
+    /// <summary>
+    /// Binary search the index and insert with keeping the list in order
+    /// </summary>
+    public int Add(T item)
     {
         var index = BinarySearch(item);
         TraNumber.FlipNegative(ref index);
         InsertAt(index, item);
-        _count++;
-
+        return index;
     }
 
     public void AddFromEnd(T item)
@@ -69,6 +110,28 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
         InsertAt(index, item);
     }
 
+    public void AddFrom(int searchStartIndex, T item)
+    {
+        if (searchStartIndex <= 0) {
+            AddFromStart(item);
+        }
+        else if (searchStartIndex >= _count) {
+            AddFromEnd(item);
+        }
+        else {
+            if (_comparer.Compare(item, this[searchStartIndex]) < 0) {
+                var index = _array.AsSpan(..searchStartIndex).LinearSearchFromEnd(item, _comparer);
+                TraNumber.FlipNegative(ref index);
+                InsertAt(index, item);
+            }
+            else {
+                var index = _array.AsSpan(searchStartIndex.._count).LinearSearch(item, _comparer);
+                TraNumber.FlipNegative(ref index);
+                InsertAt(searchStartIndex + index, item);
+            }
+        }
+    }
+
     public int Remove(T item)
     {
         var index = BinarySearch(item);
@@ -76,6 +139,42 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
             RemoveAt(index);
         }
         return index;
+    }
+
+    public int RemoveFrom(T item, int searchStartIndex)
+    {
+        if (searchStartIndex <= 0) {
+            var index = LinearSearch(item);
+            if (index >= 0) {
+                RemoveAt(index);
+            }
+            return index;
+        }
+        else if (searchStartIndex >= _count) {
+            var index = LinearSearchFromEnd(item);
+            if (index >= 0) {
+                RemoveAt(index);
+            }
+            return index;
+        }
+        else {
+            if (_comparer.Compare(item, this[searchStartIndex]) < 0) {
+                var index = _array.AsSpan(..searchStartIndex).LinearSearchFromEnd(item, _comparer);
+                if (index >= 0) {
+                    RemoveAt(index);
+                }
+                return index;
+            }
+            else {
+                var index = _array.AsSpan(searchStartIndex.._count).LinearSearch(item, _comparer);
+                if (index >= 0) {
+                    var rmvIndex = searchStartIndex + index;
+                    RemoveAt(rmvIndex);
+                    return rmvIndex;
+                }
+                return index - searchStartIndex;
+            }
+        }
     }
 
     public void RemoveAt(int index)
@@ -93,6 +192,13 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
         ArrayGrowHelper.FreeManaged(_array, 0, _count);
         _count = 0;
         _version++;
+    }
+
+    public void EnsureCapacity(int capacity)
+    {
+        if (capacity < _array.Length)
+            return;
+        ArrayGrowHelper.Grow(ref _array, capacity, _count);
     }
 
     private void InsertAt(int index, T item)
@@ -145,12 +251,15 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
 
     public Enumerator GetEnumerator() => new(this);
 
+    bool ICollection<T>.IsReadOnly => false;
+
     IEnumerator<T> IEnumerable<T>.GetEnumerator() => GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     int IList<T>.IndexOf(T item) => Math.Max(BinarySearch(item), -1);
     void IList<T>.Insert(int index, T item) => ThrowHelper.ThrowInvalidOperationException("Cannot insert at specific position to SortedList");
     bool ICollection<T>.Contains(T item) => BinarySearch(item) >= 0;
     bool ICollection<T>.Remove(T item) => Remove(item) >= 0;
+    void ICollection<T>.Add(T item) => Add(item);
 
     public struct Enumerator : IEnumerator<T>
     {
@@ -173,6 +282,8 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
 
         public bool MoveNext()
         {
+            CheckVersion();
+
             if (_index < 0)
                 return false;
 
@@ -188,7 +299,18 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
             }
         }
 
-        public void Reset() => _index = 0;
-        public void Dispose() { }
+        public void Reset()
+        {
+            CheckVersion();
+            _index = 0;
+        }
+
+        public readonly void Dispose() { }
+
+        private readonly void CheckVersion()
+        {
+            if (_version != _list._version)
+                TraThrow.CollectionModified();
+        }
     }
 }

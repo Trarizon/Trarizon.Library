@@ -50,13 +50,13 @@ public class Memento<T> where T : class
             _array[_index] = item;
             Increment(ref _index);
             _tail = _index;
+            _activeCount++;
             _count = _activeCount;
             _version++;
             return;
         }
 
-        Debug.Assert(_head == _tail);
-        Debug.Assert(_head == _index);
+        Debug.Assert(_index == _tail);
         if (_activeCount == MaxCount) {
             _array[_index] = item;
             Increment(ref _index);
@@ -161,7 +161,7 @@ public class Memento<T> where T : class
     private void Increment(ref int index)
     {
         index++;
-        if (index > _array.Length)
+        if (index >= _array.Length)
             index -= _array.Length;
     }
 
@@ -169,7 +169,7 @@ public class Memento<T> where T : class
     private void Decrement(ref int index)
     {
         if (index == 0)
-            index = _array.Length;
+            index = _array.Length - 1;
         else
             index--;
     }
@@ -219,13 +219,16 @@ public class Memento<T> where T : class
             // |--  --|
             else {
                 _current = _memento._array[_index];
-                if (_isActive && _index == _memento._index)
+                // If _index == _memento._tail, the array is full, and all items are active
+                if (_isActive && _index == _memento._index && _index != _memento._tail)
                     _isActive = false;
 
                 var index = _index;
                 _memento.Increment(ref index);
-                if (index == _memento._tail)
+                if (index == _memento._tail) {
                     _index = -1;
+
+                }
                 else
                     _index = index;
                 return true;

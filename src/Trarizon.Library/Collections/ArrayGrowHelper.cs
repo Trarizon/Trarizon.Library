@@ -9,7 +9,7 @@ internal static class ArrayGrowHelper
 #if !NETSTANDARD2_0
         if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
 #endif
-        Array.Clear(array, 0, array.Length);
+            Array.Clear(array, 0, array.Length);
     }
 
     public static void FreeManaged<T>(T[] array, Range range)
@@ -83,7 +83,7 @@ internal static class ArrayGrowHelper
 
         int newLen;
         if (length == 0)
-            newLen = 4;
+            newLen = Math.Min(4, maxLength);
         else
             newLen = Math.Min(length * 2, maxLength);
 

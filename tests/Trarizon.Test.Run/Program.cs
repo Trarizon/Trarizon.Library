@@ -4,6 +4,7 @@ using BenchmarkDotNet.Running;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
+using Deenote.Library.Collections.StackAlloc;
 using System.Collections;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
@@ -34,25 +35,49 @@ using Trarizon.Library.Threading;
 using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 
-Console.WriteLine("Hello, world");
+int[] arr = { 1, 2, 3, 4, 5, 6, 7 };
 
-foreach (var item in EnumerateInts().PopFront(1,out var lead)) {
-
+foreach (var item in new ReadOnlyReversedSpan<int>(arr)) {
+    item.Print();
 }
 
-static partial class C
+
+#nullable enable
+
+//using CommunityToolkit.HighPerformance;
+//using System;
+
+namespace Deenote.Library.Collections.StackAlloc
 {
-
-    public static int M(string str, int anto) => str.Length;
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="s"></param>
-    /// <param name="b"></param>
-    /// <param name="v"></param>
-    public static void M(ref readonly int s, [OptionalOut] out ValueTuple b, int v)
+    public readonly ref struct ReadOnlyReversedSpan<T>
     {
-        v = 0;
+        private readonly ReadOnlySpan<T> _span;
+
+        public ReadOnlyReversedSpan(ReadOnlySpan<T> span)
+        {
+            _span = span;
+        }
+
+        public Enumerator GetEnumerator() => new Enumerator(_span);
+
+        public ref struct Enumerator
+        {
+            private ReadOnlySpan<T> _span;
+
+            public Enumerator(ReadOnlySpan<T> span)
+            {
+                _span = span;
+            }
+
+            public readonly ref readonly T Current => ref _span.DangerousGetReferenceAt(_span.Length);
+
+            public bool MoveNext()
+            {
+                if (_span.IsEmpty)
+                    return false;
+                _span = _span[..^1];
+                return true;
+            }
+        }
     }
 }

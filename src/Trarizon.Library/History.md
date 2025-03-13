@@ -1,5 +1,11 @@
 # History
 
+## v1.0.1
+
+- [Break] Rename `TraNumber.CheckSliceArgs` to `Validate..`
+- Add `SortedList<T>`
+- Fix bugs on `Memento<T>`
+
 ## v1.0.0
 
 - Completely refactored
