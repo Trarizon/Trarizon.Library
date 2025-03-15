@@ -76,6 +76,8 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
         return AsSpan(ofs, len);
     }
 
+    #region Search
+
     public int BinarySearch(T item) => AsSpan().BinarySearch(item, _comparer);
 
     public int BinarySearch<TComparable>(TComparable comparable) where TComparable : IComparable<T>
@@ -84,6 +86,12 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
     public int LinearSearch(T item) => AsSpan().LinearSearch(item, _comparer);
 
     public int LinearSearchFromEnd(T item) => AsSpan().LinearSearchFromEnd(item, _comparer);
+
+    public bool Contains(T item) => BinarySearch(item) >= 0;
+
+    #endregion
+
+    #region Add Remove
 
     /// <summary>
     /// Binary search the index and insert with keeping the list in order
@@ -98,14 +106,14 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
 
     public void AddFromEnd(T item)
     {
-        var index = BinarySearch(item);
+        var index = LinearSearchFromEnd(item);
         TraNumber.FlipNegative(ref index);
         InsertAt(index, item);
     }
 
     public void AddFromStart(T item)
     {
-        var index = BinarySearch(item);
+        var index = LinearSearch(item);
         TraNumber.FlipNegative(ref index);
         InsertAt(index, item);
     }
@@ -194,13 +202,6 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
         _version++;
     }
 
-    public void EnsureCapacity(int capacity)
-    {
-        if (capacity < _array.Length)
-            return;
-        ArrayGrowHelper.Grow(ref _array, capacity, _count);
-    }
-
     private void InsertAt(int index, T item)
     {
         Debug.Assert(_count <= _array.Length);
@@ -221,6 +222,25 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
         Debug.Assert((uint)to < (uint)_count);
 
         _array.MoveTo(from, to);
+    }
+
+    #endregion
+
+    public void EnsureCapacity(int capacity)
+    {
+        if (capacity < _array.Length)
+            return;
+        ArrayGrowHelper.Grow(ref _array, capacity, _count);
+    }
+
+    public void Resort()
+    {
+        Array.Sort(_array, 0, _count, _comparer);
+    }
+
+    public void ResortBubble()
+    {
+        TraAlgorithm.BubbleSort(_array.AsSpan(0, _count), _comparer);
     }
 
     private void NotifyEditedAt(int index)
@@ -257,7 +277,6 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     int IList<T>.IndexOf(T item) => Math.Max(BinarySearch(item), -1);
     void IList<T>.Insert(int index, T item) => ThrowHelper.ThrowInvalidOperationException("Cannot insert at specific position to SortedList");
-    bool ICollection<T>.Contains(T item) => BinarySearch(item) >= 0;
     bool ICollection<T>.Remove(T item) => Remove(item) >= 0;
     void ICollection<T>.Add(T item) => Add(item);
 
@@ -265,7 +284,7 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
     {
         private readonly SortedList<T> _list;
         private int _index;
-        private int _version;
+        private readonly int _version;
         private T _current;
 
         internal Enumerator(SortedList<T> list)
@@ -276,7 +295,7 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
             _current = default!;
         }
 
-        public T Current => _current;
+        public readonly T Current => _current;
 
         object IEnumerator.Current => Current!;
 

@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using Trarizon.Library.Collections.StackAlloc;
 
 namespace Trarizon.Library.Collections.Generic;
-public class Memento<T> where T : class
+public class Memento<T>
 {
     private T[] _array;
     private int _activeCount;
@@ -96,7 +96,7 @@ public class Memento<T> where T : class
     public bool TryRollback([MaybeNullWhen(false)] out T item)
     {
         if (_activeCount == 0) {
-            item = null;
+            item = default;
             return false;
         }
         _activeCount--;
@@ -116,7 +116,7 @@ public class Memento<T> where T : class
     public bool TryReapply([MaybeNullWhen(false)] out T item)
     {
         if (_activeCount == _count) {
-            item = null;
+            item = default;
             return false;
         }
 

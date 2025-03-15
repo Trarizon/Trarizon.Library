@@ -1,5 +1,4 @@
-﻿#if !NETSTANDARD
-
+﻿
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance;
 using System.ComponentModel;
@@ -10,6 +9,12 @@ using System.Runtime.InteropServices;
 namespace Trarizon.Library.Collections.StackAlloc;
 public readonly ref struct ReadOnlyReversedSpan<T>
 {
+#if NETSTANDARD
+    private readonly ReadOnlySpan<T> _span;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal ReadOnlyReversedSpan(ReadOnlySpan<T> span) => _span = span;
+#else
     private readonly ref readonly T _reference;
     private readonly int _length;
 
@@ -20,37 +25,61 @@ public readonly ref struct ReadOnlyReversedSpan<T>
         _reference = ref reference;
         _length = length;
     }
+#endif
 
     public ref readonly T this[int index]
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get {
-            Guard.IsLessThan((uint)index, (uint)_length);
+            Guard.IsLessThan((uint)index, (uint)Length);
             return ref DangerousGetReferenceAt(index);
         }
     }
 
+#if NETSTANDARD
+    public int Length => _span.Length;
+    public bool IsEmpty => _span.IsEmpty;
+#else
+    public int Length => _length;
+    public bool IsEmpty => _length == 0;
+#endif
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ref readonly T DangerousGetReferenceAt(int index)
+#if NETSTANDARD
+        => ref _span.DangerousGetReferenceAt(Length - 1 - index);
+#else
         => ref Unsafe.Subtract(ref Unsafe.AsRef(in _reference), index);
+#endif
 
+    public ReadOnlySpan<T> Reverse()
+#if NETSTANDARD
+        => _span;
+#else
+        => MemoryMarshal.CreateReadOnlySpan(in DangerousGetReferenceAt(_length - 1), _length);
+#endif
 
-    public int Length => _length;
-
-    public bool IsEmpty => _length == 0;
-
-    public ReadOnlySpan<T> Reverse() => MemoryMarshal.CreateReadOnlySpan(in DangerousGetReferenceAt(_length - 1), _length);
 
     public ReadOnlyReversedSpan<T> Slice(int index, int length)
     {
+#if NETSTANDARD
+        var start = Length - 1 - length;
+        return new ReadOnlyReversedSpan<T>(_span.Slice(start, length));
+#else
         Guard.IsLessThanOrEqualTo((ulong)(uint)index + (ulong)(uint)length, (ulong)(uint)_length);
         return new ReadOnlyReversedSpan<T>(in DangerousGetReferenceAt(index), length);
+#endif
     }
 
     public ReadOnlyReversedSpan<T> Slice(int index)
     {
+#if NETSTANDARD
+        var length = Length - index;
+        return new ReadOnlyReversedSpan<T>(_span[..length]);
+#else
         Guard.IsLessThan((uint)index, (uint)_length);
         return new ReadOnlyReversedSpan<T>(in DangerousGetReferenceAt(index), _length - index);
+#endif
     }
 
     public void CopyTo(Span<T> destination)
@@ -62,11 +91,12 @@ public readonly ref struct ReadOnlyReversedSpan<T>
         }
     }
 
+
     public bool TryCopyTo(Span<T> destination)
     {
-        if (destination.Length < _length)
+        if (destination.Length < Length)
             return false;
-
+        destination.GetEnumerator();
         for (int i = 0; i < Length; i++) {
             destination.DangerousGetReferenceAt(i) = DangerousGetReferenceAt(i);
         }
@@ -75,7 +105,7 @@ public readonly ref struct ReadOnlyReversedSpan<T>
 
     public T[] ToArray()
     {
-        if (_length == 0)
+        if (IsEmpty)
             return [];
 
         T[] array = new T[Length];
@@ -84,7 +114,11 @@ public readonly ref struct ReadOnlyReversedSpan<T>
     }
 
     public static bool operator ==(ReadOnlyReversedSpan<T> left, ReadOnlyReversedSpan<T> right)
+#if NETSTANDARD
+        => left._span == right._span;
+#else
         => left._length == right._length && Unsafe.AreSame(in left._reference, in right._reference);
+#endif
 
     public static bool operator !=(ReadOnlyReversedSpan<T> left, ReadOnlyReversedSpan<T> right) => !(left == right);
 
@@ -135,13 +169,17 @@ public readonly ref struct ReadOnlyReversedSpan<T>
     public override string ToString()
     {
         if (typeof(T) == typeof(char)) {
-            Span<char> buffer = _length > 1024 ? new char[_length] : stackalloc char[_length];
+#if NETSTANDARD
+            var buffer = new char[Length];
+            this.CopyTo(Unsafe.As<T[]>(buffer));
+            return buffer.ToString();
+#else
+            Span<char> buffer = Length > 1024 ? new char[Length] : stackalloc char[Length];
             new ReadOnlyReversedSpan<char>(in TraUnsafe.AsReadOnly<T, char>(in _reference), _length).CopyTo(buffer);
             return buffer.ToString();
+#endif
         }
 
-        return $"ReadOnlyReversedSpan<{typeof(T).Name}>[{_length}]";
+        return $"ReadOnlyReversedSpan<{typeof(T).Name}>[{Length}]";
     }
 }
-
-#endif

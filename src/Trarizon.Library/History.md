@@ -4,7 +4,9 @@
 
 - [Break] Rename `TraNumber.CheckSliceArgs` to `Validate..`
 - Add `SortedList<T>`
-- Fix bugs on `Memento<T>`
+- Fix bugs on `Memento<T>`, remove generic restriction
+- Support `ReversedSpan` for .NET Standard
+- Add `AutoAllocList` with generic Allocator
 
 ## v1.0.0
 
