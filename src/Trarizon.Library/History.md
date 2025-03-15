@@ -7,6 +7,7 @@
 - Fix bugs on `Memento<T>`, remove generic restriction
 - Support `ReversedSpan` for .NET Standard
 - Add `AutoAllocList` with generic Allocator
+- Move `SortedList`, `Memento`, `AutoAllocList` to `Specialized`
 
 ## v1.0.0
 

@@ -3,7 +3,7 @@ using System.Collections;
 using System.Diagnostics;
 using Trarizon.Library.Numerics;
 
-namespace Trarizon.Library.Collections.Generic;
+namespace Trarizon.Library.Collections.Specialized;
 public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
 {
     private T[] _array;

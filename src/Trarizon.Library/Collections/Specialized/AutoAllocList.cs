@@ -1,21 +1,30 @@
 ﻿using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance;
 using System.Collections;
+using Trarizon.Library.Buffers;
 using Trarizon.Library.Numerics;
 
-namespace Trarizon.Library.Collections.AutoAlloc;
-public abstract class BaseAutoAllocList<T> : IList<T>, IReadOnlyList<T>
+namespace Trarizon.Library.Collections.Specialized;
+public class AutoAllocList<T>(IObjectAllocator<T> allocator)
+    : AutoAllocList<T, IObjectAllocator<T>>(allocator)
     where T : class
+{ }
+
+public class AutoAllocList<T, TAllocator> : IList<T>, IReadOnlyList<T>
+    where T : class
+    where TAllocator : IObjectAllocator<T>
 {
     private readonly List<T> _items;
+    private readonly TAllocator _allocator;
 
     public T this[int index] => _items[index];
 
     public int Count => _items.Count;
 
-    protected BaseAutoAllocList()
+    protected AutoAllocList(TAllocator allocator)
     {
         _items = new();
+        _allocator = allocator;
     }
 
     public int IndexOf(T item) => _items.IndexOf(item);
@@ -116,8 +125,8 @@ public abstract class BaseAutoAllocList<T> : IList<T>, IReadOnlyList<T>
 
     public Enumerator GetEnumerator() => new(this);
 
-    protected abstract T Allocate();
-    protected abstract void Release(T item);
+    private T Allocate() => _allocator.Allocate();
+    private void Release(T item) => _allocator.Release(item);
 
     protected virtual void Release(ReadOnlySpan<T> items)
     {
@@ -142,10 +151,10 @@ public abstract class BaseAutoAllocList<T> : IList<T>, IReadOnlyList<T>
 
     public struct ResettingScope : IDisposable
     {
-        private readonly BaseAutoAllocList<T> _list;
+        private readonly AutoAllocList<T, TAllocator> _list;
         private int _count;
 
-        internal ResettingScope(BaseAutoAllocList<T> list)
+        internal ResettingScope(AutoAllocList<T, TAllocator> list)
         {
             _list = list;
             _count = 0;
@@ -175,7 +184,7 @@ public abstract class BaseAutoAllocList<T> : IList<T>, IReadOnlyList<T>
     {
         private List<T>.Enumerator _enumerator;
 
-        internal Enumerator(BaseAutoAllocList<T> list)
+        internal Enumerator(AutoAllocList<T, TAllocator> list)
         {
             _enumerator = list._items.GetEnumerator();
         }
