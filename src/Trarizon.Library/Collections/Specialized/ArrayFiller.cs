@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Diagnostics;
 
 namespace Trarizon.Library.Collections.Specialized;
-public struct ArrayBuilder<T>(T[] array, int initCount = 0)
+public struct ArrayFiller<T>(T[] array, int initCount = 0)
 {
     private int _count = initCount;
 

@@ -26,15 +26,18 @@ Contents:
 ## Collections
 
 - namespace `AllocOpt` : Rewrite some collections with struct
-- namespace `AutoAlloc` : Collections with auto allocation and release while modifying
-    - `AutoAllocList<>` : List
 - namespace `Generic` : Extension of `System.Collections.Generic`
     - `ILinkNode` & `LinkNodeHelper` : Abstraction of linked list node, provides some helper methods in `LinkNodeHelper`
     - `Deque<>` : Double-ended queue
     - `ListDictionary<,>` : Generic version of `System.Collections.Specialized.ListDictionary`.
-    - `Memento<>` : Memento pattern implementation, with `Add`, `Rollback`, `Reapply` methods
     - `RingQueue<>` : Ring queue with fixed capacity, optional throw or overwrite when full
     - `Trie<>` : Trie
+- namespace `Specialized` : 
+    - `ArrayFiller<>` : helper struct to fill a array
+    - `AutoAllocList<>` : List with auto allocation and release while modifying
+    - `ContiguousLinkedList<>` : Linked list, with items stored in contiguous memory
+    - `Memento<>` : Memento pattern implementation, with `Add`, `Rollback`, `Reapply` methods
+    - `SortedList<>` : List with items sorted
 - namespace `StackAlloc` : `ref struct` collections
     - `ReadOnlyConcatSpan` : Concat 2 spans
     - `(ReadOnly)ReversedSpan` : Reversed span

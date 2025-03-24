@@ -3,7 +3,7 @@
 ## v1.0.1
 
 - [Break] Rename `TraNumber.CheckSliceArgs` to `Validate..`
-- Add `SortedList<T>`, `EnumerateDescendants`
+- Add `SortedList<T>`, `EnumerateDescendants`, `ArrayFiller` `ContiguousLinkedList`
 - Fix bugs on `Memento<T>`, remove generic restriction
 - Support `ReversedSpan` for .NET Standard
 - Add `AutoAllocList` with generic Allocator
