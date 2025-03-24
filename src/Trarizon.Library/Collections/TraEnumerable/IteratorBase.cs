@@ -126,7 +126,7 @@ public static partial class TraEnumerable
         void IList<T>.Insert(int index, T item) => TraThrow.IteratorImmutable();
         void IList<T>.RemoveAt(int index) => TraThrow.IteratorImmutable();
 
-        protected bool MoveNext_Array<TItem>(TItem[] array, ref T currentField)
+        protected bool MoveNext_Index(ref T currentField)
         {
             const int End = MinPreservedState - 1;
 
@@ -139,7 +139,7 @@ public static partial class TraEnumerable
                 default:
                     Debug.Assert(_state >= 0);
                     var index = _state + 1;
-                    if (index < array.Length) {
+                    if (index < Count) {
                         currentField = this[_state];
                         _state = index;
                         return true;

@@ -11,6 +11,7 @@ using Unsafe = Trarizon.Library.Netstd.NetstdFix_Unsafe;
 #endif
 
 namespace Trarizon.Library.Collections.Generic;
+[CollectionBuilder(typeof(CollectionBuilders), nameof(CollectionBuilders.CreateListDictionary))]
 public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue> where TKey : notnull
 {
     private (TKey Key, TValue Value)[] _pairs;

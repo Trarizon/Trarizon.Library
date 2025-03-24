@@ -1,4 +1,5 @@
 ﻿using Trarizon.Library.Collections.AllocOpt;
+using Trarizon.Library.Collections.Specialized;
 
 namespace Trarizon.Library.Collections;
 public static partial class TraEnumerable
@@ -33,13 +34,13 @@ public static partial class TraEnumerable
 
         static IEnumerable<T> IterateList(List<T> list, int count)
         {
-            AllocOptList<T> cache = new(list.Count);
+            ArrayFiller<T> cache = new(list.Count);
             foreach (var item in list) {
                 cache.Add(item);
                 yield return item;
             }
             for (int i = 1; i < count; i++) {
-                foreach (var item in cache) {
+                foreach (var item in cache.Array) {
                     yield return item;
                 }
             }
@@ -47,14 +48,14 @@ public static partial class TraEnumerable
 
         static IEnumerable<T> IterateIList(IList<T> list, int count)
         {
-            AllocOptList<T> cache = new(list.Count);
+            ArrayFiller<T> cache = new(list.Count);
             for (int i = 0; i < list.Count; i++) {
                 T item = list[i];
                 cache.Add(item);
                 yield return item;
             }
             for (int i = 1; i < count; i++) {
-                foreach (var item in cache) {
+                foreach (var item in cache.Array) {
                     yield return item;
                 }
             }

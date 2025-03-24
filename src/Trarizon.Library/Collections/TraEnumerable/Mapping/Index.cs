@@ -27,7 +27,7 @@ public static partial class TraEnumerable
         private (int, T) _current;
         public override (int, T) Current => _current;
 
-        public override bool MoveNext() => MoveNext_Array(array, ref _current);
+        public override bool MoveNext() => MoveNext_Index(ref _current);
 
         protected override IteratorBase<(int, T)> Clone() => new ListWithIndexIterator<T>(array);
     }

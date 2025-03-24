@@ -9,6 +9,7 @@
 - Add `AutoAllocList` with generic Allocator
 - Move `SortedList`, `Memento`, `AutoAllocList` to `Specialized`
 - Support collection expression for `ListDictionary`
+- Optimize `ChunkPair/Triple`
 
 ## v1.0.0
 

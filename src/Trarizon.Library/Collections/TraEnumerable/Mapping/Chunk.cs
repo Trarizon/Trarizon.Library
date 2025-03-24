@@ -4,22 +4,8 @@ public static partial class TraEnumerable
     public static IEnumerable<(T, T?)> ChunkPair<T>(this IEnumerable<T> source)
     {
         if (source is T[] array)
-            return array.Length == 0 ? [] : IterateArray(array);
+            return array.Length == 0 ? [] : new ArrayChunkPairIterator<T>(array);
         return Iterate(source);
-
-        static IEnumerable<(T, T?)> IterateArray(T[] array)
-        {
-            if (array.Length % 2 == 0) {
-                for (int i = 0; i < array.Length; i += 2)
-                    yield return (array[i], array[i + 1]);
-            }
-            else {
-                var len = array.Length - 1;
-                for (int i = 0; i < len; i += 2)
-                    yield return (array[i], array[i + 1]);
-                yield return (array[^1], default);
-            }
-        }
 
         static IEnumerable<(T, T?)> Iterate(IEnumerable<T> source)
         {
@@ -39,25 +25,10 @@ public static partial class TraEnumerable
     public static IEnumerable<(T, T?, T?)> ChunkTriple<T>(this IEnumerable<T> source)
     {
         if (source is T[] array)
-            return array.Length == 0 ? [] : IterateArray(array);
+            return array.Length == 0 ? [] : new ArrayChunkTripleIterator<T>(array);
         if (source.IsEmptyArray())
             return [];
         return Iterate(source);
-
-        static IEnumerable<(T, T?, T?)> IterateArray(T[] array)
-        {
-            var rem = array.Length % 3;
-            if (rem == 0) {
-                for (int i = 0; i < array.Length; i += 3)
-                    yield return (array[i], array[i + 1], array[i + 2]);
-            }
-            else {
-                var len = array.Length - rem;
-                for (int i = 0; i < len; i += 3)
-                    yield return (array[i], array[i + 1], array[i + 2]);
-                yield return (array[len], array.ElementAtOrDefault(len + 1), array.ElementAtOrDefault(len + 2));
-            }
-        }
 
         static IEnumerable<(T, T?, T?)> Iterate(IEnumerable<T> source)
         {
@@ -77,5 +48,45 @@ public static partial class TraEnumerable
                 yield return (first, second, third);
             }
         }
+    }
+
+    private sealed class ArrayChunkPairIterator<T>(T[] array) : ListIteratorBase<(T, T?)>
+    {
+        private (T, T?) _current;
+
+        public override (T, T?) this[int index]
+        {
+            get {
+                var i = index * 2;
+                return (array[i], array.ElementAtOrDefault(i + 1));
+            }
+        }
+
+        public override int Count => (array.Length + 1) / 2;
+
+        public override (T, T?) Current => _current;
+
+        public override bool MoveNext() => MoveNext_Index(ref _current);
+        protected override IteratorBase<(T, T?)> Clone() => new ArrayChunkPairIterator<T>(array);
+    }
+
+    private sealed class ArrayChunkTripleIterator<T>(T[] array) : ListIteratorBase<(T, T?, T?)>
+    {
+        private (T, T?, T?) _current;
+
+        public override (T, T?, T?) this[int index]
+        {
+            get {
+                var i = index * 3;
+                return (array[i], array.ElementAtOrDefault(i + 1), array.ElementAtOrDefault(i + 2));
+            }
+        }
+
+        public override int Count => (array.Length + 2) / 3;
+
+        public override (T, T?, T?) Current => _current;
+
+        public override bool MoveNext() => MoveNext_Index(ref _current);
+        protected override IteratorBase<(T, T?, T?)> Clone() => new ArrayChunkTripleIterator<T>(array);
     }
 }

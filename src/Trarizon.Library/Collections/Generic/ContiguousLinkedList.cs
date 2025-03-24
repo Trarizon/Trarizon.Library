@@ -4,7 +4,8 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Trarizon.Library.Numerics;
 
-namespace Trarizon.Library.Collections.Specialized;
+namespace Trarizon.Library.Collections.Generic;
+[CollectionBuilder(typeof(CollectionBuilders), nameof(CollectionBuilders.CreateContiguousLinkedList))]
 public class ContiguousLinkedList<T> : ICollection<T>
 {
     private Entry[] _entries;
@@ -43,6 +44,13 @@ public class ContiguousLinkedList<T> : ICollection<T>
     public ContiguousLinkedList()
     {
         _entries = [];
+        _firstIndex = -1;
+        _freeFirstIndex = -1;
+    }
+
+    public ContiguousLinkedList(int capacity)
+    {
+        _entries = new Entry[capacity];
         _firstIndex = -1;
         _freeFirstIndex = -1;
     }
@@ -355,7 +363,7 @@ public class ContiguousLinkedList<T> : ICollection<T>
 
             _current = _list._entries[_index].Value;
             _index = _list._entries[_index].Next;
-            if(_index == _list._firstIndex)
+            if (_index == _list._firstIndex)
                 _index = -1;
             return true;
         }

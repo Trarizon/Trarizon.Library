@@ -20,4 +20,14 @@ public static class CollectionBuilders
         }
         return dict;
     }
+
+    public static ContiguousLinkedList<T> CreateContiguousLinkedList<T>(ReadOnlySpan<T> values)
+    {
+        var list = new ContiguousLinkedList<T>();
+        list.EnsureCapacity(values.Length);
+        foreach (var item in values) {
+            list.AddLast(item);
+        }
+        return list;
+    }
 }
