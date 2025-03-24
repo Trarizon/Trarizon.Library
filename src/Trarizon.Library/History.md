@@ -3,14 +3,14 @@
 ## v1.0.1
 
 - [Break] Rename `TraNumber.CheckSliceArgs` to `Validate..`
+- [Break] Rename `ILinkNode` to `ILinkedListNode`
+- [Break] Move `SortedList`, `Memento`, `AutoAllocList` to `Specialized`
 - Add `SortedList<T>`, `EnumerateDescendants`, `ArrayFiller` `ContiguousLinkedList`
-- Fix bugs on `Memento<T>`, remove generic restriction
-- Support `ReversedSpan` for .NET Standard
 - Add `AutoAllocList` with generic Allocator
-- Move `SortedList`, `Memento`, `AutoAllocList` to `Specialized`
+- Fix bugs on `Memento<T>`, remove generic restriction
+- Support `ReversedSpan`, `Stack.AsSpan()` on all runtimes
 - Support collection expression for `ListDictionary`
 - Optimize `ChunkPair/Triple`
-- Rename `ILinkNode` to `ILinkedListNode`
 
 ## v1.0.0
 

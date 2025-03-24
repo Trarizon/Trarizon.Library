@@ -35,16 +35,14 @@ using Trarizon.Library.Threading;
 using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 
-var list=new ContiguousLinkedList<int>();
-list.AddLast(1);
-list.AddLast(2);
-list.Print();
-list.AddAfter(list.FirstNode, 3);
-list.Print();
-list.AddFirst(4);
-list.Print();
-list.Remove(list.FirstNode.Next);
-list.Print();
+var list = new Stack<int>();
+
+list.Push(1);
+list.Push(2);
+list.Push(3);
+list.Push(4);
+
+TraCollection.AsSpan(list).ToArray().Print();
 
 class C : IEnumerable<C>
 {
