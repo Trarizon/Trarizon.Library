@@ -36,10 +36,10 @@ public static partial class TraEnumerable
     /// </summary>
     public static IEnumerable<T> EnumerateByNotNull<T>(T? first, Func<T, T?> nextSelector) where T : struct
     {
-        var val = first;
-        while (val is not null) {
-            yield return val.GetValueOrDefault();
-            val = nextSelector(val.GetValueOrDefault());
+        var nval = first;
+        while (nval is { } val) {
+            yield return val;
+            nval = nextSelector(val);
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿namespace Trarizon.Library.Collections.Generic;
-public interface ILinkNode<TSelf> where TSelf : class, ILinkNode<TSelf>
+public interface ILinkNode<TSelf> where TSelf : ILinkNode<TSelf>
 {
     TSelf? Next { get; set; }
     TSelf? Prev { get; set; }
@@ -67,7 +67,7 @@ public static class LinkNodeHelper
 
     #endregion
 
-    public static IReadOnlyCollection<TNode> GetFullLink<TNode>(TNode node) where TNode : class, ILinkNode<TNode>
+    public static IReadOnlyCollection<TNode> GetFullLink<TNode>(TNode node) where TNode : ILinkNode<TNode>
     {
         var deque = new Deque<TNode>();
 
@@ -84,7 +84,7 @@ public static class LinkNodeHelper
         return deque;
     }
 
-    public static TNode GetLinkFirst<TNode>(TNode node) where TNode : class, ILinkNode<TNode>
+    public static TNode GetLinkFirst<TNode>(TNode node) where TNode : ILinkNode<TNode>
     {
         var prev = node.Prev;
         while (prev is not null) {
@@ -94,7 +94,7 @@ public static class LinkNodeHelper
         return node;
     }
 
-    public static TNode GetLinkLast<TNode>(TNode node) where TNode : class, ILinkNode<TNode>
+    public static TNode GetLinkLast<TNode>(TNode node) where TNode : ILinkNode<TNode>
     {
         var next = node.Next;
         while (next is not null) {
@@ -104,15 +104,15 @@ public static class LinkNodeHelper
         return node;
     }
 
-    public static bool IsLinkFirst<TNode>(TNode node) where TNode : class, ILinkNode<TNode>
+    public static bool IsLinkFirst<TNode>(TNode node) where TNode : ILinkNode<TNode>
         => node.Prev is null;
 
-    public static bool IsLinkLast<TNode>(TNode node) where TNode : class, ILinkNode<TNode>
+    public static bool IsLinkLast<TNode>(TNode node) where TNode : ILinkNode<TNode>
         => node.Next is null;
 
     #region Iteration
 
-    public static IEnumerable<TNode> EnumerateFrom<TNode>(TNode? node) where TNode : class, ILinkNode<TNode>
+    public static IEnumerable<TNode> EnumerateFrom<TNode>(TNode? node) where TNode : ILinkNode<TNode>
     {
         var tmp = node;
         while (tmp is not null) {
@@ -121,7 +121,7 @@ public static class LinkNodeHelper
         }
     }
 
-    public static IEnumerable<TNode> EnumerateBackFrom<TNode>(TNode? node) where TNode : class, ILinkNode<TNode>
+    public static IEnumerable<TNode> EnumerateBackFrom<TNode>(TNode? node) where TNode : ILinkNode<TNode>
     {
         var tmp = node;
         while (tmp is not null) {
@@ -130,7 +130,7 @@ public static class LinkNodeHelper
         }
     }
 
-    public static IEnumerable<TNode> EnumerateRingFrom<TNode>(TNode node) where TNode : class, ILinkNode<TNode>
+    public static IEnumerable<TNode> EnumerateRingFrom<TNode>(TNode node) where TNode : ILinkNode<TNode>
     {
         foreach (var item in EnumerateFrom(node))
             yield return item;
@@ -139,7 +139,7 @@ public static class LinkNodeHelper
             yield return item;
     }
 
-    public static IEnumerable<TNode> EnumerateBackRingFrom<TNode>(TNode node) where TNode : class, ILinkNode<TNode>
+    public static IEnumerable<TNode> EnumerateBackRingFrom<TNode>(TNode node) where TNode : ILinkNode<TNode>
     {
         foreach (var item in EnumerateBackFrom(node))
             yield return item;

@@ -46,7 +46,7 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
         get => _comparer;
         set {
             _comparer = value;
-            Array.Sort(_array, 0, _count, _comparer);
+            Resort();
         }
     }
 
@@ -86,6 +86,24 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
     public int LinearSearch(T item) => AsSpan().LinearSearch(item, _comparer);
 
     public int LinearSearchFromEnd(T item) => AsSpan().LinearSearchFromEnd(item, _comparer);
+
+    public int LinearSearchFrom(int index, T item)
+    {
+        if (index <= 0)
+            return LinearSearch(item);
+        else if (index >= _count)
+            return LinearSearchFromEnd(item);
+        else {
+            if (_comparer.Compare(item, _array[index]) < 0) {
+                var i = _array.AsSpan(..index).LinearSearchFromEnd(item, _comparer);
+                return i;
+            }
+            else {
+                var i = _array.AsSpan(index.._count).LinearSearch(item, _comparer);
+                return i + index;
+            }
+        }
+    }
 
     public bool Contains(T item) => BinarySearch(item) >= 0;
 
@@ -195,6 +213,21 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
         _version++;
     }
 
+    public void RemoveRange(int start, int length)
+    {
+        TraNumber.ValidateSliceArgs(start, length, _count);
+        var copyStart = start + length;
+        Array.Copy(_array, copyStart, _array, start, _count - copyStart);
+        _count -= length;
+        _version++;
+    }
+
+    public void RemoveRange(Range range)
+    {
+        var (ofs, len) = range.GetOffsetAndLength(_count);
+        RemoveRange(ofs, len);
+    }
+
     public void Clear()
     {
         ArrayGrowHelper.FreeManaged(_array, 0, _count);
@@ -271,6 +304,8 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
 
     public Enumerator GetEnumerator() => new(this);
 
+    #region Interface
+
     bool ICollection<T>.IsReadOnly => false;
 
     IEnumerator<T> IEnumerable<T>.GetEnumerator() => GetEnumerator();
@@ -279,6 +314,8 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
     void IList<T>.Insert(int index, T item) => ThrowHelper.ThrowInvalidOperationException("Cannot insert at specific position to SortedList");
     bool ICollection<T>.Remove(T item) => Remove(item) >= 0;
     void ICollection<T>.Add(T item) => Add(item);
+
+    #endregion
 
     public struct Enumerator : IEnumerator<T>
     {
@@ -297,7 +334,7 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
 
         public readonly T Current => _current;
 
-        object IEnumerator.Current => Current!;
+        readonly object IEnumerator.Current => Current!;
 
         public bool MoveNext()
         {

@@ -1,13 +1,14 @@
-# History
+ï»¿# History
 
 ## v1.0.1
 
 - [Break] Rename `TraNumber.CheckSliceArgs` to `Validate..`
-- Add `SortedList<T>`
+- Add `SortedList<T>`, `EnumerateDescendants`
 - Fix bugs on `Memento<T>`, remove generic restriction
 - Support `ReversedSpan` for .NET Standard
 - Add `AutoAllocList` with generic Allocator
 - Move `SortedList`, `Memento`, `AutoAllocList` to `Specialized`
+- Support collection expression for `ListDictionary`
 
 ## v1.0.0
 
@@ -151,12 +152,12 @@
     - Add conversion between wrappers
     - Add `ArrayFiller<>`
     - Add `Either<,>`
-    - Add `IList<>.TryAt()`£¬`IROList<>.TryAt()`
+    - Add `IList<>.TryAt()`ï¼Œ`IROList<>.TryAt()`
     - Add `Optional<>.Unwrap`
 - Changes
     - Use Exception static methods in .NET 8 to replace part of `ThrowHelper`
 - Breaking
-    - Remove target framework .NET Standard 2.0 (~~·´ÕıÔ´Éú³ÉÆ÷²»ÄÜÓÃ£¬²»ÈçµÈÊ²Ã´Ê±ºòÔ´Éú³ÉÆ÷Ö§³ÖĞÂ°æ.NET°É.jpg~~
+    - Remove target framework .NET Standard 2.0 (~~åæ­£æºç”Ÿæˆå™¨ä¸èƒ½ç”¨ï¼Œä¸å¦‚ç­‰ä»€ä¹ˆæ—¶å€™æºç”Ÿæˆå™¨æ”¯æŒæ–°ç‰ˆ.NETå§.jpg~~
     - `Span.Reverse` is moved to `SpanQuery`
     - Remove `IList<>.AtOrDefault()`
     - Rename `IReadOnlyList<>.AtOrDefault()` to `ElementAtOrDefault`

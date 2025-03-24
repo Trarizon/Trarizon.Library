@@ -14,21 +14,4 @@ internal static class NetstdFix_Unsafe
     public static nint ByteOffset<T>(ref readonly T origin, ref readonly T target) => SysUnsafe.ByteOffset(ref SysUnsafe.AsRef(in origin), ref SysUnsafe.AsRef(in target));
 }
 
-internal static class NetstdFix_MemoryMarshal
-{
-    public static unsafe Span<T> CreateSpan<T>(ref T reference, int length) where T : unmanaged
-    {
-        fixed (T* ptr = &reference) {
-            return new Span<T>(ptr, length);
-        }
-    }
-
-    public static unsafe ReadOnlySpan<T> CreateReadOnlySpan<T>(ref T reference, int length) where T : unmanaged
-    {
-        fixed (T* ptr = &reference) {
-            return new ReadOnlySpan<T>(ptr, length);
-        }
-    }
-}
-
 #endif

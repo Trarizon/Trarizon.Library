@@ -86,6 +86,7 @@ Contents:
     - `MinMax(By)` : Get minimun value and maximun value in one iteration
 - Creation
     - `EnumerateByWhile/NotNull` : Yield next value selected by a `Func<T, T>`, until predicate failed
+    - `EnumerateDescendantsDepth/BreadthFirst` : Traverse tree
 - Element
     - `TryAt` : `TryXXX` version of `ElementAt`
     - `TryFirst` : `TryXXX` version of `First`
@@ -158,6 +159,7 @@ All extensions methods identifiers are start with `Iter`
     - `As(ReadOnly)Bytes` : Convert an `unmanaged` value into bytes
 - Index
     - `OffsetOf` (`DangerousOffsetOf`) : Get the index of element by pointer substraction
+    - `Find`/`FindIndex` :
     - `FindLower/UppderBoundIndex` : find the lower/upper bound in a sorted span
     - `LinearSearch(FromEnd)` : Linear search, similar to `BinarySearch`, returns `~index` when not found
 - Modifications

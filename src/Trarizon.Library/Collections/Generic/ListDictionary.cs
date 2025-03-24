@@ -161,7 +161,16 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
         ArrayGrowHelper.FreeManaged(_pairs, _count, 1);
     }
 
+    public void EnsureCapacty(int capacity)
+    {
+        if (capacity <= _pairs.Length)
+            return;
+        ArrayGrowHelper.Grow(ref _pairs, capacity, _count);
+    }
+
     public Enumerator GetEnumerator() => new(this);
+
+    #region Interface
 
     bool ICollection<KeyValuePair<TKey, TValue>>.IsReadOnly => false;
     ICollection<TKey> IDictionary<TKey, TValue>.Keys => Keys;
@@ -211,6 +220,8 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
     }
     IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator() => GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    #endregion
 
     public struct Enumerator : IEnumerator<KeyValuePair<TKey, TValue>>
     {

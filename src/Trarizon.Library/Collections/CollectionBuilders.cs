@@ -1,4 +1,5 @@
 ﻿using Trarizon.Library.Collections.AllocOpt;
+using Trarizon.Library.Collections.Generic;
 
 namespace Trarizon.Library.Collections;
 public static class CollectionBuilders
@@ -8,5 +9,15 @@ public static class CollectionBuilders
         var list = new AllocOptList<T>();
         list.AddRange(values);
         return list;
+    }
+
+    public static ListDictionary<TKey, TValue> CreateListDictionary<TKey, TValue>(ReadOnlySpan<KeyValuePair<TKey, TValue>> values) where TKey : notnull
+    {
+        var dict = new ListDictionary<TKey, TValue>();
+        dict.EnsureCapacty(values.Length);
+        foreach (var item in values) {
+            dict.Add(item.Key, item.Value);
+        }
+        return dict;
     }
 }

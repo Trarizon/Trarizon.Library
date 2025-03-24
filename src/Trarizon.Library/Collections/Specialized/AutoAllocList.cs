@@ -29,25 +29,6 @@ public class AutoAllocList<T, TAllocator> : IList<T>, IReadOnlyList<T>
 
     public int IndexOf(T item) => _items.IndexOf(item);
 
-    public int FindIndex<TArgs>(TArgs args, Func<T, TArgs, bool> predicate)
-    {
-        var items = _items.AsSpan();
-        for (int i = 0; i < items.Length; i++) {
-            if (predicate(items[i], args))
-                return i;
-        }
-        return -1;
-    }
-
-    public T? Find<TArgs>(TArgs args, Func<T, TArgs, bool> prediacte)
-    {
-        foreach (var item in _items.AsSpan()) {
-            if (prediacte(item, args))
-                return item;
-        }
-        return null;
-    }
-
     public void Add(out T item)
     {
         item = Allocate();
@@ -100,7 +81,7 @@ public class AutoAllocList<T, TAllocator> : IList<T>, IReadOnlyList<T>
 
     public void MoveTo(Index from, Index to)
     {
-        _items.MoveTo(from, to);
+        _items.AsSpan().MoveTo(from, to);
     }
 
     public void SetCount(int count)
@@ -135,6 +116,8 @@ public class AutoAllocList<T, TAllocator> : IList<T>, IReadOnlyList<T>
         }
     }
 
+    #region Interface
+
     bool ICollection<T>.IsReadOnly => ((ICollection<T>)_items).IsReadOnly;
 
     T IList<T>.this[int index]
@@ -148,6 +131,8 @@ public class AutoAllocList<T, TAllocator> : IList<T>, IReadOnlyList<T>
     void IList<T>.Insert(int index, T item) => ThrowHelper.ThrowInvalidOperationException("Cannot set item of auto-alloc list");
     IEnumerator<T> IEnumerable<T>.GetEnumerator() => GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    #endregion
 
     public struct ResettingScope : IDisposable
     {
