@@ -27,7 +27,7 @@ Contents:
 
 - namespace `AllocOpt` : Rewrite some collections with struct
 - namespace `Generic` : Extension of `System.Collections.Generic`
-    - `ILinkNode` & `LinkNodeHelper` : Abstraction of linked list node, provides some helper methods in `LinkNodeHelper`
+    - `ILinkedListNode` & `LinkedListNode` : Abstraction of linked list node, provides some helper methods in `LinkedListNode`
     - `Deque<>` : Double-ended queue
     - `ListDictionary<,>` : Generic version of `System.Collections.Specialized.ListDictionary`.
     - `RingQueue<>` : Ring queue with fixed capacity, optional throw or overwrite when full

@@ -10,6 +10,7 @@
 - Move `SortedList`, `Memento`, `AutoAllocList` to `Specialized`
 - Support collection expression for `ListDictionary`
 - Optimize `ChunkPair/Triple`
+- Rename `ILinkNode` to `ILinkedListNode`
 
 ## v1.0.0
 
