@@ -78,29 +78,45 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
 
     #region Search
 
-    public int BinarySearch(T item) => AsSpan().BinarySearch(item, _comparer);
+    public int BinarySearch(T item) => _array.AsSpan(0, _count).BinarySearch(item, _comparer);
 
-    public int BinarySearch<TComparable>(TComparable comparable) where TComparable : IComparable<T>
-        => AsSpan().BinarySearch(comparable);
-
-    public int LinearSearch(T item) => AsSpan().LinearSearch(item, _comparer);
-
-    public int LinearSearchFromEnd(T item) => AsSpan().LinearSearchFromEnd(item, _comparer);
-
-    public int LinearSearchFrom(int index, T item)
+    public int BinarySearch(Range guessRange, T item)
     {
-        if (index <= 0)
-            return LinearSearch(item);
-        else if (index >= _count)
-            return LinearSearchFromEnd(item);
+        var (start, end) = guessRange.GetCheckedStartAndEndOffset(_count);
+
+        var cmpl = _comparer.Compare(item, _array[start]);
+        if (cmpl > 0) {
+            var cmpr = _comparer.Compare(item, _array[end]);
+            if (cmpr < 0)
+                return _array.AsSpan((start + 1)..end).BinarySearch(item, _comparer);
+            if (cmpr == 0)
+                return end;
+            else
+                return _array.AsSpan((end + 1)..).BinarySearch(item, _comparer);
+        }
+        else if (cmpl == 0)
+            return start;
+        else
+            return _array.AsSpan(..start).BinarySearch(item, _comparer);
+    }
+
+    public int LinearSearch(T item) => _array.AsSpan(0, _count).LinearSearch(item, _comparer);
+
+    public int LinearSearchFromEnd(T item) => _array.AsSpan(0, _count).LinearSearchFromEnd(item, _comparer);
+
+    public int LinearSearch(int nearIndex, T item)
+    {
+        if (nearIndex <= 0 || nearIndex >= _count - 1)
+            return _array.AsSpan(.._count).LinearSearch(item, _comparer);
         else {
-            if (_comparer.Compare(item, _array[index]) < 0) {
-                var i = _array.AsSpan(..index).LinearSearchFromEnd(item, _comparer);
-                return i;
-            }
+            if (_comparer.Compare(item, _array[nearIndex]) < 0)
+                return _array.AsSpan(..nearIndex).LinearSearchFromEnd(item, _comparer);
             else {
-                var i = _array.AsSpan(index.._count).LinearSearch(item, _comparer);
-                return i + index;
+                var i = _array.AsSpan(nearIndex.._count).LinearSearch(item, _comparer);
+                if (i >= 0)
+                    return i + nearIndex;
+                else
+                    return i - nearIndex;
             }
         }
     }

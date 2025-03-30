@@ -5,6 +5,7 @@
 - [Break] Rename `TraNumber.CheckSliceArgs` to `Validate..`
 - [Break] Rename `ILinkNode` to `ILinkedListNode`
 - [Break] Move `SortedList`, `Memento`, `AutoAllocList` to `Specialized`
+- [Break] Remove `GetCheckedOffsetAndLength`, `Range.GetOffsetAndLength` checked it orz
 - Add `SortedList<T>`, `EnumerateDescendants`, `ArrayFiller` `ContiguousLinkedList`
 - Add `AutoAllocList` with generic Allocator
 - Fix bugs on `Memento<T>`, remove generic restriction

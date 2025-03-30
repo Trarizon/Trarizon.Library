@@ -1,6 +1,4 @@
-﻿using Trarizon.Library.Numerics;
-
-namespace Trarizon.Library.Collections;
+﻿namespace Trarizon.Library.Collections;
 public static partial class TraArray
 {
 #if NETSTANDARD
@@ -13,7 +11,7 @@ public static partial class TraArray
     
     public static Span<T> AsSpan<T>(this T[] array, Range range)
     {
-        var (ofs, len) = range.GetCheckedOffsetAndLength(array.Length);
+        var (ofs, len) = range.GetOffsetAndLength(array.Length);
         return array.AsSpan(ofs, len);
     }
 

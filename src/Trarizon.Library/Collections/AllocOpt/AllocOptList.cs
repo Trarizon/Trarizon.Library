@@ -2,7 +2,6 @@
 using CommunityToolkit.HighPerformance;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using Trarizon.Library.Numerics;
 
 namespace Trarizon.Library.Collections.AllocOpt;
 [CollectionBuilder(typeof(CollectionBuilders), nameof(CollectionBuilders.CreateAllocOptList))]
@@ -50,7 +49,7 @@ public struct AllocOptList<T>
 
     public readonly Span<T> AsSpan(Range range)
     {
-        var (ofs, len) = range.GetCheckedOffsetAndLength(_count);
+        var (ofs, len) = range.GetOffsetAndLength(_count);
         return AsSpan(ofs, len);
     }
 

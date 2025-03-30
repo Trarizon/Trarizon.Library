@@ -15,16 +15,19 @@ public static partial class TraNumber
     }
 
     /// <summary>
-    /// <see cref="Range.GetOffsetAndLength(int)"/>, and check if the offset and count is in [0, <paramref name="length"/>),
-    /// throw if out of range
+    /// Get offset of start and end index of <paramref name="range"/>, no overflow check
     /// </summary>
-    public static (int Offset, int Length) GetCheckedOffsetAndLength(this Range range, int length)
+    public static (int Start, int End) GetStartAndEndOffset(this Range range, int length)
     {
-        var (ofs, len) = range.GetOffsetAndLength(length);
-        Guard.IsGreaterThanOrEqualTo(ofs, 0);
-        Guard.IsGreaterThanOrEqualTo(len, 0);
-        Guard.IsLessThan(ofs + len, length);
-        return (ofs, len);
+        return (range.Start.GetOffset(length), range.End.GetOffset(length));
+    }
+
+    public static (int Start, int End) GetCheckedStartAndEndOffset(this Range range, int length)
+    {
+        var (start, end) = range.GetStartAndEndOffset(length);
+        Guard.IsLessThanOrEqualTo((uint)end, (uint)length);
+        Guard.IsLessThanOrEqualTo((uint)start, (uint)end);
+        return (start, end);
     }
 
     public static void ValidateSliceArgs(int start, int sliceLength, int count)

@@ -233,7 +233,7 @@ The namespace structure is almost the same with `System.XXX`
     - `Min/Max` : Overloads for `params ReadOnlySpan<>`
     - `MinMax(T, T)` : Reorder input 2 args
     - `MinMax(ROS<T>)` : Get min and max in one iteration
-    - `GetCheckedOffset(AndLength)` : `Index/Range.GetOffset(AndLength)` with overflow check
+    - `GetCheckedOffset` : `Index.GetOffset` with overflow check
     - `ValidateSliceArgs` : Check if `start` and `length` is valid within a collection
 - Geometry
     - `ToNormalized` : Normalize `Vector2/3`, `Quaternion`
