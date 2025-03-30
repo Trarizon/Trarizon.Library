@@ -24,6 +24,6 @@ public static partial class TraSpan
         return default;
     }
 
-    public static T? ElementAtOfDefault<T>(this Span<T> span, int index)
+    public static T? ElementAtOrDefault<T>(this Span<T> span, int index)
         => ElementAtOrDefault((ReadOnlySpan<T>)span, index);
 }

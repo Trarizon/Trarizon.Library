@@ -25,6 +25,6 @@ public static partial class TraComparison
 
         public override bool Equals(object? obj) => obj is DefaultComparerEquatable<T> other && Equals(other);
 
-        public override int GetHashCode() => _value!.GetHashCode();
+        public override int GetHashCode() => _value?.GetHashCode() ?? 0;
     }
 }

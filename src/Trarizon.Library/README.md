@@ -115,6 +115,7 @@ Contents:
     - `PopFront` : Split the collection into 2 parts, the first parts is return by `out` paramter
     - `PopFirst` : Get the first element, and returns the rest elements.
 - Sorting
+    - `LazyReverse` : Reverse, no cache if source is `IList<T>`
     - `Rotate` : Split the collection into 2 parts and swap them
 - ToCollections
     - `EmptyIfNull` : Return empty collection if source collection is `null`

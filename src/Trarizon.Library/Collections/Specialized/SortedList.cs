@@ -104,20 +104,20 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
 
     public int LinearSearchFromEnd(T item) => _array.AsSpan(0, _count).LinearSearchFromEnd(item, _comparer);
 
-    public int LinearSearch(int nearIndex, T item)
+    public int LinearSearch(Index nearIndex, T item)
     {
-        if (nearIndex <= 0 || nearIndex >= _count - 1)
+        var near = nearIndex.GetCheckedOffset(_count);
+        if (near <= 0 || near >= _count - 1)
             return _array.AsSpan(.._count).LinearSearch(item, _comparer);
+
+        if (_comparer.Compare(item, _array[near]) < 0)
+            return _array.AsSpan(..near).LinearSearchFromEnd(item, _comparer);
         else {
-            if (_comparer.Compare(item, _array[nearIndex]) < 0)
-                return _array.AsSpan(..nearIndex).LinearSearchFromEnd(item, _comparer);
-            else {
-                var i = _array.AsSpan(nearIndex.._count).LinearSearch(item, _comparer);
-                if (i >= 0)
-                    return i + nearIndex;
-                else
-                    return i - nearIndex;
-            }
+            var i = _array.AsSpan(near.._count).LinearSearch(item, _comparer);
+            if (i >= 0)
+                return i + near;
+            else
+                return i - near;
         }
     }
 
@@ -125,7 +125,7 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
 
     #endregion
 
-    #region Add Remove
+    #region Add
 
     /// <summary>
     /// Binary search the index and insert with keeping the list in order
@@ -138,41 +138,23 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
         return index;
     }
 
-    public void AddFromEnd(T item)
+    public void Add(Index nearIndex, T item)
     {
-        var index = LinearSearchFromEnd(item);
+        var index = LinearSearch(nearIndex, item);
         TraNumber.FlipNegative(ref index);
         InsertAt(index, item);
     }
 
-    public void AddFromStart(T item)
+    public void Add(Range guessRange, T item)
     {
-        var index = LinearSearch(item);
+        var index = BinarySearch(guessRange, item);
         TraNumber.FlipNegative(ref index);
         InsertAt(index, item);
     }
 
-    public void AddFrom(int searchStartIndex, T item)
-    {
-        if (searchStartIndex <= 0) {
-            AddFromStart(item);
-        }
-        else if (searchStartIndex >= _count) {
-            AddFromEnd(item);
-        }
-        else {
-            if (_comparer.Compare(item, this[searchStartIndex]) < 0) {
-                var index = _array.AsSpan(..searchStartIndex).LinearSearchFromEnd(item, _comparer);
-                TraNumber.FlipNegative(ref index);
-                InsertAt(index, item);
-            }
-            else {
-                var index = _array.AsSpan(searchStartIndex.._count).LinearSearch(item, _comparer);
-                TraNumber.FlipNegative(ref index);
-                InsertAt(searchStartIndex + index, item);
-            }
-        }
-    }
+    #endregion
+
+    #region Remove
 
     public int Remove(T item)
     {
@@ -183,40 +165,20 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
         return index;
     }
 
-    public int RemoveFrom(T item, int searchStartIndex)
+    public int Remove(T item, Index nearIndex)
     {
-        if (searchStartIndex <= 0) {
-            var index = LinearSearch(item);
-            if (index >= 0) {
-                RemoveAt(index);
-            }
-            return index;
-        }
-        else if (searchStartIndex >= _count) {
-            var index = LinearSearchFromEnd(item);
-            if (index >= 0) {
-                RemoveAt(index);
-            }
-            return index;
-        }
-        else {
-            if (_comparer.Compare(item, this[searchStartIndex]) < 0) {
-                var index = _array.AsSpan(..searchStartIndex).LinearSearchFromEnd(item, _comparer);
-                if (index >= 0) {
-                    RemoveAt(index);
-                }
-                return index;
-            }
-            else {
-                var index = _array.AsSpan(searchStartIndex.._count).LinearSearch(item, _comparer);
-                if (index >= 0) {
-                    var rmvIndex = searchStartIndex + index;
-                    RemoveAt(rmvIndex);
-                    return rmvIndex;
-                }
-                return index - searchStartIndex;
-            }
-        }
+        var index = LinearSearch(nearIndex, item);
+        if (index >= 0)
+            RemoveAt(index);
+        return index;
+    }
+
+    public int Remove(T item, Range guessRange)
+    {
+        var index = BinarySearch(guessRange, item);
+        if (index >= 0)
+            RemoveAt(index);
+        return index;
     }
 
     public void RemoveAt(int index)
@@ -228,6 +190,8 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
         _count--;
         _version++;
     }
+
+    public void RemoveAt(Index index) => RemoveAt(index.GetOffset(_count));
 
     public void RemoveRange(int start, int length)
     {
@@ -251,6 +215,8 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
         _version++;
     }
 
+    #endregion
+
     private void InsertAt(int index, T item)
     {
         Debug.Assert(_count <= _array.Length);
@@ -272,8 +238,6 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
 
         _array.MoveTo(from, to);
     }
-
-    #endregion
 
     public void EnsureCapacity(int capacity)
     {
@@ -377,7 +341,7 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
             _index = 0;
         }
 
-        public readonly void Dispose() { }
+        readonly void IDisposable.Dispose() { }
 
         private readonly void CheckVersion()
         {

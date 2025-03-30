@@ -8,6 +8,7 @@
 - [Break] Remove `GetCheckedOffsetAndLength`, `Range.GetOffsetAndLength` checked it orz
 - Add `SortedList<T>`, `EnumerateDescendants`, `ArrayFiller` `ContiguousLinkedList`
 - Add `AutoAllocList` with generic Allocator
+- Add `LazyReverse`
 - Fix bugs on `Memento<T>`, remove generic restriction
 - Support `ReversedSpan`, `Stack.AsSpan()` on all runtimes
 - Support collection expression for `ListDictionary`
