@@ -1,5 +1,5 @@
 ﻿namespace Trarizon.Library.Collections.Generic;
-public interface ILinkedListNode<TSelf> where TSelf : class, ILinkedListNode<TSelf>
+public interface ILinkedListNode<TSelf> where TSelf : ILinkedListNode<TSelf>
 {
     TSelf? Next { get; set; }
     TSelf? Prev { get; set; }
@@ -9,21 +9,23 @@ public static class LinkedListNode
 {
     #region Modification
 
-    public static void RemoveFromChain<TNode>(TNode node) where TNode : class, ILinkedListNode<TNode>
+    public static void RemoveFromChain<TNode>(TNode node)
+        where TNode : ILinkedListNode<TNode>
     {
         var prev = node.Prev;
         var next = node.Next;
         if (prev is not null) {
             prev.Next = next;
-            node.Prev = null;
+            node.Prev = default;
         }
         if (next is not null) {
             next.Prev = prev;
-            node.Next = null;
+            node.Next = default;
         }
     }
 
-    public static void Prepend<TNode>(TNode source, TNode node) where TNode : class, ILinkedListNode<TNode>
+    public static void Prepend<TNode>(TNode source, TNode node)
+        where TNode : ILinkedListNode<TNode>
     {
         RemoveFromChain(node);
         var prev = source.Prev;
@@ -35,7 +37,8 @@ public static class LinkedListNode
         source.Prev = node;
     }
 
-    public static void Append<TNode>(TNode source, TNode node) where TNode : class, ILinkedListNode<TNode>
+    public static void Append<TNode>(TNode source, TNode node)
+        where TNode : ILinkedListNode<TNode>
     {
         RemoveFromChain(node);
         var next = source.Next;
@@ -47,28 +50,31 @@ public static class LinkedListNode
         source.Next = node;
     }
 
-    public static void Bridge<TNode>(TNode frontEndNode, TNode backStartNode, out TNode? endsNextNode, out TNode? startsPrevNode) where TNode : class, ILinkedListNode<TNode>
+    public static void Concat<TNode>(TNode prevNode, TNode nextNode, out TNode? endsNextNode, out TNode? startsPrevNode)
+        where TNode : ILinkedListNode<TNode>
     {
-        endsNextNode = frontEndNode.Next;
+        endsNextNode = prevNode.Next;
         if (endsNextNode is not null) {
-            endsNextNode.Prev = null;
+            endsNextNode.Prev = default;
         }
-        startsPrevNode = backStartNode.Prev;
+        startsPrevNode = nextNode.Prev;
         if (startsPrevNode is not null) {
-            startsPrevNode.Next = null;
+            startsPrevNode.Next = default;
         }
-        frontEndNode.Next = backStartNode;
-        backStartNode.Prev = frontEndNode;
+        prevNode.Next = nextNode;
+        nextNode.Prev = prevNode;
     }
 
-    public static void Bridge<TNode>(TNode frontEndNode, TNode backStartNode) where TNode : class, ILinkedListNode<TNode>
-        => Bridge(frontEndNode, backStartNode, out _, out _);
+    public static void Concat<TNode>(TNode prevNode, TNode nextNode)
+        where TNode : ILinkedListNode<TNode>
+        => Concat(prevNode, nextNode, out _, out _);
 
     #endregion
 
     #region Collection
 
-    public static IReadOnlyCollection<TNode> GetFullLinkedList<TNode>(TNode node) where TNode : class, ILinkedListNode<TNode>
+    public static IReadOnlyCollection<TNode> GetFullLinkedList<TNode>(TNode node)
+        where TNode : ILinkedListNode<TNode>
     {
         var deque = new Deque<TNode>();
 
@@ -85,7 +91,8 @@ public static class LinkedListNode
         return deque;
     }
 
-    public static TNode GetLinkedListFirst<TNode>(TNode node) where TNode : class, ILinkedListNode<TNode>
+    public static TNode GetLinkedListFirst<TNode>(TNode node)
+        where TNode : ILinkedListNode<TNode>
     {
         var prev = node.Prev;
         while (prev is not null) {
@@ -95,7 +102,8 @@ public static class LinkedListNode
         return node;
     }
 
-    public static TNode GetLinkedListLast<TNode>(TNode node) where TNode : class, ILinkedListNode<TNode>
+    public static TNode GetLinkedListLast<TNode>(TNode node)
+        where TNode : ILinkedListNode<TNode>
     {
         var next = node.Next;
         while (next is not null) {
@@ -105,17 +113,60 @@ public static class LinkedListNode
         return node;
     }
 
-    public static bool IsLinkedListFirst<TNode>(TNode node) where TNode : class, ILinkedListNode<TNode>
+    public static bool IsLinkedListFirst<TNode>(TNode node)
+        where TNode : ILinkedListNode<TNode>
         => node.Prev is null;
 
-    public static bool IsLinkedListLast<TNode>(TNode node) where TNode : class, ILinkedListNode<TNode>
+    public static bool IsLinkedListLast<TNode>(TNode node)
+        where TNode : ILinkedListNode<TNode>
         => node.Next is null;
 
     #endregion
 
     #region Iteration
 
-    public static IEnumerable<TNode> EnumerateFrom<TNode>(TNode? node) where TNode : class, ILinkedListNode<TNode>
+    public static IEnumerable<TNode> EnumerateFromFirst<TNode>(TNode node)
+        where TNode : ILinkedListNode<TNode>
+    {
+        var stack = new Stack<TNode>();
+        var prev = node.Prev;
+        while (prev is not null) {
+            stack.Push(prev);
+            prev = prev.Prev;
+        }
+        foreach (var n in stack) {
+            yield return n;
+        }
+
+        var tmp = node;
+        while (tmp is not null) {
+            yield return tmp;
+            tmp = tmp.Next;
+        }
+    }
+
+    public static IEnumerable<TNode> EnumerateBackFromLast<TNode>(TNode node)
+        where TNode : ILinkedListNode<TNode>
+    {
+        var stack = new Stack<TNode>();
+        var next = node.Next;
+        while (next is not null) {
+            stack.Push(next);
+            next = next.Next;
+        }
+        foreach (var n in stack) {
+            yield return n;
+        }
+
+        var tmp = node;
+        while (tmp is not null) {
+            yield return tmp;
+            tmp = tmp.Prev;
+        }
+    }
+
+    public static IEnumerable<TNode> EnumerateFrom<TNode>(TNode? node)
+        where TNode : ILinkedListNode<TNode>
     {
         var tmp = node;
         while (tmp is not null) {
