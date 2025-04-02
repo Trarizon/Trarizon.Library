@@ -4,8 +4,16 @@ using CommunityToolkit.HighPerformance.Buffers;
 using System.Collections;
 using System.Collections.Specialized;
 using Trarizon.Library.Collections;
+using Trarizon.Library.Collections.Generic;
 using Trarizon.Test.Run;
 
+ContiguousLinkedList<int> list = new();
+list.AddFirst(0);
+list.AddFirst(1);
+list.AddLast(2);
+list.AddFirst(3);
+list.AddLast(4);
+list.Print();
 
 class C : IEnumerable<C>
 {

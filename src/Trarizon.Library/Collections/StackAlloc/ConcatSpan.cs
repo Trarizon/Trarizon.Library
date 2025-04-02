@@ -1,19 +1,22 @@
 ﻿using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace Trarizon.Library.Collections.StackAlloc;
 [method: MethodImpl(MethodImplOptions.AggressiveInlining)]
-public readonly ref struct ReadOnlyConcatSpan<T>(ReadOnlySpan<T> first, ReadOnlySpan<T> second)
+public readonly ref struct ConcatSpan<T>(Span<T> first, Span<T> second)
 {
-    private readonly ReadOnlySpan<T> _first = first;
-    private readonly ReadOnlySpan<T> _second = second;
+    private readonly Span<T> _first = first;
+    private readonly Span<T> _second = second;
 
     public int Length => _first.Length + _second.Length;
 
-    public ref readonly T this[int index]
+    public ref T this[int index]
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get {
@@ -27,13 +30,16 @@ public readonly ref struct ReadOnlyConcatSpan<T>(ReadOnlySpan<T> first, ReadOnly
 
     public bool IsEmpty => _first.IsEmpty && _second.IsEmpty;
 
-    public static bool operator ==(ReadOnlyConcatSpan<T> left, ReadOnlyConcatSpan<T> right)
-    => left._first == right._second && left._second == right._second;
+    public static implicit operator ReadOnlyConcatSpan<T>(ConcatSpan<T> span)
+        => new(span._first, span._second);
 
-    public static bool operator !=(ReadOnlyConcatSpan<T> left, ReadOnlyConcatSpan<T> right) => !(left == right);
+    public static bool operator ==(ConcatSpan<T> left, ConcatSpan<T> right)
+        => left._first == right._second && left._second == right._second;
+
+    public static bool operator !=(ConcatSpan<T> left, ConcatSpan<T> right) => !(left == right);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ReadOnlyConcatSpan<T> Slice(int startIndex, int length)
+    public ConcatSpan<T> Slice(int startIndex, int length)
     {
         Guard.IsLessThanOrEqualTo(startIndex + length, Length);
 
@@ -57,7 +63,7 @@ public readonly ref struct ReadOnlyConcatSpan<T>(ReadOnlySpan<T> first, ReadOnly
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ReadOnlyConcatSpan<T> Slice(int startIndex)
+    public ConcatSpan<T> Slice(int startIndex)
     {
         if (startIndex < _first.Length) {
             return new(_first[startIndex..], _second);
@@ -100,6 +106,7 @@ public readonly ref struct ReadOnlyConcatSpan<T>(ReadOnlySpan<T> first, ReadOnly
     public override string ToString()
     {
         if (typeof(T) == typeof(char)) {
+
 #if NETSTANDARD2_0
             return $"{_first.ToString()}{_second.ToString()}";
 #else
@@ -112,7 +119,7 @@ public readonly ref struct ReadOnlyConcatSpan<T>(ReadOnlySpan<T> first, ReadOnly
             return new string(buffer);
 #endif
         }
-        return $"ReadOnlyConcatSpan<{typeof(T).Name}>[{Length}]";
+        return $"ConcatSpan<{typeof(T).Name}>[{Length}]";
     }
 
     public Enumerator GetEnumerator() => new(this);

@@ -27,20 +27,21 @@ Contents:
 
 - namespace `AllocOpt` : Rewrite some collections with struct
 - namespace `Generic` : Extension of `System.Collections.Generic`
+    - `ContiguousLinkedList<>` : Linked list, with items stored in contiguous memory
+    - `IBinaryTreeNode` & `BinaryTreeNode` : Abstraction of binary tree node
     - `ILinkedListNode` & `LinkedListNode` : Abstraction of linked list node, provides some helper methods in `LinkedListNode`
     - `Deque<>` : Double-ended queue
-    - `ListDictionary<,>` : Generic version of `System.Collections.Specialized.ListDictionary`.
     - `RingQueue<>` : Ring queue with fixed capacity, optional throw or overwrite when full
     - `Trie<>` : Trie
 - namespace `Specialized` : 
     - `ArrayFiller<>` : helper struct to fill a array
     - `ArrayTruncation<>` : Similiar to `ArraySegment`, but always start from index 0
     - `AutoAllocList<>` : List with auto allocation and release while modifying
-    - `ContiguousLinkedList<>` : Linked list, with items stored in contiguous memory
+    - `ListDictionary<,>` : Generic version of `System.Collections.Specialized.ListDictionary`.
     - `Memento<>` : Memento pattern implementation, with `Add`, `Rollback`, `Reapply` methods
     - `SortedList<>` : List with items sorted
 - namespace `StackAlloc` : `ref struct` collections
-    - `ReadOnlyConcatSpan` : Concat 2 spans
+    - `(ReadOnly)ConcatSpan` : Concat 2 spans
     - `(ReadOnly)ReversedSpan` : Reversed span
     - `StackAllocBitArray` : Bit array using a `Span<byte>` as underlying items
 - `TraXXX` : Static classes with helper method, extension methods
@@ -66,17 +67,26 @@ Contents:
 </details>
 
 <details>
-<summary>Comparison</summary>
+<summary>Collection</summary>
 
-- `Reverse` : Reverse a `IComparer<>`
+- `Dictionary`
+    - `GetOrAdd`
+    - `AddOrUpdate`
+- `List`
+    - `GetUnderlyingArray` : 
+    - `RemoveAt/RemoveRange` : overload for `Index` and `Range`
+    - `MoveTo` : Move item(s) on `fromIndex` to `toIndex`
+    - `GetLookup` : Returns a view treating the list as a set
+    - `GetSortedModifier` : Returns a view through which modifying the list will keep elements in order.
+- `Stack`
+    - `AsSpan` : As `ReadOnlyReversedSpan`
 
 </details>
 
 <details>
-<summary>Dictionary</summary>
+<summary>Comparison</summary>
 
-- `GetOrAdd`
-- `AddOrUpdate`
+- `Reverse` : Reverse a `IComparer<>`
 
 </details>
 
@@ -142,19 +152,6 @@ All extensions methods identifiers are start with `Iter`
     - `WithIndex`
 - Sorting
     - `Reverse` : `Reverse` in Linq will always cache values in collection, this won't do that because designing for instant iteration
-
-</details>
-
-<details>
-<summary>List</summary>
-
-- `GetUnderlyingArray` : 
-- Modification
-    - `RemoveAt/RemoveRange` : overload for `Index` and `Range`
-    - `MoveTo` : Move item(s) on `fromIndex` to `toIndex`
-- Views
-    - `GetLookup` : Returns a view treating the list as a set
-    - `GetSortedModifier` : Returns a view through which modifying the list will keep elements in order.
 
 </details>
 

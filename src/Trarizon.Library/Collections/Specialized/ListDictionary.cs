@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using Trarizon.Library.Collections;
+
 #if NETSTANDARD
 using Unsafe = Trarizon.Library.Netstd.NetstdFix_Unsafe;
 #endif
@@ -10,7 +12,7 @@ using Unsafe = Trarizon.Library.Netstd.NetstdFix_Unsafe;
 #pragma warning disable CS8767
 #endif
 
-namespace Trarizon.Library.Collections.Generic;
+namespace Trarizon.Library.Collections.Specialized;
 [CollectionBuilder(typeof(CollectionBuilders), nameof(CollectionBuilders.CreateListDictionary))]
 public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue> where TKey : notnull
 {

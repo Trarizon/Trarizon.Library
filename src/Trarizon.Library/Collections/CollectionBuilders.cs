@@ -1,5 +1,6 @@
 ﻿using Trarizon.Library.Collections.AllocOpt;
 using Trarizon.Library.Collections.Generic;
+using Trarizon.Library.Collections.Specialized;
 
 namespace Trarizon.Library.Collections;
 public static class CollectionBuilders

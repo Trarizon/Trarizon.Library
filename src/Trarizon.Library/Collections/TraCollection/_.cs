@@ -57,20 +57,8 @@ public static partial class TraCollection
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_items")]
         public static extern ref T[] GetUnderlyingArray(List<T> list);
 #else
-        public static ref int GetVersion(List<T> list)
-            => ref Unsafe.As<List<T>, ListMarchalHelper>(ref list)._version;
-
         public static ref T[] GetUnderlyingArray(List<T> list) 
-            => ref Unsafe.As<List<T>, ListMarchalHelper>(ref list)._items;
-        
-        private class ListMarchalHelper
-        {
-#nullable disable
-            public T[] _items;
-            public int _size;
-            public int _version;
-#nullable restore
-        }
+            => ref Unsafe.As<List<T>, StrongBox<T[]>>(ref list).Value!;
 #endif
 
         #endregion

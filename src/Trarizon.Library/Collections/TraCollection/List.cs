@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.HighPerformance;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace Trarizon.Library.Collections;
@@ -11,7 +12,7 @@ public static partial class TraCollection
     /// to get the underlying array. Actually I'm not sure if this works correctly in all runtime...
     /// (at leat it works on Unity
     /// </remarks>
-    public static Span<T> AsSpan<T>(this List<T> list) 
+    public static Span<T> AsSpan<T>(this List<T> list)
         => Utils<T>.GetUnderlyingArray(list).AsSpan(..list.Count);
 
 #endif
@@ -31,9 +32,7 @@ public static partial class TraCollection
     public static void MoveTo<T>(this List<T> list, int fromIndex, int toIndex)
     {
         list.AsSpan().MoveTo(fromIndex, toIndex);
-        // If we modified in Span, the field _version of List<> won't update, so here we manually
-        // use SetCount to update _version;
-        Utils<T>.GetVersion(list)++;
+        IncrementVersion(list);
     }
 
     public static void MoveTo<T>(this List<T> list, Index fromIndex, Index toIndex)
@@ -45,8 +44,7 @@ public static partial class TraCollection
     public static void MoveTo<T>(this List<T> list, int fromIndex, int toIndex, int moveCount)
     {
         list.AsSpan().MoveTo(fromIndex, toIndex, moveCount);
-        // See MoveTo(List<>, int, int) for explanation
-        Utils<T>.GetVersion(list)++;
+        IncrementVersion(list);
     }
 
     public static void MoveTo<T>(this List<T> list, Range fromRange, Index toIndex)
@@ -55,4 +53,23 @@ public static partial class TraCollection
         var toOfs = toIndex.GetOffset(list.Count);
         list.MoveTo(fromOfs, toOfs, len);
     }
+
+    #region Internal
+
+    private static void IncrementVersion<T>(List<T> list)
+    {
+        // If we modified in Span, the field _version of List<> won't update, so here we manually
+        // use SetCount to update _version;
+#if NET9_0_OR_GREATER
+        Utils<T>.GetVersion(list)++;
+#elif NETSTANDARD
+        // If list is empty, and count no change, normally there's no operation requires updating version
+        Debug.Assert(list.Count > 0);
+        list[0] = list.AsSpan().DangerousGetReference();
+#else
+        CollectionsMarshal.SetCount(list, list.Count);
+#endif
+    }
+
+    #endregion
 }
