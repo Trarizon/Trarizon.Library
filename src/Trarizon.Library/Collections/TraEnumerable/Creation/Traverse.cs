@@ -1,8 +1,19 @@
 ﻿namespace Trarizon.Library.Collections;
 public static partial class TraEnumerable
 {
-    public static IEnumerable<T> EnumerateDescendantsDepthFirst<T>(T self, Func<T, IEnumerable<T>?> childrenSelector)
+    public static IEnumerable<T> EnumerateDescendants<T>(T self, Func<T, IEnumerable<T>> childrenSelector, bool includeSelf = false, bool depthFirst = false)
     {
+        if (depthFirst)
+            return EnumerateDescendantsDepthFirst(self, childrenSelector, includeSelf);
+        else
+            return EnumerateDescendantsBreadthFirst(self, childrenSelector, includeSelf);
+    }
+
+    private static IEnumerable<T> EnumerateDescendantsDepthFirst<T>(T self, Func<T, IEnumerable<T>?> childrenSelector, bool includeSelf)
+    {
+        if (includeSelf)
+            yield return self;
+
         var children = childrenSelector(self);
         if (children is null)
             yield break;
@@ -34,8 +45,11 @@ public static partial class TraEnumerable
         }
     }
 
-    public static IEnumerable<T> EnumerateDescendantsBreadthFirst<T>(T self, Func<T, IEnumerable<T>> childrenSelector)
+    private static IEnumerable<T> EnumerateDescendantsBreadthFirst<T>(T self, Func<T, IEnumerable<T>> childrenSelector, bool includeSelf)
     {
+        if (includeSelf)
+            yield return self;
+
         Queue<T> queue = new();
 
         queue.Enqueue(self);
