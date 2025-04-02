@@ -7,6 +7,7 @@
 - [Break] Move `SortedList`, `Memento`, `AutoAllocList` to `Specialized`
 - [Break] Combine `TraCollection`, `TraList`, `TraDictionary` into `TraCollection`
 - [Break] Remove `GetCheckedOffsetAndLength`, `Range.GetOffsetAndLength` checked it orz
+- [Break] Remove `AllocOpt`
 - Add `SortedList<T>`, `EnumerateDescendants`, `ArrayFiller`, `ArrayTruncation`, `ContiguousLinkedList`
 - Add `AutoAllocList` with generic Allocator
 - Add `LazyReverse`

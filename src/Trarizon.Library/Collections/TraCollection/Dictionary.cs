@@ -1,9 +1,18 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Trarizon.Library.Collections;
 public static partial class TraCollection
 {
 #if !NETSTANDARD
+
+    public static ref TValue AtRef<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key) where TKey : notnull
+    {
+        ref var value = ref CollectionsMarshal.GetValueRefOrNullRef(dictionary, key);
+        if (Unsafe.IsNullRef(ref value))
+            TraThrow.KeyNotFound(key);
+        return ref value!;
+    }
 
     public static TValue GetOrAdd<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key, TValue addValue) where TKey : notnull
     {

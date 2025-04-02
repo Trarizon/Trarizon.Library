@@ -14,6 +14,8 @@ list.AddLast(2);
 list.AddFirst(3);
 list.AddLast(4);
 list.Print();
+Queue<int> q;
+q.Peek
 
 class C : IEnumerable<C>
 {

@@ -17,6 +17,9 @@ public static partial class TraCollection
 
 #endif
 
+    public static ref T AtRef<T>(List<T> list, int index) 
+        => ref list.AsSpan()[index];
+
     public static T[] GetUnderlyingArray<T>(List<T> list)
         => Utils<T>.GetUnderlyingArray(list);
 

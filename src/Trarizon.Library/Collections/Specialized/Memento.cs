@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using Trarizon.Library.Collections.StackAlloc;
 
 namespace Trarizon.Library.Collections.Specialized;
@@ -38,6 +39,27 @@ public class Memento<T>
             return new(_array.AsSpan(_head.._tail), default);
         else
             return new(_array.AsSpan(_head), _array.AsSpan(0, _tail));
+    }
+
+    public T Peek()
+    {
+        if (!TryPeek(out var item))
+            TraThrow.NoElement();
+
+        return item;
+    }
+
+    public bool TryPeek([MaybeNullWhen(false)] out T activeItem)
+    {
+        if (ActiveCount == 0) {
+            activeItem = default;
+            return false;
+        }
+
+        var index = _index;
+        Decrement(ref index);
+        activeItem = _array[index];
+        return true;
     }
 
     #region Modifiers

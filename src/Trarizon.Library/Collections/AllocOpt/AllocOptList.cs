@@ -1,11 +1,13 @@
 ﻿using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace Trarizon.Library.Collections.AllocOpt;
+[Experimental(TraThrow.ExpNoUse)]
 [CollectionBuilder(typeof(CollectionBuilders), nameof(CollectionBuilders.CreateAllocOptList))]
-public struct AllocOptList<T>
+internal struct AllocOptList<T>
 {
     private T[] _array;
     private int _count;

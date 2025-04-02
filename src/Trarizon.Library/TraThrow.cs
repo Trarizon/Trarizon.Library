@@ -5,6 +5,8 @@ namespace Trarizon.Library;
 [StackTraceHidden]
 internal static class TraThrow
 {
+    public const string ExpNoUse = "NoUse";
+
     [DoesNotReturn]
     internal static void KeyNotFound<T>(T key)
         => throw new KeyNotFoundException($"Cannot find key '{key}' in collection.");

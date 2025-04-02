@@ -316,6 +316,8 @@ public class ContiguousLinkedList<T> : ICollection<T>
             _index = index;
         }
 
+        public ref T GetValueRef() => ref Entry.Value;
+
         public bool Equals(Node other) => _list == other._list && _index == other._index;
 
         public override bool Equals(object? obj)

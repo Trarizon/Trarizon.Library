@@ -1,6 +1,7 @@
 ﻿
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance;
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -50,6 +51,14 @@ public readonly ref partial struct ReversedSpan<T>
         => ref _span.DangerousGetReferenceAt(Length - 1 - index);
 #else
         => ref Unsafe.Subtract(ref _reference, index);
+#endif
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ref T DangerousGetReference()
+#if NETSTANDARD
+        => ref DangerousGetReferenceAt(0);
+#else
+        => ref _reference;
 #endif
 
     public Span<T> Reverse()

@@ -28,7 +28,7 @@ public readonly ref struct ReadOnlyConcatSpan<T>(ReadOnlySpan<T> first, ReadOnly
     public bool IsEmpty => _first.IsEmpty && _second.IsEmpty;
 
     public static bool operator ==(ReadOnlyConcatSpan<T> left, ReadOnlyConcatSpan<T> right)
-    => left._first == right._second && left._second == right._second;
+        => left._first == right._second && left._second == right._second;
 
     public static bool operator !=(ReadOnlyConcatSpan<T> left, ReadOnlyConcatSpan<T> right) => !(left == right);
 

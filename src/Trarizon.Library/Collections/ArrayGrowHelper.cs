@@ -39,11 +39,7 @@ internal static class ArrayGrowHelper
         Debug.Assert(copyLength <= array.Length);
 
         var originalArray = array;
-#if NETSTANDARD
-        array = new T[GetNewLength(array.Length, expectedLength, TraArray.MaxLength)];
-#else
-        array = new T[GetNewLength(array.Length, expectedLength, Array.MaxLength)];
-#endif
+        GrowNonMove(ref array, expectedLength);
         Array.Copy(originalArray, array, copyLength);
     }
 
@@ -53,6 +49,7 @@ internal static class ArrayGrowHelper
 #else
         => GrowNonMove(ref array, expectedLength, Array.MaxLength);
 #endif
+
     public static void GrowNonMove<T>(ref T[] array, int expectedLength, int maxLength)
     {
         Debug.Assert(expectedLength > array.Length);

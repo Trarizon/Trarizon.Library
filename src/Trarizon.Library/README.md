@@ -25,7 +25,6 @@ Contents:
 
 ## Collections
 
-- namespace `AllocOpt` : Rewrite some collections with struct
 - namespace `Generic` : Extension of `System.Collections.Generic`
     - `ContiguousLinkedList<>` : Linked list, with items stored in contiguous memory
     - `IBinaryTreeNode` & `BinaryTreeNode` : Abstraction of binary tree node
@@ -70,6 +69,7 @@ Contents:
 <summary>Collection</summary>
 
 - `Dictionary`
+    - `AtRef`
     - `GetOrAdd`
     - `AddOrUpdate`
 - `List`
