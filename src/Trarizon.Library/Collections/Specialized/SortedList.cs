@@ -80,46 +80,15 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
 
     public int BinarySearch(T item) => _array.AsSpan(0, _count).BinarySearch(item, _comparer);
 
-    public int BinarySearch(Range guessRange, T item)
-    {
-        var (start, end) = guessRange.GetCheckedStartAndEndOffset(_count);
-
-        var cmpl = _comparer.Compare(item, _array[start]);
-        if (cmpl > 0) {
-            var cmpr = _comparer.Compare(item, _array[end]);
-            if (cmpr < 0)
-                return _array.AsSpan((start + 1)..end).BinarySearch(item, _comparer);
-            if (cmpr == 0)
-                return end;
-            else
-                return _array.AsSpan((end + 1)..).BinarySearch(item, _comparer);
-        }
-        else if (cmpl == 0)
-            return start;
-        else
-            return _array.AsSpan(..start).BinarySearch(item, _comparer);
-    }
+    public int BinarySearch(Range priorRange, T item)
+        => TraSpan.BinarySearchRangePriority(AsSpan(), priorRange, new TraComparison.ComparerComparable<T, IComparer<T>>(item, _comparer));
 
     public int LinearSearch(T item) => _array.AsSpan(0, _count).LinearSearch(item, _comparer);
 
     public int LinearSearchFromEnd(T item) => _array.AsSpan(0, _count).LinearSearchFromEnd(item, _comparer);
 
     public int LinearSearch(Index nearIndex, T item)
-    {
-        var near = nearIndex.GetCheckedOffset(_count);
-        if (near <= 0 || near >= _count - 1)
-            return _array.AsSpan(.._count).LinearSearch(item, _comparer);
-
-        if (_comparer.Compare(item, _array[near]) < 0)
-            return _array.AsSpan(..near).LinearSearchFromEnd(item, _comparer);
-        else {
-            var i = _array.AsSpan(near.._count).LinearSearch(item, _comparer);
-            if (i >= 0)
-                return i + near;
-            else
-                return i - near;
-        }
-    }
+        => TraSpan.LinearSearchFromNear(AsSpan(), nearIndex.GetOffset(_count), new TraComparison.ComparerComparable<T, IComparer<T>>(item, _comparer));
 
     public bool Contains(T item) => BinarySearch(item) >= 0;
 
@@ -130,12 +99,11 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
     /// <summary>
     /// Binary search the index and insert with keeping the list in order
     /// </summary>
-    public int Add(T item)
+    public void Add(T item)
     {
         var index = BinarySearch(item);
         TraNumber.FlipNegative(ref index);
         InsertAt(index, item);
-        return index;
     }
 
     public void Add(Index nearIndex, T item)
@@ -145,9 +113,9 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
         InsertAt(index, item);
     }
 
-    public void Add(Range guessRange, T item)
+    public void Add(Range priorRange, T item)
     {
-        var index = BinarySearch(guessRange, item);
+        var index = BinarySearch(priorRange, item);
         TraNumber.FlipNegative(ref index);
         InsertAt(index, item);
     }
