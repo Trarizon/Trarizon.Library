@@ -1,7 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 
 namespace Trarizon.Library.Collections;
-public static class TraDictionary
+public static partial class TraCollection
 {
 #if !NETSTANDARD
 

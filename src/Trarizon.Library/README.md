@@ -148,6 +148,7 @@ All extensions methods identifiers are start with `Iter`
 <details>
 <summary>List</summary>
 
+- `GetUnderlyingArray` : 
 - Modification
     - `RemoveAt/RemoveRange` : overload for `Index` and `Range`
     - `MoveTo` : Move item(s) on `fromIndex` to `toIndex`

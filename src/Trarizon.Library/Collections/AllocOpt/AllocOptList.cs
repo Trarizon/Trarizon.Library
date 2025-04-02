@@ -43,6 +43,8 @@ public struct AllocOptList<T>
         }
     }
 
+    public readonly T[] GetUnderlyingArray() => _array;
+
     public readonly Span<T> AsSpan() => _array.AsSpan(0, _count);
 
     public readonly Span<T> AsSpan(int start, int length) => _array.AsSpan(start, length);

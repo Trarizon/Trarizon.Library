@@ -1,9 +1,11 @@
 ﻿#pragma warning disable TRAEXP
 
+using CommunityToolkit.HighPerformance.Buffers;
 using System.Collections;
 using System.Collections.Specialized;
 using Trarizon.Library.Collections;
 using Trarizon.Test.Run;
+
 
 class C : IEnumerable<C>
 {

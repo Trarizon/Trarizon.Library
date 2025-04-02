@@ -78,7 +78,7 @@ public static partial class TraEnumerable
                 }
             }
             else {
-                AllocOptList<T> cache = new();
+                var cache = new List<T>();
                 foreach (var item in source) {
                     cache.Add(item);
                     yield return item;

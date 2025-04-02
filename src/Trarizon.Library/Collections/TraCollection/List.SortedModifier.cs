@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.HighPerformance;
 
 namespace Trarizon.Library.Collections;
-public static partial class TraList
+public static partial class TraCollection
 {
     /// <summary>
     /// Returns a view through which modifying the list will keep elements in order.

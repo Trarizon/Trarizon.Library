@@ -5,6 +5,7 @@
 - [Break] Rename `TraNumber.CheckSliceArgs` to `Validate..`
 - [Break] Rename `ILinkNode` to `ILinkedListNode`
 - [Break] Move `SortedList`, `Memento`, `AutoAllocList` to `Specialized`
+- [Break] Combine `TraCollection`, `TraList`, `TraDictionary` into `TraCollection`
 - [Break] Remove `GetCheckedOffsetAndLength`, `Range.GetOffsetAndLength` checked it orz
 - Add `SortedList<T>`, `EnumerateDescendants`, `ArrayFiller`, `ArrayTruncation`, `ContiguousLinkedList`
 - Add `AutoAllocList` with generic Allocator
