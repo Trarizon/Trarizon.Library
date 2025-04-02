@@ -34,6 +34,7 @@ Contents:
     - `Trie<>` : Trie
 - namespace `Specialized` : 
     - `ArrayFiller<>` : helper struct to fill a array
+    - `ArrayTruncation<>` : Similiar to `ArraySegment`, but always start from index 0
     - `AutoAllocList<>` : List with auto allocation and release while modifying
     - `ContiguousLinkedList<>` : Linked list, with items stored in contiguous memory
     - `Memento<>` : Memento pattern implementation, with `Add`, `Rollback`, `Reapply` methods
