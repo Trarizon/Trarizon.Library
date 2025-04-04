@@ -9,13 +9,13 @@ public static class Result
         => new(value);
 
     public static ResultSuccessBuilder<T> Success<T>(T value)
-        => Unsafe.As<T, ResultSuccessBuilder<T>>(ref value);
+        => new(value);
 
     public static Result<T, TError> Failed<T, TError>(TError error) where TError : class
         => new(error);
 
     public static ResultFailedBuilder<TError> Failed<TError>(TError error) where TError : class
-        => Unsafe.As<TError, ResultFailedBuilder<TError>>(ref error);
+        => new(error);
 
     public static T GetValueOrThrow<T, TException>(this in Result<T, TException> result) where TException : Exception
     {
@@ -133,6 +133,9 @@ public readonly struct Result<T, TError>
 public readonly struct ResultSuccessBuilder<T>
 {
     internal readonly T _value;
+
+    internal ResultSuccessBuilder(T value) => _value = value;
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Result<T, TError> Build<TError>() where TError : class => _value;
 }
@@ -140,6 +143,9 @@ public readonly struct ResultSuccessBuilder<T>
 public readonly struct ResultFailedBuilder<TError> where TError : class
 {
     internal readonly TError _error;
+
+    internal ResultFailedBuilder(TError error) => _error = error;
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Result<T, TError> Build<T>() => _error;
 }
