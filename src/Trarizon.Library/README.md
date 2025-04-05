@@ -184,8 +184,10 @@ All extensions methods identifiers are start with `Iter`
 The namespace structure is almost the same with `System.XXX`
 
 - namespace `Buffer`
-    - `TraArrayPool` : Helpers for `ArrayPool`
     - `ObjectPool` : Object pool
+    - `IArrayAllcator` : Interface for array allocator
+        - `ArrayPool<>.Rent` : Extension method for `ArrayPool`, returns a auto-return-available wrapper with `using` statement
+    - `IObjectAllcator` : Interface for object allocator
 - namespace `Components`
     - `IFlagNotifiable` : Interface for notification, a cheaper and stricter `INotifyPropertyChanged`
         - `FlagNotifiable` : Extensions and static methods for global notification
