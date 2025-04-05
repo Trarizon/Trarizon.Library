@@ -8,8 +8,10 @@
 - [Break] Combine `TraCollection`, `TraList`, `TraDictionary` into `TraCollection`
 - [Break] Remove `GetCheckedOffsetAndLength`, `Range.GetOffsetAndLength` checked it orz
 - [Break] Remove `AllocOpt`
+- [Break] Remove `ToKeyValuePair`
 - [Break] Move `TraArrayPool` to `IArrayAllocatorExt`
 - Change `IObjectAllocator.AutoReleaseScope` to generic
+- Provide generic comparer to `List.Lookup`
 - Add `SortedList<T>`, `EnumerateDescendants`, `ArrayFiller`, `ArrayTruncation`, `ContiguousLinkedList`, `IArrayAllocator`
 - Add `AutoAllocList` with generic Allocator
 - Add `LazyReverse`

@@ -8,15 +8,18 @@ using Unsafe = Trarizon.Library.Netstd.NetstdFix_Unsafe;
 namespace Trarizon.Library.Collections;
 public static partial class TraCollection
 {
-    public static Lookup<T> GetLookup<T>(this List<T> list, IEqualityComparer<T>? comparer = null)
-        => new(list, comparer ?? EqualityComparer<T>.Default);
+    public static Lookup<T, EqualityComparer<T>> GetLookup<T>(this List<T> list)
+        => new(list, EqualityComparer<T>.Default);
 
-    public readonly struct Lookup<T>
+    public static Lookup<T, TComparer> GetLookup<T, TComparer>(this List<T> list, TComparer comparer) where TComparer : IEqualityComparer<T>
+        => new(list, comparer);
+
+    public readonly struct Lookup<T, TComparer> where TComparer : IEqualityComparer<T>
     {
         private readonly List<T> _list;
-        private readonly IEqualityComparer<T> _comparer;
+        private readonly TComparer _comparer;
 
-        internal Lookup(List<T> list, IEqualityComparer<T> comparer)
+        internal Lookup(List<T> list, TComparer comparer)
         {
             _list = list;
             _comparer = comparer;

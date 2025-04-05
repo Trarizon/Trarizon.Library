@@ -23,7 +23,7 @@ public static partial class TraEnumerable
             if (!enumerator2.MoveNext())
                 yield break;
 
-            AllocOptList<T2> cache = [];
+            var cache = new List<T2>();
             var cur = enumerator.Current;
             var cur2 = enumerator2.Current;
             yield return (cur, cur2);

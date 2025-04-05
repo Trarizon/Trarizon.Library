@@ -252,7 +252,8 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
                 return false;
 
             if (_index < _dict.Count) {
-                _current = _dict._pairs[_index].ToKeyValuePair();
+                var (key, value) = _dict._pairs[_index];
+                _current = new KeyValuePair<TKey, TValue>(key, value);
                 _index++;
                 return true;
             }

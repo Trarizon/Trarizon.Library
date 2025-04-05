@@ -252,8 +252,6 @@ The namespace structure is almost the same with `System.XXX`
     - `NextSingle/Double` : Get a random float number in specific range
     - `NextBoolean` : Get a random boolean value
     - `NextItem` : Get a random item in collection
-- Tuple
-    - `ToKeyValuePair` : Convert pair to k-v pair
 - Unsafe
     - `AsReadOnly` : Perform `Unsafe.As` for `ref readonly` variables
 - Utils
