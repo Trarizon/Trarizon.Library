@@ -138,10 +138,10 @@ public static partial class TraEnumerable
                     return false;
                 default:
                     Debug.Assert(_state >= 0);
-                    var index = _state + 1;
+                    var index = _state;
                     if (index < Count) {
                         currentField = this[_state];
-                        _state = index;
+                        _state = index + 1;
                         return true;
                     }
                     currentField = default;

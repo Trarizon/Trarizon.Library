@@ -118,7 +118,8 @@ Contents:
     - `Adjacent` : Yield the value and its next value
     - `AggregateSelect` : `Aggregate` and returns all values in processing
     - `ChunkPair/Triple` : Returning tuple version of `Chunk`
-    - `WithIndex` : Yield index and item, `Index` in .NET 9
+    - `WithIndex` : Yield return index and item, `Index` in .NET 9
+    - `LookAhead` : Return item and how many items in the sequence rest after the item, with a given max ahead count
     - `Repeat` : Repeatly enumerate the collection
 - Partition
     - `OfTypeWhile` : Take values until doesn't match the given type
