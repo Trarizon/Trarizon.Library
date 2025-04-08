@@ -20,7 +20,7 @@ internal static class TraThrow
         => throw new InvalidOperationException("Collection has no element.");
 
     [DoesNotReturn]
-    internal static void NodeBelongsWrong() 
+    internal static void NodeBelongsWrong()
         => throw new InvalidOperationException("Node does not belong to this collection.");
 
     [DoesNotReturn]
