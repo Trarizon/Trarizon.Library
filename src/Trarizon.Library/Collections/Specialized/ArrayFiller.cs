@@ -20,7 +20,7 @@ public struct ArrayFiller<T>(T[] array, int initCount = 0)
     public void InsertAt(int index, T item)
     {
         Guard.IsLessThan(_count, array.Length);
-        System.Array.Copy(array, index, array, index + 1, _count - index);
+        ArrayGrowHelper.ShiftRightForInsert(array, _count, index, 1);
         array[index] = item;
         _count++;
     }
@@ -28,8 +28,7 @@ public struct ArrayFiller<T>(T[] array, int initCount = 0)
     public void RemoveAt(int index)
     {
         Guard.IsLessThan(index, _count);
-        System.Array.Copy(array, index + 1, array, index, _count - index - 1);
+        ArrayGrowHelper.ShiftLeftForRemove(array, _count, index, 1);
         _count--;
-        ArrayGrowHelper.FreeManaged(array, _count, 1);
     }
 }

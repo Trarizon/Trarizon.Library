@@ -20,7 +20,7 @@ internal struct AllocOptList<T>
     public AllocOptList(int capacity)
     {
         Guard.IsGreaterThanOrEqualTo(capacity, 0);
-     
+
         if (capacity == 0)
             _array = [];
         else
@@ -158,7 +158,7 @@ internal struct AllocOptList<T>
             ArrayGrowHelper.GrowForInsertion(ref _array, newSize, _count, index, insertCount);
         }
         else {
-            Array.Copy(_array, index, _array, index + insertCount, _count - index);
+            ArrayGrowHelper.ShiftRightForInsert(_array, _count, index, insertCount);
         }
     }
 
@@ -168,7 +168,7 @@ internal struct AllocOptList<T>
         if (index < 0)
             return false;
 
-        Array.Copy(_array, index + 1, _array, index, _count - index - 1);
+        ArrayGrowHelper.ShiftLeftForRemove(_array, _count, index, 1);
         _count--;
         return true;
     }
@@ -177,7 +177,7 @@ internal struct AllocOptList<T>
     {
         Guard.IsLessThan((uint)index, (uint)_count);
 
-        Array.Copy(_array, index + 1, _array, index, _count - index - 1);
+        ArrayGrowHelper.ShiftLeftForRemove(_array, _count, index, 1);
         _count--;
     }
 
@@ -187,7 +187,7 @@ internal struct AllocOptList<T>
         Guard.IsGreaterThanOrEqualTo(index, 0);
         Guard.IsLessThan(index + count, _count);
 
-        Array.Copy(_array, index + count, _array, index, _count - index - count);
+        ArrayGrowHelper.ShiftLeftForRemoveNonFree(_array, _count, index, count);
         _count -= count;
     }
 

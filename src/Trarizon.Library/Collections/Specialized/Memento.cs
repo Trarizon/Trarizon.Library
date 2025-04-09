@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using CommunityToolkit.Diagnostics;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Trarizon.Library.Collections.StackAlloc;
@@ -30,7 +31,9 @@ public class Memento<T>
 
     public int MaxCount => _maxCount;
 
-    public ReadOnlyConcatSpan<T> AsSpan()
+    public ReadOnlyConcatSpan<T> AsSpan() => AsMutableSpan();
+
+    private ConcatSpan<T> AsMutableSpan()
     {
         if (_count == 0)
             return default;
@@ -71,6 +74,12 @@ public class Memento<T>
             Debug.Assert(_activeCount < _maxCount);
             _array[_index] = item;
             Increment(ref _index);
+            if (_index < _tail)
+                ArrayGrowHelper.FreeManaged(_array.AsSpan(_index.._tail));
+            else {
+                var free = new ConcatSpan<T>(_array.AsSpan(_index), _array.AsSpan(.._tail));
+                ArrayGrowHelper.FreeManaged(free);
+            }
             _tail = _index;
             _activeCount++;
             _count = _activeCount;
@@ -132,7 +141,7 @@ public class Memento<T>
     public void Reapply(out T item)
     {
         if (!TryReapply(out item!))
-            TraThrow.NoElement();
+            ThrowHelper.ThrowInvalidOperationException("No more item to reapply");
     }
 
     public bool TryReapply([MaybeNullWhen(false)] out T item)
@@ -154,7 +163,7 @@ public class Memento<T>
     {
         if (_count == 0)
             return;
-        ArrayGrowHelper.FreeManaged(_array);
+        ArrayGrowHelper.FreeManaged(AsMutableSpan());
         _head = _index = _tail = 0;
         _count = _activeCount = 0;
         _version++;

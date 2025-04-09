@@ -78,8 +78,8 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
 
     public void Clear()
     {
+        ArrayGrowHelper.FreeManaged(_pairs, _count);
         _count = 0;
-        ArrayGrowHelper.FreeManaged(_pairs);
         _version++;
     }
 
@@ -159,9 +159,8 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
     private void RemoveRef(ref readonly (TKey, TValue) item)
     {
         var index = _pairs.AsSpan().OffsetOf(in item);
-        Array.Copy(_pairs, index + 1, _pairs, index, _count - index - 1);
+        ArrayGrowHelper.ShiftLeftForRemove(_pairs, _count, index, 1);
         _count--;
-        ArrayGrowHelper.FreeManaged(_pairs, _count, 1);
     }
 
     public void EnsureCapacty(int capacity)

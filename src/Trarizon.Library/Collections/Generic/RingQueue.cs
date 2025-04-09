@@ -47,7 +47,9 @@ public class RingQueue<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public bool IsFull => _count == _maxCount;
 
-    public ReadOnlyConcatSpan<T> AsSpan()
+    public ReadOnlyConcatSpan<T> AsSpan() => AsMutableSpan();
+
+    private ConcatSpan<T> AsMutableSpan()
     {
         if (_count == 0)
             return default;
@@ -150,13 +152,7 @@ public class RingQueue<T> : ICollection<T>, IReadOnlyCollection<T>
         }
 
         item = _array[_head];
-#if NETSTANDARD2_0
-        _array[_head] = default!;
-#else
-        if (RuntimeHelpers.IsReferenceOrContainsReferences<T>()) {
-            _array[_head] = default!;
-        }
-#endif
+        ArrayGrowHelper.FreeManaged(_array, _head);
         Increment(ref _head);
         _count--;
         _version++;
@@ -172,13 +168,7 @@ public class RingQueue<T> : ICollection<T>, IReadOnlyCollection<T>
 
         Decrement(ref _tail);
         item = _array[_tail];
-#if NETSTANDARD2_0
-        _array[_tail] = default!;
-#else
-      if (RuntimeHelpers.IsReferenceOrContainsReferences<T>()) {
-            _array[_tail] = default!;
-        }
-#endif
+        ArrayGrowHelper.FreeManaged(_array, _tail);
         _count--;
         _version++;
         return true;
@@ -188,7 +178,7 @@ public class RingQueue<T> : ICollection<T>, IReadOnlyCollection<T>
     {
         if (_count == 0)
             return;
-        ArrayGrowHelper.FreeManaged(_array);
+        ArrayGrowHelper.FreeManaged(AsMutableSpan());
         _head = _tail = 0;
         _count = 0;
         _version++;

@@ -7,10 +7,7 @@ using Trarizon.Library.Collections;
 using Trarizon.Library.Collections.Generic;
 using Trarizon.Test.Run;
 
-EnumerateInts(10).LookAhead(3).Print();
-ArrayInts(10).LookAhead(3).Print();
-ListInts(10).LookAhead(3).Print();
-
+RunBenchmarks();
 
 class C : IEnumerable<C>
 {

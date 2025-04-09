@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using Trarizon.Library.Collections.StackAlloc;
+﻿using Trarizon.Library.Collections.StackAlloc;
 
 namespace Trarizon.Library.Collections;
 public static partial class TraCollection

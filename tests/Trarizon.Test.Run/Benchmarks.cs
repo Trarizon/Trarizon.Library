@@ -12,9 +12,14 @@ public class Benchmarks
 
     private static char[] _chars = Path.GetInvalidFileNameChars();
 
-    public IEnumerable<IEnumerable<string>> Args()
+    public IEnumerable<object[]> Args()
     {
-        yield return EnumerateCollection("str", "str", null, "val", "va", "str", null, "val", "rig", "v", "rig")!;
+        yield return [new string[100], new string[100]];
+    }
+
+    public IEnumerable<object[]> ArgsI()
+    {
+        yield return [new int[100], new int[100]];
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
@@ -27,15 +32,36 @@ public class Benchmarks
     }
 
     [Benchmark]
-    public void Ext()
+    [ArgumentsSource(nameof(ArgsI))]
+    public void Arr(int[] src, int[] dst)
     {
+        Array.Copy(src, dst, src.Length);
         //Invoke(new Class().ExtensionInvoke, "B");
 
     }
 
     [Benchmark]
-    public void Lamb()
+    [ArgumentsSource(nameof(ArgsI))]
+    public void Span(int[] src, int[] dst)
     {
+        src.AsSpan().CopyTo(dst);
+        //Class c = new();
+        //Invoke(str => c.s=str, "C");
+
+    }
+
+    [Benchmark]
+    [ArgumentsSource(nameof(Args))]
+    public void ArrStr(string[] src, string[] dst)
+    {
+        Array.Copy(src, dst, src.Length);
+    }
+
+    [Benchmark]
+    [ArgumentsSource(nameof(Args))]
+    public void SpanStr(string[] src, string[] dst)
+    {
+        src.AsSpan().CopyTo(dst);
         //Class c = new();
         //Invoke(str => c.s=str, "C");
 

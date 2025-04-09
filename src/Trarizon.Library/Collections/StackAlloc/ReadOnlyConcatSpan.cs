@@ -11,6 +11,10 @@ public readonly ref struct ReadOnlyConcatSpan<T>(ReadOnlySpan<T> first, ReadOnly
     private readonly ReadOnlySpan<T> _first = first;
     private readonly ReadOnlySpan<T> _second = second;
 
+    public ReadOnlySpan<T> First => _first;
+
+    public ReadOnlySpan<T> Second => _second;
+
     public int Length => _first.Length + _second.Length;
 
     public ref readonly T this[int index]

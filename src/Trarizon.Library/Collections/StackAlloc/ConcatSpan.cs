@@ -14,6 +14,10 @@ public readonly ref struct ConcatSpan<T>(Span<T> first, Span<T> second)
     private readonly Span<T> _first = first;
     private readonly Span<T> _second = second;
 
+    public Span<T> First=>_first;
+
+    public Span<T> Second=>_second;
+
     public int Length => _first.Length + _second.Length;
 
     public ref T this[int index]
