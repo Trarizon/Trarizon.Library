@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
 
-namespace Trarizon.Library.Numerics;
-public static class TraGeometry
+namespace Trarizon.Library.Mathematics;
+public static partial class TraGeometry
 {
     public static Vector2 ToNormalized(this Vector2 v)
         => v / v.Length();

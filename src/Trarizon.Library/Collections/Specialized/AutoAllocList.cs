@@ -2,7 +2,7 @@
 using CommunityToolkit.HighPerformance;
 using System.Collections;
 using Trarizon.Library.Buffers;
-using Trarizon.Library.Numerics;
+using Trarizon.Library.Mathematics;
 
 namespace Trarizon.Library.Collections.Specialized;
 public class AutoAllocList<T>(IObjectAllocator<T> allocator)

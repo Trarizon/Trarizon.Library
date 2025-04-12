@@ -197,12 +197,16 @@ The namespace structure is almost the same with `System.XXX`
 - namespace `IO`
     - `TraPath` : Extends `System.IO.Path`
     - `TraStream` : Helpers for `System.IO.Stream`
-- namespace `Numerics`
+- namespace `Mathematics`
     - `BoundedInterval` : Represents a interval 
     - `Interval` : Represents a left-close, right-open interval
-    - `Ray2D/3D` : Ray
+    - `Rational` : Rational number
     - `TraGeometry` : Helpers for `Vector2/3`, `Quaternion`, etc.
     - `TraNumber` : Helpers for number types (in `System.Numerics`), `Index`, `Range`
+    - `Geometry2D`/`Geometry3D`
+        - `Line2D`
+        - `LineSegment2D`
+        - `Ray2D/3D`
 - namespace `Text`
     - `TraString` : Helper for `string`
     - namespace `Json`

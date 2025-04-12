@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 
-namespace Trarizon.Library.Numerics;
+namespace Trarizon.Library.Mathematics.Geometry3D;
 public struct Ray3D(Vector3 origin, Vector3 direction) : IEquatable<Ray3D>
 #if NET7_0_OR_GREATER
     , IEqualityOperators<Ray3D, Ray3D, bool>

@@ -3,7 +3,7 @@ using System.Numerics;
 
 #if NET7_0_OR_GREATER
 
-namespace Trarizon.Library.Numerics;
+namespace Trarizon.Library.Mathematics;
 public static partial class TraNumber
 {
     public static bool IncAndTryWrap<T>(this ref T number, T delta, T max)

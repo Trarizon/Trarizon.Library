@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 
-namespace Trarizon.Library.Numerics;
+namespace Trarizon.Library.Mathematics;
 /// <summary>
 /// Left close, right open interval, in <see cref="float"/>
 /// </summary>

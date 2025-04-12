@@ -2,7 +2,7 @@
 
 #if NETSTANDARD
 
-namespace Trarizon.Library.Numerics;
+namespace Trarizon.Library.Mathematics;
 public static partial class TraNumber
 {
     public static int Clamp(int value, int min, int max)

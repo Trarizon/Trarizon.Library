@@ -4,10 +4,10 @@
 
 using CommunityToolkit.HighPerformance;
 
-namespace Trarizon.Library.Numerics;
+namespace Trarizon.Library.Mathematics;
 public static partial class TraNumber
 {
-    public static bool IncAndTryWrap(this ref short number, short delta, short max)
+    public static bool IncAndTryWrap(this ref long number, long delta, long max)
     {
         number += delta;
         if (number > max) {
@@ -19,7 +19,7 @@ public static partial class TraNumber
         }
     }
 
-    public static bool IncAndTryWrap(this ref ushort number, ushort delta, ushort max)
+    public static bool IncAndTryWrap(this ref ulong number, ulong delta, ulong max)
     {
         number += delta;
         if (number > max) {
@@ -31,7 +31,7 @@ public static partial class TraNumber
         }
     }
 
-    public static void IncAndWrap(this ref short number, short delta, short max)
+    public static void IncAndWrap(this ref long number, long delta, long max)
     {
         number += delta;
         if (number > max) {
@@ -39,7 +39,7 @@ public static partial class TraNumber
         }
     }
 
-    public static void IncAndWrap(this ref ushort number, ushort delta, ushort max)
+    public static void IncAndWrap(this ref ulong number, ulong delta, ulong max)
     {
         number += delta;
         if (number > max) {
@@ -52,18 +52,18 @@ public static partial class TraNumber
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="value"></param>
-    public static void FlipNegative(ref short value)
+    public static void FlipNegative(ref long value)
     {
         if (value < 0)
-            value = (short)~value;
+            value = ~value;
     }
 
     #region MinMax
 
-    public static short Min(short v0, short v1, short v2)
+    public static long Min(long v0, long v1, long v2)
         => v0 > v1 ? v1 : v0 > v2 ? v2 : v0;
 
-    public static short Min(params ReadOnlySpan<short> values) 
+    public static long Min(params ReadOnlySpan<long> values) 
     {
         var rtn = values[0];
         for (var i = 1; i < values.Length; i++) {
@@ -74,10 +74,10 @@ public static partial class TraNumber
         return rtn;
     }
 
-    public static ushort Min(ushort v0, ushort v1, ushort v2)
+    public static ulong Min(ulong v0, ulong v1, ulong v2)
         => v0 > v1 ? v1 : v0 > v2 ? v2 : v0;
 
-    public static ushort Min(params ReadOnlySpan<ushort> values) 
+    public static ulong Min(params ReadOnlySpan<ulong> values) 
     {
         var rtn = values[0];
         for (var i = 1; i < values.Length; i++) {
@@ -88,10 +88,10 @@ public static partial class TraNumber
         return rtn;
     }
 
-    public static short Max(short v0, short v1, short v2)
+    public static long Max(long v0, long v1, long v2)
         => v0 < v1 ? v1 : v0 < v2 ? v2 : v0;
 
-    public static short Max(params ReadOnlySpan<short> values) 
+    public static long Max(params ReadOnlySpan<long> values) 
     {
         var rtn = values[0];
         for (var i = 1; i < values.Length; i++) {
@@ -102,10 +102,10 @@ public static partial class TraNumber
         return rtn;
     }
 
-    public static ushort Max(ushort v0, ushort v1, ushort v2)
+    public static ulong Max(ulong v0, ulong v1, ulong v2)
         => v0 < v1 ? v1 : v0 < v2 ? v2 : v0;
 
-    public static ushort Max(params ReadOnlySpan<ushort> values) 
+    public static ulong Max(params ReadOnlySpan<ulong> values) 
     {
         var rtn = values[0];
         for (var i = 1; i < values.Length; i++) {
@@ -123,7 +123,7 @@ public static partial class TraNumber
     /// If <paramref name="left"/> equals <paramref name="right"/>, the return value is (<paramref name="left"/>, <paramref name="right"/>),
     /// else Min is the less one
     /// </returns>
-    public static (short Min, short Max) MinMax(short left, short right)
+    public static (long Min, long Max) MinMax(long left, long right)
     {
         if (left <= right)
             return (left, right);
@@ -131,7 +131,7 @@ public static partial class TraNumber
             return (right, left);
     }
 
-    public static (short Min, short Max) MinMax(params ReadOnlySpan<short> values) 
+    public static (long Min, long Max) MinMax(params ReadOnlySpan<long> values) 
     {
         var min = values[0];
         var max = min;
@@ -152,7 +152,7 @@ public static partial class TraNumber
     /// If <paramref name="left"/> equals <paramref name="right"/>, the return value is (<paramref name="left"/>, <paramref name="right"/>),
     /// else Min is the less one
     /// </returns>
-    public static (ushort Min, ushort Max) MinMax(ushort left, ushort right)
+    public static (ulong Min, ulong Max) MinMax(ulong left, ulong right)
     {
         if (left <= right)
             return (left, right);
@@ -160,7 +160,7 @@ public static partial class TraNumber
             return (right, left);
     }
 
-    public static (ushort Min, ushort Max) MinMax(params ReadOnlySpan<ushort> values) 
+    public static (ulong Min, ulong Max) MinMax(params ReadOnlySpan<ulong> values) 
     {
         var min = values[0];
         var max = min;

@@ -3,7 +3,7 @@ using System.Collections;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using Trarizon.Library.Numerics;
+using Trarizon.Library.Mathematics;
 
 namespace Trarizon.Library.Collections.Generic;
 /// <summary>

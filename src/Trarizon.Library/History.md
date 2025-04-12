@@ -4,6 +4,7 @@
 
 - [Break] Rename `TraNumber.CheckSliceArgs` to `Validate..`
 - [Break] Rename `ILinkNode` to `ILinkedListNode`
+- [Break] Rename namespace `Numerics` to `Mathematics`
 - [Break] Move `SortedList`, `Memento`, `AutoAllocList` to `Specialized`
 - [Break] Combine `TraCollection`, `TraList`, `TraDictionary` into `TraCollection`
 - [Break] Remove `GetCheckedOffsetAndLength`, `Range.GetOffsetAndLength` checked it orz

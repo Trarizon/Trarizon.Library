@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Diagnostics;
 using System.Collections;
 using System.Diagnostics;
-using Trarizon.Library.Numerics;
+using Trarizon.Library.Mathematics;
 
 namespace Trarizon.Library.Collections.Specialized;
 public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>

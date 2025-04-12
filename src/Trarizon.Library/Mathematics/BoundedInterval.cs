@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 
-namespace Trarizon.Library.Numerics;
+namespace Trarizon.Library.Mathematics;
 public struct BoundedInterval : IEquatable<BoundedInterval>
 #if NET7_0_OR_GREATER
     , IEqualityOperators<BoundedInterval, BoundedInterval, bool>

@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using Trarizon.Library.CodeGeneration;
 using Trarizon.Library.Collections;
-using Trarizon.Library.Numerics;
+using Trarizon.Library.Mathematics;
 
 namespace Trarizon.Library;
 public static partial class TraRandom

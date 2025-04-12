@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Diagnostics;
 
-namespace Trarizon.Library.Numerics;
+namespace Trarizon.Library.Mathematics;
 public static partial class TraNumber
 {
     /// <summary>
