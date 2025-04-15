@@ -11,6 +11,9 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
     , IComparable<Rational>, IComparable
 #if NET7_0_OR_GREATER
     , INumber<Rational>
+    , ISignedNumber<Rational>
+    , IMinMaxValue<Rational>
+    , IUtf8SpanParsable<Rational>
 #endif
 {
     // NaN:  0/0
@@ -41,6 +44,12 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
     static Rational IAdditiveIdentity<Rational, Rational>.AdditiveIdentity => Zero;
 
     static Rational IMultiplicativeIdentity<Rational, Rational>.MultiplicativeIdentity => One;
+
+    public static Rational NegativeOne => new Rational(-1, 1);
+
+    public static Rational MaxValue => new Rational(Int.MaxValue, 1);
+
+    public static Rational MinValue => new Rational(Int.MinValue, 1);
 
 #endif
 
@@ -93,6 +102,19 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
         Debug.Assert(IsFinite(left));
         Debug.Assert(IsFinite(right));
 
+        if (left._denominator == right._denominator) {
+            if (left._denominator < 0) {
+                numeratorLeft = -left._numerator;
+                numeratorRight = -right._numerator;
+                return -left._denominator;
+            }
+            else {
+                numeratorLeft = left._numerator;
+                numeratorRight = right._numerator;
+                return left._denominator;
+            }
+        }
+
         var den = left._denominator * right._denominator;
         if (den < 0) {
             numeratorLeft = -left._numerator * right._denominator;
@@ -107,6 +129,12 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
 
     private static Int DangerousCommonDenominator(Rational left, Rational right, out Int numeratorLeft, out Int numeratorRight)
     {
+        if (left._denominator == right._denominator) {
+            numeratorLeft = left._numerator;
+            numeratorRight = left._denominator;
+            return left._denominator;
+        }
+
         numeratorLeft = left._numerator * right._denominator;
         numeratorRight = right._numerator * left._denominator;
         var den = left._denominator * right._denominator;
@@ -313,6 +341,25 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
         return HashCode.Combine(num._numerator, num._denominator);
     }
 
+    public override string ToString()
+    {
+        if (_denominator == 0) {
+            if (_numerator == 0)
+                return "NaN";
+            else if (_numerator > 0)
+                return "+∞";
+            else
+                return "-∞";
+        }
+        else if (_denominator is 1) {
+            return _numerator.ToString();
+        }
+        else {
+            var num = Reduce(this);
+            return $"{num._numerator}/{num._denominator}";
+        }
+    }
+
     int IComparable.CompareTo(object? obj)
     {
         if (obj is not Rational number)
@@ -393,12 +440,47 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
     public static bool IsRealNumber(Rational value) => true;
     public static bool IsSubnormal(Rational value) => false;
     public static bool IsZero(Rational value) => value._numerator is 0 && value._denominator is not 0;
-    public static Rational MaxMagnitude(Rational x, Rational y) => throw new NotImplementedException();
-    public static Rational MaxMagnitudeNumber(Rational x, Rational y) => throw new NotImplementedException();
-    public static Rational MinMagnitude(Rational x, Rational y) => throw new NotImplementedException();
-    public static Rational MinMagnitudeNumber(Rational x, Rational y) => throw new NotImplementedException();
-    public static Rational Parse(ReadOnlySpan<char> s, NumberStyles style, IFormatProvider? provider) => throw new NotImplementedException();
-    public static Rational Parse(string s, NumberStyles style, IFormatProvider? provider) => throw new NotImplementedException();
+    public static Rational MaxMagnitude(Rational x, Rational y)
+    {
+        var l = Reduce(Abs(x));
+        var r = Reduce(Abs(y));
+        if (l > r || IsNaN(x))
+            return x;
+        if (l == r)
+            return IsNegative(x) ? y : x;
+        return y;
+    }
+    public static Rational MaxMagnitudeNumber(Rational x, Rational y)
+    {
+        var l = Reduce(Abs(x));
+        var r = Reduce(Abs(y));
+
+        if (l > r || IsNaN(y))
+            return x;
+        if (l == r)
+            return IsNegative(x) ? y : x;
+        return y;
+    }
+    public static Rational MinMagnitude(Rational x, Rational y)
+    {
+        var l = Reduce(Abs(x));
+        var r = Reduce(Abs(y));
+        if (l < r || IsNaN(x))
+            return x;
+        if (l == r)
+            return IsNegative(x) ? x : y;
+        return y;
+    }
+    public static Rational MinMagnitudeNumber(Rational x, Rational y)
+    {
+        var l = Reduce(Abs(x));
+        var r = Reduce(Abs(y));
+        if (l < r || IsNaN(y))
+            return x;
+        if (l == r)
+            return IsNegative(x) ? x : y;
+        return y;
+    }
 
 #if NET7_0_OR_GREATER
     public static bool TryConvertFromChecked<TOther>(TOther value, [MaybeNullWhen(false)] out Rational result) where TOther : INumberBase<TOther> => throw new NotImplementedException();
@@ -408,6 +490,9 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
     public static bool TryConvertToSaturating<TOther>(Rational value, [MaybeNullWhen(false)] out TOther result) where TOther : INumberBase<TOther> => throw new NotImplementedException();
     public static bool TryConvertToTruncating<TOther>(Rational value, [MaybeNullWhen(false)] out TOther result) where TOther : INumberBase<TOther> => throw new NotImplementedException();
 #endif
+
+    public static Rational Parse(ReadOnlySpan<char> s, NumberStyles style, IFormatProvider? provider) => throw new NotImplementedException();
+    public static Rational Parse(string s, NumberStyles style, IFormatProvider? provider) => throw new NotImplementedException();
     public static bool TryParse(ReadOnlySpan<char> s, NumberStyles style, IFormatProvider? provider, [MaybeNullWhen(false)] out Rational result) => throw new NotImplementedException();
     public static bool TryParse([NotNullWhen(true)] string? s, NumberStyles style, IFormatProvider? provider, [MaybeNullWhen(false)] out Rational result) => throw new NotImplementedException();
     public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => throw new NotImplementedException();

@@ -8,6 +8,14 @@ internal static class TraThrow
     public const string ExpNoUse = "NoUse";
 
     [DoesNotReturn]
+    internal static T Unreachable<T>()
+        => throw new InvalidOperationException("Unreachable");
+
+    [DoesNotReturn]
+    internal static void Unreachable()
+        => throw new InvalidOperationException("Unreachable");
+
+    [DoesNotReturn]
     internal static void KeyNotFound<T>(T key)
         => throw new KeyNotFoundException($"Cannot find key '{key}' in collection.");
 
