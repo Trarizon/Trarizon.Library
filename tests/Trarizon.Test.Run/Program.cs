@@ -5,26 +5,35 @@ using System.Collections;
 using System.Collections.Specialized;
 using Trarizon.Library.Collections;
 using Trarizon.Library.Collections.Generic;
+using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
 
-RunBenchmarks();
 
-class C : IEnumerable<C>
+var root = new N(0)
 {
-    public int Value { get; set; }
-    public List<C> List { get; set; } = [];
-
-    public C(int value)
+    Child = new N(1)
     {
-        Value = value;
-    }
+        Next = new N(2)
+        {
+            Next = new N(3),
+        },
+        Child = new(4)
+        {
+            Next = new N(5)
+            {
+                Next = new N(6),
+            },
+            Child=new(7)
+        }
+    },
+};
 
-    public void Add(C c)
-    {
-        List.Add(c);
-    }
+TraEnumerable.EnumerateDescendantsBreadthFirst(root, x => Optional.OfNotNull(x.Child), x => Optional.OfNotNull(x.Next), true).Print();
 
-    public IEnumerator<C> GetEnumerator() => List.GetEnumerator();
+class N(int value)
+{
+    public N Child { get; set; }
+    public N Next { get; set; }
 
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    public override string ToString() => value.ToString();
 }

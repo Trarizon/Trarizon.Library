@@ -16,7 +16,26 @@ public static partial class TraEnumerable
             return new CollectionLookAheadIterator<T>(source, count, maxAheadCount);
         }
 
+        if (maxAheadCount == 0)
+            return source.Select(x => (x, 0));
+        if (maxAheadCount == 1)
+            return Iterate1(source);
         return Iterate(source, maxAheadCount);
+
+        static IEnumerable<(T, int)> Iterate1(IEnumerable<T> source)
+        {
+            T prev;
+            using var enumerator = source.GetEnumerator();
+            if (!enumerator.MoveNext())
+                yield break;
+            prev = enumerator.Current;
+
+            while (enumerator.MoveNext()) {
+                yield return (prev, 1);
+                prev = enumerator.Current;
+            }
+            yield return (prev, 0);
+        }
 
         static IEnumerable<(T, int)> Iterate(IEnumerable<T> source, int maxAheadCount)
         {

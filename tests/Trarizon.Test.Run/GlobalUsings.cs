@@ -1,6 +1,7 @@
 ﻿global using static Trarizon.Test.Run.GlobalUsings;
 
 using BenchmarkDotNet.Running;
+using Microsoft.Diagnostics.Runtime;
 using System.Collections;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -64,104 +65,158 @@ public static class GlobalUsings
 
     public static void Print<T>(this T value)
     {
-        Console.WriteLine(PrintValue(value));
+        PrintValue(Console.Write, value);
+        Console.WriteLine();
     }
 
-    public static void Print<T>(this Span<T> values) => PrintValue((ReadOnlySpan<T>)values).Print();
-    public static void Print<T>(this ReadOnlySpan<T> values) => PrintValue(values).Print();
+    public static void Print<T>(this ReadOnlySpan<T> values) => values.ToArray().Print();
 
     public static void PrintType<T>(this T value) => value?.GetType().Print();
 
-    private static string? PrintValue<T>(T value)
+    private static void PrintValue<T>(Action<string?> print, T value)
     {
-        if (value is string strV)
-            return $@"""{strV}""";
+        if (value is string strV) {
+            print($@"""{strV}""");
+            return;
+        }
 
         if (value is IEnumerable collection) {
-            return GetCollectionString(collection);
+            PrintCollection(collection.Cast<object?>());
+            return;
         }
 
-        if (TryEnumerate(typeof(T)).TryToNonEmptyList(out var list)) {
-            return GetCollectionString(list);
+        if (value is IEnumerable<object> geenumerable) {
+            PrintCollection(geenumerable);
+            return;
         }
 
-        return value?.ToString();
+        if (TryEnumerate(typeof(T), out var count) is { } enumerable) {
+            PrintCollection(enumerable, count);
+            return;
+        }
 
-        IEnumerable<object?> TryEnumerate(Type type)
+        print(value?.ToString());
+
+        IEnumerable<object?>? TryEnumerate(Type type, out int? count)
         {
-            var getEnumerator = type.GetMethod(nameof(IEnumerable.GetEnumerator))!;
-            if (getEnumerator == null)
-                yield break;
-            if (getEnumerator.IsStatic)
-                yield break;
-            if (getEnumerator.GetParameters() is not [])
-                yield break;
+            count = TryGetCount();
 
-            var enumeratorType = getEnumerator.ReturnType;
-            var moveNext = enumeratorType.GetMethod(nameof(IEnumerator.MoveNext))!;
+            var getEnumerator = type.GetMethod(nameof(IEnumerable.GetEnumerator));
+            if (getEnumerator == null)
+                return null;
+            if (getEnumerator.IsStatic)
+                return null;
+            if (getEnumerator.GetParameters() is not [])
+                return null;
+
+            var enumerator = getEnumerator.Invoke(value, null);
+            if (enumerator is null)
+                return null;
+
+            if (enumerator is IEnumerator en)
+                return Enumerate(en);
+            if (enumerator is IEnumerator<object> geen)
+                return EnumerateG(geen);
+
+            var enumeratorType = enumerator.GetType();
+            var moveNext = enumeratorType.GetMethod(nameof(IEnumerator.MoveNext));
             if (moveNext == null)
-                yield break;
+                return null;
             if (moveNext.IsStatic)
-                yield break;
-            if (moveNext.GetParameters() is not [])
-                yield break;
+                return null;
             if (moveNext.ReturnType != typeof(bool))
-                yield break;
+                return null;
+            if (moveNext.GetParameters() is not [])
+                return null;
 
             var current = enumeratorType.GetProperty(nameof(IEnumerator.Current));
             if (current == null)
-                yield break;
+                return null;
             if (current.PropertyType == null)
-                yield break;
-            var get_current = current.GetMethod!;
+                return null;
+            var get_current = current.GetMethod;
             if (get_current == null)
-                yield break;
+                return null;
+            if (get_current.IsStatic)
+                return null;
 
-            var enumerator = getEnumerator.Invoke(value, null);
-            var mn = moveNext.CreateDelegate<Func<bool>>(enumerator);
-            var gc = get_current.CreateDelegate(typeof(Func<>).MakeGenericType(get_current.ReturnType!), enumerator);
-            while (mn()) {
-                yield return gc.DynamicInvoke();
+            return GetEnumerable();
+
+            IEnumerable<object?> GetEnumerable()
+            {
+                var mn = moveNext.CreateDelegate<Func<bool>>(enumerator);
+                var gc = get_current.CreateDelegate(typeof(Func<>).MakeGenericType(get_current.ReturnType!), enumerator);
+                while (mn()) {
+                    yield return gc.DynamicInvoke();
+                }
+            }
+
+            IEnumerable<object?> Enumerate(IEnumerator enumerator)
+            {
+                while (enumerator.MoveNext())
+                    yield return enumerator.Current;
+            }
+
+            IEnumerable<object?> EnumerateG(IEnumerator<object> enumerator)
+            {
+                while (enumerator.MoveNext())
+                    yield return enumerator.Current;
+            }
+
+            int? TryGetCount()
+            {
+                var get_count = GetCount(nameof(Array.Length)) ?? GetCount(nameof(ICollection.Count));
+                if (get_count == null)
+                    return null;
+                return get_count.Invoke(value, null)!.ForceCastTo<int>();
+
+                MethodInfo? GetCount(string name)
+                {
+                    var prop = type.GetProperty(name);
+                    if (prop == null)
+                        return default;
+                    if (prop.PropertyType != typeof(int))
+                        return default;
+                    var get_count = prop.GetMethod;
+                    if (get_count == null)
+                        return null;
+                    if (get_count.IsStatic)
+                        return null;
+                    return get_count;
+                }
             }
         }
 
-        static string GetCollectionString(IEnumerable collection)
+        void PrintCollection(IEnumerable<object?> collection, int? count = null)
         {
-            var sb = new StringBuilder();
-            foreach (var val in collection) {
-                sb.Append(PrintValue(val)).Append(", ");
-            }
-            if (sb.Length > 0)
-                sb.Length -= 2;
-
-            int? count = null;
-            if (collection is ICollection col)
-                count = col.Count;
-            else if (collection is IReadOnlyCollection<int> roc)
-                count = roc.Count;
-            else if (typeof(T).GetInterfaces()
-                .Where(itf => itf.IsGenericType && itf.GetGenericTypeDefinition() == typeof(ICollection<>))
-                .Select(itf => itf.GenericTypeArguments[0])
-                .TryFirst(out var type)) {
-                count = (int)typeof(ICollection<>).MakeGenericType(type)
-                    .GetProperty(nameof(ICollection<T>.Count))!
-                    .GetValue(collection)!;
+            print("[");
+            foreach (var (val, num) in collection.LookAhead(1)) {
+                PrintValue(print, val);
+                if (num > 0)
+                    print(", ");
+                else
+                    print("]");
             }
 
-            if (count == null) return $"[{sb}]";
-            else return $"[{sb}]({count})";
+            if (count is null) {
+                if (collection is ICollection col)
+                    count = col.Count;
+                else if (collection is IReadOnlyCollection<object> roc)
+                    count = roc.Count;
+                else if (collection.GetType().GetInterfaces()
+                    .Where(itf => itf.IsGenericType && itf.GetGenericTypeDefinition() == typeof(ICollection<>))
+                    .Select(itf => itf.GenericTypeArguments[0])
+                    .TryFirst(out var type)) {
+                    count = typeof(ICollection<>).MakeGenericType(type)
+                        .GetProperty(nameof(ICollection.Count))!
+                        .GetValue(collection)!
+                        .ForceCastTo<int>();
+                }
+            }
+
+            if (count is { } c)
+                print($"({c})");
         }
-    }
-    private static string PrintValue<T>(ReadOnlySpan<T> values)
-    {
-        var sb = new StringBuilder();
-        sb.Append('[');
-        foreach (var val in values) {
-            sb.Append(PrintValue(val)).Append(", ");
-        }
-        sb.Length--;
-        sb[^1] = ']';
-        return sb.ToString();
     }
 
     #endregion
