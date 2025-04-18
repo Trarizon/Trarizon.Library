@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using Trarizon.Library.Collections.StackAlloc;
 
 namespace Trarizon.Library.Collections.Generic;
+[CollectionBuilder(typeof(CollectionBuilders), nameof(CollectionBuilders.CreateDeque))]
 public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
 {
     private T[] _array;
@@ -189,6 +190,35 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
         }
     }
 
+    public void EnqueueRangeFirst(ReadOnlySpan<T> span)
+    {
+        var count = span.Length;
+        if (count <= 0)
+            return;
+
+        var newCount = _count + count;
+        if (newCount > Capacity) {
+            GrowAndCopy(newCount, count);
+            span.CopyTo(_array);
+            _head = 0;
+            _tail = newCount == Capacity ? 0 : newCount;
+        }
+        // |-- <==--|
+        else if (_head >= count) {
+            _head -= count;
+            span.CopyTo(_array.AsSpan(_head));
+        }
+        // |=---- <=|
+        else {
+            _head = _head - count + Capacity;
+            var seperator = Capacity - _head;
+            span[..seperator].CopyTo(_array.AsSpan(_head..));
+            span[seperator..].CopyTo(_array);
+        }
+        _count = newCount;
+        _version++;
+    }
+
     public void EnqueueRangeLast(IEnumerable<T> collection)
     {
         if (collection is ICollection<T> col) {
@@ -244,6 +274,36 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
             }
             _count = newCount;
         }
+    }
+
+    public void EnqueueRangeLast(ReadOnlySpan<T> span)
+    {
+        var count = span.Length;
+        if (count <= 0)
+            return;
+
+        var oldCount = _count;
+        var newCount = _count + count;
+        if (newCount > Capacity) {
+            GrowAndCopy(newCount, 0);
+            span.CopyTo(_array.AsSpan(oldCount));
+            _head = 0;
+            _tail = newCount == Capacity ? 0 : newCount;
+        }
+        // |--==> --|
+        else if (_tail + count <= Capacity) {
+            span.CopyTo(_array.AsSpan(_tail));
+            _tail += count;
+        }
+        // |=> ----=|
+        else {
+            var seperator = Capacity - _tail;
+            span[..seperator].CopyTo(_array.AsSpan(_tail..));
+            span[seperator..].CopyTo(_array);
+            _tail = _tail + count - Capacity;
+        }
+        _count = newCount;
+        _version++;
     }
 
     public T DequeueFirst()

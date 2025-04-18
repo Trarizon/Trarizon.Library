@@ -1,4 +1,5 @@
 ﻿using System.Buffers;
+using System.Diagnostics.CodeAnalysis;
 using Trarizon.Library.Buffers;
 using Vanara.PInvoke;
 
@@ -19,13 +20,24 @@ internal static class TraWinFileSystem
     }
 
     // COM: Windows Script Host Ojbect Model
-    private static IWshRuntimeLibrary.WshShell? _wshShell;
+    [field: MaybeNull]
+    private static IWshRuntimeLibrary.WshShell WshShell => field ??= new();
     public static LnkFileTarget GetLnkFileTarget(string lnkFilePath)
     {
-        _wshShell ??= new();
-        IWshRuntimeLibrary.IWshShortcut shortcut = _wshShell.CreateShortcut(lnkFilePath);
-        return new LnkFileTarget(shortcut.TargetPath, shortcut.Arguments);
+        IWshRuntimeLibrary.IWshShortcut shortcut = WshShell.CreateShortcut(lnkFilePath);
+        return new LnkFileTarget(shortcut);
     }
 
-    public readonly record struct LnkFileTarget(string ExePath, string? Arguments);
+    public readonly struct LnkFileTarget
+    {
+        private readonly IWshRuntimeLibrary.IWshShortcut _shortcut;
+
+        public string ExePath => _shortcut.TargetPath;
+        public string Arguments => _shortcut.Arguments;
+
+        internal LnkFileTarget(IWshRuntimeLibrary.IWshShortcut shortcut)
+        {
+            _shortcut = shortcut;
+        }
+    }
 }

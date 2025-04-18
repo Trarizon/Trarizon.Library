@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 using Trarizon.Library.Collections.StackAlloc;
 
 namespace Trarizon.Library.Collections.Generic;
@@ -10,6 +9,7 @@ public enum RingQueueFullBehaviour
 {
     Overwrite = 0,
     Throw,
+    Discard
 }
 
 public class RingQueue<T> : ICollection<T>, IReadOnlyCollection<T>
@@ -103,7 +103,10 @@ public class RingQueue<T> : ICollection<T>, IReadOnlyCollection<T>
     public void Enqueue(T item)
     {
         if (_count == _maxCount) {
-            ThrowFullIfBehaviourRequires();
+            if (_fullBehaviour is RingQueueFullBehaviour.Throw)
+                ThrowHelper.ThrowInvalidOperationException("Ring queue is full");
+            else if (_fullBehaviour is RingQueueFullBehaviour.Discard)
+                return;
             _array[_tail] = item;
             Increment(ref _head);
             Increment(ref _tail);
@@ -208,13 +211,6 @@ public class RingQueue<T> : ICollection<T>, IReadOnlyCollection<T>
     IEnumerator<T> IEnumerable<T>.GetEnumerator() => GetEnumerator();
     bool ICollection<T>.Remove(T item) => false;
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-    [DebuggerStepThrough]
-    private void ThrowFullIfBehaviourRequires()
-    {
-        if (_fullBehaviour is RingQueueFullBehaviour.Throw)
-            throw new InvalidOperationException("Ring queue is full");
-    }
 
     private void GrowAndCopy(int expectedCapacity)
     {

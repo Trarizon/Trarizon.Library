@@ -15,13 +15,34 @@ public static partial class TraCollection
     public static Span<T> AsSpan<T>(this List<T> list)
         => Utils<T>.GetUnderlyingArray(list).AsSpan(..list.Count);
 
+    public static void EnsureCapacity<T>(this List<T> list, int expectedCapacity)
+    {
+        if (expectedCapacity <= list.Capacity)
+            return;
+        list.Capacity = ArrayGrowHelper.GetNewLength(list.Capacity, expectedCapacity);
+    }
+
 #endif
 
-    public static ref T AtRef<T>(List<T> list, int index) 
+    public static ref T AtRef<T>(List<T> list, int index)
         => ref list.AsSpan()[index];
 
     public static T[] GetUnderlyingArray<T>(List<T> list)
         => Utils<T>.GetUnderlyingArray(list);
+
+    public static void AddRange<T>(this List<T> list, ReadOnlySpan<T> span)
+    {
+#if NET8_0_OR_GREATER
+        var oldCount = list.Count;
+        CollectionsMarshal.SetCount(list, oldCount + span.Length);
+        span.CopyTo(list.AsSpan().Slice(oldCount, span.Length));
+#else
+        list.EnsureCapacity(list.Count + span.Length);
+        foreach (var item in span) {
+            list.Add(item);
+        }
+#endif
+    }
 
     public static void RemoveAt<T>(this List<T> list, Index index)
         => list.RemoveAt(index.GetOffset(list.Count));

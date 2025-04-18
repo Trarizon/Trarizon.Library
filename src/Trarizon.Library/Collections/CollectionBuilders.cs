@@ -33,4 +33,12 @@ public static class CollectionBuilders
         }
         return list;
     }
+
+    public static Deque<T> CreateDeque<T>(ReadOnlySpan<T> values)
+    {
+        var queue = new Deque<T>();
+        queue.EnsureCapacity(values.Length);
+        queue.EnqueueRangeLast(values);
+        return queue;
+    }
 }

@@ -8,10 +8,3 @@ using Trarizon.Library.Collections.Generic;
 using Trarizon.Library.Components;
 using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
-
-
-EventBus.UseDictionaryByDefault = false;
-
-EventBus.AddListener((int a) => Console.WriteLine(a));
-
-EventBus.Invoke(2);

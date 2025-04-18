@@ -5,7 +5,7 @@ namespace Trarizon.Library.Collections;
 internal static partial class ArrayGrowHelper
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void FreeManaged<T>(Span<T> span,int index)
+    public static void FreeManaged<T>(Span<T> span, int index)
     {
 #if !NETSTANDARD2_0
         if (!RuntimeHelpers.IsReferenceOrContainsReferences<T>())
@@ -83,11 +83,8 @@ internal static partial class ArrayGrowHelper
 
     public static void GrowNonMove<T>(ref T[] array, int expectedLength)
     {
-#if NETSTANDARD
-        GrowNonMove(ref array, expectedLength, TraArray.MaxLength);
-#else
-        GrowNonMove(ref array, expectedLength, Array.MaxLength);
-#endif
+        Debug.Assert(expectedLength > array.Length);
+        array = new T[GetNewLength(array.Length, expectedLength)];
     }
 
     public static void GrowNonMove<T>(ref T[] array, int expectedLength, int maxLength)
@@ -115,7 +112,28 @@ internal static partial class ArrayGrowHelper
         }
     }
 
-    private static int GetNewLength(int length, int expectedLength, int maxLength)
+    internal static int GetNewLength(int length, int expectedLength)
+    {
+        Debug.Assert(length < expectedLength);
+
+        int newLen;
+        var maxLength =
+#if NETSTANDARD
+            TraArray.MaxLength;
+#else
+            Array.MaxLength;
+#endif
+        if (length == 0)
+            newLen = 4;
+        else
+            newLen = Math.Min(length * 2, maxLength);
+
+        if (newLen < expectedLength)
+            newLen = expectedLength;
+        return newLen;
+    }
+
+    internal static int GetNewLength(int length, int expectedLength, int maxLength)
     {
         Debug.Assert(length < expectedLength);
 

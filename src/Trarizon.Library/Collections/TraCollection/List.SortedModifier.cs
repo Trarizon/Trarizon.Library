@@ -58,6 +58,8 @@ public static partial class TraCollection
         public int LinearSearch(Index nearIndex, T item)
             => TraSpan.LinearSearchFromNear(_list.AsSpan(), nearIndex.GetOffset(Count), new TraComparison.ComparerComparable<T, TComparer>(item, _comparer));
 
+        public bool Contains(T item) => BinarySearch(item) >= 0;
+
         #endregion
 
         #region Add
@@ -147,7 +149,7 @@ public static partial class TraCollection
                 var destIndex = _list.BinarySearch(index + 1, _list.Count - 1 - index, editItem, _comparer);
                 if (destIndex < 0)
                     destIndex = ~destIndex;
-                _list.AsSpan().MoveTo(index, destIndex - 1);
+                _list.AsSpan().MoveTo(index, index + destIndex);
             }
             else {
                 // No move

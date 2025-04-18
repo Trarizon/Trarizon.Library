@@ -236,7 +236,7 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
         else if (index < _count - 1 && _comparer.Compare(editItem, _array[index + 1]) > 0) {
             var destIndex = _array.AsSpan(index + 1, _count - 1 - index).BinarySearch(editItem, _comparer);
             TraNumber.FlipNegative(ref destIndex);
-            MoveTo(index, index + destIndex - 1);
+            MoveTo(index, index + destIndex);
         }
         else {
             // No Move
@@ -315,5 +315,51 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
             if (_version != _list._version)
                 TraThrow.CollectionModified();
         }
+    }
+
+    public readonly struct TrackingScope : IDisposable
+    {
+        private readonly SortedList<T> _list;
+        private readonly int _index;
+        private readonly T _item;
+
+        internal TrackingScope(SortedList<T> list, int index, T item)
+        {
+            Debug.Assert(!typeof(T).IsValueType);
+            Guard.IsInRangeFor(index, list.AsSpan());
+            _list = list;
+            _index = index;
+            _item = item;
+        }
+
+        public void Dispose()
+        {
+            if (!ReferenceEquals(_item, _list[_index])) {
+                ThrowHelper.ThrowInvalidOperationException("The item is moved after tracking scope created");
+            }
+            _list.NotifyEditedAt(_index);
+        }
+    }
+}
+
+public static class SortedListExtensions
+{
+    /// <summary>
+    /// Track <paramref name="item"/> in list, when dispose, the index of <paramref name="item"/> in 
+    /// list will be auto-adjusted
+    /// </summary>
+    public static SortedList<T>.TrackingScope EnterTrackingScope<T>(this SortedList<T> list, T item) where T : class
+    {
+        var index = list.BinarySearch(item);
+        return new SortedList<T>.TrackingScope(list, index, item);
+    }
+
+    /// <summary>
+    /// Track item at <paramref name="index"/> in list, when dispose, the index of item in 
+    /// list will be auto-adjusted
+    /// </summary>
+    public static SortedList<T>.TrackingScope EnterTrackingScope<T>(this SortedList<T> list, int index) where T : class
+    {
+        return new SortedList<T>.TrackingScope(list, index, list[index]);
     }
 }
