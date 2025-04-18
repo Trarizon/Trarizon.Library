@@ -190,6 +190,7 @@ The namespace structure is almost the same with `System.XXX`
         - `ArrayPool<>.Rent` : Extension method for `ArrayPool`, returns a auto-return-available wrapper with `using` statement
     - `IObjectAllcator` : Interface for object allocator
 - namespace `Components`
+    - `EventBus` : A event bus implementation
     - `IFlagNotifiable` : Interface for notification, a cheaper and stricter `INotifyPropertyChanged`
         - `FlagNotifiable` : Extensions and static methods for global notification
         - `FlagNotifiable<>/<,>` : Abstract classes that implements `IFlagNotifiable` and provide a method `InvokeNotification`, not thread-safe

@@ -16,6 +16,7 @@
 - Add `SortedList<T>`, `EnumerateDescendants`, `ArrayFiller`, `ArrayTruncation`, `ContiguousLinkedList`, `IArrayAllocator`
 - Add `AutoAllocList` with generic Allocator
 - Add `LazyReverse`, `LookAhead`
+- Add `EventBus`
 - Fix bugs on `Memento<T>`, remove generic restriction
 - Support `ReversedSpan`, `Stack.AsSpan()` on all runtimes
 - Support collection expression for `ListDictionary`
