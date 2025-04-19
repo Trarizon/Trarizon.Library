@@ -1,13 +1,16 @@
 ﻿using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance;
+using System.Buffers;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace Trarizon.Library.Collections.AllocOpt;
-[Experimental(TraThrow.ExpNoUse)]
+/// <summary>
+/// Minimal struct list use pooled array as underlying array
+/// </summary>
+/// <typeparam name="T"></typeparam>
 [CollectionBuilder(typeof(CollectionBuilders), nameof(CollectionBuilders.CreateAllocOptList))]
-internal struct AllocOptList<T>
+public struct AllocOptList<T> : IDisposable
 {
     private T[] _array;
     private int _count;
@@ -17,14 +20,14 @@ internal struct AllocOptList<T>
         _array = [];
     }
 
-    public AllocOptList(int capacity)
+    public AllocOptList(int minInitialCapacity)
     {
-        Guard.IsGreaterThanOrEqualTo(capacity, 0);
+        Guard.IsGreaterThanOrEqualTo(minInitialCapacity, 0);
 
-        if (capacity == 0)
+        if (minInitialCapacity == 0)
             _array = [];
         else
-            _array = new T[capacity];
+            _array = ArrayPool<T>.Shared.Rent(minInitialCapacity);
     }
 
     #region Accessors
@@ -59,11 +62,13 @@ internal struct AllocOptList<T>
 
     #endregion
 
+    #region Modification
+
     public void Add(T item)
     {
         Debug.Assert(_count <= _array.Length);
         if (_count == _array.Length) {
-            ArrayGrowHelper.Grow(ref _array, _count + 1, _count);
+            ArrayGrowHelper.GrowPooled(ref _array, _count + 1, _count);
         }
         _array[_count++] = item;
     }
@@ -77,7 +82,7 @@ internal struct AllocOptList<T>
 
             var newCount = _count + count;
             if (newCount > _array.Length) {
-                ArrayGrowHelper.Grow(ref _array, newCount, _count);
+                ArrayGrowHelper.GrowPooled(ref _array, newCount, _count);
             }
             collection.CopyTo(_array, _count);
             _count = newCount;
@@ -96,7 +101,7 @@ internal struct AllocOptList<T>
 
         var newCount = _count + items.Length;
         if (newCount > _array.Length) {
-            ArrayGrowHelper.Grow(ref _array, newCount, _count);
+            ArrayGrowHelper.GrowPooled(ref _array, newCount, _count);
         }
         items.CopyTo(_array.AsSpan(_count, items.Length));
         _count = newCount;
@@ -155,7 +160,7 @@ internal struct AllocOptList<T>
     {
         var newSize = _count + insertCount;
         if (newSize > _array.Length) {
-            ArrayGrowHelper.GrowForInsertion(ref _array, newSize, _count, index, insertCount);
+            ArrayGrowHelper.GrowPooledForInsertion(ref _array, newSize, _count, index, insertCount);
         }
         else {
             ArrayGrowHelper.ShiftRightForInsert(_array, _count, index, insertCount);
@@ -225,10 +230,7 @@ internal struct AllocOptList<T>
     /// </summary>
     public void Clear() => _count = 0;
 
-    /// <summary>
-    /// Clear items from index <see cref="Count"/> to end
-    /// </summary>
-    public readonly void FreeUnreferenced() => ArrayGrowHelper.FreeManaged(_array, _count..);
+    #endregion
 
     /// <summary>
     /// Ensure capacity of collection is greater than <paramref name="capacity"/>,
@@ -238,7 +240,15 @@ internal struct AllocOptList<T>
     {
         if (capacity < _array.Length)
             return;
-        ArrayGrowHelper.Grow(ref _array, capacity, _count);
+        ArrayGrowHelper.GrowPooled(ref _array, capacity, _count);
+    }
+
+    public void Dispose()
+    {
+        if (_array.Length > 0) {
+            ArrayPool<T>.Shared.Return(_array);
+        }
+        _array = null!;
     }
 
     public readonly Enumerator GetEnumerator() => new(this);

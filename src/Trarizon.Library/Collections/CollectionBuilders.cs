@@ -6,8 +6,7 @@ using Trarizon.Library.Collections.Specialized;
 namespace Trarizon.Library.Collections;
 public static class CollectionBuilders
 {
-    [Experimental(TraThrow.ExpNoUse)]
-    internal static AllocOptList<T> CreateAllocOptList<T>(ReadOnlySpan<T> values)
+    public static AllocOptList<T> CreateAllocOptList<T>(ReadOnlySpan<T> values)
     {
         var list = new AllocOptList<T>();
         list.AddRange(values);
