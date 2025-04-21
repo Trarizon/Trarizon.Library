@@ -21,7 +21,7 @@ public static class TraEnum
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         bool Cmp<TTarget>() where TTarget : struct, INumberBase<TTarget>, IBitwiseOperators<TTarget, TTarget, TTarget>
         {
-            return (Unsafe.BitCast<T, TTarget>(value) & Unsafe.BitCast<T, TTarget>(flags)) != TTarget.Zero;
+            return (Unsafe.As<T, TTarget>(ref value) & Unsafe.As<T, TTarget>(ref flags)) != TTarget.Zero;
         }
 #else
         if (Unsafe.SizeOf<T>() == 1)
