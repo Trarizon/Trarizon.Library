@@ -232,6 +232,9 @@ The namespace structure is almost the same with `System.XXX`
     - `Read(Exactly)` : Read data into `unmanaged` span
     - `ReadExactlyIntoArray` : Read exactly data into an `unmanaged` array with specific length
     - `ReadWithInt32Prefix` : Read a `int` as array length, and do `ReadExactlyIntoArray`
+- String
+    - `CreateAsSpan` : Create string by <see cref="DefaultInterpolatedStringHandler"/>, directly return inner ReadOnlySpan without allocate string
+    - `(Try)Unescape` : Unescape string
 - Number
     - `IncAnd(Try)Wrap` : Increment the number, if the result is greater than given `max`, then wrap it
     - `Normalize` : Linear normalize value into [0,1]

@@ -32,38 +32,29 @@ public class Benchmarks
     }
 
     [Benchmark]
-    [ArgumentsSource(nameof(ArgsI))]
-    public void Arr(int[] src, int[] dst)
+    public void Out()
     {
-        Array.Copy(src, dst, src.Length);
-        //Invoke(new Class().ExtensionInvoke, "B");
-
+        GetOrDefault(out var v);
+        v.ToString();
     }
 
     [Benchmark]
-    [ArgumentsSource(nameof(ArgsI))]
-    public void Span(int[] src, int[] dst)
+    public void ReturnInt()
     {
-        src.AsSpan().CopyTo(dst);
-        //Class c = new();
-        //Invoke(str => c.s=str, "C");
-
+        TryGet().ToString();
     }
 
-    [Benchmark]
-    [ArgumentsSource(nameof(Args))]
-    public void ArrStr(string[] src, string[] dst)
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private bool TryGet()
     {
-        Array.Copy(src, dst, src.Length);
+        return true;
     }
 
-    [Benchmark]
-    [ArgumentsSource(nameof(Args))]
-    public void SpanStr(string[] src, string[] dst)
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private void GetOrDefault(out bool exists)
     {
-        src.AsSpan().CopyTo(dst);
-        //Class c = new();
-        //Invoke(str => c.s=str, "C");
-
+        exists = true;
+        return;
     }
 }

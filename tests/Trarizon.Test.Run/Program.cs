@@ -8,3 +8,6 @@ using Trarizon.Library.Collections.Generic;
 using Trarizon.Library.Components;
 using Trarizon.Library.Wrappers;
 using Trarizon.Test.Run;
+
+
+RunBenchmarks();
