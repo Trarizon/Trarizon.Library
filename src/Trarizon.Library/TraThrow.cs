@@ -32,6 +32,14 @@ internal static class TraThrow
         => throw new InvalidOperationException("Node does not belong to this collection.");
 
     [DoesNotReturn]
+    internal static void ItemAlreadyExists(object? obj)
+        => throw new InvalidOperationException($"Item {obj} already exists in collection");
+
+    [DoesNotReturn]
+    internal static void KeyAlreadyExists(object key)
+        => throw new InvalidOperationException($"Key {key} already exists in collection");
+
+    [DoesNotReturn]
     internal static void Exception(Exception exception)
         => throw exception;
 

@@ -7,12 +7,12 @@ using Trarizon.Test.Run;
 
 PrefixTree<char> t = new();
 
-t.Add("string");
-t.Add("stringnext");
-t.Add("bool");
-t.Add("bolt");
-t.Add("str");
-t.Add("");
+t.GetOrAdd("string");
+t.GetOrAdd("stringnext");
+t.GetOrAdd("bool");
+t.GetOrAdd("bolt");
+t.GetOrAdd("str");
+t.GetOrAdd("");
 
 Print();
 
