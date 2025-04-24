@@ -13,7 +13,11 @@
 - [Break] Move `TraArrayPool` to `IArrayAllocatorExt`
 - Change `IObjectAllocator.AutoReleaseScope` to generic
 - Provide generic comparer to `List.Lookup`
-- Add `SortedList<T>`, `EnumerateDescendants`, `ArrayFiller`, `ArrayTruncation`, `ContiguousLinkedList`, `IArrayAllocator`
+- Add `IArrayAllocator`
+- Add `ArrayFiller`, `ArrayTruncation`
+- Add `SortedList<T>`,  `ContiguousLinkedList<>`
+- Replace `Trie<>` with `PrefixTree<>`
+- Add `EnumerateDescendants`
 - Add `AutoAllocList` with generic Allocator
 - Add `LazyReverse`, `LookAhead`
 - Add `EventBus`

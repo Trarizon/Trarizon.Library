@@ -30,8 +30,8 @@ Contents:
     - `IBinaryTreeNode` & `BinaryTreeNode` : Abstraction of binary tree node
     - `ILinkedListNode` & `LinkedListNode` : Abstraction of linked list node, provides some helper methods in `LinkedListNode`
     - `Deque<>` : Double-ended queue
+    - `PrefixTree<>` : Prefix tree
     - `RingQueue<>` : Ring queue with fixed capacity, optional throw or overwrite when full
-    - `Trie<>` : Trie
 - namespace `Specialized` : 
     - `ArrayFiller<>` : helper struct to fill a array
     - `ArrayTruncation<>` : Similiar to `ArraySegment`, but always start from index 0
