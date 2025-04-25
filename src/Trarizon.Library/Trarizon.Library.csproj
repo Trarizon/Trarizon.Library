@@ -18,6 +18,7 @@
     <!-- Reference -->
 
     <ItemGroup>
+        <ProjectReference Include="..\Trarizon.Library.Common\Trarizon.Library.Common.csproj" />
         <ProjectReference Include="..\Trarizon.Library.GeneratorToolkit\Trarizon.Library.GeneratorToolkit.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
         <ProjectReference Include="..\Trarizon.Library.SourceGeneration\Trarizon.Library.SourceGeneration.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     </ItemGroup>
