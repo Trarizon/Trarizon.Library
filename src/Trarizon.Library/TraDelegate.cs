@@ -5,15 +5,6 @@ using System.Runtime.CompilerServices;
 namespace Trarizon.Library;
 public static class TraDelegate
 {
-    public static Action AsSync(this Func<Task> action) => action.AsSyncImpl;
-    public static Action<T> AsSync<T>(this Func<T, Task> action) => action.AsSyncImpl;
-    public static Action<T1, T2> AsSync<T1, T2>(this Func<T1, T2, Task> action) => action.AsSyncImpl;
-
-    private static void AsSyncImpl(this Func<Task> action) => action();
-
-    private static void AsSyncImpl<T>(this Func<T, Task> action, T arg) => action(arg);
-    private static void AsSyncImpl<T1, T2>(this Func<T1, T2, Task> action, T1 arg1, T2 arg2) => action(arg1, arg2);
-
     public static unsafe Action Create<TObj>(TObj obj, delegate*<TObj, void> methodPtr) where TObj : class
         => Utils.CreateAction(obj, (nint)methodPtr);
 
