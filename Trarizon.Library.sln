@@ -31,8 +31,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Trarizon.Library.Wpf", "src
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Trarizon.Library.Windows", "src\Trarizon.Library.Windows\Trarizon.Library.Windows.csproj", "{B0275C16-1C37-4107-8A62-B29804A80B47}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Trarizon.Library.GameDev", "src\Trarizon.Library.GameDev\Trarizon.Library.GameDev.csproj", "{24D36502-F936-48A7-A75F-A0E04A9F7E78}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,10 +69,6 @@ Global
 		{B0275C16-1C37-4107-8A62-B29804A80B47}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B0275C16-1C37-4107-8A62-B29804A80B47}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B0275C16-1C37-4107-8A62-B29804A80B47}.Release|Any CPU.Build.0 = Release|Any CPU
-		{24D36502-F936-48A7-A75F-A0E04A9F7E78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{24D36502-F936-48A7-A75F-A0E04A9F7E78}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{24D36502-F936-48A7-A75F-A0E04A9F7E78}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{24D36502-F936-48A7-A75F-A0E04A9F7E78}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -88,7 +82,6 @@ Global
 		{D71DCB7B-D09C-4DDD-A4BB-9B803CCB9638} = {5018BEA0-DC90-469A-A85C-E46213678F6E}
 		{25A82CA0-89B8-4941-A1D8-9386585F74B6} = {5018BEA0-DC90-469A-A85C-E46213678F6E}
 		{B0275C16-1C37-4107-8A62-B29804A80B47} = {5018BEA0-DC90-469A-A85C-E46213678F6E}
-		{24D36502-F936-48A7-A75F-A0E04A9F7E78} = {5018BEA0-DC90-469A-A85C-E46213678F6E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0832A06C-257F-4940-A6C2-2C72400550F1}
