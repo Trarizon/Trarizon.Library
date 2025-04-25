@@ -1,7 +1,7 @@
 ﻿#pragma warning disable TRAEXP
 
 using Trarizon.Library.Collections;
-using Trarizon.Library.Collections.Generic;
+using Trarizon.Library.Collections.Specialized;
 using Trarizon.Test.Run;
 
 

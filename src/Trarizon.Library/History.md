@@ -16,7 +16,7 @@
 - Add `IArrayAllocator`
 - Add `ArrayFiller`, `ArrayTruncation`
 - Add `SortedList<T>`,  `ContiguousLinkedList<>`
-- Replace `Trie<>` with `PrefixTree<>`
+- Replace `Trie<>` with `PrefixTree<>`, add `PrefixTreeDictionary<,>`
 - Add `EnumerateDescendants`
 - Add `AutoAllocList` with generic Allocator
 - Add `LazyReverse`, `LookAhead`

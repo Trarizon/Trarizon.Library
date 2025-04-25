@@ -30,7 +30,6 @@ Contents:
     - `IBinaryTreeNode` & `BinaryTreeNode` : Abstraction of binary tree node
     - `ILinkedListNode` & `LinkedListNode` : Abstraction of linked list node, provides some helper methods in `LinkedListNode`
     - `Deque<>` : Double-ended queue
-    - `PrefixTree<>` : Prefix tree
     - `RingQueue<>` : Ring queue with fixed capacity, optional throw or overwrite when full
 - namespace `Specialized` : 
     - `ArrayFiller<>` : helper struct to fill a array
@@ -38,6 +37,7 @@ Contents:
     - `AutoAllocList<>` : List with auto allocation and release while modifying
     - `ListDictionary<,>` : Generic version of `System.Collections.Specialized.ListDictionary`.
     - `Memento<>` : Memento pattern implementation, with `Add`, `Rollback`, `Reapply` methods
+    - `PrefixTree<>/PrefixTreeDictionary<,>` : Prefix tree
     - `SortedList<>` : List with items sorted
 - namespace `StackAlloc` : `ref struct` collections
     - `(ReadOnly)ConcatSpan` : Concat 2 spans

@@ -8,8 +8,8 @@
 		<RepositoryUrl>https://github.com/Trarizon/Trarizon.Library</RepositoryUrl>
         <PackageProjectUrl>$(RepositoryUrl)</PackageProjectUrl>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
-		<AssemblyVersion>1.1.0.7</AssemblyVersion>
-		<Version>$(AssemblyVersion)</Version>
+		<Version>1.1.0.11</Version>
+		<AssemblyVersion>$(Version)</AssemblyVersion>
 		<FileVersion>$(AssemblyVersion)</FileVersion>
         <Description>Trarizon's personal library, containing miscellaneous stuff</Description>
 	</PropertyGroup>
