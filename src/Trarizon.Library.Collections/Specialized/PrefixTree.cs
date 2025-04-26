@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections.Specialized;
 public class PrefixTree<T>
@@ -312,7 +313,7 @@ public class PrefixTree<T>
 
     public void Clear()
     {
-        ArrayGrowHelper.FreeManaged(_entries, 0, _consumedCount);
+        ArrayGrowHelper.FreeIfReferenceOrContainsReferences(_entries.AsSpan(0, _consumedCount));
         _count = 0;
         _entryCount = 0;
         _consumedCount = 0;
@@ -590,7 +591,7 @@ public class PrefixTree<T>
             private readonly void ValidateVersion()
             {
                 if (_version != _tree._version)
-                    TraThrow.CollectionModified();
+                    Throws.CollectionModifiedAfterEnumeratorCreated();
             }
 
             void IEnumerator.Reset() => throw new NotImplementedException();

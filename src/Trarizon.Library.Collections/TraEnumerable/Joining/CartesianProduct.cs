@@ -23,7 +23,7 @@ public static partial class TraEnumerable
             if (!enumerator2.MoveNext())
                 yield break;
 
-            var cache = new List<T2>();
+            using var cache = new AllocOptList<T2>();
             var cur = enumerator.Current;
             var cur2 = enumerator2.Current;
             yield return (cur, cur2);
@@ -51,11 +51,7 @@ public static partial class TraEnumerable
         public override (T, T2) this[int index]
         {
             get {
-#if NETSTANDARD
                 var div = Math.DivRem(index, second.Length, out var rem);
-#else
-                var (div, rem) = int.DivRem(index, second.Length);
-#endif
                 return (first[div], second[rem]);
             }
         }

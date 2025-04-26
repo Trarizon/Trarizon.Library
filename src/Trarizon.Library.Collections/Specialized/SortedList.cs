@@ -1,7 +1,8 @@
 ﻿using CommunityToolkit.Diagnostics;
 using System.Collections;
 using System.Diagnostics;
-using Trarizon.Library.Mathematics;
+using Trarizon.Library.Collections.Helpers;
+using Trarizon.Library.Common;
 
 namespace Trarizon.Library.Collections.Specialized;
 public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
@@ -66,7 +67,7 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
 
     public ReadOnlySpan<T> AsSpan(int start, int length)
     {
-        TraNumber.ValidateSliceArgs(start, length, _count);
+        TraIndex.ValidateSliceArgs(start, length, _count);
         return _array.AsSpan(start, length);
     }
 
@@ -153,7 +154,7 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
     {
         Guard.IsLessThan((uint)index, (uint)_count);
 
-        ArrayGrowHelper.ShiftLeftForRemove(_array, _count, index, 1);
+        ArrayGrowHelper.ShiftLeftForRemoveAndFree(_array, _count, index, 1);
         _count--;
         _version++;
     }
@@ -162,9 +163,9 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
 
     public void RemoveRange(int start, int length)
     {
-        TraNumber.ValidateSliceArgs(start, length, _count);
+        TraIndex.ValidateSliceArgs(start, length, _count);
 
-        ArrayGrowHelper.ShiftLeftForRemove(_array, _count, start, length);
+        ArrayGrowHelper.ShiftLeftForRemoveAndFree(_array, _count, start, length);
         _count -= length;
         _version++;
     }
@@ -177,7 +178,7 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
 
     public void Clear()
     {
-        ArrayGrowHelper.FreeManaged(_array, 0, _count);
+        ArrayGrowHelper.FreeIfReferenceOrContainsReferences(_array.AsSpan(0, _count));
         _count = 0;
         _version++;
     }
@@ -245,7 +246,7 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
 
     public void CopyTo(T[] array, int arrayIndex)
     {
-        TraNumber.ValidateSliceArgs(arrayIndex, _count, array.Length);
+        TraIndex.ValidateSliceArgs(arrayIndex, _count, array.Length);
         AsSpan().CopyTo(array.AsSpan(arrayIndex, _count));
     }
 
@@ -313,7 +314,7 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
         private readonly void CheckVersion()
         {
             if (_version != _list._version)
-                TraThrow.CollectionModified();
+                Throws.CollectionModifiedAfterEnumeratorCreated();
         }
     }
 

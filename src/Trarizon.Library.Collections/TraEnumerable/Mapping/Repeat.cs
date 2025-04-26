@@ -1,5 +1,10 @@
-﻿using Trarizon.Library.Collections.AllocOpt;
-using Trarizon.Library.Collections.Specialized;
+﻿using System.Buffers;
+using System.Runtime.CompilerServices;
+using Trarizon.Library.Collections.AllocOpt;
+using Trarizon.Library.Collections.Buffers;
+#if NETSTANDARD2_0
+using RuntimeHelpers = Trarizon.Library.Common.Polyfills.PfRuntimeHelpers;
+#endif
 
 namespace Trarizon.Library.Collections;
 public static partial class TraEnumerable
@@ -34,29 +39,33 @@ public static partial class TraEnumerable
 
         static IEnumerable<T> IterateList(List<T> list, int count)
         {
-            ArrayFiller<T> cache = new(list.Count);
-            foreach (var item in list) {
-                cache.Add(item);
-                yield return item;
-            }
-            for (int i = 1; i < count; i++) {
-                foreach (var item in cache.Array) {
+            using (ArrayPool<T>.Shared.Rent(list.Count, out var cache, RuntimeHelpers.IsReferenceOrContainsReferences<T>())) {
+                int ci = 0;
+                foreach (var item in list) {
+                    cache[ci++] = item;
                     yield return item;
+                }
+                for (int i = 1; i < count; i++) {
+                    foreach (var item in cache) {
+                        yield return item;
+                    }
                 }
             }
         }
 
         static IEnumerable<T> IterateIList(IList<T> list, int count)
         {
-            ArrayFiller<T> cache = new(list.Count);
-            for (int i = 0; i < list.Count; i++) {
-                T item = list[i];
-                cache.Add(item);
-                yield return item;
-            }
-            for (int i = 1; i < count; i++) {
-                foreach (var item in cache.Array) {
+            using (ArrayPool<T>.Shared.Rent(list.Count, out var cache, RuntimeHelpers.IsReferenceOrContainsReferences<T>())) {
+                int ci = 0;
+                for (int i = 0; i < list.Count; i++) {
+                    T item = list[i];
+                    cache[ci++] = item;
                     yield return item;
+                }
+                for (int i = 1; i < count; i++) {
+                    foreach (var item in cache) {
+                        yield return item;
+                    }
                 }
             }
         }
@@ -64,21 +73,22 @@ public static partial class TraEnumerable
         static IEnumerable<T> Iterate(IEnumerable<T> source, int count)
         {
             if (source.TryGetNonEnumeratedCount(out var srcCount)) {
-                T[] cache = new T[srcCount];
-                int ic = 0;
-                foreach (var item in source) {
-                    cache[ic++] = item;
-                    yield return item;
-                }
-
-                for (int i = 1; i < count; i++) {
-                    foreach (var item in cache) {
+                using (ArrayPool<T>.Shared.Rent(srcCount, out var cache, RuntimeHelpers.IsReferenceOrContainsReferences<T>())) {
+                    int ic = 0;
+                    foreach (var item in source) {
+                        cache[ic++] = item;
                         yield return item;
+                    }
+
+                    for (int i = 1; i < count; i++) {
+                        foreach (var item in cache) {
+                            yield return item;
+                        }
                     }
                 }
             }
             else {
-                var cache = new List<T>();
+                using var cache = new AllocOptList<T>();
                 foreach (var item in source) {
                     cache.Add(item);
                     yield return item;

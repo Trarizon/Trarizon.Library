@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections;
 public static partial class TraEnumerable
@@ -14,7 +15,7 @@ public static partial class TraEnumerable
     public static IEnumerable<T> PopFirst<T>(this IEnumerable<T> source, out T first)
     {
         if (source.TryGetNonEnumeratedCount(out int count) && count < 1) {
-            TraThrow.NoElement();
+            Throws.CollectionHasNoElement();
             first = default!;
             return default!;
         }

@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Diagnostics;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
+using Trarizon.Library.Collections.Helpers;
 using Trarizon.Library.Collections.StackAlloc;
 
 namespace Trarizon.Library.Collections.Specialized;
@@ -47,8 +47,7 @@ public class Memento<T>
     public T Peek()
     {
         if (!TryPeek(out var item))
-            TraThrow.NoElement();
-
+            Throws.CollectionHasNoElement();
         return item;
     }
 
@@ -75,10 +74,11 @@ public class Memento<T>
             _array[_index] = item;
             Increment(ref _index);
             if (_index < _tail)
-                ArrayGrowHelper.FreeManaged(_array.AsSpan(_index.._tail));
+                ArrayGrowHelper.FreeIfReferenceOrContainsReferences(_array.AsSpan(_index.._tail));
             else {
                 var free = new ConcatSpan<T>(_array.AsSpan(_index), _array.AsSpan(.._tail));
-                ArrayGrowHelper.FreeManaged(free);
+                ArrayGrowHelper.FreeIfReferenceOrContainsReferences(free.First);
+                ArrayGrowHelper.FreeIfReferenceOrContainsReferences(free.Second);
             }
             _tail = _index;
             _activeCount++;
@@ -121,7 +121,7 @@ public class Memento<T>
     public void Rollback(out T item)
     {
         if (!TryRollback(out item!))
-            TraThrow.NoElement();
+            Throws.CollectionHasNoElement();
     }
 
     public bool TryRollback([MaybeNullWhen(false)] out T item)
@@ -163,7 +163,9 @@ public class Memento<T>
     {
         if (_count == 0)
             return;
-        ArrayGrowHelper.FreeManaged(AsMutableSpan());
+        var span = AsMutableSpan();
+        ArrayGrowHelper.FreeIfReferenceOrContainsReferences(span.First);
+        ArrayGrowHelper.FreeIfReferenceOrContainsReferences(span.Second);
         _head = _index = _tail = 0;
         _count = _activeCount = 0;
         _version++;
@@ -269,7 +271,7 @@ public class Memento<T>
         private readonly void CheckVersion()
         {
             if (_version != _memento._version)
-                TraThrow.CollectionModified();
+                Throws.CollectionModifiedAfterEnumeratorCreated();
         }
 
         internal void SetEnd() => _index = -1;

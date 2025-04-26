@@ -1,7 +1,5 @@
-﻿
-using CommunityToolkit.Diagnostics;
+﻿using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance;
-using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;

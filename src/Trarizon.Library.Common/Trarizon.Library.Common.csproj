@@ -9,7 +9,51 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <InternalsVisibleTo Include="Trarizon.Library"/>
+        <InternalsVisibleTo Include="Trarizon.Library" />
+        <InternalsVisibleTo Include="Trarizon.Library.Collections" />
     </ItemGroup>
+    
+    <!-- Reference -->
+
+    <ItemGroup>
+        <PackageReference Include="CommunityToolkit.Diagnostics" Version="8.4.0" />
+        <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.4.0" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+        <PackageReference Include="IndexRange" Version="1.0.3" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' Or '$(TargetFramework)' == 'netstandard2.1'">
+        <PackageReference Include="PolySharp" Version="1.15.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="System.Collections.Immutable" Version="9.0.0" />
+    </ItemGroup>
+
+    <!-- End Reference -->
+
+    <!-- Polyfills -->
+
+    <PropertyGroup Label="Polyfills">
+        <PolySharpIncludeGeneratedTypes>
+            System.Diagnostics.StackTraceHiddenAttribute;
+
+            System.Diagnostics.CodeAnalysis.DisallowNullAttribute;
+            System.Diagnostics.CodeAnalysis.MaybeNullAttribute;
+            System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute;
+            System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute;
+            System.Diagnostics.CodeAnalysis.MemberNotNullAttribute;
+            System.Diagnostics.CodeAnalysis.NotNullWhenAttribute;
+
+            System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute;
+
+            System.Diagnostics.CodeAnalysis.ExperimentalAttribute;
+
+            System.Runtime.CompilerServices.IsExternalInit;
+            System.Runtime.CompilerServices.CollectionBuilderAttribute;
+        </PolySharpIncludeGeneratedTypes>
+    </PropertyGroup>
 
 </Project>

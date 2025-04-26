@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.HighPerformance;
 using System.Diagnostics.CodeAnalysis;
-using Trarizon.Library.Wrappers;
+using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections;
 public static partial class TraEnumerable
@@ -89,15 +89,18 @@ public static partial class TraEnumerable
     public static bool TryLast<T>(this IEnumerable<T> source, Func<T, bool> predicate, [MaybeNullWhen(false)] out T value)
     {
         using var enumerator = source.GetEnumerator();
-        Optional<T> val = default;
+        bool hasValue = false;
+        T val = default!;
         while (enumerator.MoveNext()) {
             var current = enumerator.Current;
             if (predicate(current)) {
+                hasValue = true;
                 val = current;
             }
         }
 
-        return val.TryGetValue(out value);
+        value = val;
+        return hasValue;
     }
 
     // 改成BoundedMax？，这样的话换个文件。。
@@ -114,7 +117,7 @@ public static partial class TraEnumerable
     {
         var res = TryGetFirstNearToMax(source, max, comparer, out var exists);
         if (!exists)
-            TraThrow.NoElement();
+            Throws.CollectionHasNoElement();
         return res;
     }
 
@@ -177,7 +180,7 @@ public static partial class TraEnumerable
     {
         var res = TryGetFirstNearToMaxBy(source, max, keySelector, comparer, out var exists);
         if (!exists)
-            TraThrow.NoElement();
+            Throws.CollectionHasNoElement();
         return res;
     }
 

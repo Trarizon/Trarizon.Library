@@ -3,6 +3,8 @@ using System.Collections;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using Trarizon.Library.Collections.AllocOpt;
+using Trarizon.Library.Collections.Helpers;
 using Trarizon.Library.Collections.StackAlloc;
 
 namespace Trarizon.Library.Collections.Generic;
@@ -141,9 +143,12 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
             return;
         }
 
-
-        foreach (var item in collection.IterReverse()) {
-            EnqueueFirst(item);
+        using AllocOptList<T> buffer = new();
+        foreach (var item in collection) {
+            buffer.Add(item);
+        }
+        for(int i = buffer.Count - 1; i >= 0; i--) {
+            EnqueueFirst(buffer[i]);
         }
 
         void EnqueueRangeCollection(ICollection<T> col)
@@ -309,7 +314,7 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
     public T DequeueFirst()
     {
         if (!TryDequeueFirst(out var res)) {
-            TraThrow.NoElement();
+            Throws.CollectionHasNoElement();
         }
         return res;
     }
@@ -317,7 +322,7 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
     public T DequeueLast()
     {
         if (!TryDequeueLast(out var res)) {
-            TraThrow.NoElement();
+            Throws.CollectionHasNoElement();
         }
         return res;
     }
@@ -331,7 +336,7 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
 
         item = _array[_head];
 
-        ArrayGrowHelper.FreeManaged(_array, _head);
+        ArrayGrowHelper.FreeIfReferenceOrContainsReferences(_array, _head);
         _head = Increment(_head);
         _count--;
         _version++;
@@ -348,7 +353,7 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
         _tail = Decrement(_tail);
         item = _array[_tail];
 
-        ArrayGrowHelper.FreeManaged(_array, _tail);
+        ArrayGrowHelper.FreeIfReferenceOrContainsReferences(_array, _tail);
         _count--;
         _version++;
         return true;
@@ -358,7 +363,9 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
     {
         if (_count == 0)
             return;
-        ArrayGrowHelper.FreeManaged(AsMutableSpan());
+        var span = AsMutableSpan();
+        ArrayGrowHelper.FreeIfReferenceOrContainsReferences(span.First);
+        ArrayGrowHelper.FreeIfReferenceOrContainsReferences(span.Second);
         _head = _tail = 0;
         _count = 0;
         _version++;
@@ -483,7 +490,7 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
         private readonly void CheckVersion()
         {
             if (_version != _deque._version)
-                TraThrow.CollectionModified();
+                Throws.CollectionModifiedAfterEnumeratorCreated();
         }
 
         public readonly void Dispose() { }

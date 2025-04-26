@@ -1,11 +1,8 @@
 ﻿using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace Trarizon.Library.Collections.StackAlloc;
 [method: MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -14,9 +11,9 @@ public readonly ref struct ConcatSpan<T>(Span<T> first, Span<T> second)
     private readonly Span<T> _first = first;
     private readonly Span<T> _second = second;
 
-    public Span<T> First=>_first;
+    public Span<T> First => _first;
 
-    public Span<T> Second=>_second;
+    public Span<T> Second => _second;
 
     public int Length => _first.Length + _second.Length;
 

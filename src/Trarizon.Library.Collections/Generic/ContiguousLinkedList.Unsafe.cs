@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections.Generic;
 public partial class ContiguousLinkedList<T>
@@ -200,7 +201,7 @@ public partial class ContiguousLinkedList<T>
         private readonly void ValidateVersion()
         {
             if (_list._version != _version)
-                TraThrow.CollectionModified();
+                Throws.CollectionModifiedAfterEnumeratorCreated();
         }
 
         public void Reset() => _index = _list._firstIndex;

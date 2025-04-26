@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections;
 public static partial class TraCollection
@@ -10,7 +11,7 @@ public static partial class TraCollection
     {
         ref var value = ref CollectionsMarshal.GetValueRefOrNullRef(dictionary, key);
         if (Unsafe.IsNullRef(ref value))
-            TraThrow.KeyNotFound(key);
+            Throws.KeyNotFound(key);
         return ref value!;
     }
 

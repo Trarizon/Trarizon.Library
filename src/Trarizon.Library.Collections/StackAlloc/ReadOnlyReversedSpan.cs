@@ -1,5 +1,4 @@
-﻿
-using CommunityToolkit.Diagnostics;
+﻿using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -17,6 +16,7 @@ public readonly ref struct ReadOnlyReversedSpan<T>
 #else
     private readonly ref readonly T _reference;
     private readonly int _length;
+
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal ReadOnlyReversedSpan(in T reference, int length)
@@ -175,7 +175,7 @@ public readonly ref struct ReadOnlyReversedSpan<T>
             return buffer.ToString();
 #else
             Span<char> buffer = Length > 1024 ? new char[Length] : stackalloc char[Length];
-            new ReadOnlyReversedSpan<char>(in TraUnsafe.AsReadOnly<T, char>(in _reference), _length).CopyTo(buffer);
+            new ReadOnlyReversedSpan<char>(in Unsafe.As<T, char>(ref Unsafe.AsRef(in _reference)), _length).CopyTo(buffer);
             return buffer.ToString();
 #endif
         }

@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.HighPerformance;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections;
 public static partial class TraCollection

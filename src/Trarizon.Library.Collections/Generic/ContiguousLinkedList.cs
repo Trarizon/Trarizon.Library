@@ -3,7 +3,8 @@ using System.Collections;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using Trarizon.Library.Mathematics;
+using Trarizon.Library.Collections.Helpers;
+using Trarizon.Library.Common;
 
 namespace Trarizon.Library.Collections.Generic;
 /// <summary>
@@ -197,14 +198,14 @@ public partial class ContiguousLinkedList<T> : ICollection<T>, IReadOnlyCollecti
     public void RemoveFirst()
     {
         if (_count == 0)
-            TraThrow.NoElement();
+            Throws.CollectionHasNoElement();
         RemoveEntry(_firstIndex, ref FirstEntry);
     }
 
     public void RemoveLast()
     {
         if (_count == 0)
-            TraThrow.NoElement();
+            Throws.CollectionHasNoElement();
         RemoveEntry(FirstEntry.Prev, ref LastEntry);
     }
 
@@ -241,7 +242,7 @@ public partial class ContiguousLinkedList<T> : ICollection<T>, IReadOnlyCollecti
 
     public void Clear()
     {
-        ArrayGrowHelper.FreeManaged(_entries, 0, _consumedCount);
+        ArrayGrowHelper.FreeIfReferenceOrContainsReferences(_entries.AsSpan(0, _consumedCount));
         _firstIndex = -1;
         _count = 0;
         _consumedCount = 0;
@@ -252,7 +253,7 @@ public partial class ContiguousLinkedList<T> : ICollection<T>, IReadOnlyCollecti
     private void ValidateNodeBelonging(UnsafeNode node)
     {
         if (node._list != this)
-            TraThrow.NodeBelongsWrong();
+            Throws.NodeNotBelongsToCollection();
     }
 
     #endregion
@@ -299,7 +300,7 @@ public partial class ContiguousLinkedList<T> : ICollection<T>, IReadOnlyCollecti
 
     public void CopyTo(T[] array, int arrayIndex)
     {
-        TraNumber.ValidateSliceArgs(arrayIndex, _count, array.Length);
+        TraIndex.ValidateSliceArgs(arrayIndex, _count, array.Length);
 
         var node = FirstNode;
         var first = node._index;
@@ -464,7 +465,7 @@ public partial class ContiguousLinkedList<T> : ICollection<T>, IReadOnlyCollecti
         private readonly void ValidateVersion()
         {
             if (_list._version != _version)
-                TraThrow.CollectionModified();
+                Throws.CollectionModifiedAfterEnumeratorCreated();
         }
 
         public void Reset() => _index = _list._firstIndex;
@@ -508,7 +509,7 @@ public partial class ContiguousLinkedList<T> : ICollection<T>, IReadOnlyCollecti
         private readonly void ValidateVersion()
         {
             if (_list._version != _version)
-                TraThrow.CollectionModified();
+                Throws.CollectionModifiedAfterEnumeratorCreated();
         }
 
         public void Reset() => _index = _list._firstIndex;

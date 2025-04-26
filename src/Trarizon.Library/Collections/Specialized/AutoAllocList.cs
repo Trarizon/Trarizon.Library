@@ -2,6 +2,7 @@
 using CommunityToolkit.HighPerformance;
 using System.Collections;
 using Trarizon.Library.Buffers;
+using Trarizon.Library.Common;
 using Trarizon.Library.Mathematics;
 
 namespace Trarizon.Library.Collections.Specialized;
@@ -61,7 +62,7 @@ public class AutoAllocList<T, TAllocator> : IList<T>, IReadOnlyList<T>
 
     public void RemoveRange(int index, int length)
     {
-        TraNumber.ValidateSliceArgs(index, length, _items.Count);
+        TraIndex.ValidateSliceArgs(index, length, _items.Count);
         var range = _items.AsSpan().Slice(index, length);
         Release(range);
         RemoveRange(index, length);

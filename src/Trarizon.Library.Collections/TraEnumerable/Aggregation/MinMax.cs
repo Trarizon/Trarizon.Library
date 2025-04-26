@@ -1,4 +1,6 @@
-﻿namespace Trarizon.Library.Collections;
+﻿using Trarizon.Library.Collections.Helpers;
+
+namespace Trarizon.Library.Collections;
 public static partial class TraEnumerable
 {
     public static (T Min, T Max) MinMax<T>(this IEnumerable<T> source)
@@ -9,12 +11,33 @@ public static partial class TraEnumerable
         T min, max;
 
         using var enumerator = source.GetEnumerator();
-        if (enumerator.MoveNext())
-            min = max = enumerator.Current;
-        else {
-            TraThrow.NoElement();
-            return default;
+        if (!enumerator.MoveNext())
+            Throws.CollectionHasNoElement();
+
+        min = max = enumerator.Current;
+
+        while (enumerator.MoveNext()) {
+            var curr = enumerator.Current;
+            if (comparer.Compare(curr, min) < 0)
+                min = curr;
+            if (comparer.Compare(curr, max) > 0)
+                max = curr;
         }
+        return (min, max);
+    }
+
+    public static (T Min, T Max)? MinMaxOrNull<T, TComparer>(this IEnumerable<T> source)
+        => source.MinMaxOrNull(Comparer<T>.Default);
+
+    public static (T Min, T Max)? MinMaxOrNull<T, TComparer>(this IEnumerable<T> source, TComparer comparer) where TComparer : IComparer<T>
+    {
+        T min, max;
+
+        using var enumerator = source.GetEnumerator();
+        if (!enumerator.MoveNext())
+            return default;
+
+        min = max = enumerator.Current;
 
         while (enumerator.MoveNext()) {
             var curr = enumerator.Current;
@@ -35,14 +58,11 @@ public static partial class TraEnumerable
         TKey minKey, maxKey;
 
         using var enumerator = source.GetEnumerator();
-        if (enumerator.MoveNext()) {
-            min = max = enumerator.Current;
-            minKey = maxKey = keySelector(min);
-        }
-        else {
-            TraThrow.NoElement();
-            return default;
-        }
+        if (!enumerator.MoveNext())
+            Throws.CollectionHasNoElement();
+
+        min = max = enumerator.Current;
+        minKey = maxKey = keySelector(min);
 
         while (enumerator.MoveNext()) {
             var curr = enumerator.Current;
@@ -63,12 +83,10 @@ public static partial class TraEnumerable
         TResult min, max;
 
         using var enumerator = source.GetEnumerator();
-        if (enumerator.MoveNext())
-            min = max = selector(enumerator.Current);
-        else {
-            TraThrow.NoElement();
-            return default;
-        }
+        if (!enumerator.MoveNext()) 
+            Throws.CollectionHasNoElement();
+        
+        min = max = selector(enumerator.Current);
 
         while (enumerator.MoveNext()) {
             var curr = selector(enumerator.Current);

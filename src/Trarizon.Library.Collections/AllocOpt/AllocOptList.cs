@@ -3,6 +3,7 @@ using CommunityToolkit.HighPerformance;
 using System.Buffers;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections.AllocOpt;
 /// <summary>
@@ -173,7 +174,7 @@ public struct AllocOptList<T> : IDisposable
         if (index < 0)
             return false;
 
-        ArrayGrowHelper.ShiftLeftForRemove(_array, _count, index, 1);
+        ArrayGrowHelper.ShiftLeftForRemoveAndFree(_array, _count, index, 1);
         _count--;
         return true;
     }
@@ -182,7 +183,7 @@ public struct AllocOptList<T> : IDisposable
     {
         Guard.IsLessThan((uint)index, (uint)_count);
 
-        ArrayGrowHelper.ShiftLeftForRemove(_array, _count, index, 1);
+        ArrayGrowHelper.ShiftLeftForRemoveAndFree(_array, _count, index, 1);
         _count--;
     }
 
@@ -192,14 +193,16 @@ public struct AllocOptList<T> : IDisposable
         Guard.IsGreaterThanOrEqualTo(index, 0);
         Guard.IsLessThan(index + count, _count);
 
-        ArrayGrowHelper.ShiftLeftForRemoveNonFree(_array, _count, index, count);
+        ArrayGrowHelper.ShiftLeftForRemoveAndFree(_array, _count, index, count);
         _count -= count;
     }
 
     public void RemoveRange(Range range)
     {
         var (index, count) = range.GetOffsetAndLength(_count);
-        RemoveRange(index, count);
+
+        ArrayGrowHelper.ShiftLeftForRemoveAndFree(_array, _count, index, count);
+        _count -= count;
     }
 
     public int RemoveAll(Predicate<T> predicate)
@@ -285,7 +288,7 @@ public struct AllocOptList<T> : IDisposable
             }
         }
 
-        internal void Reset()
+        public void Reset()
         {
             _index = 0;
         }

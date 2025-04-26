@@ -1,5 +1,5 @@
 ﻿using CommunityToolkit.HighPerformance;
-using Trarizon.Library.Mathematics;
+using Trarizon.Library.Common;
 
 namespace Trarizon.Library.Collections;
 public static partial class TraCollection

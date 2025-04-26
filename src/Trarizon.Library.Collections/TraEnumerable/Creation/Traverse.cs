@@ -1,6 +1,4 @@
-﻿using Trarizon.Library.Wrappers;
-
-namespace Trarizon.Library.Collections;
+﻿namespace Trarizon.Library.Collections;
 public static partial class TraEnumerable
 {
     public static IEnumerable<T> EnumerateDescendants<T>(T self, Func<T, IEnumerable<T>> childrenSelector, bool includeSelf = false, bool depthFirst = false)
@@ -63,7 +61,7 @@ public static partial class TraEnumerable
             }
         }
     }
-
+    /*
     public static IEnumerable<T> EnumerateDescendants<T>(T self, Func<T, Optional<T>> firstChildSelector, Func<T, Optional<T>> nextSiblingSelector, bool includeSelf = false, bool depthFirst = false)
     {
         if (depthFirst)
@@ -126,4 +124,5 @@ public static partial class TraEnumerable
             }
         }
     }
+*/
 }

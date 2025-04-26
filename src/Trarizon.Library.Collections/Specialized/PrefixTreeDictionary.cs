@@ -3,6 +3,7 @@ using System.Collections;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections.Specialized;
 public class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
@@ -349,7 +350,7 @@ public class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
 
     public void Clear()
     {
-        ArrayGrowHelper.FreeManaged(_entries, 0, _consumedCount);
+        ArrayGrowHelper.FreeIfReferenceOrContainsReferences(_entries.AsSpan(0, _consumedCount));
         _count = 0;
         _entryCount = 0;
         _consumedCount = 0;
@@ -672,7 +673,7 @@ public class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
             private readonly void ValidateVersion()
             {
                 if (_version != _tree._version)
-                    TraThrow.CollectionModified();
+                    Throws.CollectionModifiedAfterEnumeratorCreated();
             }
 
             void IEnumerator.Reset() => throw new NotImplementedException();

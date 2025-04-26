@@ -1,9 +1,7 @@
 ﻿using CommunityToolkit.HighPerformance;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-#if NETSTANDARD
-using Unsafe = Trarizon.Library.Netstd.NetstdFix_Unsafe;
-#endif
+
 
 namespace Trarizon.Library.Collections;
 public static partial class TraCollection
@@ -31,8 +29,8 @@ public static partial class TraCollection
 
         public bool TryGetValue(T equalItem, [MaybeNullWhen(false)] out T actualValue)
         {
-            ref readonly var find = ref FindFirstRef(equalItem);
-            if (Unsafe.IsNullRef(in find)) {
+            ref var find = ref FindFirstRef(equalItem);
+            if (Unsafe.IsNullRef(ref find)) {
                 actualValue = default;
                 return false;
             }
@@ -42,7 +40,7 @@ public static partial class TraCollection
 
         public bool Contains(T item)
         {
-            return !Unsafe.IsNullRef(in FindFirstRef(item));
+            return !Unsafe.IsNullRef(ref FindFirstRef(item));
         }
 
         /// <summary>
@@ -52,8 +50,8 @@ public static partial class TraCollection
         /// <returns></returns>
         public bool Remove(T item)
         {
-            ref readonly var find = ref FindFirstRef(item);
-            if (Unsafe.IsNullRef(in find)) {
+            ref var find = ref FindFirstRef(item);
+            if (Unsafe.IsNullRef(ref find)) {
                 return false;
             }
             var index = _list.AsSpan().OffsetOf(in item);
@@ -79,7 +77,7 @@ public static partial class TraCollection
         public bool TryAdd(T item)
         {
             ref var find = ref FindFirstRef(item);
-            if (Unsafe.IsNullRef(in find)) {
+            if (Unsafe.IsNullRef(ref find)) {
                 _list.Add(item);
                 return true;
             }

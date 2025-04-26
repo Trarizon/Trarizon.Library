@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using Trarizon.Library.Collections.AllocOpt;
+using Trarizon.Library.Collections.Helpers;
 using Trarizon.Library.Collections.Specialized;
 
 namespace Trarizon.Library.Collections;
@@ -20,7 +21,7 @@ public static partial class TraEnumerable
 
         static IEnumerable<T> Iterate(IEnumerable<T> source, int splitPosition)
         {
-            var firstPart = new List<T>();
+            var firstPart = new AllocOptList<T>();
 
             using var enumerator = source.GetEnumerator();
             for (int i = 0; i < splitPosition; i++) {
@@ -49,13 +50,13 @@ public static partial class TraEnumerable
                 return Rotate(source, splitPosition.GetOffset(count));
             }
             else {
-                var cache = new List<T>();
+                var cache = new AllocOptList<T>();
                 cache.AddRange(source);
 
                 var split = splitPosition.GetOffset(cache.Count);
                 if (split < 0)
-                    return cache;
-                return new ListRotateIterator<ArrayTruncation<T>, T>(new(TraCollection.GetUnderlyingArray(cache), cache.Count), split);
+                    return cache.AsSpan().ToArray();
+                return new ListRotateIterator<ArrayTruncation<T>, T>(new(cache.GetUnderlyingArray(), cache.Count), split);
             }
         }
         else {

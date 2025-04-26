@@ -3,10 +3,7 @@ using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Trarizon.Library.Collections;
-
-#if NETSTANDARD
-using Unsafe = Trarizon.Library.Netstd.NetstdFix_Unsafe;
-#endif
+using Trarizon.Library.Collections.Helpers;
 
 #if NETSTANDARD
 #pragma warning disable CS8767
@@ -36,9 +33,9 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
     public TValue this[TKey key]
     {
         get {
-            ref readonly var item = ref FindRef(key);
-            if (Unsafe.IsNullRef(in item)) {
-                TraThrow.KeyNotFound(key);
+            ref var item = ref FindRef(key);
+            if (Unsafe.IsNullRef(ref item)) {
+                Throws.KeyNotFound(key);
                 return default;
             }
 
@@ -78,17 +75,17 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
 
     public void Clear()
     {
-        ArrayGrowHelper.FreeManaged(_pairs, _count);
+        ArrayGrowHelper.FreeIfReferenceOrContainsReferences(_pairs.AsSpan(0, _count));
         _count = 0;
         _version++;
     }
 
-    public bool ContainsKey(TKey key) => !Unsafe.IsNullRef(in FindRef(key));
+    public bool ContainsKey(TKey key) => !Unsafe.IsNullRef(ref FindRef(key));
 
     public bool Remove(TKey key)
     {
-        ref readonly var item = ref FindRef(key);
-        if (Unsafe.IsNullRef(in item))
+        ref var item = ref FindRef(key);
+        if (Unsafe.IsNullRef(ref item))
             return false;
 
         RemoveRef(in item);
@@ -98,8 +95,8 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
 
     public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value)
     {
-        ref readonly var item = ref FindRef(key);
-        if (Unsafe.IsNullRef(in item)) {
+        ref  var item = ref FindRef(key);
+        if (Unsafe.IsNullRef(ref item)) {
             value = default;
             return false;
         }
@@ -159,7 +156,7 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
     private void RemoveRef(ref readonly (TKey, TValue) item)
     {
         var index = _pairs.AsSpan().OffsetOf(in item);
-        ArrayGrowHelper.ShiftLeftForRemove(_pairs, _count, index, 1);
+        ArrayGrowHelper.ShiftLeftForRemoveAndFree(_pairs, _count, index, 1);
         _count--;
     }
 
@@ -190,8 +187,8 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
     void ICollection<KeyValuePair<TKey, TValue>>.Add(KeyValuePair<TKey, TValue> item) => Add(item.Key, item.Value);
     bool ICollection<KeyValuePair<TKey, TValue>>.Contains(KeyValuePair<TKey, TValue> item)
     {
-        ref readonly var findItem = ref FindRef(item.Key);
-        if (Unsafe.IsNullRef(in findItem))
+        ref  var findItem = ref FindRef(item.Key);
+        if (Unsafe.IsNullRef(ref findItem))
             return false;
 
         return EqualityComparer<TValue>.Default.Equals(findItem.Value, item.Value);
@@ -210,8 +207,8 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
     }
     bool ICollection<KeyValuePair<TKey, TValue>>.Remove(KeyValuePair<TKey, TValue> item)
     {
-        ref readonly var findItem = ref FindRef(item.Key);
-        if (Unsafe.IsNullRef(in findItem))
+        ref  var findItem = ref FindRef(item.Key);
+        if (Unsafe.IsNullRef(ref findItem))
             return false;
         if (!EqualityComparer<TValue>.Default.Equals(findItem.Value, item.Value))
             return false;
@@ -272,7 +269,7 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
         private readonly void CheckVersion()
         {
             if (_version != _dict._version)
-                TraThrow.CollectionModified();
+                Throws.CollectionModifiedAfterEnumeratorCreated();
         }
     }
 

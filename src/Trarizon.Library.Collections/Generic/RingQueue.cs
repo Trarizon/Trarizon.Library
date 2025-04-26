@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using Trarizon.Library.Collections.Helpers;
 using Trarizon.Library.Collections.StackAlloc;
 
 namespace Trarizon.Library.Collections.Generic;
@@ -65,14 +66,14 @@ public class RingQueue<T> : ICollection<T>, IReadOnlyCollection<T>
     public T PeekFirst()
     {
         if (!TryPeekFirst(out var item))
-            TraThrow.NoElement();
+            Throws.CollectionHasNoElement();
         return item;
     }
 
     public T PeekLast()
     {
         if (!TryPeekLast(out var item))
-            TraThrow.NoElement();
+            Throws.CollectionHasNoElement();
         return item;
     }
 
@@ -133,17 +134,15 @@ public class RingQueue<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public T DequeueFirst()
     {
-        if (!TryDequeueFirst(out var res)) {
-            TraThrow.NoElement();
-        }
+        if (!TryDequeueFirst(out var res)) 
+            Throws.CollectionHasNoElement();
         return res;
     }
 
     public T DequeueLast()
     {
-        if (!TryDequeueLast(out var res)) {
-            TraThrow.NoElement();
-        }
+        if (!TryDequeueLast(out var res)) 
+            Throws.CollectionHasNoElement();
         return res;
     }
 
@@ -155,7 +154,7 @@ public class RingQueue<T> : ICollection<T>, IReadOnlyCollection<T>
         }
 
         item = _array[_head];
-        ArrayGrowHelper.FreeManaged(_array, _head);
+        ArrayGrowHelper.FreeIfReferenceOrContainsReferences(_array, _head);
         Increment(ref _head);
         _count--;
         _version++;
@@ -171,7 +170,7 @@ public class RingQueue<T> : ICollection<T>, IReadOnlyCollection<T>
 
         Decrement(ref _tail);
         item = _array[_tail];
-        ArrayGrowHelper.FreeManaged(_array, _tail);
+        ArrayGrowHelper.FreeIfReferenceOrContainsReferences(_array, _tail);
         _count--;
         _version++;
         return true;
@@ -181,7 +180,9 @@ public class RingQueue<T> : ICollection<T>, IReadOnlyCollection<T>
     {
         if (_count == 0)
             return;
-        ArrayGrowHelper.FreeManaged(AsMutableSpan());
+        var span = AsMutableSpan();
+        ArrayGrowHelper.FreeIfReferenceOrContainsReferences(span.First);
+        ArrayGrowHelper.FreeIfReferenceOrContainsReferences(span.Second);
         _head = _tail = 0;
         _count = 0;
         _version++;
@@ -298,7 +299,7 @@ public class RingQueue<T> : ICollection<T>, IReadOnlyCollection<T>
         private readonly void CheckVersion()
         {
             if (_version != _queue._version)
-                TraThrow.CollectionModified();
+                Throws.CollectionModifiedAfterEnumeratorCreated();
         }
 
         public readonly void Dispose() { }
