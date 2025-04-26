@@ -11,6 +11,7 @@
     <ItemGroup>
         <InternalsVisibleTo Include="Trarizon.Library" />
         <InternalsVisibleTo Include="Trarizon.Library.Collections" />
+        <InternalsVisibleTo Include="Trarizon.Library.Mathematics" />
     </ItemGroup>
     
     <!-- Reference -->

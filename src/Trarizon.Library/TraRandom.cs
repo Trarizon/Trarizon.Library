@@ -42,7 +42,7 @@ public static partial class TraRandom
 
     public static float NextSingle(this Random random, float min, float max)
 #if NETSTANDARD
-        => TraNumber.Lerp(min, max, random.NextSingle());
+        => TraMath.Lerp(min, max, random.NextSingle());
 #else
         => float.Lerp(min, max, random.NextSingle());
 #endif

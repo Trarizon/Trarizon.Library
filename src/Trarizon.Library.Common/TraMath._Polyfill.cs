@@ -1,10 +1,10 @@
 ﻿using CommunityToolkit.Diagnostics;
 
+namespace Trarizon.Library.Mathematics;
+public static partial class TraMath
+{
 #if NETSTANDARD
 
-namespace Trarizon.Library.Common;
-public static partial class TraNumber
-{
     public static int Clamp(int value, int min, int max)
     {
         Guard.IsLessThanOrEqualTo(min, max);
@@ -34,6 +34,6 @@ public static partial class TraNumber
 
     public static double Lerp(double min, double max, double amount)
         => min + amount * (max - min);
-}
 
 #endif
+}
