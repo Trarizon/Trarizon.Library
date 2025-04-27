@@ -103,21 +103,21 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
     public void Add(T item)
     {
         var index = BinarySearch(item);
-        TraNumber.FlipNegative(ref index);
+        TraIndex.FlipNegative(ref index);
         InsertAt(index, item);
     }
 
     public void Add(Index nearIndex, T item)
     {
         var index = LinearSearch(nearIndex, item);
-        TraNumber.FlipNegative(ref index);
+        TraIndex.FlipNegative(ref index);
         InsertAt(index, item);
     }
 
     public void Add(Range priorRange, T item)
     {
         var index = BinarySearch(priorRange, item);
-        TraNumber.FlipNegative(ref index);
+        TraIndex.FlipNegative(ref index);
         InsertAt(index, item);
     }
 
@@ -231,12 +231,12 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
         var editItem = _array[index];
         if (index >= 1 && _comparer.Compare(_array[index - 1], editItem) > 0) {
             var destIndex = _array.AsSpan(0, index).BinarySearch(editItem, _comparer);
-            TraNumber.FlipNegative(ref destIndex);
+            TraIndex.FlipNegative(ref destIndex);
             MoveTo(index, destIndex);
         }
         else if (index < _count - 1 && _comparer.Compare(editItem, _array[index + 1]) > 0) {
             var destIndex = _array.AsSpan(index + 1, _count - 1 - index).BinarySearch(editItem, _comparer);
-            TraNumber.FlipNegative(ref destIndex);
+            TraIndex.FlipNegative(ref destIndex);
             MoveTo(index, index + destIndex);
         }
         else {

@@ -7,6 +7,24 @@
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
+    
+    <!-- Nuget -->
+    
+    <PropertyGroup>
+        <Title>Trarizon.Library.Collections</Title>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <Version>1.0.0</Version>
+        <Description>Trarizon's personal library, collections</Description>
+    </PropertyGroup>
+    
+    <Import Project="..\..\Nuget.props" />
+
+    <ItemGroup Label="NugetItems">
+        <None Include="..\..\LICENSE" Pack="True" PackagePath="" />
+        <None Include="README.md" Pack="True" PackagePath="" />
+    </ItemGroup>
+    
+    <!-- End Nuget-->
 
     <!-- Reference -->
 

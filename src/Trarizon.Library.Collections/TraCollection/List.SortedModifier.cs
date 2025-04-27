@@ -46,14 +46,14 @@ public static partial class TraCollection
         public int BinarySearch(T item) => _list.BinarySearch(item, _comparer);
 
         public int BinarySearch(Range priorRange, T item)
-            => TraSpan.BinarySearchRangePriority(_list.AsSpan(), priorRange, new TraComparison.ComparerComparable<T, TComparer>(item, _comparer));
+            => TraSpan.BinarySearchRangePriority(_list.AsListSpan(), priorRange, new TraComparison.ComparerComparable<T, TComparer>(item, _comparer));
 
-        public int LinearSearch(T item) => _list.AsSpan().LinearSearch(item, _comparer);
+        public int LinearSearch(T item) => _list.AsListSpan().LinearSearch(item, _comparer);
 
-        public int LinearSearchFromEnd(T item) => _list.AsSpan().LinearSearchFromEnd(item, _comparer);
+        public int LinearSearchFromEnd(T item) => _list.AsListSpan().LinearSearchFromEnd(item, _comparer);
 
         public int LinearSearch(Index nearIndex, T item)
-            => TraSpan.LinearSearchFromNear(_list.AsSpan(), nearIndex.GetOffset(Count), new TraComparison.ComparerComparable<T, TComparer>(item, _comparer));
+            => TraSpan.LinearSearchFromNear(_list.AsListSpan(), nearIndex.GetOffset(Count), new TraComparison.ComparerComparable<T, TComparer>(item, _comparer));
 
         public bool Contains(T item) => BinarySearch(item) >= 0;
 
@@ -126,7 +126,7 @@ public static partial class TraCollection
 
         public void Resort() => _list.Sort(_comparer);
 
-        public void ResortBubble() => TraAlgorithm.BubbleSort(_list.AsSpan(), _comparer);
+        public void ResortBubble() => TraAlgorithm.BubbleSort(_list.AsListSpan(), _comparer);
 
         /// <summary>
         /// Notify that the item at <paramref name="index"/> is edited,
@@ -140,13 +140,13 @@ public static partial class TraCollection
                 var destIndex = _list.BinarySearch(0, index, editItem, _comparer);
                 if (destIndex < 0)
                     destIndex = ~destIndex;
-                _list.AsSpan().MoveTo(index, destIndex);
+                _list.AsListSpan().MoveTo(index, destIndex);
             }
             else if (index < _list.Count - 1 && _comparer.Compare(editItem, _list[index + 1]) > 0) {
                 var destIndex = _list.BinarySearch(index + 1, _list.Count - 1 - index, editItem, _comparer);
                 if (destIndex < 0)
                     destIndex = ~destIndex;
-                _list.AsSpan().MoveTo(index, index + destIndex);
+                _list.AsListSpan().MoveTo(index, index + destIndex);
             }
             else {
                 // No move

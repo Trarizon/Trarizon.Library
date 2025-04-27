@@ -1,7 +1,11 @@
-﻿using CommunityToolkit.HighPerformance;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using Trarizon.Library.CodeGeneration;
 using Trarizon.Library.Collections;
+#if NETSTANDARD
+using ListMarshal = Trarizon.Library.Collections.TraCollection;
+#else
+using ListMarshal = System.Runtime.InteropServices.CollectionsMarshal;
+#endif
 
 namespace Trarizon.Library.Components;
 public interface IFlagNotifiable<TFlag>
@@ -64,14 +68,14 @@ public abstract class FlagNotifiable<TFlag> : IFlagNotifiable<TFlag>
     protected void NotifyFlag(TFlag flag)
     {
         if (typeof(TFlag).IsValueType) {
-            foreach (var (f, invoker) in _invokers.AsSpan()) {
+            foreach (var (f, invoker) in ListMarshal.AsSpan(_invokers)) {
                 if (EqualityComparer<TFlag>.Default.Equals(flag, f))
                     invoker.Invoke();
             }
         }
         else {
             var comparer = EqualityComparer<TFlag>.Default;
-            foreach (var (f, invoker) in _invokers.AsSpan()) {
+            foreach (var (f, invoker) in ListMarshal.AsSpan(_invokers)) {
                 if (comparer.Equals(f, flag))
                     invoker.Invoke();
             }
@@ -81,14 +85,14 @@ public abstract class FlagNotifiable<TFlag> : IFlagNotifiable<TFlag>
     protected void NotifyFlag(params ReadOnlySpan<TFlag> flags)
     {
         if (typeof(TFlag).IsValueType) {
-            foreach (var (f, invoker) in _invokers.AsSpan()) {
+            foreach (var (f, invoker) in ListMarshal.AsSpan(_invokers)) {
                 if (flags.Contains(TraComparison.EquatableByComparer(f)))
                     invoker.Invoke();
             }
         }
         else {
             var comparer = EqualityComparer<TFlag>.Default;
-            foreach (var (f, invoker) in _invokers.AsSpan()) {
+            foreach (var (f, invoker) in ListMarshal.AsSpan(_invokers)) {
                 if (flags.Contains(TraComparison.EquatableByComparer(f, comparer)))
                     invoker.Invoke();
             }
@@ -109,14 +113,14 @@ public abstract class FlagNotifiable<TSelf, TFlag> : IFlagNotifiable<TSelf, TFla
             return;
 
         if (typeof(TFlag).IsValueType) {
-            foreach (var (f, invoker) in _invokers.AsSpan()) {
+            foreach (var (f, invoker) in ListMarshal.AsSpan(_invokers)) {
                 if (EqualityComparer<TFlag>.Default.Equals(flag, f))
                     invoker.Invoke(Unsafe.As<TSelf>(this));
             }
         }
         else {
             var comparer = EqualityComparer<TFlag>.Default;
-            foreach (var (f, invoker) in _invokers.AsSpan()) {
+            foreach (var (f, invoker) in ListMarshal.AsSpan(_invokers)) {
                 if (comparer.Equals(f, flag))
                     invoker.Invoke(Unsafe.As<TSelf>(this));
             }
@@ -126,14 +130,14 @@ public abstract class FlagNotifiable<TSelf, TFlag> : IFlagNotifiable<TSelf, TFla
     protected void NotifyFlag(params ReadOnlySpan<TFlag> flags)
     {
         if (typeof(TFlag).IsValueType) {
-            foreach (var (f, invoker) in _invokers.AsSpan()) {
+            foreach (var (f, invoker) in ListMarshal.AsSpan(_invokers)) {
                 if (flags.Contains(TraComparison.EquatableByComparer(f)))
                     invoker.Invoke(Unsafe.As<TSelf>(this));
             }
         }
         else {
             var comparer = EqualityComparer<TFlag>.Default;
-            foreach (var (f, invoker) in _invokers.AsSpan()) {
+            foreach (var (f, invoker) in ListMarshal.AsSpan(_invokers)) {
                 if (flags.Contains(TraComparison.EquatableByComparer(f, comparer)))
                     invoker.Invoke(Unsafe.As<TSelf>(this));
             }
@@ -167,7 +171,7 @@ internal sealed partial class SharedFlagNotifiable<TFlag> : IFlagNotifiable<TFla
     {
         if (typeof(TFlag).IsValueType) {
             lock (_lock) {
-                foreach (var (f, invoker) in _invokers.AsSpan()) {
+                foreach (var (f, invoker) in ListMarshal.AsSpan(_invokers)) {
                     if (EqualityComparer<TFlag>.Default.Equals(flag, f))
                         invoker.Invoke();
                 }
@@ -176,7 +180,7 @@ internal sealed partial class SharedFlagNotifiable<TFlag> : IFlagNotifiable<TFla
         else {
             var comparer = EqualityComparer<TFlag>.Default;
             lock (_lock) {
-                foreach (var (f, invoker) in _invokers.AsSpan()) {
+                foreach (var (f, invoker) in ListMarshal.AsSpan(_invokers)) {
                     if (comparer.Equals(f, flag))
                         invoker.Invoke();
                 }
@@ -190,14 +194,14 @@ internal sealed partial class SharedFlagNotifiable<TFlag> : IFlagNotifiable<TFla
             return;
 
         if (typeof(TFlag).IsValueType) {
-            foreach (var (f, invoker) in _invokers.AsSpan()) {
+            foreach (var (f, invoker) in ListMarshal.AsSpan(_invokers)) {
                 if (flags.Contains(TraComparison.EquatableByComparer(f)))
                     invoker.Invoke();
             }
         }
         else {
             var comparer = EqualityComparer<TFlag>.Default;
-            foreach (var (f, invoker) in _invokers.AsSpan()) {
+            foreach (var (f, invoker) in ListMarshal.AsSpan(_invokers)) {
                 if (flags.Contains(TraComparison.EquatableByComparer(f, comparer)))
                     invoker.Invoke();
             }
@@ -223,14 +227,14 @@ public struct FlagNotifier<TFlag>
             return;
 
         if (typeof(TFlag).IsValueType) {
-            foreach (var (f, invoker) in _invokers.AsSpan()) {
+            foreach (var (f, invoker) in ListMarshal.AsSpan(_invokers)) {
                 if (EqualityComparer<TFlag>.Default.Equals(flag, f))
                     invoker.Invoke();
             }
         }
         else {
             var comparer = EqualityComparer<TFlag>.Default;
-            foreach (var (f, invoker) in _invokers.AsSpan()) {
+            foreach (var (f, invoker) in ListMarshal.AsSpan(_invokers)) {
                 if (comparer.Equals(f, flag))
                     invoker.Invoke();
             }
@@ -243,14 +247,14 @@ public struct FlagNotifier<TFlag>
             return;
 
         if (typeof(TFlag).IsValueType) {
-            foreach (var (f, invoker) in _invokers.AsSpan()) {
+            foreach (var (f, invoker) in ListMarshal.AsSpan(_invokers)) {
                 if (flags.Contains(TraComparison.EquatableByComparer(f)))
                     invoker.Invoke();
             }
         }
         else {
             var comparer = EqualityComparer<TFlag>.Default;
-            foreach (var (f, invoker) in _invokers.AsSpan()) {
+            foreach (var (f, invoker) in ListMarshal.AsSpan(_invokers)) {
                 if (flags.Contains(TraComparison.EquatableByComparer(f, comparer)))
                     invoker.Invoke();
             }

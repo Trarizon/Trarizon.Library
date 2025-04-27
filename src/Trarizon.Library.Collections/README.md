@@ -1,5 +1,9 @@
 ﻿# Trarizon.Library.Collections
 
+Helpers for BCL Array, `Span` and collections. And more collections type.
+
+## List
+
 - namespace `AllocOpt`
     - `AllocOptList` : Value type list use pooled array as underlying array
 - namespace `Buffers`
@@ -28,7 +32,7 @@
     - `TraIndex` : Helpers for `Index`, `Range`, and `int` when it as index
     - `TraSpan` : Helpers for `(ReadOnly)Span<>`
 
-## TraXXX types
+### Helpers
 
 <details>
 <summary>Array</summary>

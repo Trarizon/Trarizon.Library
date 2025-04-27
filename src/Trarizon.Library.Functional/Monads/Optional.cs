@@ -1,14 +1,16 @@
-﻿using CommunityToolkit.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
-namespace Trarizon.Library.Wrappers;
+namespace Trarizon.Library.Functional.Monads;
 public static class Optional
 {
     public static Optional<T> Of<T>(T value) => new(value);
 
-    public static Optional<T> Of<T>(T value, Func<T, bool> predicate) => predicate(value) ? Of(value) : default;
+    public static Optional<T> Of<T>(T value, Func<T, bool> predicate) => predicate(value) ? new(value) : default;
 
-    public static Optional<T> OfNotNull<T>(T? value) where T : class => value is null ? default : Of(value);
+    public static Optional<TResult> Of<T, TResult>(T value, Func<T, bool> predicate, Func<T, TResult> valueSelector)
+        => predicate(value) ? new(valueSelector(value)) : default;
+
+    public static Optional<T> OfNotNull<T>(T? value) where T : class => value is null ? default : new(value);
 
     public static ref readonly T? GetValueRefOrDefaultRef<T>(this ref readonly Optional<T> optional)
         => ref optional._value;
@@ -52,6 +54,9 @@ public static class Optional
     #endregion
 
     #endregion
+
+    [DoesNotReturn]
+    internal static void ThrowOptionalHasNoValue() => throw new InvalidOperationException("Optional<> has no value");
 }
 
 public readonly struct Optional<T>
@@ -81,13 +86,12 @@ public readonly struct Optional<T>
     public T GetValidValue()
     {
         if (!HasValue)
-            ThrowHelper.ThrowInvalidOperationException($"Optional<> has no value.");
+            Optional.ThrowOptionalHasNoValue();
         return _value;
     }
 
     public T? GetValueOrDefault() => _value;
 
-    [MemberNotNullWhen(true, nameof(_value))]
     public bool TryGetValue([MaybeNullWhen(false)] out T value)
     {
         value = _value;
@@ -96,7 +100,7 @@ public readonly struct Optional<T>
 
     #endregion
 
-    #region Creator
+    #region Creation
 
     public static implicit operator Optional<T>(T value) => new(value);
 

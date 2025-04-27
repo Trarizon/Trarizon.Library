@@ -1,4 +1,6 @@
-﻿namespace Trarizon.Library.Buffers.Pooling;
+﻿using CommunityToolkit.Diagnostics;
+
+namespace Trarizon.Library.Buffers.Pooling;
 public enum ObjectPoolKind
 {
     /// <summary>
@@ -25,7 +27,7 @@ partial class ObjectPool<T>
             ObjectPoolKind.Tracked => new TrackedObjectPool<T>(createFactory, onRented, onReturned, onReleased, maxCount),
             ObjectPoolKind.Simple => new SimpleObjectPool<T>(createFactory, onRented, onReturned, onReleased, maxCount),
             ObjectPoolKind.ThreadSafe => new ThreadSafeObjectPool<T>(createFactory, onRented, onReturned, onReleased, maxCount),
-            _ => TraThrow.InvalidEnumState<SimpleObjectPool<T>>(kind),
+            _ => ThrowHelper.ThrowInvalidOperationException<ObjectPool<T>>(),
         };
     }
 }

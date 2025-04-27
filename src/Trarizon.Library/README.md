@@ -37,8 +37,6 @@ The namespace structure is almost the same with `System.XXX`
 - namespace `Buffer`
     - `ObjectPool` : Object pool
     - `IObjectAllcator` : Interface for object allocator
-- namespace `Collections.Specialized`
-    - `AutoAllocList<>` : List with auto allocation and release while modifying
 - namespace `Components`
     - `EventBus` : A event bus implementation
     - `IFlagNotifiable` : Interface for notification, a cheaper and stricter `INotifyPropertyChanged`

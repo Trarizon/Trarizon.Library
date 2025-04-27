@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.HighPerformance;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace Trarizon.Library.IO;
@@ -37,7 +36,9 @@ public static class TraStream
     /// </summary>
     public static T[] ReadWithInt32Prefix<T>(this Stream stream) where T : unmanaged
     {
-        var len = stream.Read<int>();
+        var bfr = (stackalloc byte[sizeof(int)]);
+        stream.ReadExactly(bfr);
+        var len = MemoryMarshal.Read<int>(bfr);
         if (len <= 0)
             return [];
 

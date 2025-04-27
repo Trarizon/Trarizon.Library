@@ -6,9 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "解决方案项", "解决方案项", "{9B93B36D-15EE-421F-B949-6948CCCD1CB2}"
 	ProjectSection(SolutionItems) = preProject
 		LICENSE = LICENSE
-		LICENSE-CommunityToolkit.md = LICENSE-CommunityToolkit.md
 		Nuget.props = Nuget.props
 		README.md = README.md
+		THIRD-PARTY-LICENSES.md = THIRD-PARTY-LICENSES.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Trarizon.Library", "src\Trarizon.Library\Trarizon.Library.csproj", "{00BF2D13-338D-4426-B3CA-CB17D6396C64}"
@@ -38,6 +38,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "generator", "generator", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "windows", "windows", "{1696C783-1D8E-4163-8BFC-901C9126B816}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Trarizon.Library.Functional", "src\Trarizon.Library.Functional\Trarizon.Library.Functional.csproj", "{2BB94DD4-796F-42AD-8555-B44D62053629}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -85,6 +87,10 @@ Global
 		{B9433C0D-4142-4B9F-9936-00B9213588B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B9433C0D-4142-4B9F-9936-00B9213588B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B9433C0D-4142-4B9F-9936-00B9213588B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2BB94DD4-796F-42AD-8555-B44D62053629}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2BB94DD4-796F-42AD-8555-B44D62053629}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2BB94DD4-796F-42AD-8555-B44D62053629}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2BB94DD4-796F-42AD-8555-B44D62053629}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -102,6 +108,7 @@ Global
 		{B9433C0D-4142-4B9F-9936-00B9213588B2} = {5018BEA0-DC90-469A-A85C-E46213678F6E}
 		{02EA681E-C7D8-13C7-8484-4AC65E1B71E8} = {5018BEA0-DC90-469A-A85C-E46213678F6E}
 		{1696C783-1D8E-4163-8BFC-901C9126B816} = {5018BEA0-DC90-469A-A85C-E46213678F6E}
+		{2BB94DD4-796F-42AD-8555-B44D62053629} = {5018BEA0-DC90-469A-A85C-E46213678F6E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0832A06C-257F-4940-A6C2-2C72400550F1}

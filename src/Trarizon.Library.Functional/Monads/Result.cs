@@ -1,8 +1,7 @@
-﻿using CommunityToolkit.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
-namespace Trarizon.Library.Wrappers;
+namespace Trarizon.Library.Functional.Monads;
 public static class Result
 {
     public static Result<T, TError> Success<T, TError>(T value) where TError : class
@@ -20,8 +19,12 @@ public static class Result
     public static T GetValueOrThrow<T, TException>(this in Result<T, TException> result) where TException : Exception
     {
         if (!result.IsSuccess)
-            TraThrow.Exception(result._error);
+            ThrowException(result._error);
         return result._value;
+
+        [DoesNotReturn]
+        static void ThrowException(Exception exception)
+            => throw exception;
     }
 
     public static ref readonly T? GetValueRefOrDefaultRef<T, TError>(this ref readonly Result<T, TError> result) where TError : class
@@ -39,6 +42,9 @@ public static class Result
         => result.IsSuccess ? new(result._value) : new(result._error);
 
     #endregion
+
+    [DoesNotReturn]
+    internal static void ThrowResultIsError() => throw new InvalidOperationException("Result<> is error");
 }
 
 public readonly struct Result<T, TError>
@@ -64,7 +70,7 @@ public readonly struct Result<T, TError>
     public T GetValidValue()
     {
         if (!IsSuccess)
-            ThrowHelper.ThrowInvalidOperationException($"Result<> failed.");
+            Result.ThrowResultIsError();
         return _value;
     }
 

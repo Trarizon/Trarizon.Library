@@ -1,5 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-using Trarizon.Library.Wrappers;
 
 namespace Trarizon.Library.Threading;
 public static partial class TraAsync
@@ -40,14 +39,14 @@ public static partial class TraAsync
             public void UnsafeOnCompleted(Action continuation)
                 => _task.GetAwaiter().UnsafeOnCompleted(continuation);
 
-            public CancellationTaskResult GetResult()
+            public CatchCancellationTaskResult GetResult()
             {
                 try {
                     _task.GetAwaiter().GetResult();
-                    return CancellationTaskResult.Completed;
+                    return CatchCancellationTaskResult.Completed;
                 }
                 catch (OperationCanceledException) {
-                    return CancellationTaskResult.Cancelled;
+                    return CatchCancellationTaskResult.Cancelled;
                 }
             }
         }
@@ -79,10 +78,10 @@ public static partial class TraAsync
             public void UnsafeOnCompleted(Action continuation)
                 => _task.GetAwaiter().UnsafeOnCompleted(continuation);
 
-            public Optional<T> GetResult()
+            public CatchCancellationTaskResult<T> GetResult()
             {
                 try {
-                    return Optional.Of(_task.GetAwaiter().GetResult());
+                    return new CatchCancellationTaskResult<T>(_task.GetAwaiter().GetResult());
                 }
                 catch (OperationCanceledException) {
                     return default;
@@ -91,14 +90,26 @@ public static partial class TraAsync
         }
     }
 
-    public readonly struct CancellationTaskResult
+    public readonly struct CatchCancellationTaskResult
     {
         public bool IsSuccess { get; }
 
-        public static CancellationTaskResult Completed => new(true);
+        public static CatchCancellationTaskResult Completed => new(true);
 
-        public static CancellationTaskResult Cancelled => new(false);
+        public static CatchCancellationTaskResult Cancelled => new(false);
 
-        private CancellationTaskResult(bool success) => IsSuccess = success;
+        private CatchCancellationTaskResult(bool success) => IsSuccess = success;
+    }
+
+    public readonly struct CatchCancellationTaskResult<T>
+    {
+        public bool IsSuccess { get; }
+        public T Value { get; }
+
+        internal CatchCancellationTaskResult(T value)
+        {
+            IsSuccess = true;
+            Value = value;
+        }
     }
 }

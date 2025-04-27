@@ -51,7 +51,7 @@ public static partial class TraEnumerable
             return true;
         }
         if (source.GetType() == typeof(List<T>)) {
-            span = Unsafe.As<List<T>>(source).AsSpan();
+            span = Unsafe.As<List<T>>(source).AsListSpan();
             return true;
         }
         span = default;

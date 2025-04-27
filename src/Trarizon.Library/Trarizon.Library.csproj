@@ -8,17 +8,29 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
-    <Import Project="..\..\Nuget.props" />
+    <!-- Nugets -->
 
+    <PropertyGroup>
+        <Title>Trarizon.Library</Title>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <Version>1.1.0.12</Version>
+        <Description>Trarizon's personal library</Description>
+    </PropertyGroup>
+
+    <Import Project="..\..\Nuget.props" />
+    
     <ItemGroup Label="NugetItems">
         <None Include="..\..\LICENSE" Pack="True" PackagePath="" />
         <None Include="README.md" Pack="True" PackagePath="" />
     </ItemGroup>
-
+    
+    <!-- End Nugets -->
+    
     <!-- Reference -->
 
     <ItemGroup>
         <ProjectReference Include="..\Trarizon.Library.Collections\Trarizon.Library.Collections.csproj" />
+        <ProjectReference Include="..\Trarizon.Library.Functional\Trarizon.Library.Functional.csproj" />
         <ProjectReference Include="..\Trarizon.Library.GeneratorToolkit\Trarizon.Library.GeneratorToolkit.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
         <ProjectReference Include="..\Trarizon.Library.Mathematics\Trarizon.Library.Mathematics.csproj" />
         <ProjectReference Include="..\Trarizon.Library.SourceGeneration\Trarizon.Library.SourceGeneration.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
@@ -28,6 +40,32 @@
         <None Include="..\Trarizon.Library.SourceGeneration\bin\$(Configuration)\netstandard2.0\Trarizon.Library.SourceGeneration.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
         <None Include="..\Trarizon.Library.SourceGeneration\bin\$(Configuration)\netstandard2.0\Trarizon.Library.GeneratorToolkit.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
     </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="CommunityToolkit.Diagnostics" Version="8.4.0" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' Or '$(TargetFramework)' == 'netstandard2.1'">
+        <PackageReference Include="PolySharp" Version="1.15.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.2" />
+    </ItemGroup>
+    
+    <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+        <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.6.3" />
+    </ItemGroup>
+
+    <PropertyGroup Label="Polyfills">
+        <PolySharpIncludeGeneratedTypes>
+            System.Diagnostics.CodeAnalysis.ExperimentalAttribute;
+            
+            System.Diagnostics.CodeAnalysis.MaybeNullAttribute;
+            
+            System.Runtime.CompilerServices.IsExternalInit;
+        </PolySharpIncludeGeneratedTypes>
+    </PropertyGroup>
 
     <!-- Generator settings-->
     

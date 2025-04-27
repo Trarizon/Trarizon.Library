@@ -53,7 +53,7 @@ public static partial class TraCollection
             if (Unsafe.IsNullRef(ref find)) {
                 return false;
             }
-            var index = _list.AsSpan().OffsetOf(in item);
+            var index = _list.AsListSpan().OffsetOf(in item);
             _list.RemoveAt(index);
             return true;
         }
@@ -85,7 +85,7 @@ public static partial class TraCollection
 
         private ref T FindFirstRef(T item)
         {
-            foreach (ref var v in _list.AsSpan()) {
+            foreach (ref var v in _list.AsListSpan()) {
                 if (_comparer.Equals(v, item))
                     return ref v;
             }

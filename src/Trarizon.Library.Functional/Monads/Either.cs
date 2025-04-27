@@ -1,8 +1,7 @@
-﻿using CommunityToolkit.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
-namespace Trarizon.Library.Wrappers;
+namespace Trarizon.Library.Functional.Monads;
 public static class Either
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -56,6 +55,9 @@ public static class Either
     #endregion
 
     #endregion
+
+    [DoesNotReturn]
+    internal static void EitherHasNoValue(bool left) => throw new InvalidOperationException($"Either<,> has no {(left ? "left" : "right")} value");
 }
 
 public readonly struct Either<TLeft, TRight>
@@ -80,13 +82,13 @@ public readonly struct Either<TLeft, TRight>
     public TLeft GetValidLeftValue()
     {
         if (IsRight)
-            ThrowHelper.ThrowInvalidOperationException("Either<> has no left value");
+            Either.EitherHasNoValue(left: true);
         return _left;
     }
     public TRight GetValidRightValue()
     {
         if (IsLeft)
-            ThrowHelper.ThrowInvalidOperationException("Either<> has no right value");
+            Either.EitherHasNoValue(left: true);
         return _right;
     }
 

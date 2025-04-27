@@ -55,8 +55,17 @@ public readonly struct WeakJsonElement(JsonElement element)
     public string? AsString()
         => Element.ValueKind is JsonValueKind.String ? Element.GetString() : null;
 
-    public Optional<string?> AsNullableString()
-        => Element.ValueKind is JsonValueKind.String or JsonValueKind.Null ? Optional.Of(Element.GetString()) : default;
+    public string? AsString(out bool existsAndValid)
+    {
+        if (Element.ValueKind is JsonValueKind.String or JsonValueKind.Null) {
+            existsAndValid = true;
+            return Element.GetString();
+        }
+        else {
+            existsAndValid = false;
+            return default;
+        }
+    }
 
     public bool? AsBoolean() => Element.ValueKind switch
     {
@@ -65,13 +74,23 @@ public readonly struct WeakJsonElement(JsonElement element)
         _ => null,
     };
 
-    public Optional<bool?> AsNullableBoolean() => Element.ValueKind switch
+    public bool? AsNullableBoolean(out bool existsAndValid)
     {
-        JsonValueKind.True => true,
-        JsonValueKind.False => false,
-        JsonValueKind.Null => null,
-        _ => default,
-    };
+        switch (Element.ValueKind) {
+            case JsonValueKind.True:
+                existsAndValid = true;
+                return true;
+            case JsonValueKind.False:
+                existsAndValid = true;
+                return false;
+            case JsonValueKind.Null:
+                existsAndValid = true;
+                return null;
+            default:
+                existsAndValid = false;
+                return null;
+        }
+    }
 
     public T? AsNumber<T>() where T : struct, INumber<T>
     {

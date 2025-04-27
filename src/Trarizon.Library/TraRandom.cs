@@ -1,9 +1,14 @@
-﻿using CommunityToolkit.HighPerformance;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using Trarizon.Library.CodeGeneration;
 using Trarizon.Library.Collections;
-using Trarizon.Library.Common;
 using Trarizon.Library.Mathematics;
+
+#if NETSTANDARD
+using ListMarshal = Trarizon.Library.Collections.TraCollection;
+#else
+using ListMarshal = System.Runtime.InteropServices.CollectionsMarshal;
+#endif
+
 
 namespace Trarizon.Library;
 public static partial class TraRandom
@@ -36,7 +41,7 @@ public static partial class TraRandom
     /// </summary>
     /// <returns>The index of result in <paramref name="weights"/></returns>
     public static int SelectWeighted(this Random random, List<float> weights)
-        => random.SelectWeighted(weights.AsSpan());
+        => random.SelectWeighted(ListMarshal.AsSpan(weights));
 
     #region Next Value
 
@@ -64,7 +69,7 @@ public static partial class TraRandom
     }
     public static T NextItem<T>(this Random random, Span<T> items, [OptionalOut] out int index) => random.NextItem((ReadOnlySpan<T>)items, out index);
     public static T NextItem<T>(this Random random, T[] items, [OptionalOut] out int index) => random.NextItem(items.AsSpan(), out index);
-    public static T NextItem<T>(this Random random, List<T> items, [OptionalOut] out int index) => random.NextItem(items.AsSpan(), out index);
+    public static T NextItem<T>(this Random random, List<T> items, [OptionalOut] out int index) => random.NextItem(ListMarshal.AsSpan(items), out index);
     public static T NextItem<T>(this Random random, IReadOnlyList<T> items, [OptionalOut] out int index)
     {
         index = random.Next(items.Count);
