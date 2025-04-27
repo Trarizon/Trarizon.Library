@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 using Trarizon.Library.Collections.AllocOpt;
 using Trarizon.Library.Collections.Buffers;
 #if NETSTANDARD2_0
-using RuntimeHelpers = Trarizon.Library.Common.Polyfills.PfRuntimeHelpers;
+using RuntimeHelpers = Trarizon.Library.Collections.Helpers.PfRuntimeHelpers;
 #endif
 
 namespace Trarizon.Library.Collections;

@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Diagnostics;
-using CommunityToolkit.HighPerformance.Buffers;
+using System.Buffers;
 using System.Diagnostics;
+using Trarizon.Library.Collections.Buffers;
 
 namespace Trarizon.Library.Collections;
 public static partial class TraSpan
@@ -56,15 +57,13 @@ public static partial class TraSpan
             Debug.Assert(dist != length);
 
             if (dist < length) {
-                using var bufferOwner = SpanOwner<T>.Allocate(dist);
-                var buffer = bufferOwner.Span;
+                using var b = ArrayPool<T>.Shared.RentAsSpan(dist, out var buffer);
                 span.Slice(from + length, dist).CopyTo(buffer);
                 span.Slice(from, length).CopyTo(span.Slice(to, length));
                 buffer.CopyTo(span.Slice(from, dist));
             }
             else {
-                using var bufferOwner = SpanOwner<T>.Allocate(length);
-                var buffer = bufferOwner.Span;
+                using var b = ArrayPool<T>.Shared.RentAsSpan(length, out var buffer);
                 span.Slice(from, length).CopyTo(buffer);
                 span.Slice(from + length, dist).CopyTo(span.Slice(from, dist));
                 buffer.CopyTo(span.Slice(to, length));

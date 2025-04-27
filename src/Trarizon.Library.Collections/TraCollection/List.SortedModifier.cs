@@ -1,7 +1,4 @@
-﻿using CommunityToolkit.HighPerformance;
-using Trarizon.Library.Common;
-
-namespace Trarizon.Library.Collections;
+﻿namespace Trarizon.Library.Collections;
 public static partial class TraCollection
 {
     /// <summary>
@@ -70,21 +67,21 @@ public static partial class TraCollection
         public void Add(T item)
         {
             var index = _list.BinarySearch(item, _comparer);
-            TraNumber.FlipNegative(ref index);
+            TraIndex.FlipNegative(ref index);
             _list.Insert(index, item);
         }
 
         public void Add(Index nearIndex, T item)
         {
             var index = LinearSearch(nearIndex, item);
-            TraNumber.FlipNegative(ref index);
+            TraIndex.FlipNegative(ref index);
             _list.Insert(index, item);
         }
 
         public void Add(Range priorRange, T item)
         {
             var index = BinarySearch(priorRange, item);
-            TraNumber.FlipNegative(ref index);
+            TraIndex.FlipNegative(ref index);
             _list.Insert(index, item);
         }
 

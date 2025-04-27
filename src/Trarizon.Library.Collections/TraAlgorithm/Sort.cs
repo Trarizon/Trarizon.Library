@@ -1,5 +1,5 @@
-﻿using CommunityToolkit.HighPerformance;
-using System.Numerics;
+﻿using System.Numerics;
+using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections;
 public static partial class TraAlgorithm
@@ -17,8 +17,8 @@ public static partial class TraAlgorithm
         for (int i = 0; i < values.Length; i++) {
             inOrder = true;
             for (int j = values.Length - 1; j > i; j--) {
-                ref var left = ref values.DangerousGetReferenceAt(j - 1);
-                ref var right = ref values.DangerousGetReferenceAt(j);
+                ref var left = ref Unsafes.GetReferenceAt(values, j - 1);
+                ref var right = ref Unsafes.GetReferenceAt(values, j);
                 if (cmp(left, right)) {
                     Utils.Swap(ref left, ref right);
                     inOrder = false;
@@ -44,8 +44,8 @@ public static partial class TraAlgorithm
         for (int i = 0; i < values.Length; i++) {
             inOrder = true;
             for (int j = values.Length - 1; j > i; j--) {
-                ref var left = ref values.DangerousGetReferenceAt(j - 1);
-                ref var right = ref values.DangerousGetReferenceAt(j);
+                ref var left = ref Unsafes.GetReferenceAt(values, j - 1);
+                ref var right = ref Unsafes.GetReferenceAt(values, j);
                 if (comparer.Compare(left, right) > 0) {
                     Utils.Swap(ref left, ref right);
                     inOrder = false;
@@ -68,8 +68,8 @@ public static partial class TraAlgorithm
         for (int i = 1; i < values.Length; i++) {
             int j = i - 1;
             for (; j >= 0; j--) {
-                var left = values.DangerousGetReferenceAt(j);
-                var right = values.DangerousGetReferenceAt(i);
+                var left = Unsafes.GetReferenceAt(values, j);
+                var right = Unsafes.GetReferenceAt(values, i);
                 if (cmp(left, right)) {
                     break;
                 }
@@ -91,8 +91,8 @@ public static partial class TraAlgorithm
         for (int i = 1; i < values.Length; i++) {
             int j = i - 1;
             for (; j >= 0; j--) {
-                var left = values.DangerousGetReferenceAt(j);
-                var right = values.DangerousGetReferenceAt(i);
+                var left = Unsafes.GetReferenceAt(values, j);
+                var right = Unsafes.GetReferenceAt(values, i);
                 if (comparer.Compare(left, right) <= 0) {
                     break;
                 }

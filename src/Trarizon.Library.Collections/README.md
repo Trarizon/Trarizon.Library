@@ -25,6 +25,7 @@
     - `TraCollection` : Helpers for BCL collections
     - `TraComparison` : Helpers for `IComaprer<>`, `IComparable`, etc.
     - `TraEnumerable` : Helper for `IEnumerable`, linq extensions
+    - `TraIndex` : Helpers for `Index`, `Range`, and `int` when it as index
     - `TraSpan` : Helpers for `(ReadOnly)Span<>`
 
 ## TraXXX types

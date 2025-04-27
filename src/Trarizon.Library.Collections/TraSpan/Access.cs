@@ -1,5 +1,5 @@
-﻿using CommunityToolkit.HighPerformance;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
+using Trarizon.Library.Collections.Helpers;
 using Trarizon.Library.Collections.StackAlloc;
 
 namespace Trarizon.Library.Collections;
@@ -33,13 +33,13 @@ public static partial class TraSpan
 #if NETSTANDARD
         => new(span);
 #else
-        => new(ref span.DangerousGetReferenceAt(span.Length - 1), span.Length);
+        => new(ref Unsafes.GetReferenceAt(span, span.Length - 1), span.Length);
 #endif
 
     public static ReadOnlyReversedSpan<T> AsReversed<T>(this ReadOnlySpan<T> span)
 #if NETSTANDARD
         => new(span);
 #else
-        => new(in span.DangerousGetReferenceAt(span.Length - 1), span.Length);
+        => new(in Unsafes.GetReferenceAt(span, span.Length - 1), span.Length);
 #endif
 }

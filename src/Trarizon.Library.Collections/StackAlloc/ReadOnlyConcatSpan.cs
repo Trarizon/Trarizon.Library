@@ -1,8 +1,8 @@
 ﻿using CommunityToolkit.Diagnostics;
-using CommunityToolkit.HighPerformance;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections.StackAlloc;
 [method: MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -22,7 +22,7 @@ public readonly ref struct ReadOnlyConcatSpan<T>(ReadOnlySpan<T> first, ReadOnly
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get {
             if (index < _first.Length)
-                return ref _first.DangerousGetReferenceAt(index);
+                return ref Unsafes.GetReferenceAt(_first, index);
             index -= _first.Length;
             // _second[index] will throw if out of range
             return ref _second[index];
@@ -109,8 +109,8 @@ public readonly ref struct ReadOnlyConcatSpan<T>(ReadOnlySpan<T> first, ReadOnly
 #else
             var buffer = (stackalloc char[Length]);
 
-            var first = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<T, char>(ref _first.DangerousGetReference()), _first.Length);
-            var second = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<T, char>(ref _second.DangerousGetReference()), _second.Length);
+            var first = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<T, char>(ref MemoryMarshal.GetReference(_first)), _first.Length);
+            var second = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<T, char>(ref MemoryMarshal.GetReference(_second)), _second.Length);
             first.CopyTo(buffer);
             second.CopyTo(buffer[first.Length..]);
             return new string(buffer);

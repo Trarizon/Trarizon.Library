@@ -30,16 +30,23 @@ public interface IArrayAllocator<T>
 
 public static class IArrayAllocatorExt
 {
-    public static IArrayAllocator<T>.AutoReleaseScope<IArrayAllocator<T>> Allocate< T>(this IArrayAllocator<T> allocator, int minLength, bool clearArray, out T[] array)
+    public static IArrayAllocator<T>.AutoReleaseScope<IArrayAllocator<T>> Allocate<T>(this IArrayAllocator<T> allocator, int minLength, bool clearArray, out T[] array)
     {
         array = allocator.Allocate(minLength);
         return new IArrayAllocator<T>.AutoReleaseScope<IArrayAllocator<T>>(allocator, array, clearArray);
     }
 
-    public static IArrayAllocator<T>.AutoReleaseScope<ArrayPoolAllocator<T>> Rent<T>(this ArrayPool<T> pool, int minLength, out T[] array, bool clearArrayRelease = false)
+    public static IArrayAllocator<T>.AutoReleaseScope<ArrayPoolAllocator<T>> Rent<T>(this ArrayPool<T> pool, int minLength, out T[] array, bool clearArrayWhenRelease = false)
     {
         array = pool.Rent(minLength);
-        return new IArrayAllocator<T>.AutoReleaseScope<ArrayPoolAllocator<T>>(new ArrayPoolAllocator<T>(pool), array, clearArrayRelease);
+        return new IArrayAllocator<T>.AutoReleaseScope<ArrayPoolAllocator<T>>(new ArrayPoolAllocator<T>(pool), array, clearArrayWhenRelease);
+    }
+
+    public static IArrayAllocator<T>.AutoReleaseScope<ArrayPoolAllocator<T>> RentAsSpan<T>(this ArrayPool<T> pool, int length, out Span<T> span, bool clearArrayWhenRelease = false)
+    {
+        var array = pool.Rent(length);
+        span = array.AsSpan(0, length);
+        return new IArrayAllocator<T>.AutoReleaseScope<ArrayPoolAllocator<T>>(new ArrayPoolAllocator<T>(pool), array, clearArrayWhenRelease);
     }
 
     public readonly struct ArrayPoolAllocator<T> : IArrayAllocator<T>

@@ -2,7 +2,7 @@
 using CommunityToolkit.HighPerformance;
 using System.Collections;
 using Trarizon.Library.Buffers;
-using Trarizon.Library.Common;
+using Trarizon.Library.Collections;
 using Trarizon.Library.Mathematics;
 
 namespace Trarizon.Library.Collections.Specialized;

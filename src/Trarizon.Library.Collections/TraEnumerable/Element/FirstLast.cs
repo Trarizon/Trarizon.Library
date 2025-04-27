@@ -1,5 +1,5 @@
-﻿using CommunityToolkit.HighPerformance;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
 using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections;
@@ -135,7 +135,7 @@ public static partial class TraEnumerable
                 return default!;
             }
             exists = true;
-            var value = span.DangerousGetReferenceAt(0);
+            var value = MemoryMarshal.GetReference(span);
             if (comparer.Compare(value, max) >= 0)
                 return value;
 
@@ -202,7 +202,7 @@ public static partial class TraEnumerable
                 return default;
             }
             exists = true;
-            var value = span.DangerousGetReferenceAt(0);
+            var value = MemoryMarshal.GetReference(span);
             var key = keySelector(value);
             if (comparer.Compare(key, max) >= 0)
                 return (key, value);

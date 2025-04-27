@@ -1,5 +1,4 @@
 ﻿using CommunityToolkit.Diagnostics;
-using CommunityToolkit.HighPerformance;
 using System.Buffers;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -41,11 +40,11 @@ public struct AllocOptList<T> : IDisposable
     {
         get {
             Guard.IsLessThan((uint)index, (uint)_count);
-            return _array.DangerousGetReferenceAt(index);
+            return Unsafes.GetReferenceAt(_array, index);
         }
         set {
             Guard.IsLessThan((uint)index, (uint)_count);
-            _array.DangerousGetReferenceAt(index) = value;
+            Unsafes.GetReferenceAt(_array, index) = value;
         }
     }
 

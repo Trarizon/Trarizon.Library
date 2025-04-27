@@ -1,20 +1,26 @@
-﻿using CommunityToolkit.HighPerformance;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections;
 public static partial class TraCollection
 {
-#if NETSTANDARD
-
+    // This may conflict to CommunityToolkit.HighPerformance, so we don't public it
     /// <remarks>
     /// As CollectionsMarshal doesnt exists on .NET Standard 2.0, this use a very tricky way
     /// to get the underlying array. Actually I'm not sure if this works correctly in all runtime...
-    /// (at leat it works on Unity
+    /// (at least it works on Unity
     /// </remarks>
-    public static Span<T> AsSpan<T>(this List<T> list)
-        => Utils<T>.GetUnderlyingArray(list).AsSpan(..list.Count);
+    internal static Span<T> AsSpan<T>(this List<T> list)
+    {
+#if NETSTANDARD
+        return Utils<T>.GetUnderlyingArray(list).AsSpan(..list.Count);
+#else
+        return CollectionsMarshal.AsSpan(list);
+#endif
+    }
+
+#if NETSTANDARD
 
     public static void EnsureCapacity<T>(this List<T> list, int expectedCapacity)
     {
@@ -90,7 +96,7 @@ public static partial class TraCollection
 #elif NETSTANDARD
         // If list is empty, and count no change, normally there's no operation requires updating version
         Debug.Assert(list.Count > 0);
-        list[0] = list.AsSpan().DangerousGetReference();
+        list[0] = MemoryMarshal.GetReference(list.AsSpan());
 #else
         CollectionsMarshal.SetCount(list, list.Count);
 #endif

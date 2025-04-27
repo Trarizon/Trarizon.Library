@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
 #if NETSTANDARD2_0
-using RuntimeHelpers = Trarizon.Library.Common.Polyfills.PfRuntimeHelpers;
+using RuntimeHelpers = Trarizon.Library.Collections.Helpers.PfRuntimeHelpers;
 #endif
 
 namespace Trarizon.Library.Collections.Helpers;

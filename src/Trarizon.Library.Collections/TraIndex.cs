@@ -1,8 +1,16 @@
 ﻿using CommunityToolkit.Diagnostics;
+using System.Runtime.CompilerServices;
 
-namespace Trarizon.Library.Common;
+namespace Trarizon.Library.Collections;
 public static class TraIndex
 {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void FlipNegative(ref int index)
+    {
+        if (index < 0)
+            index = ~index;
+    }
+
     /// <summary>
     /// <see cref="Index.GetOffset(int)"/>, and check if the offset is in [0, <paramref name="length"/>),
     /// throw if out of range

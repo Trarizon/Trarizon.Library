@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.HighPerformance;
-using System.Numerics;
+﻿using System.Numerics;
 
 namespace Trarizon.Library.Mathematics;
 public static partial class TraMath
@@ -18,8 +17,53 @@ public static partial class TraMath
         return left;
     }
 
-    public static T LeastCommonMultiple<T>(T left, T right) where T : IBinaryInteger<T> 
+    public static T LeastCommonMultiple<T>(T left, T right) where T : IBinaryInteger<T>
         => left * right / GreatestCommonDivisor(left, right);
+
+    #endregion
+
+    #region IncAndWrap/Mod
+
+    public static bool IncAndTryWrap<T>(ref T number, T delta, T max) where T : struct, INumber<T>
+    {
+        number += delta;
+        if (number > max) {
+            number -= max;
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    public static void IncAndWrap<T>(ref T number, T delta, T max) where T : struct, INumber<T>
+    {
+        number += delta;
+        if (number > max) {
+            number -= max;
+        }
+    }
+
+    public static bool IncAndTryMod<T>(ref T number, T delta, T max) where T : struct, INumber<T>
+    {
+        number += delta;
+        if (number > max) {
+            number %= max;
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    public static void IncAndMod<T>(ref T number, T delta, T max) where T : struct, INumber<T>
+    {
+        number += delta;
+        if (number > max) {
+            number %= max;
+        }
+    }
+
 
     #endregion
 
@@ -68,28 +112,6 @@ public static partial class TraMath
 
     #region MinMax
 
-    public static T Min<T>(params ReadOnlySpan<T> values) where T : INumber<T>
-    {
-        var rtn = values[0];
-        for (int i = 1; i < values.Length; i++) {
-            var val = values.DangerousGetReferenceAt(i);
-            if (val < rtn)
-                rtn = val;
-        }
-        return rtn;
-    }
-
-    public static T Max<T>(params ReadOnlySpan<T> values) where T : INumber<T>
-    {
-        var rtn = values[0];
-        for (int i = 1; i < values.Length; i++) {
-            var val = values.DangerousGetReferenceAt(i);
-            if (val > rtn)
-                rtn = val;
-        }
-        return rtn;
-    }
-
     /// <summary>
     /// Returns min, max in one time
     /// </summary>
@@ -103,20 +125,6 @@ public static partial class TraMath
             return (left, right);
         else
             return (right, left);
-    }
-
-    public static (T Min, T Max) MinMax<T>(params ReadOnlySpan<T> values) where T : INumber<T>
-    {
-        var min = values[0];
-        var max = min;
-        for (int i = 1; i < values.Length; i++) {
-            var val = values.DangerousGetReferenceAt(i);
-            if (val < min)
-                min = val;
-            else if (val > max)
-                max = val;
-        }
-        return (min, max);
     }
 
     #endregion

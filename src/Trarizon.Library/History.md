@@ -2,6 +2,7 @@
 
 ## v1.0.1
 
+- Seperate `Collections` to a new project
 - [Break] Rename `TraNumber.CheckSliceArgs` to `Validate..`
 - [Break] Rename `ILinkNode` to `ILinkedListNode`
 - [Break] Rename namespace `Numerics` to `Mathematics`

@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.HighPerformance;
-using TNum = float;
+﻿using TNum = double;
 
 namespace Trarizon.Library.Mathematics;
 public static partial class TraMath
@@ -51,34 +50,6 @@ public static partial class TraMath
 
     #region MinMax
 
-    public static TNum Min(TNum v0, TNum v1, TNum v2)
-        => v0 > v1 ? v1 : v0 > v2 ? v2 : v0;
-
-    public static TNum Min(params ReadOnlySpan<TNum> values)
-    {
-        var rtn = values[0];
-        for (int i = 1; i < values.Length; i++) {
-            var val = values.DangerousGetReferenceAt(i);
-            if (val < rtn)
-                rtn = val;
-        }
-        return rtn;
-    }
-
-    public static TNum Max(TNum v0, TNum v1, TNum v2)
-        => v0 < v1 ? v1 : v0 < v2 ? v2 : v0;
-
-    public static TNum Max(params ReadOnlySpan<TNum> values)
-    {
-        var rtn = values[0];
-        for (int i = 1; i < values.Length; i++) {
-            var val = values.DangerousGetReferenceAt(i);
-            if (val > rtn)
-                rtn = val;
-        }
-        return rtn;
-    }
-
     /// <summary>
     /// Returns min, max in one time
     /// </summary>
@@ -92,20 +63,6 @@ public static partial class TraMath
             return (left, right);
         else
             return (right, left);
-    }
-
-    public static (TNum Min, TNum Max) MinMax(params ReadOnlySpan<TNum> values)
-    {
-        var min = values[0];
-        var max = min;
-        for (int i = 1; i < values.Length; i++) {
-            var val = values.DangerousGetReferenceAt(i);
-            if (val < min)
-                min = val;
-            else if (val > max)
-                max = val;
-        }
-        return (min, max);
     }
 
     #endregion

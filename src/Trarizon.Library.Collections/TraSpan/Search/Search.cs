@@ -1,5 +1,4 @@
 ﻿using CommunityToolkit.Diagnostics;
-using Trarizon.Library.Common;
 
 namespace Trarizon.Library.Collections;
 public static partial class TraSpan
