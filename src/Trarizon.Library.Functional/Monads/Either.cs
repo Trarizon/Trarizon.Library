@@ -155,13 +155,13 @@ public readonly struct Either<TLeft, TRight>
     public Either<TNewLeft, TNewRight> Select<TNewLeft, TNewRight>(Func<TLeft, TNewLeft> leftSelector, Func<TRight, TNewRight> rightSelector)
         => IsLeft ? new(leftSelector(_left)) : new(rightSelector(_right));
 
-    public Either<TNewLeft, TRight> SelectLeftWrapped<TNewLeft>(Func<TLeft, Either<TNewLeft, TRight>> selector)
+    public Either<TNewLeft, TRight> BindLeft<TNewLeft>(Func<TLeft, Either<TNewLeft, TRight>> selector)
         => IsLeft ? selector(_left) : new(_right);
 
-    public Either<TLeft, TNewRight> SelectRightWrapped<TNewRight>(Func<TRight, Either<TLeft, TNewRight>> selector)
+    public Either<TLeft, TNewRight> BindRight<TNewRight>(Func<TRight, Either<TLeft, TNewRight>> selector)
         => IsRight ? selector(_right) : new(_left);
 
-    public Either<TNewLeft, TNewRight> SelectWrapped<TNewLeft, TNewRight>(Func<TLeft, Either<TNewLeft, TNewRight>> leftSelector, Func<TRight, Either<TNewLeft, TNewRight>> rightSelector)
+    public Either<TNewLeft, TNewRight> Bind<TNewLeft, TNewRight>(Func<TLeft, Either<TNewLeft, TNewRight>> leftSelector, Func<TRight, Either<TNewLeft, TNewRight>> rightSelector)
         => IsLeft ? leftSelector(_left) : rightSelector(_right);
 
     #endregion

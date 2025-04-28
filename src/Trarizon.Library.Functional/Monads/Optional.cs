@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Trarizon.Library.Functional.Monads;
 public static class Optional
@@ -111,8 +112,42 @@ public readonly struct Optional<T>
     public Optional<TResult> Select<TResult>(Func<T, TResult> selector)
         => HasValue ? new(selector(_value)) : default;
 
-    public Optional<TResult> SelectWrapped<TResult>(Func<T, Optional<TResult>> selector)
+    public Optional<TResult> Bind<TResult>(Func<T, Optional<TResult>> selector)
         => HasValue ? selector(_value) : default;
+
+    public Optional<TResult> Bind<TMid, TResult>(Func<T, Optional<TMid>> selector, Func<T, TMid, TResult> resultSelector)
+    {
+        if (HasValue) {
+            var mid = selector(_value);
+            if (mid.HasValue)
+                return resultSelector(_value, mid._value);
+        }
+        return default;
+    }
+
+    public Optional<TResult> Zip<T2, TResult>(Optional<T2> other, Func<T, T2, TResult> selector)
+    {
+        if (HasValue && other.HasValue)
+            return selector(_value, other._value);
+        return default;
+    }
+
+    public Optional<T> Where(Func<T, bool> predicate)
+    {
+        if (HasValue && predicate(_value))
+            return _value;
+        else
+            return default;
+    }
+
+    // The method is declared for linq expression
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public Optional<TResult> SelectMany<TResult>(Func<T, Optional<TResult>> selector)
+        => Bind(selector);
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public Optional<TResult> SelectMany<TMid, TResult>(Func<T, Optional<TMid>> selector, Func<T, TMid, TResult> resultSelector)
+        => Bind(selector, resultSelector);
 
     #endregion
 

@@ -116,7 +116,7 @@ public readonly struct Result<T, TError>
     public Result<TResult, TError> Select<TResult>(Func<T, TResult> selector)
         => IsSuccess ? new(selector(_value)) : new(_error);
 
-    public Result<TResult, TError> SelectWrapped<TResult>(Func<T, Result<TResult, TError>> selector)
+    public Result<TResult, TError> Bind<TResult>(Func<T, Result<TResult, TError>> selector)
         => IsSuccess ? selector(_value) : new(_error);
 
     #endregion
