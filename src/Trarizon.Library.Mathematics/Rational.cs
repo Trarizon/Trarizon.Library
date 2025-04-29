@@ -491,14 +491,145 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
     public static bool TryConvertToTruncating<TOther>(Rational value, [MaybeNullWhen(false)] out TOther result) where TOther : INumberBase<TOther> => throw new NotImplementedException();
 #endif
 
-    public static Rational Parse(ReadOnlySpan<char> s, NumberStyles style, IFormatProvider? provider) => throw new NotImplementedException();
-    public static Rational Parse(string s, NumberStyles style, IFormatProvider? provider) => throw new NotImplementedException();
-    public static bool TryParse(ReadOnlySpan<char> s, NumberStyles style, IFormatProvider? provider, [MaybeNullWhen(false)] out Rational result) => throw new NotImplementedException();
-    public static bool TryParse([NotNullWhen(true)] string? s, NumberStyles style, IFormatProvider? provider, [MaybeNullWhen(false)] out Rational result) => throw new NotImplementedException();
+    public static Rational Parse(ReadOnlySpan<char> s, NumberStyles style, IFormatProvider? provider)
+    {
+        if (!TryParse(s, style, provider, out var result))
+            ThrowHelper.ThrowInvalidOperationException("Invalid ration number format");
+        return result;
+    }
+
+    public static Rational Parse(string s, NumberStyles style, IFormatProvider? provider) => Parse(s.AsSpan(), style, provider);
+    public static bool TryParse(ReadOnlySpan<char> s, NumberStyles style, IFormatProvider? provider, [MaybeNullWhen(false)] out Rational result) => TryParseInternal(s, style, NumberFormatInfo.GetInstance(provider), out result);
+
+    public static bool TryParse([NotNullWhen(true)] string? s, NumberStyles style, IFormatProvider? provider, [MaybeNullWhen(false)] out Rational result) => TryParse(s.AsSpan(), style, provider, out result);
     public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => throw new NotImplementedException();
     public string ToString(string? format, IFormatProvider? formatProvider) => throw new NotImplementedException();
-    public static Rational Parse(ReadOnlySpan<char> s, IFormatProvider? provider) => throw new NotImplementedException();
-    public static bool TryParse(ReadOnlySpan<char> s, IFormatProvider? provider, [MaybeNullWhen(false)] out Rational result) => throw new NotImplementedException();
-    public static Rational Parse(string s, IFormatProvider? provider) => throw new NotImplementedException();
-    public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out Rational result) => throw new NotImplementedException();
+    public static Rational Parse(ReadOnlySpan<char> s, IFormatProvider? provider) => Parse(s, NumberStyles.Number, provider);
+    public static bool TryParse(ReadOnlySpan<char> s, IFormatProvider? provider, [MaybeNullWhen(false)] out Rational result) => TryParse(s, NumberStyles.Number, provider, out result);
+    public static Rational Parse(string s, IFormatProvider? provider) => Parse(s, NumberStyles.Number, provider);
+    public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out Rational result) => TryParse(s, NumberStyles.Number, provider, out result);
+
+    private static bool TryParseInternal(ReadOnlySpan<char> s, NumberStyles style, NumberFormatInfo info, out Rational result)
+    {
+        int index = 0;
+
+        if (style.HasFlag(NumberStyles.AllowLeadingWhite)) {
+            while (index < s.Length) {
+                var ch = s[index];
+                if (!IsWhite(ch)) {
+                    break;
+                }
+                index++;
+                continue;
+            }
+        }
+
+        int leadingSign;
+
+        if (style.HasFlag(NumberStyles.AllowLeadingSign)) {
+            leadingSign = ParseLeadingSign(s.Slice(index), out var readCount);
+            index += readCount;
+        }
+        else {
+            leadingSign = 1;
+        }
+
+        long number = 0;
+
+        ReadInteger(s, ref index, ref number);
+
+        var sepch = s[index];
+        index++;
+        long denominator;
+        if (sepch is '.') {
+            denominator = 1;
+            ReadDenominator(s, ref index, ref number, ref denominator);
+        }
+        else if (sepch is '/') {
+            denominator = 0;
+            ReadInteger(s, ref index, ref denominator);
+        }
+        else {
+            denominator = 1;
+        }
+
+        var gcd = TraMath.GreatestCommonDivisor(number, denominator);
+        number = number / gcd * leadingSign;
+        denominator /= gcd;
+        if (!(number is >= int.MinValue and <= int.MaxValue && denominator is >= int.MinValue and < int.MaxValue)) {
+            result = default;
+            return false;
+        }
+
+        if (style.HasFlag(NumberStyles.AllowTrailingWhite)) {
+            while (index < s.Length) {
+                var ch = s[index];
+                if (!IsWhite(ch)) {
+                    result = default;
+                    return false;
+                }
+                index++;
+                continue;
+            }
+        }
+
+        result = new Rational((int)number, (int)denominator);
+        return true;
+
+        int ParseLeadingSign(ReadOnlySpan<char> s, out int readCount)
+        {
+            var posSign = info.PositiveSign;
+            if (posSign.Length <= s.Length) {
+                if (s.Slice(0, posSign.Length).SequenceEqual(posSign)) {
+                    readCount = posSign.Length;
+                    return 1;
+                }
+            }
+            var negSign = info.NegativeSign;
+            if (negSign.Length <= s.Length) {
+                if (s.Slice(0, negSign.Length).SequenceEqual(negSign)) {
+                    readCount = negSign.Length;
+                    return -1;
+                }
+            }
+            readCount = 0;
+            return 1;
+        }
+
+        static void ReadInteger(ReadOnlySpan<char> s, ref int index, ref long num)
+        {
+            while (index < s.Length) {
+                var ch = s[index];
+                var digit = GetDigit(ch);
+                if (digit < 0)
+                    break;
+                index++;
+                num = num * 10 + digit;
+            }
+        }
+
+        static void ReadDenominator(ReadOnlySpan<char> s, ref int index, ref long num, ref long den)
+        {
+            while (index < s.Length) {
+                var ch = s[index];
+                var digit = GetDigit(ch);
+                if (digit < 0)
+                    break;
+                index++;
+                num = num * 10 + digit;
+                den *= 10;
+            }
+        }
+    }
+
+    private static bool IsWhite(char ch)
+        => ch is '\t' or '\n' or '\v' or '\f' or '\r' or ' ';
+
+    private static int GetDigit(char ch)
+    {
+        if (ch >= '9')
+            return -1;
+        else
+            return ch - '0';
+    }
 }

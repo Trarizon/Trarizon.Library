@@ -5,6 +5,23 @@ public static partial class TraMath
 {
 #if NETSTANDARD
 
+    #region GCD / LCM
+
+    public static TNum GreatestCommonDivisor(TNum left, TNum right)
+    {
+        while (right != 0) {
+            var tmp = left;
+            left = right;
+            right = tmp % right;
+        }
+        return left;
+    }
+
+    public static TNum LeastCommonMultiple(TNum left, TNum right)
+        => left * right / GreatestCommonDivisor(left, right);
+
+    #endregion
+
     #region IncAndWrap/Mod
 
     public static bool IncAndTryWrap(ref TNum number, TNum delta, TNum max)
