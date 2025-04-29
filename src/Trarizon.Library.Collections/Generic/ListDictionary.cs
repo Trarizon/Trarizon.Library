@@ -2,14 +2,13 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using Trarizon.Library.Collections;
 using Trarizon.Library.Collections.Helpers;
 
 #if NETSTANDARD
 #pragma warning disable CS8767
 #endif
 
-namespace Trarizon.Library.Collections.Specialized;
+namespace Trarizon.Library.Collections.Generic;
 [CollectionBuilder(typeof(CollectionBuilders), nameof(CollectionBuilders.CreateListDictionary))]
 public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue> where TKey : notnull
 {

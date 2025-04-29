@@ -1,12 +1,11 @@
-﻿using CommunityToolkit.Diagnostics;
-using System.Collections;
+﻿using System.Collections;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Trarizon.Library.Collections.Helpers;
 
-namespace Trarizon.Library.Collections.Specialized;
-public class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
+namespace Trarizon.Library.Collections.Generic;
+public class PrefixTree<T>
 {
     private Entry[] _entries;
     private int _count;
@@ -16,15 +15,15 @@ public class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
     // Index of first item of free list, -1 if no free item
     private int _freeFirstIndex;
     private int _version;
-    private IEqualityComparer<TKey>? _comparer;
+    private IEqualityComparer<T>? _comparer;
 
-    public PrefixTreeDictionary()
+    public PrefixTree()
     {
         _entries = [];
         _freeFirstIndex = -1;
     }
 
-    public PrefixTreeDictionary(IEqualityComparer<TKey> comparer)
+    public PrefixTree(IEqualityComparer<T> comparer)
     {
         _entries = [];
         _comparer = comparer;
@@ -44,43 +43,7 @@ public class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
         }
     }
 
-    public bool TryGetValue(ReadOnlySpan<TKey> sequence, [MaybeNullWhen(false)] out TValue value)
-    {
-        var entryIndex = FindPrefix(sequence);
-        if (entryIndex == -1) {
-            value = default;
-            return false;
-        }
-        ref readonly var entry = ref _entries[entryIndex];
-        if (entry.IsEnd) {
-            value = entry.Value;
-            return true;
-        }
-        else {
-            value = default;
-            return false;
-        }
-    }
-
-    public bool TryGetValue(IEnumerable<TKey> sequence, [MaybeNullWhen(false)] out TValue value)
-    {
-        var entryIndex = FindPrefix(sequence);
-        if (entryIndex == -1) {
-            value = default;
-            return false;
-        }
-        ref readonly var entry = ref _entries[entryIndex];
-        if (entry.IsEnd) {
-            value = entry.Value;
-            return true;
-        }
-        else {
-            value = default;
-            return false;
-        }
-    }
-
-    public bool ContainsKey(ReadOnlySpan<TKey> sequence)
+    public bool Contains(ReadOnlySpan<T> sequence)
     {
         var entryIndex = FindPrefix(sequence);
         if (entryIndex == -1)
@@ -88,7 +51,7 @@ public class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
         return _entries[entryIndex].IsEnd;
     }
 
-    public bool ContainsKey(IEnumerable<TKey> sequence)
+    public bool Contains(IEnumerable<T> sequence)
     {
         var entryIndex = FindPrefix(sequence);
         if (entryIndex == -1)
@@ -96,7 +59,7 @@ public class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
         return _entries[entryIndex].IsEnd;
     }
 
-    public bool ContainsKeyPrefix(ReadOnlySpan<TKey> prefix)
+    public bool ContainsPrefix(ReadOnlySpan<T> prefix)
     {
         var entryIndex = FindPrefix(prefix);
         if (entryIndex == -1)
@@ -104,7 +67,7 @@ public class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
         return true;
     }
 
-    public bool ContainsKeyPrefix(IEnumerable<TKey> prefix)
+    public bool ContainsPrefix(IEnumerable<T> prefix)
     {
         var entryIndex = FindPrefix(prefix);
         if (entryIndex == -1)
@@ -112,20 +75,20 @@ public class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
         return true;
     }
 
-    private int FindPrefix(ReadOnlySpan<TKey> prefix)
+    private int FindPrefix(ReadOnlySpan<T> prefix)
     {
         if (_entries.Length == 0)
             return -1;
 
         int entryIndex = 0;
 
-        if (typeof(TKey).IsValueType && _comparer is null) {
+        if (typeof(T).IsValueType && _comparer is null) {
             foreach (var val in prefix) {
                 ref readonly var entry = ref _entries[entryIndex];
                 int childIndex = entry.Child;
                 while (childIndex > 0) {
                     ref var child = ref _entries[childIndex];
-                    if (EqualityComparer<TKey>.Default.Equals(child.Key, val)) {
+                    if (EqualityComparer<T>.Default.Equals(child.Value, val)) {
                         entryIndex = childIndex;
                         goto ContinueFor;
                     }
@@ -138,13 +101,13 @@ public class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
             }
         }
         else {
-            var comparer = _comparer ??= EqualityComparer<TKey>.Default;
+            var comparer = _comparer ??= EqualityComparer<T>.Default;
             foreach (var val in prefix) {
                 ref readonly var entry = ref _entries[entryIndex];
                 int siblingIndex = entry.Child;
                 while (siblingIndex > 0) {
                     ref var sibling = ref _entries[siblingIndex];
-                    if (comparer.Equals(entry.Key, val)) {
+                    if (comparer.Equals(entry.Value, val)) {
                         entryIndex = siblingIndex;
                         goto ContinueFor;
                     }
@@ -159,20 +122,20 @@ public class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
         return entryIndex;
     }
 
-    private int FindPrefix(IEnumerable<TKey> prefix)
+    private int FindPrefix(IEnumerable<T> prefix)
     {
         if (_entries.Length == 0)
             return -1;
 
         int entryIndex = 0;
 
-        if (typeof(TKey).IsValueType && _comparer is null) {
+        if (typeof(T).IsValueType && _comparer is null) {
             foreach (var val in prefix) {
                 ref readonly var entry = ref _entries[entryIndex];
                 int childIndex = entry.Child;
                 while (childIndex > 0) {
                     ref var child = ref _entries[childIndex];
-                    if (EqualityComparer<TKey>.Default.Equals(child.Key, val)) {
+                    if (EqualityComparer<T>.Default.Equals(child.Value, val)) {
                         entryIndex = childIndex;
                         goto ContinueFor;
                     }
@@ -185,13 +148,13 @@ public class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
             }
         }
         else {
-            var comparer = _comparer ??= EqualityComparer<TKey>.Default;
+            var comparer = _comparer ??= EqualityComparer<T>.Default;
             foreach (var val in prefix) {
                 ref readonly var entry = ref _entries[entryIndex];
                 int siblingIndex = entry.Child;
                 while (siblingIndex > 0) {
                     ref var sibling = ref _entries[siblingIndex];
-                    if (comparer.Equals(entry.Key, val)) {
+                    if (comparer.Equals(entry.Value, val)) {
                         entryIndex = siblingIndex;
                         goto ContinueFor;
                     }
@@ -210,13 +173,13 @@ public class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
 
     #region Modification
 
-    public Node GetOrAdd(ReadOnlySpan<TKey> sequence, TValue value)
+    public Node GetOrAdd(ReadOnlySpan<T> sequence)
     {
         EnsureRootEntry();
         var entryIndex = 0;
 
-        foreach (var key in sequence) {
-            entryIndex = GetOrAddChild(entryIndex, key, value);
+        foreach (var value in sequence) {
+            entryIndex = GetOrAddChild(entryIndex, value);
         }
 
         ref var entry = ref _entries[entryIndex];
@@ -226,13 +189,13 @@ public class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
         return new Node(this, entryIndex);
     }
 
-    public Node GetOrAdd(IEnumerable<TKey> sequence, TValue value)
+    public Node GetOrAdd(IEnumerable<T> sequence)
     {
         EnsureRootEntry();
         var entryIndex = 0;
 
-        foreach (var key in sequence) {
-            entryIndex = GetOrAddChild(entryIndex, key, value);
+        foreach (var value in sequence) {
+            entryIndex = GetOrAddChild(entryIndex, value);
         }
 
         ref var entry = ref _entries[entryIndex];
@@ -245,13 +208,13 @@ public class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
     /// <summary>
     /// Try add a sequence
     /// </summary>
-    public bool TryAdd(ReadOnlySpan<TKey> sequence, TValue value, out Node node)
+    public bool TryAdd(ReadOnlySpan<T> sequence, out Node node)
     {
         EnsureRootEntry();
         var entryIndex = 0;
 
-        foreach (var key in sequence) {
-            entryIndex = GetOrAddChild(entryIndex, key, value);
+        foreach (var value in sequence) {
+            entryIndex = GetOrAddChild(entryIndex, value);
         }
 
         ref var entry = ref _entries[entryIndex];
@@ -271,13 +234,13 @@ public class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
     /// <summary>
     /// Try add a sequence
     /// </summary>
-    public bool TryAdd(IEnumerable<TKey> sequence, TValue value, out Node node)
+    public bool TryAdd(IEnumerable<T> sequence, out Node node)
     {
         EnsureRootEntry();
         var entryIndex = 0;
 
-        foreach (var key in sequence) {
-            entryIndex = GetOrAddChild(entryIndex, key, value);
+        foreach (var value in sequence) {
+            entryIndex = GetOrAddChild(entryIndex, value);
         }
 
         ref var entry = ref _entries[entryIndex];
@@ -294,7 +257,7 @@ public class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
         }
     }
 
-    public bool Remove(ReadOnlySpan<TKey> sequence)
+    public bool Remove(ReadOnlySpan<T> sequence)
     {
         var entryIndex = FindPrefix(sequence);
         if (entryIndex == -1)
@@ -321,7 +284,7 @@ public class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
         }
     }
 
-    public bool Remove(IEnumerable<TKey> sequence)
+    public bool Remove(IEnumerable<T> sequence)
     {
         var entryIndex = FindPrefix(sequence);
         if (entryIndex == -1)
@@ -370,26 +333,26 @@ public class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
         }
     }
 
-    private int GetOrAddChild(int parentIndex, TKey key, TValue value)
+    private int GetOrAddChild(int parentIndex, T value)
     {
         Debug.Assert(parentIndex < _consumedCount);
 
         var childIndex = _entries[parentIndex].Child;
 
-        if (typeof(TKey).IsValueType && _comparer is null) {
+        if (typeof(T).IsValueType && _comparer is null) {
             while (childIndex > 0) {
                 ref var child = ref _entries[childIndex];
                 // Exists, return the existing value
-                if (EqualityComparer<TKey>.Default.Equals(key, child.Key))
+                if (EqualityComparer<T>.Default.Equals(value, child.Value))
                     return childIndex;
                 childIndex = child.NextSibling;
             }
         }
         else {
-            var comparer = _comparer ??= EqualityComparer<TKey>.Default;
+            var comparer = _comparer ??= EqualityComparer<T>.Default;
             while (childIndex > 0) {
                 ref var child = ref _entries[childIndex];
-                if (comparer.Equals(key, child.Key))
+                if (comparer.Equals(value, child.Value))
                     return childIndex;
                 childIndex = child.NextSibling;
             }
@@ -403,7 +366,6 @@ public class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
             ref var child = ref _entries[childIndex];
             child = new()
             {
-                Key = key,
                 Value = value,
                 ParentOrFreeNext = parentIndex,
                 NextSibling = parent.Child,
@@ -447,14 +409,10 @@ public class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
     {
         Debug.Assert(index > 0);
         ref var entry = ref _entries[index];
-
 #if NETSTANDARD
-        entry.Key = default!;
         entry.Value = default!;
 #else
-        if (RuntimeHelpers.IsReferenceOrContainsReferences<TKey>())
-            entry.Key = default!;
-        if (RuntimeHelpers.IsReferenceOrContainsReferences<TValue>())
+        if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
             entry.Value = default!;
 #endif
         _entries[entry.ParentOrFreeNext].Child = entry.NextSibling;
@@ -483,9 +441,8 @@ public class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
         /// As the last second bit is the free mask, the field should increment by 2
         /// when update
         /// </remarks>
-        public ushort Version;
-        public TKey Key;
-        public TValue Value;
+        public int Version;
+        public T Value;
 
         public readonly bool IsFreed => (Version & FreedVersionMask) == 0;
         public readonly bool IsEnd => (Version & IsEndVersionMask) != 0;
@@ -500,88 +457,71 @@ public class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
 
         // Check if the entry is a end
         // is end if the bit is 1
-        private const ushort IsEndVersionMask = 1;
-        private const ushort NotEndVersionMask = ushort.MaxValue - IsEndVersionMask;
+        private const int IsEndVersionMask = 1;
+        private const int NotEndVersionMask = int.MaxValue - IsEndVersionMask;
         // Check if the entry is in free list
         // freed if the bit is 0
-        private const ushort FreedVersionMask = 1 << 1;
+        private const int FreedVersionMask = 1 << 1;
     }
 
     public readonly struct Node : IEquatable<Node>
     {
-        internal readonly PrefixTreeDictionary<TKey, TValue> _tree;
+        internal readonly PrefixTree<T> _tree;
         internal readonly int _index;
+        private readonly int _version;
 
-        internal Node(PrefixTreeDictionary<TKey, TValue> tree, int index)
+        internal Node(PrefixTree<T> tree, int index)
         {
+            Debug.Assert(!tree._entries[index].IsFreed);
             _tree = tree;
             _index = index;
+            _version = tree._entries[index].Version;
         }
 
-        public bool HasKey => _tree is not null;
+        public bool HasValue => _tree is not null && _version == _tree._entries[_index].Version;
 
-        public bool IsEnd => EntryRef.IsEnd;
+        public bool IsEnd => GetValidatedEntryRef().IsEnd;
 
-        public TKey Key => KeyRef;
+        public T Value => GetValidatedEntryRef().Value;
 
-        public ref readonly TKey KeyRef => ref EntryRef.Key;
-
-        public TValue Value
-        {
-            get {
-                if (!IsEnd)
-                    ThrowHelper.ThrowInvalidOperationException("The node doesn't contains a value");
-                return EntryRef.Value;
-            }
-            set {
-                if (!IsEnd)
-                    ThrowHelper.ThrowInvalidOperationException("The node doesn't contains a value");
-                EntryRef.Value = value;
-                _tree._version++;
-            }
-        }
-
-        public bool TryGetValue([MaybeNullWhen(false)] out TValue value)
-        {
-            ref readonly var entry = ref EntryRef;
-            if (entry.IsEnd) {
-                value = entry.Value;
-                return true;
-            }
-            else {
-                value = default;
-                return false;
-            }
-        }
-
-        public ref TValue GetValueRefOrNullRef()
-        {
-            ref var entry = ref EntryRef;
-            if (entry.IsEnd) {
-                return ref entry.Value;
-            }
-            else {
-                return ref Unsafe.NullRef<TValue>();
-            }
-        }
+        public ref readonly T ValueRef => ref GetValidatedEntryRef().Value;
 
         public Node Parent
         {
             get {
-                if (!HasKey)
+                ref var entry = ref GetValidEntryRefOrNullRef();
+                if (Unsafe.IsNullRef(ref entry))
                     return default;
-                ref readonly var entry = ref EntryRef;
-                if (entry.IsFreed)
+                if (_index == 0)
                     return default;
-                if (_index == 0) // is root
-                    return default;
-                return new Node(_tree, _index);
+                return new Node(_tree, entry.ParentOrFreeNext);
             }
         }
 
         public ChildNodesCollection Children => new(this);
 
-        internal ref Entry EntryRef => ref _tree._entries[_index];
+        internal ref Entry GetValidEntryRefOrNullRef()
+        {
+            if (_tree is null)
+                goto Invalid;
+            ref var entry = ref _tree._entries[_index];
+            if (entry.Version != _version)
+                goto Invalid;
+            Debug.Assert(!entry.IsFreed);
+            return ref entry;
+
+        Invalid:
+            return ref Unsafe.NullRef<Entry>();
+        }
+
+        private ref Entry GetValidatedEntryRef()
+        {
+            ref var entry = ref _tree._entries[_index];
+            if (_version != entry.Version)
+                Throws.NodeIsInvalidated();
+            Debug.Assert(!entry.IsFreed);
+            return ref entry;
+        }
 
         #region Equality
 
@@ -601,10 +541,8 @@ public class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
         public bool IsEmpty
         {
             get {
-                if (!_node.HasKey)
-                    return false;
-                ref readonly var entry = ref _node.EntryRef;
-                if (entry.IsFreed)
+                ref var entry = ref _node.GetValidEntryRefOrNullRef();
+                if (Unsafe.IsNullRef(ref entry))
                     return false;
                 return entry.Child == 0;
             }
@@ -617,10 +555,8 @@ public class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
 
         public readonly Enumerator GetEnumerator()
         {
-            if (!_node.HasKey)
-                return Enumerator.Empty;
-            ref readonly var entry = ref _node.EntryRef;
-            if (entry.IsFreed)
+            ref var entry = ref _node.GetValidEntryRefOrNullRef();
+            if (Unsafe.IsNullRef(ref entry))
                 return Enumerator.Empty;
             var firstChild = entry.Child;
             if (firstChild > 0)
@@ -633,14 +569,14 @@ public class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
 
         public struct Enumerator : IEnumerator<Node>
         {
-            private readonly PrefixTreeDictionary<TKey, TValue> _tree;
+            private readonly PrefixTree<T> _tree;
             private readonly int _version;
             private int _index;
             private int _current;
 
             internal static Enumerator Empty => new(-1);
 
-            internal Enumerator(PrefixTreeDictionary<TKey, TValue> tree, int firstSiblingIndex)
+            internal Enumerator(PrefixTree<T> tree, int firstSiblingIndex)
             {
                 _tree = tree;
                 _version = tree._version;

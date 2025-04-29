@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using Trarizon.Library.Collections.Helpers;
 using Trarizon.Library.Collections.StackAlloc;
 
-namespace Trarizon.Library.Collections.Specialized;
+namespace Trarizon.Library.Collections.Generic;
 public class Memento<T>
 {
     private T[] _array;

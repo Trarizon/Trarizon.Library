@@ -1,10 +1,9 @@
 ﻿using CommunityToolkit.Diagnostics;
 using System.Collections;
 using System.Diagnostics;
-using Trarizon.Library.Collections;
 using Trarizon.Library.Collections.Helpers;
 
-namespace Trarizon.Library.Collections.Specialized;
+namespace Trarizon.Library.Collections.Generic;
 public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
 {
     private T[] _array;

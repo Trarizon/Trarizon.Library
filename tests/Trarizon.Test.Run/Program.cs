@@ -2,7 +2,7 @@
 
 using Trarizon.Library.Collections;
 using Trarizon.Library.Collections.AllocOpt;
-using Trarizon.Library.Collections.Specialized;
+using Trarizon.Library.Collections.Generic;
 using Trarizon.Test.Run;
 
 PrefixTree<char> t = new();
