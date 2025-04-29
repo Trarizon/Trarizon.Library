@@ -52,54 +52,41 @@ public partial class ContiguousLinkedList<T> : ICollection<T>, IReadOnlyCollecti
     public Node AddAfter(Node node, T value)
     {
         ValidateNodeBelonging(node);
-        return AddAfterInternal(node._index, value);
+        var index = AddAfterInternal(node._index, value);
+        return new Node(this, index);
     }
 
     public Node AddBefore(Node node, T value)
     {
         ValidateNodeBelonging(node);
-        return AddBeforeInternal(node._index, value);
-    }
-
-    private Node AddAfterInternal(int entryIndex, T value)
-    {
-        ref readonly var entry = ref _entries[entryIndex];
-        Debug.Assert(!entry.IsFreed);
-
-        var index = AddEntry(new Entry
-        {
-            Value = value,
-            Prev = entryIndex,
-            Next = entry.Next,
-        });
+        var index = AddAfterInternal(_entries[node._index].Prev, value);
         return new Node(this, index);
     }
 
-    private Node AddBeforeInternal(int entryIndex, T value)
+    private int AddAfterInternal(int prevEntryIndex, T value)
     {
-        ref readonly var entry = ref _entries[entryIndex];
-        Debug.Assert(!entry.IsFreed);
+        ref readonly var prevEntry = ref _entries[prevEntryIndex];
+        Debug.Assert(!prevEntry.IsFreed);
 
-        var index = AddEntry(new Entry
+        var index = GetFreeEntry();
+        ref var entry = ref _entries[index];
+        entry = new()
         {
             Value = value,
-            Prev = entry.Prev,
-            Next = entryIndex,
-        });
-        if (entryIndex == _firstIndex)
-            _firstIndex = index;
-        return new Node(this, index);
+            Prev = prevEntryIndex,
+            Next = prevEntry.Next,
+            Version = entry.Version,
+        };
+        _entries[entry.Prev].Next = index;
+        _entries[entry.Next].Prev = index;
+        _version++;
+        return index;
     }
 
     public Node AddFirst(T value)
     {
         if (_count > 0) {
-            var index = AddEntry(new Entry
-            {
-                Value = value,
-                Prev = FirstEntry.Prev,
-                Next = _firstIndex,
-            });
+            var index = AddAfterInternal(_entries[_firstIndex].Prev, value);
             _firstIndex = index;
             return new Node(this, index);
         }
@@ -112,45 +99,13 @@ public partial class ContiguousLinkedList<T> : ICollection<T>, IReadOnlyCollecti
     public Node AddLast(T value)
     {
         if (_count > 0) {
-            var index = AddEntry(new Entry
-            {
-                Value = value,
-                Prev = FirstEntry.Prev,
-                Next = _firstIndex,
-            });
+            var index = AddAfterInternal(_entries[_firstIndex].Prev, value);
             return new Node(this, index);
         }
         else {
             AddToEmptyList(value);
             return new Node(this, 0);
         }
-    }
-
-    /// <returns>Index of added entry</returns>
-    private int AddEntry(in Entry entry)
-    {
-        ref Entry free = ref Unsafe.NullRef<Entry>();
-        int index;
-        if (_freeFirstIndex >= 0) {
-            free = ref _entries[_freeFirstIndex];
-            index = _freeFirstIndex;
-            _freeFirstIndex = free.Next;
-        }
-        else {
-            if (_count == _entries.Length) {
-                ArrayGrowHelper.Grow(ref _entries, _count + 1, _count);
-            }
-            free = ref _entries[_count];
-            index = _count;
-            _consumedCount++;
-        }
-        free = entry with { Version = free.Version + 1 };
-        Debug.Assert(!free.IsFreed);
-        _entries[entry.Prev].Next = index;
-        _entries[entry.Next].Prev = index;
-        _count++;
-        _version++;
-        return index;
     }
 
     private void AddToEmptyList(T item)
@@ -161,24 +116,54 @@ public partial class ContiguousLinkedList<T> : ICollection<T>, IReadOnlyCollecti
             _consumedCount++;
         }
         ref var free = ref _entries[0];
+        free.Version++;
+        _count = 1;
+
         free = new Entry
         {
             Value = item,
             Prev = 0,
             Next = 0,
-            Version = free.Version + 1,
+            Version = free.Version,
         };
         Debug.Assert(!free.IsFreed);
         _firstIndex = 0;
-        _count++;
         _version++;
+    }
+
+    /// <returns>Index of new entry</returns>
+    private int GetFreeEntry()
+    {
+        ref Entry free = ref Unsafe.NullRef<Entry>();
+        int index;
+        if (_freeFirstIndex >= 0) {
+            free = ref _entries[_freeFirstIndex];
+            index = _freeFirstIndex;
+            _freeFirstIndex = free.Next;
+        }
+        // Use unconsumed entry
+        else {
+            if (_count == _entries.Length) {
+                Debug.Assert(_count == _consumedCount);
+                ArrayGrowHelper.Grow(ref _entries, _count + 1, _count);
+            }
+            free = ref _entries[_count];
+            index = _count;
+            _consumedCount++;
+        }
+
+        Debug.Assert(!Unsafe.IsNullRef(ref free));
+        free.Version++;
+        Debug.Assert(!free.IsFreed);
+        _count++;
+        return index;
     }
 
     public bool Remove(T value)
     {
         var node = Find(value);
         if (node.HasValue) {
-            RemoveEntry(node._index, ref node.Entry);
+            RemoveEntry(node._index);
             return true;
         }
         return false;
@@ -188,7 +173,7 @@ public partial class ContiguousLinkedList<T> : ICollection<T>, IReadOnlyCollecti
     {
         ValidateNodeBelonging(node);
         if (node.HasValue) {
-            RemoveEntry(node._index, ref node.Entry);
+            RemoveEntry(node._index);
             return true;
         }
         return false;
@@ -198,25 +183,25 @@ public partial class ContiguousLinkedList<T> : ICollection<T>, IReadOnlyCollecti
     {
         if (_count == 0)
             Throws.CollectionHasNoElement();
-        RemoveEntry(_firstIndex, ref FirstEntry);
+        RemoveEntry(_firstIndex);
     }
 
     public void RemoveLast()
     {
         if (_count == 0)
             Throws.CollectionHasNoElement();
-        RemoveEntry(FirstEntry.Prev, ref LastEntry);
+        RemoveEntry(FirstEntry.Prev);
     }
 
-    private void RemoveEntry(int index, ref Entry entry)
+    private void RemoveEntry(int index)
     {
-        Debug.Assert(Unsafe.AreSame(ref _entries[index], ref entry));
+        ref var entry = ref _entries[index];
 
         _entries[entry.Prev].Next = entry.Next;
         _entries[entry.Next].Prev = entry.Prev;
         if (index == _firstIndex)
             _firstIndex = entry.Next;
-        FreeEntry(index, ref entry);
+        FreeEntry(index);
         _count--;
         if (_count == 0) {
             _firstIndex = -1;
@@ -226,15 +211,16 @@ public partial class ContiguousLinkedList<T> : ICollection<T>, IReadOnlyCollecti
         _version++;
     }
 
-    private void FreeEntry(int index, ref Entry entry)
+    private void FreeEntry(int index)
     {
-        Debug.Assert(Unsafe.AreSame(ref _entries[index], ref entry));
-
+        ref var entry = ref _entries[index];
+        Debug.Assert(!entry.IsFreed);
         entry = new Entry
         {
             Next = _freeFirstIndex,
-            Version = entry.Version + 1
+            Version = entry.Version,
         };
+        entry.Version++;
         Debug.Assert(entry.IsFreed);
         _freeFirstIndex = index;
     }
@@ -249,7 +235,7 @@ public partial class ContiguousLinkedList<T> : ICollection<T>, IReadOnlyCollecti
         _version++;
     }
 
-    private void ValidateNodeBelonging(UnsafeNode node)
+    private void ValidateNodeBelonging(Node node)
     {
         if (node._list != this)
             Throws.NodeNotBelongsToCollection();
@@ -314,6 +300,8 @@ public partial class ContiguousLinkedList<T> : ICollection<T>, IReadOnlyCollecti
 
     public NodesIterator EnumerateNodes() => new(this);
 
+    #region Interface
+
     bool ICollection<T>.IsReadOnly => false;
 
     void ICollection<T>.Add(T item) => AddLast(item);
@@ -321,9 +309,7 @@ public partial class ContiguousLinkedList<T> : ICollection<T>, IReadOnlyCollecti
     IEnumerator<T> IEnumerable<T>.GetEnumerator() => GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    [DoesNotReturn]
-    private static void ThrowNodeInvalidated()
-        => ThrowHelper.ThrowInvalidOperationException("The node has been invalidated.");
+    #endregion
 
     internal struct Entry
     {
@@ -339,7 +325,7 @@ public partial class ContiguousLinkedList<T> : ICollection<T>, IReadOnlyCollecti
         /// The last bit is for check if it is in free list, so increment by 1 when free
         /// state toggled is ok
         /// </remarks>
-        internal int Version;
+        public int Version;
 
         public readonly bool IsFreed => (Version & FreedMask) == 0;
 
@@ -359,39 +345,48 @@ public partial class ContiguousLinkedList<T> : ICollection<T>, IReadOnlyCollecti
         internal readonly int _index;
         internal readonly int _version;
 
-        public bool HasValue => _list is not null;
+        internal Node(ContiguousLinkedList<T> list, int index)
+        {
+            _list = list;
+            _index = index;
+            ref readonly var entry = ref _list._entries[_index];
+            Debug.Assert(!entry.IsFreed);
+            _version = entry.Version;
+        }
+
+        public bool HasValue => _list is not null && _version == _list._entries[_index].Version;
 
         public T Value
         {
-            get => Entry.Value;
+            get => GetValidatedEntryRef().Value;
             set {
-                Entry.Value = value;
+                GetValidatedEntryRef().Value = value;
                 _list._version++;
             }
         }
 
-        public ref T ValueRef => ref Entry.Value;
+        public ref T ValueRef => ref GetValidatedEntryRef().Value;
 
         public Node Next
         {
             get {
-                if (!HasValue)
+                ref var entry = ref GetValidEntryRefOrNullRef();
+                if (Unsafe.IsNullRef(ref entry))
                     return default;
-                ref readonly var entry = ref Entry;
                 if (entry.Next == _list._firstIndex)
                     return default;
-                return new(_list, entry.Next);
+                return new Node(_list, entry.Next);
             }
         }
 
         public Node Prev
         {
             get {
-                if (!HasValue)
+                ref var entry = ref GetValidEntryRefOrNullRef();
+                if (Unsafe.IsNullRef(ref entry))
                     return default;
                 if (_index == _list._firstIndex)
                     return default;
-                ref readonly var entry = ref Entry;
                 return new Node(_list, entry.Prev);
             }
         }
@@ -401,7 +396,7 @@ public partial class ContiguousLinkedList<T> : ICollection<T>, IReadOnlyCollecti
             get {
                 ref Entry entry = ref DangerousGetEntryRef();
                 if (entry.Version != _version)
-                    ThrowNodeInvalidated();
+                    Throws.NodeIsInvalidated();
                 Debug.Assert(!entry.IsFreed);
                 return ref entry;
             }
@@ -409,13 +404,27 @@ public partial class ContiguousLinkedList<T> : ICollection<T>, IReadOnlyCollecti
 
         private ref Entry DangerousGetEntryRef() => ref _list._entries[_index];
 
-        internal Node(ContiguousLinkedList<T> list, int index)
+        private ref Entry GetValidEntryRefOrNullRef()
         {
-            _list = list;
-            _index = index;
-            ref readonly var entry = ref _list._entries[_index];
+            if (_list is null)
+                goto Invalid;
+            ref var entry = ref _list._entries[_index];
+            if (entry.Version != _version)
+                goto Invalid;
             Debug.Assert(!entry.IsFreed);
-            _version = entry.Version;
+            return ref entry;
+
+        Invalid:
+            return ref Unsafe.NullRef<Entry>();
+        }
+
+        private ref Entry GetValidatedEntryRef()
+        {
+            ref var entry = ref _list._entries[_index];
+            if (_version != entry.Version)
+                Throws.NodeIsInvalidated();
+            Debug.Assert(!entry.IsFreed);
+            return ref entry;
         }
 
         #region Equality

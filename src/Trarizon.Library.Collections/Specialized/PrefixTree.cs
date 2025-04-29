@@ -441,7 +441,7 @@ public class PrefixTree<T>
         /// As the last second bit is the free mask, the field should increment by 2
         /// when update
         /// </remarks>
-        public ushort Version;
+        public int Version;
         public T Value;
 
         public readonly bool IsFreed => (Version & FreedVersionMask) == 0;
@@ -457,49 +457,71 @@ public class PrefixTree<T>
 
         // Check if the entry is a end
         // is end if the bit is 1
-        private const ushort IsEndVersionMask = 1;
-        private const ushort NotEndVersionMask = ushort.MaxValue - IsEndVersionMask;
+        private const int IsEndVersionMask = 1;
+        private const int NotEndVersionMask = int.MaxValue - IsEndVersionMask;
         // Check if the entry is in free list
         // freed if the bit is 0
-        private const ushort FreedVersionMask = 1 << 1;
+        private const int FreedVersionMask = 1 << 1;
     }
 
     public readonly struct Node : IEquatable<Node>
     {
         internal readonly PrefixTree<T> _tree;
         internal readonly int _index;
+        private readonly int _version;
 
         internal Node(PrefixTree<T> tree, int index)
         {
+            Debug.Assert(!tree._entries[index].IsFreed);
             _tree = tree;
             _index = index;
+            _version = tree._entries[index].Version;
         }
 
-        public bool HasValue => _tree is not null;
+        public bool HasValue => _tree is not null && _version == _tree._entries[_index].Version;
 
-        public bool IsEnd => EntryRef.IsEnd;
+        public bool IsEnd => GetValidatedEntryRef().IsEnd;
 
-        public T Value => ValueRef;
+        public T Value => GetValidatedEntryRef().Value;
 
-        public ref readonly T ValueRef => ref EntryRef.Value;
+        public ref readonly T ValueRef => ref GetValidatedEntryRef().Value;
 
         public Node Parent
         {
             get {
-                if (!HasValue)
+                ref var entry = ref GetValidEntryRefOrNullRef();
+                if (Unsafe.IsNullRef(ref entry))
                     return default;
-                ref readonly var entry = ref EntryRef;
-                if (entry.IsFreed)
+                if (_index == 0)
                     return default;
-                if (_index == 0) // is root
-                    return default;
-                return new Node(_tree, _index);
+                return new Node(_tree, entry.ParentOrFreeNext);
             }
         }
 
         public ChildNodesCollection Children => new(this);
 
-        internal ref Entry EntryRef => ref _tree._entries[_index];
+        internal ref Entry GetValidEntryRefOrNullRef()
+        {
+            if (_tree is null)
+                goto Invalid;
+            ref var entry = ref _tree._entries[_index];
+            if (entry.Version != _version)
+                goto Invalid;
+            Debug.Assert(!entry.IsFreed);
+            return ref entry;
+
+        Invalid:
+            return ref Unsafe.NullRef<Entry>();
+        }
+
+        private ref Entry GetValidatedEntryRef()
+        {
+            ref var entry = ref _tree._entries[_index];
+            if (_version != entry.Version)
+                Throws.NodeIsInvalidated();
+            Debug.Assert(!entry.IsFreed);
+            return ref entry;
+        }
 
         #region Equality
 
@@ -519,10 +541,8 @@ public class PrefixTree<T>
         public bool IsEmpty
         {
             get {
-                if (!_node.HasValue)
-                    return false;
-                ref readonly var entry = ref _node.EntryRef;
-                if (entry.IsFreed)
+                ref var entry = ref _node.GetValidEntryRefOrNullRef();
+                if (Unsafe.IsNullRef(ref entry))
                     return false;
                 return entry.Child == 0;
             }
@@ -535,10 +555,8 @@ public class PrefixTree<T>
 
         public readonly Enumerator GetEnumerator()
         {
-            if (!_node.HasValue)
-                return Enumerator.Empty;
-            ref readonly var entry = ref _node.EntryRef;
-            if (entry.IsFreed)
+            ref var entry = ref _node.GetValidEntryRefOrNullRef();
+            if (Unsafe.IsNullRef(ref entry))
                 return Enumerator.Empty;
             var firstChild = entry.Child;
             if (firstChild > 0)

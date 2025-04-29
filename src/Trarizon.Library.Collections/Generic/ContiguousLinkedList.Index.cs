@@ -38,20 +38,21 @@ partial class ContiguousLinkedList<T>
 
     public Node AddBefore(ContiguousLinkedListNodeIndex index, T value)
     {
-        _ = GetNode(index);
-        return AddBeforeInternal(index.Value, value);
+        var node = GetNode(index);
+        return AddBefore(node, value);
     }
 
-    public Node AddAfter(ContiguousLinkedListNodeIndex index,T value)
+    public Node AddAfter(ContiguousLinkedListNodeIndex index, T value)
     {
-        _ = GetNode(index);
-        return AddAfterInternal(index.Value, value);
+        var node = GetNode(index);
+        return AddAfter(node, value);
     }
 
     public bool RemoveAt(ContiguousLinkedListNodeIndex nodeIndex)
     {
         if (TryGetNode(nodeIndex, out var node)) {
-            RemoveEntry(node._index, ref node.Entry);
+            var ret = Remove(node);
+            Debug.Assert(ret is true);
             return true;
         }
         return false;

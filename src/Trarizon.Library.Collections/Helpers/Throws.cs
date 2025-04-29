@@ -22,6 +22,10 @@ internal static class Throws
         => throw new InvalidOperationException("Node does not belong to this collection.");
 
     [DoesNotReturn]
+    public static void NodeIsInvalidated()
+        => throw new InvalidOperationException("The node is invalidated.");
+
+    [DoesNotReturn]
     internal static void KeyNotFound<T>(T key)
         => throw new KeyNotFoundException($"Cannot find key '{key}' in collection.");
 
