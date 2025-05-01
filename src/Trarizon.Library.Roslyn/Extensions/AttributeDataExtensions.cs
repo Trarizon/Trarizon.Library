@@ -1,5 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Trarizon.Library.Collections;
 
@@ -18,6 +19,25 @@ public static class AttributeDataExtensions
         if (attributeData.NamedArguments.TryFirst(kv => kv.Key == parameterName, out var first))
             return first.Value;
         return default;
+    }
+
+    [return: NotNullIfNotNull(nameof(defaultValue))]
+    public static T? Cast<T>(this in Optional<TypedConstant> typedConstant, T? defaultValue = default)
+    {
+        if (typedConstant.HasValue)
+            return typedConstant.Value.Cast<T>();
+        else
+            return defaultValue;
+    }
+
+    public static ImmutableArray<T> CastArray<T>(this in Optional<TypedConstant> typedConstant)
+    {
+        if(typedConstant.HasValue) {
+            return typedConstant.Value.CastArray<T>();
+        }
+        else {
+            return [];
+        }
     }
 
     public static T Cast<T>(this TypedConstant typedConstant)

@@ -14,42 +14,48 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.12.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.13.0" />
         <PackageReference Include="PolySharp" Version="1.15.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="System.Memory" Version="4.6.3" PrivateAssets="all" GeneratePathProperty="true" />
         <PackageReference Include="Trarizon.Library.Collections" Version="1.0.0.3" PrivateAssets="all" GeneratePathProperty="true" />
+        <PackageReference Include="Trarizon.Library.Functional" Version="1.0.0.2" PrivateAssets="all" GeneratePathProperty="true" />
     </ItemGroup>
 
     <!-- End References -->
 
     <PropertyGroup>
         <PolySharpIncludeGeneratedTypes>
+            System.Diagnostics.CodeAnalysis.MaybeNullAttribute;
+            System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute;
             System.Diagnostics.CodeAnalysis.NotNullWhenAttribute;
+
+            System.Runtime.CompilerServices.IsExternalInit;
         </PolySharpIncludeGeneratedTypes>
         <!--
-            System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute;
             System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute;
             System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute;
 
             System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute;
 
-            System.Runtime.CompilerServices.IsExternalInit;
             -->
     </PropertyGroup>
 
     <!-- Dependency -->
 
-    <!--<Target Name="GetDependencyTargetPaths">
+    <Target Name="GetDependencyTargetPaths">
         <ItemGroup>
             <TargetPathWithTargetPlatformMoniker Include="$(PKGTrarizon_Library_Collections)\lib\netstandard2.0\Trarizon.Library.Collections.dll" IncludeRuntimeDependency="false" />
+            <TargetPathWithTargetPlatformMoniker Include="$(PKGTrarizon_Library_Functional)\lib\netstandard2.0\Trarizon.Library.Functional.dll" IncludeRuntimeDependency="false" />
+            <TargetPathWithTargetPlatformMoniker Include="$(PKGSystem_Memory)\lib\netstandard2.0\System.Memory.dll" IncludeRuntimeDependency="false" />
         </ItemGroup>
     </Target>
 
     <PropertyGroup>
         <GetTargetPathDependsOn>$(GetTargetPathDependsOn);GetDependencyTargetPaths</GetTargetPathDependsOn>
-    </PropertyGroup>-->
+    </PropertyGroup>
 
     <!-- End Dependency -->
 

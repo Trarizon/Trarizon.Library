@@ -10,16 +10,15 @@ using System.Linq;
 using Trarizon.Library.Collections;
 using Trarizon.Library.Roslyn.Extensions;
 
-namespace Trarizon.Library.Generators.CodeAnalysis;
+namespace Trarizon.Library.Generators;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 internal partial class FriendAccessAnalyzer : DiagnosticAnalyzer
 {
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = [
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(
         Diag.FriendMemberCannotBeAccessed,
         Diag.FriendOnExplicitInterfaceMemberMakeNoSense,
         Diag.FriendMayBeAccessedByOtherAssembly,
-        Diag.SpecificTypeInTypeParameterMakeNoSense,
-        ];
+        Diag.SpecificTypeInTypeParameterMakeNoSense);
 
     public override void Initialize(AnalysisContext context)
     {
@@ -220,15 +219,15 @@ internal partial class FriendAccessAnalyzer : DiagnosticAnalyzer
             if (friend.TypeKind is TypeKind.Interface) {
                 return accessor.AllInterfaces
                     .AsEnumerable()
-                    .Contains(friend, SymbolExt.OriginalDefinationEqualityComparer);
+                    .Contains(friend, SymbolExtensions.OriginalDefinationEqualityComparer);
             }
             else {
-                return TraEnumerable.EnumerateByNotNull(accessor, t => t.BaseType)
-                    .Contains(friend, SymbolExt.OriginalDefinationEqualityComparer);
+                return accessor.BaseTypes()
+                    .Contains(friend, SymbolExtensions.OriginalDefinationEqualityComparer);
             }
         }
 
         bool AccessPredicate_None((INamedTypeSymbol, ITypeSymbol) tpl)
-            => SymbolExt.OriginalDefinationEqualityComparer.Equals(tpl.Item1, tpl.Item2);
+            => SymbolExtensions.OriginalDefinationEqualityComparer.Equals(tpl.Item1, tpl.Item2);
     }
 }
