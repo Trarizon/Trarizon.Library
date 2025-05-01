@@ -1,5 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using System.Diagnostics.CodeAnalysis;
+using Trarizon.Library.Collections;
 using Trarizon.Library.GeneratorToolkit.CoreLib.Collections;
 
 namespace Trarizon.Library.GeneratorToolkit.ContextModelExtensions;

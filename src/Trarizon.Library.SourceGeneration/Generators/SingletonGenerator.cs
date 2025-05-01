@@ -4,6 +4,7 @@ using System.CodeDom.Compiler;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using Trarizon.Library.Collections;
 using Trarizon.Library.GeneratorToolkit;
 using Trarizon.Library.GeneratorToolkit.ContextModelExtensions;
 using Trarizon.Library.GeneratorToolkit.CoreLib.Collections;
@@ -42,7 +43,7 @@ internal sealed class SingletonGenerator : IIncrementalGenerator
 
             if (context.Attributes is not [var attribute])
                 return default;
-            
+
             // Instance property identifier
             var instancePropertyIdentifier = attribute.GetNamedArgument<string?>(L_Attribute_InstancePropertyName_PropertyIdentifier).Value;
             if (instancePropertyIdentifier is null) {
@@ -54,8 +55,7 @@ internal sealed class SingletonGenerator : IIncrementalGenerator
             token.ThrowIfCancellationRequested();
 
             // 检查基类是否有同名成员
-            bool isDuplicateWithBaseMemberName = classSymbol
-                .EnumerateByWhileNotNull(s => s.BaseType)
+            bool isDuplicateWithBaseMemberName = TraEnumerable.EnumerateByNotNull(classSymbol, s => s.BaseType)
                 .SelectMany(t => t.MemberNames)
                 .Any(name => name == instancePropertyIdentifier);
 

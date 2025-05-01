@@ -7,6 +7,7 @@ using System;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Trarizon.Library.Collections;
 using Trarizon.Library.GeneratorToolkit.ContextModelExtensions;
 using Trarizon.Library.GeneratorToolkit.CoreLib.Collections;
 using Trarizon.Library.GeneratorToolkit.More;
@@ -103,7 +104,7 @@ internal partial class FriendAccessAnalyzer : DiagnosticAnalyzer
         void CheckPublicAccessibility()
         {
             // Ensure this member will not accessed by other assembly
-            bool isInternal = symbol.EnumerateByWhileNotNull(s => s.ContainingSymbol)
+            bool isInternal = TraEnumerable.EnumerateByNotNull(symbol, s => s.ContainingSymbol)
                 .OfTypeUntil<ISymbol, INamespaceSymbol>()
                 .Any(symbol => symbol.DeclaredAccessibility is
                     Accessibility.NotApplicable or
@@ -223,7 +224,7 @@ internal partial class FriendAccessAnalyzer : DiagnosticAnalyzer
                         .Contains(friendType, MoreSymbolEqualityComparer.ByOriginalDefination);
                 }
                 else {
-                    return accessorType.EnumerateByWhileNotNull(t => t.BaseType)
+                    return TraEnumerable.EnumerateByNotNull(accessorType, t => t.BaseType)
                         .Contains(friendType, MoreSymbolEqualityComparer.ByOriginalDefination);
                 }
             }

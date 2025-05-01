@@ -2,8 +2,8 @@
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.CodeDom.Compiler;
 using System.Text;
+using Trarizon.Library.Collections;
 using Trarizon.Library.GeneratorToolkit.ContextModelExtensions;
-using Trarizon.Library.GeneratorToolkit.CoreLib.Collections;
 
 namespace Trarizon.Library.GeneratorToolkit.CSharp;
 public static class IndentedTextWriterExtensions

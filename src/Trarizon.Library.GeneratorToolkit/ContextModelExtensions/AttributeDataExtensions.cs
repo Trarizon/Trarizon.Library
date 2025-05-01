@@ -1,6 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using System.Collections.Immutable;
-using Trarizon.Library.GeneratorToolkit.CoreLib.Collections;
+using Trarizon.Library.Collections;
 
 namespace Trarizon.Library.GeneratorToolkit.ContextModelExtensions;
 public static class AttributeDataExtensions

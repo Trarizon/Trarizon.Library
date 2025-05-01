@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis.Operations;
 using System;
 using System.Collections.Immutable;
 using System.Linq;
+using Trarizon.Library.Collections;
 using Trarizon.Library.GeneratorToolkit.ContextModelExtensions;
 using Trarizon.Library.GeneratorToolkit.CoreLib.Collections;
 using static Trarizon.Library.SourceGeneration.Analyzers.BackingFieldAccessLiterals;

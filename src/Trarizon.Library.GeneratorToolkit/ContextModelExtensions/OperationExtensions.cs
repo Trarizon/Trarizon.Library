@@ -1,14 +1,13 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
-using Trarizon.Library.GeneratorToolkit.CoreLib.Collections;
+using Trarizon.Library.Collections;
 
 namespace Trarizon.Library.GeneratorToolkit.ContextModelExtensions;
 public static class OperationExtensions
 {
     public static IEnumerable<IOperation> Ancestors(this IOperation operation, bool includeSelf = false)
-        => (includeSelf ? operation : operation.Parent)
-            .EnumerateByWhileNotNull(o => o.Parent);
+        => TraEnumerable.EnumerateByNotNull(includeSelf ? operation : operation.Parent, o => o.Parent);
 
     public static (string FilePath, int Line, int Column) GetInterceptedLocation(this IInvocationOperation operation)
     {

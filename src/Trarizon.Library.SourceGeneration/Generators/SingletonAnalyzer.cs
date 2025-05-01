@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
 using System.Linq;
+using Trarizon.Library.Collections;
 using Trarizon.Library.GeneratorToolkit.ContextModelExtensions;
 using Trarizon.Library.GeneratorToolkit.CoreLib.Collections;
 using static Trarizon.Library.SourceGeneration.Generators.SingletonLiterals;
@@ -43,7 +44,7 @@ internal sealed class SingletonAnalyzer : DiagnosticAnalyzer
                 return;
 
             // 排除singleton provider的调用
-            var accessorIsGenerated = accessorMemberSymbol.EnumerateByWhileNotNull(s => s.ContainingSymbol)
+            var accessorIsGenerated = TraEnumerable.EnumerateByNotNull(accessorMemberSymbol, s => s.ContainingSymbol)
                 .Any(s => s.TryGetGeneratedCodeAttribute(Literals.GeneratedCodeAttribute_Tool_Argument, out var attributeData));
             if (accessorIsGenerated) {
                 return;
