@@ -1,4 +1,7 @@
-﻿namespace Trarizon.Library.Collections;
+﻿using CommunityToolkit.Diagnostics;
+using System.Diagnostics;
+
+namespace Trarizon.Library.Collections;
 public static partial class TraCollection
 {
     /// <summary>
@@ -6,7 +9,7 @@ public static partial class TraCollection
     /// <br/>
     /// Make sure your list is in order
     /// </summary>
-    public static SortedModifier<T, Comparer<T>> GetSortedModifier<T>(this List<T> list)
+    public static ListSortedModifier<T, Comparer<T>> GetSortedModifier<T>(this List<T> list)
         => GetSortedModifier(list, Comparer<T>.Default);
 
     /// <summary>
@@ -14,21 +17,32 @@ public static partial class TraCollection
     /// <br/>
     /// Make sure your list is in order
     /// </summary>
-    public static SortedModifier<T, TComparer> GetSortedModifier<T, TComparer>(this List<T> list, TComparer comparer) where TComparer : IComparer<T>
+    public static ListSortedModifier<T, TComparer> GetSortedModifier<T, TComparer>(this List<T> list, TComparer comparer) where TComparer : IComparer<T>
         => new(list, comparer);
 
-    public readonly struct SortedModifier<T, TComparer> where TComparer : IComparer<T>
+    public static ListSortedModifier<T, TComparer>.TrackingScope EnterTrackingScope<T, TComparer>(this ListSortedModifier<T, TComparer> list, int index) where T : class where TComparer : IComparer<T> 
+        => new(list, index, list[index]);
+
+    public static ListSortedModifier<T, TComparer>.TrackingScope EnterTrackingScope<T, TComparer>(this ListSortedModifier<T, TComparer> list, T item) where T : class where TComparer : IComparer<T>
+    {
+        var index = list.BinarySearch(item);
+        return new(list, index, item);
+    }
+
+    public readonly struct ListSortedModifier<T, TComparer> where TComparer : IComparer<T>
     {
         private readonly List<T> _list;
         private readonly TComparer _comparer;
 
-        internal SortedModifier(List<T> list, TComparer comparer)
+        internal ListSortedModifier(List<T> list, TComparer comparer)
         {
             _list = list;
             _comparer = comparer;
         }
 
         public List<T> List => _list;
+
+        public TComparer Comparer => _comparer;
 
         public int Count => _list.Count;
 
@@ -37,7 +51,7 @@ public static partial class TraCollection
             get => _list[index];
             set {
                 _list[index] = value;
-                NotifyEdited(index);
+                NotifyEditedAt(index);
             }
         }
 
@@ -122,6 +136,16 @@ public static partial class TraCollection
             return index;
         }
 
+        public void RemoveAt(int index) => _list.RemoveAt(index);
+
+        public void RemoveAt(Index index) => _list.RemoveAt(index.GetOffset(Count));
+
+        public void RemoveRange(int start, int count) => _list.RemoveRange(start, count);
+
+        public void RemoveRange(Range range) => _list.RemoveRange(range);
+
+        public void Clear() => _list.Clear();
+
         #endregion
 
         public void Resort() => _list.Sort(_comparer);
@@ -133,7 +157,7 @@ public static partial class TraCollection
         /// the method will move the item to the correct position to keep list in order
         /// </summary>
         /// <param name="index"></param>
-        public void NotifyEdited(int index)
+        public void NotifyEditedAt(int index)
         {
             var editItem = _list[index];
             if (index >= 1 && _comparer.Compare(_list[index - 1], editItem) > 0) {
@@ -150,6 +174,30 @@ public static partial class TraCollection
             }
             else {
                 // No move
+            }
+        }
+
+        public readonly struct TrackingScope : IDisposable
+        {
+            private readonly ListSortedModifier<T, TComparer> _list;
+            private readonly int _index;
+            private readonly T _item;
+
+            internal TrackingScope(ListSortedModifier<T, TComparer> list, int index, T item)
+            {
+                Debug.Assert(!typeof(T).IsValueType);
+                Guard.IsInRangeFor(index, list.List.AsListSpan());
+                _list = list;
+                _index = index;
+                _item = item;
+            }
+
+            public void Dispose()
+            {
+                if (!ReferenceEquals(_item, _list[_index])) {
+                    ThrowHelper.ThrowInvalidOperationException("The item is moved after tracking scope created");
+                }
+                _list.NotifyEditedAt(_index);
             }
         }
     }
