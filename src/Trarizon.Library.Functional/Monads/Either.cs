@@ -146,6 +146,17 @@ public readonly struct Either<TLeft, TRight>
     public Either<TRight, TLeft> Swap()
         => new(!_isLeft, _right, _left);
 
+    public TResult Match<TResult>(Func<TLeft, TResult> leftSelector, Func<TRight, TResult> rightSelector)
+        => IsLeft ? leftSelector(_left) : rightSelector(_right);
+
+    public void Match(Action<TLeft>? leftSelector,Action<TRight>? rightSelector)
+    {
+        if (IsLeft)
+            leftSelector?.Invoke(_left);
+        else
+            rightSelector?.Invoke(_right);
+    }
+
     public Either<TNewLeft, TRight> SelectLeft<TNewLeft>(Func<TLeft, TNewLeft> selector)
         => IsLeft ? new(selector(_left)) : new(_right);
 

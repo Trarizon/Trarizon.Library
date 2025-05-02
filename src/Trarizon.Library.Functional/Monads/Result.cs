@@ -113,6 +113,17 @@ public readonly struct Result<T, TError>
 
     #region Convertor
 
+    public TResult Match<TResult>(Func<T, TResult> successSelector, Func<TError, TResult> errorSelector)
+        => IsSuccess ? successSelector(_value) : errorSelector(_error);
+
+    public void Match(Action<T>? successSelector,Action<TError>? errorSelector)
+    {
+        if (IsSuccess)
+            successSelector?.Invoke(_value);
+        else
+            errorSelector?.Invoke(_error);
+    }
+
     public Result<TResult, TError> Select<TResult>(Func<T, TResult> selector)
         => IsSuccess ? new(selector(_value)) : new(_error);
 
