@@ -93,6 +93,10 @@ public readonly struct Optional<T>
 
     public T? GetValueOrDefault() => _value;
 
+    [return: NotNullIfNotNull(nameof(defaultValue))]
+    public T? GetValueOrDefault(T? defaultValue)
+        => HasValue ? _value : defaultValue;
+
     public bool TryGetValue([MaybeNullWhen(false)] out T value)
     {
         value = _value;
@@ -108,6 +112,17 @@ public readonly struct Optional<T>
     #endregion
 
     #region Convertor
+
+    public TResult Match<TResult>(Func<T, TResult> selector, Func<TResult> noValueSelector)
+        => HasValue ? selector(_value) : noValueSelector();
+
+    public void Match(Action<T>? selector, Action? noValueSelector)
+    {
+        if (HasValue)
+            selector?.Invoke(_value);
+        else
+            noValueSelector?.Invoke();
+    }
 
     public Optional<TResult> Select<TResult>(Func<T, TResult> selector)
         => HasValue ? new(selector(_value)) : default;

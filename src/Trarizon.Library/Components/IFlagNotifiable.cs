@@ -145,15 +145,18 @@ public abstract class FlagNotifiable<TSelf, TFlag> : IFlagNotifiable<TSelf, TFla
     }
 }
 
-[Singleton]
-internal sealed partial class SharedFlagNotifiable<TFlag> : IFlagNotifiable<TFlag>
+internal sealed class SharedFlagNotifiable<TFlag> : IFlagNotifiable<TFlag>
 {
+    public static SharedFlagNotifiable<TFlag> Instance { get; } = new();
+
     private readonly List<(TFlag, Action)> _invokers = [];
 #if NET9_0_OR_GREATER
     private readonly Lock _lock = new();
 #else
     private readonly object _lock = new();
 #endif
+
+    private SharedFlagNotifiable() { }
 
     public void RegisterNotification(TFlag flag, Action action)
     {

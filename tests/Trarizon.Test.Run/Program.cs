@@ -1,5 +1,7 @@
 ﻿#pragma warning disable TRAEXP
 
+using Trarizon.Library.CodeAnalysis;
+using Trarizon.Library.CodeGeneration;
 using Trarizon.Library.Collections;
 using Trarizon.Library.Collections.AllocOpt;
 using Trarizon.Library.Collections.Generic;
@@ -37,3 +39,27 @@ void Print()
 }
 
 //RunBenchmarks();
+[Singleton]
+partial class D
+{
+    private D()
+    {
+        Console.WriteLine(1);
+    }
+}
+
+class A
+{
+    [FriendAccess(typeof(B))]
+    public string Name { get; set; }
+}
+
+class B
+{
+    public static string Name => new A().Name;
+}
+
+class C
+{
+    public static string Name => new A().Name;
+}

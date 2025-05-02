@@ -48,10 +48,6 @@
 		<PackageReference Include="Trarizon.Library.Collections" Version="1.0.0" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <ProjectReference Include="..\Trarizon.Library.GeneratorToolkit\Trarizon.Library.GeneratorToolkit.csproj" />
-	</ItemGroup>
-
 	<!-- Nuget Reference End -->
 
 	<!-- PolySharp -->

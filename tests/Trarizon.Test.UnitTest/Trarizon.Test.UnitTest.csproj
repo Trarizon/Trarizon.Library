@@ -17,7 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Trarizon.Library.GeneratorToolkit\Trarizon.Library.GeneratorToolkit.csproj" />
     <ProjectReference Include="..\Trarizon.Test.Run\Trarizon.Test.Run.csproj" />
   </ItemGroup>
 
