@@ -47,10 +47,6 @@
 		</PackageReference>
 	</ItemGroup>
 
-	<ItemGroup>
-	  <ProjectReference Include="..\Trarizon.Library.GeneratorToolkit\Trarizon.Library.GeneratorToolkit.csproj" />
-	</ItemGroup>
-
 	<!-- Nuget Reference End -->
 
 	<!-- PolySharp -->

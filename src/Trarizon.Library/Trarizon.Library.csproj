@@ -69,16 +69,4 @@
         </PolySharpIncludeGeneratedTypes>
     </PropertyGroup>
 
-    <!-- Generator settings-->
-    
-    <!--<PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-        <GetTargetPathDependsOn>$(GetTargetPathDependsOn);GetDependencyTargetPaths</GetTargetPathDependsOn>
-    </PropertyGroup>
-
-    <Target Name="GetDependencyTargetPaths" Condition="'$(TargetFramework)' == 'netstandard2.0'">
-        <ItemGroup>
-            <TargetPathWithTargetPlatformMoniker Include="$(PKGCommunityToolkit_Diagnostics)\lib\netstandard2.0\CommunityToolkit.Diagnostics.dll" IncludeRuntimeDependency="false" />
-        </ItemGroup>
-    </Target>-->
-
 </Project>
