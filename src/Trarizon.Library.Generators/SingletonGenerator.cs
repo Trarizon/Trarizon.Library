@@ -111,7 +111,7 @@ internal partial class SingletonGenerator : IIncrementalGenerator
             if (!(first is null or
                 {
                     DeclaredAccessibility: Accessibility.NotApplicable or Accessibility.Private,
-                    Parameters.Length: > 0
+                    Parameters.Length: 0
                 })) {
                 res.AddDiagnostics(new DiagnosticData(Diag.SingletonShouldHaveProperCtor, first.DeclaringSyntaxReferences[0]));
             }
