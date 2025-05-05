@@ -1,100 +1,83 @@
 ﻿using System.Collections;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections.Generic;
 public class PrefixTree<T>
 {
-    private Entry[] _entries;
+    private Node? _root;
     private int _count;
-    private int _entryCount;
-    // _entryCount + free count
-    private int _consumedCount;
-    // Index of first item of free list, -1 if no free item
-    private int _freeFirstIndex;
+    private int _nodeCount;
     private int _version;
     private IEqualityComparer<T>? _comparer;
 
     public PrefixTree()
     {
-        _entries = [];
-        _freeFirstIndex = -1;
     }
 
-    public PrefixTree(IEqualityComparer<T> comparer)
+    public PrefixTree(IEqualityComparer<T>? comparer)
     {
-        _entries = [];
         _comparer = comparer;
-        _freeFirstIndex = -1;
     }
 
     #region Access
 
     public int Count => _count;
 
-    public Node RootNode
-    {
-        get {
-            if (_entries.Length == 0)
-                return default;
-            return new Node(this, 0);
-        }
-    }
+    public int NodeCount => _nodeCount;
+
+    public Node Root => GetEnsuredRoot();
 
     public bool Contains(ReadOnlySpan<T> sequence)
     {
-        var entryIndex = FindPrefix(sequence);
-        if (entryIndex == -1)
+        var node = FindPrefix(sequence);
+        if (node is null)
             return false;
-        return _entries[entryIndex].IsEnd;
+        return node.IsEnd;
     }
 
     public bool Contains(IEnumerable<T> sequence)
     {
-        var entryIndex = FindPrefix(sequence);
-        if (entryIndex == -1)
+        var node = FindPrefix(sequence);
+        if (node is null)
             return false;
-        return _entries[entryIndex].IsEnd;
+        return node.IsEnd;
     }
 
-    public bool ContainsPrefix(ReadOnlySpan<T> prefix)
+    public bool ContainsPrefix(ReadOnlySpan<T> sequence)
     {
-        var entryIndex = FindPrefix(prefix);
-        if (entryIndex == -1)
-            return false;
-        return true;
-    }
-
-    public bool ContainsPrefix(IEnumerable<T> prefix)
-    {
-        var entryIndex = FindPrefix(prefix);
-        if (entryIndex == -1)
+        var node = FindPrefix(sequence);
+        if (node is null)
             return false;
         return true;
     }
 
-    private int FindPrefix(ReadOnlySpan<T> prefix)
+    public bool ContainsPrefix(IEnumerable<T> sequence)
     {
-        if (_entries.Length == 0)
-            return -1;
+        var node = FindPrefix(sequence);
+        if (node is null)
+            return false;
+        return true;
+    }
 
-        int entryIndex = 0;
+    private Node? FindPrefix(ReadOnlySpan<T> prefix)
+    {
+        if (_root is null)
+            return null;
+
+        var node = _root;
 
         if (typeof(T).IsValueType && _comparer is null) {
             foreach (var val in prefix) {
-                ref readonly var entry = ref _entries[entryIndex];
-                int childIndex = entry.Child;
-                while (childIndex > 0) {
-                    ref var child = ref _entries[childIndex];
-                    if (EqualityComparer<T>.Default.Equals(child.Value, val)) {
-                        entryIndex = childIndex;
+                var child = node._child;
+                while (child is not null) {
+                    if (EqualityComparer<T>.Default.Equals(child.Value!, val)) {
+                        node = child;
                         goto ContinueFor;
                     }
-                    childIndex = child.NextSibling;
+                    child = child._nextSibling;
                 }
-                return -1;
+                return null;
 
             ContinueFor:
                 continue;
@@ -103,45 +86,41 @@ public class PrefixTree<T>
         else {
             var comparer = _comparer ??= EqualityComparer<T>.Default;
             foreach (var val in prefix) {
-                ref readonly var entry = ref _entries[entryIndex];
-                int siblingIndex = entry.Child;
-                while (siblingIndex > 0) {
-                    ref var sibling = ref _entries[siblingIndex];
-                    if (comparer.Equals(entry.Value, val)) {
-                        entryIndex = siblingIndex;
+                var child = node._child;
+                while (child is not null) {
+                    if (comparer.Equals(child.Value!, val)) {
+                        node = child;
                         goto ContinueFor;
                     }
-                    siblingIndex = sibling.NextSibling;
+                    child = child._nextSibling;
                 }
-                return -1;
+                return null;
 
             ContinueFor:
                 continue;
             }
         }
-        return entryIndex;
+        return node;
     }
 
-    private int FindPrefix(IEnumerable<T> prefix)
+    private Node? FindPrefix(IEnumerable<T> prefix)
     {
-        if (_entries.Length == 0)
-            return -1;
+        if (_root is null)
+            return null;
 
-        int entryIndex = 0;
+        var node = _root;
 
         if (typeof(T).IsValueType && _comparer is null) {
             foreach (var val in prefix) {
-                ref readonly var entry = ref _entries[entryIndex];
-                int childIndex = entry.Child;
-                while (childIndex > 0) {
-                    ref var child = ref _entries[childIndex];
-                    if (EqualityComparer<T>.Default.Equals(child.Value, val)) {
-                        entryIndex = childIndex;
+                var child = node._child;
+                while (child is not null) {
+                    if (EqualityComparer<T>.Default.Equals(child.Value!, val)) {
+                        node = child;
                         goto ContinueFor;
                     }
-                    childIndex = child.NextSibling;
+                    child = child._nextSibling;
                 }
-                return -1;
+                return null;
 
             ContinueFor:
                 continue;
@@ -150,23 +129,21 @@ public class PrefixTree<T>
         else {
             var comparer = _comparer ??= EqualityComparer<T>.Default;
             foreach (var val in prefix) {
-                ref readonly var entry = ref _entries[entryIndex];
-                int siblingIndex = entry.Child;
-                while (siblingIndex > 0) {
-                    ref var sibling = ref _entries[siblingIndex];
-                    if (comparer.Equals(entry.Value, val)) {
-                        entryIndex = siblingIndex;
+                var child = node._child;
+                while (child is not null) {
+                    if (comparer.Equals(child.Value!, val)) {
+                        node = child;
                         goto ContinueFor;
                     }
-                    siblingIndex = sibling.NextSibling;
+                    child = child._nextSibling;
                 }
-                return -1;
+                return null;
 
             ContinueFor:
                 continue;
             }
         }
-        return entryIndex;
+        return node;
     }
 
     #endregion
@@ -175,445 +152,237 @@ public class PrefixTree<T>
 
     public Node GetOrAdd(ReadOnlySpan<T> sequence)
     {
-        EnsureRootEntry();
-        var entryIndex = 0;
-
-        foreach (var value in sequence) {
-            entryIndex = GetOrAddChild(entryIndex, value);
+        var node = GetEnsuredRoot();
+        foreach (var item in sequence) {
+            node = GetOrAddChild(node, item);
         }
-
-        ref var entry = ref _entries[entryIndex];
         _version++;
         _count++;
-        entry.SetIsEnd();
-        return new Node(this, entryIndex);
+
+        node.IsEnd = true;
+        return node;
     }
 
     public Node GetOrAdd(IEnumerable<T> sequence)
     {
-        EnsureRootEntry();
-        var entryIndex = 0;
-
-        foreach (var value in sequence) {
-            entryIndex = GetOrAddChild(entryIndex, value);
+        var node = GetEnsuredRoot();
+        foreach (var item in sequence) {
+            node = GetOrAddChild(node, item);
         }
-
-        ref var entry = ref _entries[entryIndex];
         _version++;
         _count++;
-        entry.SetIsEnd();
-        return new Node(this, entryIndex);
+
+        node.IsEnd = true;
+        return node;
     }
 
-    /// <summary>
-    /// Try add a sequence
-    /// </summary>
     public bool TryAdd(ReadOnlySpan<T> sequence, out Node node)
     {
-        EnsureRootEntry();
-        var entryIndex = 0;
-
-        foreach (var value in sequence) {
-            entryIndex = GetOrAddChild(entryIndex, value);
+        node = GetEnsuredRoot();
+        foreach (var item in sequence) {
+            node = GetOrAddChild(node, item);
         }
 
-        ref var entry = ref _entries[entryIndex];
         _version++;
         _count++;
-        if (entry.IsEnd) {
-            node = default;
+
+        if (node.IsEnd) {
             return false;
         }
         else {
-            entry.SetIsEnd();
-            node = new Node(this, entryIndex);
+            node.IsEnd = true;
             return true;
         }
     }
 
-    /// <summary>
-    /// Try add a sequence
-    /// </summary>
     public bool TryAdd(IEnumerable<T> sequence, out Node node)
     {
-        EnsureRootEntry();
-        var entryIndex = 0;
-
-        foreach (var value in sequence) {
-            entryIndex = GetOrAddChild(entryIndex, value);
+        node = GetEnsuredRoot();
+        foreach (var item in sequence) {
+            node = GetOrAddChild(node, item);
         }
 
-        ref var entry = ref _entries[entryIndex];
         _version++;
         _count++;
-        if (entry.IsEnd) {
-            node = default;
+
+        if (node.IsEnd) {
             return false;
         }
         else {
-            entry.SetIsEnd();
-            node = new Node(this, entryIndex);
+            node.IsEnd = true;
             return true;
         }
     }
 
     public bool Remove(ReadOnlySpan<T> sequence)
     {
-        var entryIndex = FindPrefix(sequence);
-        if (entryIndex == -1)
+        var node = FindPrefix(sequence);
+        if (node is null)
             return false;
-        ref var entry = ref _entries[entryIndex];
-        if (!entry.IsEnd)
+        if (!node.IsEnd)
             return false;
 
         _version++;
         _count--;
-        entry.SetNotEnd();
-        if (entry.Child > 0) {
-            // If entry has child, we just set this as not end
-            return true;
+        node.IsEnd = false;
+        if (node._child is null) {
+            InvalidateFromLeaf(node);
         }
-        else {
-            while (!entry.IsEnd && entryIndex > 0) {
-                var parentIndex = entry.ParentOrFreeNext;
-                FreeEntry(entryIndex);
-                entryIndex = parentIndex;
-                entry = ref _entries[parentIndex];
-            }
-            return true;
-        }
+        return true;
     }
 
     public bool Remove(IEnumerable<T> sequence)
     {
-        var entryIndex = FindPrefix(sequence);
-        if (entryIndex == -1)
+        var node = FindPrefix(sequence);
+        if (node is null)
             return false;
-        ref var entry = ref _entries[entryIndex];
-        if (!entry.IsEnd)
+        if (!node.IsEnd)
             return false;
 
         _version++;
         _count--;
-        entry.SetNotEnd();
-        if (entry.Child > 0) {
-            // If entry has child, we just set this as not end
-            return true;
+        node.IsEnd = false;
+        if (node._child is null) {
+            InvalidateFromLeaf(node);
         }
-        else {
-            while (!entry.IsEnd && entryIndex > 0) {
-                var parentIndex = entry.ParentOrFreeNext;
-                FreeEntry(entryIndex);
-                entryIndex = parentIndex;
-                entry = ref _entries[parentIndex];
-            }
-            return true;
-        }
+        return true;
     }
 
     public void Clear()
     {
-        ArrayGrowHelper.FreeIfReferenceOrContainsReferences(_entries.AsSpan(0, _consumedCount));
         _count = 0;
-        _entryCount = 0;
-        _consumedCount = 0;
-        _freeFirstIndex = -1;
+        _nodeCount = 0;
+        if (_root is not null) {
+            _root._child = null;
+        }
         _version++;
     }
 
-    private void EnsureRootEntry()
+    private Node GetOrAddChild(Node parent, T value)
     {
-        if (_entries.Length == 0) {
-            ArrayGrowHelper.Grow(ref _entries, 1, 0);
-            _entryCount = 1;
-            _consumedCount = 1;
-            ref var entry = ref _entries[0];
-            entry.ParentOrFreeNext = -1;
-            entry.Version += 2;
-        }
-    }
-
-    private int GetOrAddChild(int parentIndex, T value)
-    {
-        Debug.Assert(parentIndex < _consumedCount);
-
-        var childIndex = _entries[parentIndex].Child;
-
+        var child = parent._child;
         if (typeof(T).IsValueType && _comparer is null) {
-            while (childIndex > 0) {
-                ref var child = ref _entries[childIndex];
-                // Exists, return the existing value
-                if (EqualityComparer<T>.Default.Equals(value, child.Value))
-                    return childIndex;
-                childIndex = child.NextSibling;
+            while (child is not null) {
+                if (EqualityComparer<T>.Default.Equals(value, child.Value!))
+                    return child;
+                child = child._nextSibling;
             }
         }
         else {
             var comparer = _comparer ??= EqualityComparer<T>.Default;
-            while (childIndex > 0) {
-                ref var child = ref _entries[childIndex];
-                if (comparer.Equals(value, child.Value))
-                    return childIndex;
-                childIndex = child.NextSibling;
+            while (child is not null) {
+                if (comparer.Equals(value, child.Value!))
+                    return child;
+                child = child._nextSibling;
             }
         }
 
         {
-            childIndex = GetFreeEntry();
-            // AddValueInternal may replace underlying parent, causing invalid data,
-            // so we get parent after AddValueInternal
-            ref var parent = ref _entries[parentIndex];
-            ref var child = ref _entries[childIndex];
-            child = new()
-            {
-                Value = value,
-                ParentOrFreeNext = parentIndex,
-                NextSibling = parent.Child,
-                Version = child.Version,
-            };
-            parent.Child = childIndex;
-            return childIndex;
+            child = new Node(this, value);
+            child._parent = parent;
+            child._nextSibling = parent._child;
+            parent._child = child;
+            _nodeCount++;
+            return child;
         }
     }
 
-    /// <returns>Index of new entry</returns>
-    private int GetFreeEntry()
+    private void InvalidateFromLeaf(Node node)
     {
-        ref Entry free = ref Unsafe.NullRef<Entry>();
-        int index;
-        // Get in free list
-        if (_freeFirstIndex >= 0) {
-            free = ref _entries[_freeFirstIndex];
-            index = _freeFirstIndex;
-            _freeFirstIndex = free.ParentOrFreeNext;
-        }
-        // Use unconsumed entry
-        else {
-            if (_entryCount == _entries.Length) {
-                Debug.Assert(_entryCount == _consumedCount);
-                ArrayGrowHelper.Grow(ref _entries, _entryCount + 1, _entryCount);
+        Debug.Assert(node._child is null);
+
+        do {
+            Debug.Assert(node._parent is not null);
+            var parent = node._parent!;
+            Debug.Assert(parent._child is not null);
+            var child = parent._child!;
+
+            // node is not the first child, remove it from children list
+            if (child != node) {
+                while (child._nextSibling != node) {
+                    Debug.Assert(child._nextSibling is not null);
+                    child = child._nextSibling!;
+                }
+                child._nextSibling = node._nextSibling;
             }
-            free = ref _entries[_entryCount];
-            index = _entryCount;
-            _consumedCount++;
-        }
-
-        Debug.Assert(!Unsafe.IsNullRef(ref free));
-        free.Version += 2;
-        Debug.Assert(!free.IsFreed);
-        _entryCount++;
-        return index;
-    }
-
-    private void FreeEntry(int index)
-    {
-        Debug.Assert(index > 0);
-        ref var entry = ref _entries[index];
-#if NETSTANDARD
-        entry.Value = default!;
-#else
-        if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
-            entry.Value = default!;
-#endif
-        _entries[entry.ParentOrFreeNext].Child = entry.NextSibling;
-        entry.ParentOrFreeNext = _freeFirstIndex;
-        entry.Version += 2;
-        Debug.Assert(entry.IsFreed);
-        _freeFirstIndex = index;
+            _nodeCount--;
+            node = parent;
+        } while (node != _root && !node.IsEnd);
     }
 
     #endregion
 
-    [DebuggerDisplay("{Value} ^{ParentOrFreeNext} v{Child} >{NextSibling}")]
-    internal struct Entry
+    private Node GetEnsuredRoot() => _root ??= new Node(this, default!);
+
+    public sealed class Node
     {
-        public int ParentOrFreeNext;
-        // 0 as invalid, as _entries[0] is always the root
-        public int Child;
-        // 0 as invalid, as _entries[0] is always the root
-        public int NextSibling;
-        /// <summary>
-        /// Version of the entry, change when toggle free status
-        /// use for validation in node, as we cannot ensure the value at some index
-        /// won't be changed
-        /// </summary>
-        /// <remarks>
-        /// As the last second bit is the free mask, the field should increment by 2
-        /// when update
-        /// </remarks>
-        public int Version;
-        public T Value;
+        internal PrefixTree<T> _tree;
+        internal Node? _parent;
+        internal Node? _child;
+        internal Node? _nextSibling;
+        private readonly T _value;
 
-        public readonly bool IsFreed => (Version & FreedVersionMask) == 0;
-        public readonly bool IsEnd => (Version & IsEndVersionMask) != 0;
-
-        public void SetIsEnd() => Version |= IsEndVersionMask;
-        public void SetNotEnd() => Version &= NotEndVersionMask;
-
-        public readonly bool VersionEqualsTo(in Entry other)
+        internal Node(PrefixTree<T> tree, T value)
         {
-            return (Version & NotEndVersionMask) == (other.Version & NotEndVersionMask);
-        }
-
-        // Check if the entry is a end
-        // is end if the bit is 1
-        private const int IsEndVersionMask = 1;
-        private const int NotEndVersionMask = int.MaxValue - IsEndVersionMask;
-        // Check if the entry is in free list
-        // freed if the bit is 0
-        private const int FreedVersionMask = 1 << 1;
-    }
-
-    public readonly struct Node : IEquatable<Node>
-    {
-        internal readonly PrefixTree<T> _tree;
-        internal readonly int _index;
-        private readonly int _version;
-
-        internal Node(PrefixTree<T> tree, int index)
-        {
-            Debug.Assert(!tree._entries[index].IsFreed);
             _tree = tree;
-            _index = index;
-            _version = tree._entries[index].Version;
+            _value = value;
         }
 
-        public bool HasValue => _tree is not null && _version == _tree._entries[_index].Version;
+        public bool IsEnd { get; internal set; }
 
-        public bool IsEnd => GetValidatedEntryRef().IsEnd;
+        public T? Value => _value;
 
-        public T Value => GetValidatedEntryRef().Value;
+        public ref readonly T ValueRef => ref _value;
 
-        public ref readonly T ValueRef => ref GetValidatedEntryRef().Value;
-
-        public Node Parent
-        {
-            get {
-                ref var entry = ref GetValidEntryRefOrNullRef();
-                if (Unsafe.IsNullRef(ref entry))
-                    return default;
-                if (_index == 0)
-                    return default;
-                return new Node(_tree, entry.ParentOrFreeNext);
-            }
-        }
-
-        public ChildNodesCollection Children => new(this);
-
-        internal ref Entry GetValidEntryRefOrNullRef()
-        {
-            if (_tree is null)
-                goto Invalid;
-            ref var entry = ref _tree._entries[_index];
-            if (entry.Version != _version)
-                goto Invalid;
-            Debug.Assert(!entry.IsFreed);
-            return ref entry;
-
-        Invalid:
-            return ref Unsafe.NullRef<Entry>();
-        }
-
-        private ref Entry GetValidatedEntryRef()
-        {
-            ref var entry = ref _tree._entries[_index];
-            if (_version != entry.Version)
-                Throws.NodeIsInvalidated();
-            Debug.Assert(!entry.IsFreed);
-            return ref entry;
-        }
-
-        #region Equality
-
-        public bool Equals(Node other) => _tree == other._tree && _index == other._index;
-        public override bool Equals([NotNullWhen(true)] object? obj) => obj is Node node && Equals(node);
-        public override int GetHashCode() => HashCode.Combine(_tree, _index);
-        public static bool operator ==(Node left, Node right) => left.Equals(right);
-        public static bool operator !=(Node left, Node right) => !(left == right);
-
-        #endregion
+        public NodeChildrenCollection Children => new(this);
     }
 
-    public readonly struct ChildNodesCollection : IEnumerable<Node>
+    public readonly struct NodeChildrenCollection : IEnumerable<Node>
     {
         private readonly Node _node;
 
-        public bool IsEmpty
-        {
-            get {
-                ref var entry = ref _node.GetValidEntryRefOrNullRef();
-                if (Unsafe.IsNullRef(ref entry))
-                    return false;
-                return entry.Child == 0;
-            }
-        }
+        public bool IsEmpty => _node._child is null;
 
-        internal ChildNodesCollection(Node node)
+        internal NodeChildrenCollection(Node node)
         {
             _node = node;
         }
 
-        public readonly Enumerator GetEnumerator()
-        {
-            ref var entry = ref _node.GetValidEntryRefOrNullRef();
-            if (Unsafe.IsNullRef(ref entry))
-                return Enumerator.Empty;
-            var firstChild = entry.Child;
-            if (firstChild > 0)
-                return new(_node._tree, firstChild);
-            return Enumerator.Empty;
-        }
-
-        readonly IEnumerator<Node> IEnumerable<Node>.GetEnumerator() => GetEnumerator();
-        readonly IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        public readonly Enumerator GetEnumerator() => new(_node);
+        IEnumerator<Node> IEnumerable<Node>.GetEnumerator() => GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         public struct Enumerator : IEnumerator<Node>
         {
-            private readonly PrefixTree<T> _tree;
+            private readonly Node _parent;
             private readonly int _version;
-            private int _index;
-            private int _current;
+            private Node? _node;
+            private Node? _current;
 
-            internal static Enumerator Empty => new(-1);
+            public readonly Node Current => _current!;
 
-            internal Enumerator(PrefixTree<T> tree, int firstSiblingIndex)
+            internal Enumerator(Node node)
             {
-                _tree = tree;
-                _version = tree._version;
-                _index = firstSiblingIndex;
+                _parent = node;
+                _version = node._tree._version;
+                _node = node._child;
             }
-
-            private Enumerator(int index)
-            {
-                Debug.Assert(index < 0);
-                _index = -1;
-                _tree = null!;
-            }
-
-            public readonly Node Current => new Node(_tree, _current);
 
             public bool MoveNext()
             {
-                if (_index < 0)
+                if (_node is null)
                     return false;
 
-                ValidateVersion();
+                if (_version != _parent._tree._version)
+                    Throws.CollectionModifiedAfterEnumeratorCreated();
 
-                _current = _index;
-                _index = _tree._entries[_index].NextSibling;
-                if (_index <= 0)
-                    _index = -1;
+                _current = _node;
+                _node = _node._nextSibling;
                 return true;
             }
 
-            private readonly void ValidateVersion()
-            {
-                if (_version != _tree._version)
-                    Throws.CollectionModifiedAfterEnumeratorCreated();
-            }
-
-            void IEnumerator.Reset() => throw new NotImplementedException();
-            readonly object? IEnumerator.Current => Current;
+            public void Reset() => _node = _parent._child;
+            readonly object IEnumerator.Current => Current;
             readonly void IDisposable.Dispose() { }
         }
     }

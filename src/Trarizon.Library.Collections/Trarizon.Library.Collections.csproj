@@ -13,7 +13,7 @@
     <PropertyGroup>
         <Title>Trarizon.Library.Collections</Title>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <Version>1.0.0.3</Version>
+        <Version>1.0.1.0</Version>
         <Description>Trarizon's personal library, collections</Description>
     </PropertyGroup>
     
@@ -56,10 +56,15 @@
             System.Diagnostics.StackTraceHiddenAttribute;
             
             System.Diagnostics.CodeAnalysis.DisallowNullAttribute;
+            System.Diagnostics.CodeAnalysis.MaybeNullAttribute;
             System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute;
+            System.Diagnostics.CodeAnalysis.MemberNotNullAttribute;
+            System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute;
+            System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute;
             System.Diagnostics.CodeAnalysis.NotNullWhenAttribute;
             
             System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute;
+            System.Diagnostics.CodeAnalysis.ExperimentalAttribute;
             
             System.Runtime.CompilerServices.CollectionBuilderAttribute;
         </PolySharpIncludeGeneratedTypes>

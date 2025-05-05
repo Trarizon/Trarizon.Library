@@ -1,11 +1,16 @@
 ﻿#pragma warning disable TRAEXP
 
+using System.Diagnostics.CodeAnalysis;
 using Trarizon.Library.CodeAnalysis;
 using Trarizon.Library.CodeGeneration;
 using Trarizon.Library.Collections;
 using Trarizon.Library.Collections.AllocOpt;
 using Trarizon.Library.Collections.Generic;
 using Trarizon.Test.Run;
+
+//RunBenchmarks();
+//new Benchmarks().Args0().First().Print();
+//new Benchmarks().Args1().First().Print();
 
 PrefixTree<char> t = new();
 
@@ -18,7 +23,7 @@ t.GetOrAdd("");
 
 Print();
 
-t.RootNode.IsEnd.Print();
+t.Root.IsEnd.Print();
 
 t.Remove("stringnext").Print();
 Print();
@@ -26,7 +31,7 @@ Print();
 t.Remove("").Print();
 
 Print();
-t.RootNode.IsEnd.Print();
+t.Root.IsEnd.Print();
 
 void Print()
 {
@@ -61,5 +66,5 @@ class B
 
 class C
 {
-    public static string Name => new A().Name;
+    //public static string Name => new A().Name;
 }
