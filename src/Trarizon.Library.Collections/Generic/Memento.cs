@@ -44,6 +44,10 @@ public class Memento<T>
             return new(_array.AsSpan(_head), _array.AsSpan(0, _tail));
     }
 
+    /// <summary>
+    /// Peek last active item
+    /// </summary>
+    /// <returns></returns>
     public T Peek()
     {
         if (!TryPeek(out var item))
@@ -51,6 +55,11 @@ public class Memento<T>
         return item;
     }
 
+    /// <summary>
+    /// Try peek last active item
+    /// </summary>
+    /// <param name="activeItem"></param>
+    /// <returns></returns>
     public bool TryPeek([MaybeNullWhen(false)] out T activeItem)
     {
         if (ActiveCount == 0) {
@@ -61,6 +70,30 @@ public class Memento<T>
         var index = _index;
         Decrement(ref index);
         activeItem = _array[index];
+        return true;
+    }
+
+    /// <summary>
+    /// Peek first inactive item
+    /// </summary>
+    public T PeekInactive()
+    {
+        if (!TryPeekInactive(out var item))
+            ThrowHelper.ThrowInvalidOperationException("Memento has no inactive item");
+        return item;
+    }
+
+    /// <summary>
+    /// Try peek first inactive item
+    /// </summary>
+    public bool TryPeekInactive([MaybeNullWhen(false)] out T inactiveItem)
+    {
+        if (ActiveCount == Count) {
+            inactiveItem = default;
+            return false;
+        }
+
+        inactiveItem = _array[_index];
         return true;
     }
 
