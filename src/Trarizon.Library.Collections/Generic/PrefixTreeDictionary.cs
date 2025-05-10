@@ -29,6 +29,9 @@ public class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
 
     public int NodeCount => _nodeCount;
 
+    /// <summary>
+    /// Root's <see cref="Node.Key"/> is always default
+    /// </summary>
     public Node Root => GetEnsuredRoot();
 
     public bool TryGetValue(ReadOnlySpan<TKey> sequence, [MaybeNullWhen(false)] out TValue value)
@@ -361,7 +364,10 @@ public class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
         [MemberNotNullWhen(true, nameof(_value))]
         public bool IsEnd { get; internal set; }
 
-        public TKey? Key => _key;
+        /// <summary>
+        /// If the node is root, the key is always default
+        /// </summary>
+        public TKey Key => _key;
 
         public ref readonly TKey KeyRef => ref _key;
 

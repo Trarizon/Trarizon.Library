@@ -26,6 +26,9 @@ public class PrefixTree<T>
 
     public int NodeCount => _nodeCount;
 
+    /// <summary>
+    /// Root's <see cref="Node.Value"/> is always default
+    /// </summary>
     public Node Root => GetEnsuredRoot();
 
     public bool Contains(ReadOnlySpan<T> sequence)
@@ -330,7 +333,10 @@ public class PrefixTree<T>
 
         public bool IsEnd { get; internal set; }
 
-        public T? Value => _value;
+        /// <summary>
+        /// If the node is root, the value is always default
+        /// </summary>
+        public T Value => _value;
 
         public ref readonly T ValueRef => ref _value;
 
