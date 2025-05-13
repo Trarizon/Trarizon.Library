@@ -1,5 +1,6 @@
 ﻿#pragma warning disable TRAEXP
 
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Trarizon.Library.CodeAnalysis;
 using Trarizon.Library.CodeGeneration;
@@ -8,30 +9,28 @@ using Trarizon.Library.Collections.AllocOpt;
 using Trarizon.Library.Collections.Generic;
 using Trarizon.Test.Run;
 
-//RunBenchmarks();
-//new Benchmarks().Args0().First().Print();
-//new Benchmarks().Args1().First().Print();
+TraAlgorithm.LevenshteinDistance("apple", "rad").Print();
 
-PrefixTree<char> t = new();
+//PrefixTree<char> t = new();
 
-t.GetOrAdd("string");
-t.GetOrAdd("stringnext");
-t.GetOrAdd("bool");
-t.GetOrAdd("bolt");
-t.GetOrAdd("str");
-t.GetOrAdd("");
+//t.GetOrAdd("string");
+//t.GetOrAdd("stringnext");
+//t.GetOrAdd("bool");
+//t.GetOrAdd("bolt");
+//t.GetOrAdd("str");
+//t.GetOrAdd("");
 
-Print();
+//Print();
 
-t.Root.IsEnd.Print();
+//t.Root.IsEnd.Print();
 
-t.Remove("stringnext").Print();
-Print();
+//t.Remove("stringnext").Print();
+//Print();
 
-t.Remove("").Print();
+//t.Remove("").Print();
 
-Print();
-t.Root.IsEnd.Print();
+//Print();
+//t.Root.IsEnd.Print();
 
 void Print()
 {
