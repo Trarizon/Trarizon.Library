@@ -5,11 +5,11 @@
 /// to create a new stackalloc instance
 /// </summary>
 /// <param name="allocatedSpace"></param>
-public ref struct StackAllocBitArray(Span<byte> allocatedSpace)
+public ref struct StackAllocBitArray(Span<uint> allocatedSpace)
 {
-    private const int BitContainterSize = 8 * sizeof(byte);
+    private const int BitContainterSize = 8 * sizeof(uint);
 
-    private readonly Span<byte> _span = allocatedSpace;
+    private readonly Span<uint> _span = allocatedSpace;
 
     public readonly int Length => _span.Length * BitContainterSize;
 
@@ -25,14 +25,14 @@ public ref struct StackAllocBitArray(Span<byte> allocatedSpace)
             if (value)
                 _span[i] |= mask;
             else
-                _span[i] &= (byte)~mask;
+                _span[i] &= ~mask;
         }
     }
 
-    private static (int SpanIndex, byte Mask) GetSpanIndexAndMask(int index)
+    private static (int SpanIndex, uint Mask) GetSpanIndexAndMask(int index)
     {
         var quo = Math.DivRem(index, BitContainterSize, out var rem);
-        return (quo, (byte)(1 << rem));
+        return (quo, 1u << rem);
     }
 
     /// <summary>
