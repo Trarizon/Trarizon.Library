@@ -9,8 +9,13 @@ using Trarizon.Library.Collections.AllocOpt;
 using Trarizon.Library.Collections.Generic;
 using Trarizon.Test.Run;
 
-TraAlgorithm.LevenshteinDistance("apple", "rad").Print();
-
+var arr = new TriangularArray<int>(5);
+arr[0, 0] = 1;
+arr[4, 3] = 2;
+arr[2, 2] = 3;
+foreach (var level in arr.EnumerateLevelSpans()) {
+    level.Print();
+}
 //PrefixTree<char> t = new();
 
 //t.GetOrAdd("string");
