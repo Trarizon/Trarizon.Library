@@ -35,8 +35,8 @@ public static class TraEncoding
     {
         if (bytes.IsEmpty)
             return 0;
-        fixed (byte* by = bytes) {
-            return encoding.GetChars(bytes, chars);
+        fixed (byte* by = bytes) fixed (char* ch = chars) {
+            return encoding.GetChars(by, bytes.Length, ch, chars.Length);
         }
     }
 
