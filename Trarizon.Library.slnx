@@ -1,0 +1,27 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Trarizon.Library.Collections/Trarizon.Library.Collections.csproj" />
+    <Project Path="src/Trarizon.Library.Functional/Trarizon.Library.Functional.csproj" />
+    <Project Path="src/Trarizon.Library.Mathematics/Trarizon.Library.Mathematics.csproj" />
+    <Project Path="src/Trarizon.Library/Trarizon.Library.csproj" />
+  </Folder>
+  <Folder Name="/src/generator/">
+    <Project Path="src/Trarizon.Library.Generators/Trarizon.Library.Generators.csproj" />
+    <Project Path="src/Trarizon.Library.Roslyn/Trarizon.Library.Roslyn.csproj" />
+  </Folder>
+  <Folder Name="/src/windows/">
+    <Project Path="src/Trarizon.Library.Windows/Trarizon.Library.Windows.csproj" />
+    <Project Path="src/Trarizon.Library.Wpf/Trarizon.Library.Wpf.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Trarizon.Test.Nuget/Trarizon.Test.Nuget.csproj" />
+    <Project Path="tests/Trarizon.Test.Run/Trarizon.Test.Run.csproj" />
+    <Project Path="tests/Trarizon.Test.UnitTest/Trarizon.Test.UnitTest.csproj" />
+  </Folder>
+  <Folder Name="/解决方案项/">
+    <File Path="LICENSE" />
+    <File Path="Nuget.props" />
+    <File Path="README.md" />
+    <File Path="THIRD-PARTY-LICENSES.md" />
+  </Folder>
+</Solution>
