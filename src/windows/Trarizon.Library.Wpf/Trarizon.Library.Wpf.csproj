@@ -11,8 +11,4 @@
     <Page Remove="Converters\Converters.xaml" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Trarizon.Library\Trarizon.Library.csproj" />
-  </ItemGroup>
-
 </Project>

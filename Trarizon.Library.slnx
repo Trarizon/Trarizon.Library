@@ -6,15 +6,15 @@
     <Project Path="src/Trarizon.Library/Trarizon.Library.csproj" />
   </Folder>
   <Folder Name="/src/game/">
-    <Project Path="src/game/Trarizon.Library.GameDev/Trarizon.Library.GameDev.csproj" Id="675415f2-b155-4f34-a2dc-4d54e1ccec78" />
+    <Project Path="src/game/Trarizon.Library.GameDev/Trarizon.Library.GameDev.csproj" />
   </Folder>
-  <Folder Name="/src/generator/">
-    <Project Path="src/Trarizon.Library.Generators/Trarizon.Library.Generators.csproj" />
-    <Project Path="src/Trarizon.Library.Roslyn/Trarizon.Library.Roslyn.csproj" />
+  <Folder Name="/src/roslyn/">
+    <Project Path="src/roslyn/Trarizon.Library.Generators/Trarizon.Library.Generators.csproj" />
+    <Project Path="src/roslyn/Trarizon.Library.Roslyn/Trarizon.Library.Roslyn.csproj" />
   </Folder>
   <Folder Name="/src/windows/">
-    <Project Path="src/Trarizon.Library.Windows/Trarizon.Library.Windows.csproj" />
-    <Project Path="src/Trarizon.Library.Wpf/Trarizon.Library.Wpf.csproj" />
+    <Project Path="src/windows/Trarizon.Library.Windows/Trarizon.Library.Windows.csproj" />
+    <Project Path="src/windows/Trarizon.Library.Wpf/Trarizon.Library.Wpf.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Trarizon.Test.Nuget/Trarizon.Test.Nuget.csproj" />
