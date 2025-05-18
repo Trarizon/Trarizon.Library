@@ -5,6 +5,9 @@
     <Project Path="src/Trarizon.Library.Mathematics/Trarizon.Library.Mathematics.csproj" />
     <Project Path="src/Trarizon.Library/Trarizon.Library.csproj" />
   </Folder>
+  <Folder Name="/src/game/">
+    <Project Path="src/game/Trarizon.Library.GameDev/Trarizon.Library.GameDev.csproj" Id="675415f2-b155-4f34-a2dc-4d54e1ccec78" />
+  </Folder>
   <Folder Name="/src/generator/">
     <Project Path="src/Trarizon.Library.Generators/Trarizon.Library.Generators.csproj" />
     <Project Path="src/Trarizon.Library.Roslyn/Trarizon.Library.Roslyn.csproj" />
