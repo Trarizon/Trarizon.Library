@@ -75,6 +75,11 @@ public static class GlobalUsings
 
     private static void PrintValue<T>(Action<string?> print, T value)
     {
+        if (value is PrintableRawString prstr) {
+            print(prstr.String);
+            return;
+        }
+
         if (value is string strV) {
             print($@"""{strV}""");
             return;
@@ -190,13 +195,10 @@ public static class GlobalUsings
         void PrintCollection(IEnumerable<object?> collection, int? count = null)
         {
             print("[");
-            foreach (var (val, num) in collection.LookAhead(1)) {
+            foreach (var val in collection.Intersperse(new PrintableRawString(", "))) {
                 PrintValue(print, val);
-                if (num > 0)
-                    print(", ");
-                else
-                    print("]");
             }
+            print("]");
 
             if (count is null) {
                 if (collection is ICollection col)
@@ -224,4 +226,11 @@ public static class GlobalUsings
     public static T ForceCastTo<T>(this object source) => (T)source;
 
     public static T With<T>(this T value, Func<T, T> selector) => selector(value);
+
+    private sealed class PrintableRawString(string str)
+    {
+        public string String => str;
+
+        public override string ToString() => str;
+    }
 }
