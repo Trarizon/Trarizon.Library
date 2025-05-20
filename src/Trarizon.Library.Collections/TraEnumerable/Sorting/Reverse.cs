@@ -6,6 +6,8 @@ public static partial class TraEnumerable
         if (source is IList<T> list) {
             if (list.Count <= 1)
                 return source;
+            if (source is ListLazyReverseIterator<T> iterator)
+                return iterator.Reverse();
             return new ListLazyReverseIterator<T>(list);
         }
 
@@ -25,5 +27,7 @@ public static partial class TraEnumerable
         public override bool MoveNext() => MoveNext_Index(ref _current);
 
         protected override IteratorBase<T> Clone() => new ListLazyReverseIterator<T>(list);
+
+        public IList<T> Reverse() => list;
     }
 }

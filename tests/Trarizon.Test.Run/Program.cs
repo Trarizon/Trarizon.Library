@@ -11,8 +11,12 @@ using Trarizon.Test.Run;
 
 //TraAlgorithm.LevenshteinDistance("apple", "rad").Print();
 
-EnumerateInts(0).Intersperse(9).Print(); ;
-ArrayInts(1).Intersperse(9).Print(); ;
+EnumerateInts().Interleave(EnumerateInts(10).Reverse()).Print();
+ArrayInts().Interleave(ArrayInts(10).AsEnumerable().Reverse().ToArray()).Print();
+EnumerateInts().Interleave(EnumerateInts(6).Reverse()).Print();
+ArrayInts().Interleave(ArrayInts(6).AsEnumerable().Reverse().ToArray()).Print();
+EnumerateInts().Interleave(EnumerateInts().Reverse()).Print();
+ArrayInts().Interleave(ArrayInts().AsEnumerable().Reverse().ToArray()).Print();
 
 //PrefixTree<char> t = new();
 

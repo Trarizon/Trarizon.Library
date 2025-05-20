@@ -92,14 +92,16 @@ Helpers for BCL Array, `Span` and collections. And more collections type.
     - `TakeEvery` : Yield the values in specific interval
 - Joining
     - `CatesianProduct` : Catesian product
+    - `Interleave`
     - `Merge` : Merge 2 sorted collections
 - Mapping
     - `Adjacent` : Yield the value and its next value
     - `AggregateSelect` : `Aggregate` and returns all values in processing
     - `ChunkPair/Triple` : Returning tuple version of `Chunk`
     - `WithIndex` : Yield return index and item, `Index` in .NET 9
-    - `LookAhead` : Return item and how many items in the sequence rest after the item, with a given max ahead count
+    - `Intersperse` 
     - `Repeat` : Repeatly enumerate the collection
+    - `RepeatInterleave` : Repeat item in collection
 - Partition
     - `OfTypeWhile` : Take values until doesn't match the given type
     - `OfTypeUntil` : Take values until reach element in given type
