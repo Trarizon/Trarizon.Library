@@ -1,8 +1,13 @@
-﻿using System.Runtime.CompilerServices;
+﻿using CommunityToolkit.Diagnostics;
+using System.Collections;
+using System.Runtime.CompilerServices;
+using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections;
 public static partial class TraCollection
 {
+    public static ReadOnlySingletonCollection<T> Singleton<T>(T value) => new ReadOnlySingletonCollection<T>(value);
+
     public static class Utils<T>
     {
         #region List
@@ -40,5 +45,65 @@ public static partial class TraCollection
 #endif
 
         #endregion
+    }
+
+    public readonly struct ReadOnlySingletonCollection<T>(T value) : IList<T>, IReadOnlyList<T>, ICollection<T>, IReadOnlyCollection<T>
+    {
+        private readonly T _value = value;
+
+        public T Value => _value;
+
+        public Enumerator GetEnumerator() => new(_value);
+
+        int ICollection<T>.Count => 1;
+        int IReadOnlyCollection<T>.Count => 1;
+        bool ICollection<T>.IsReadOnly => true;
+        T IReadOnlyList<T>.this[int index] => index == 0 ? _value : Throws.IndexArgOutOfRange<T>(index);
+        T IList<T>.this[int index]
+        {
+            get => index == 0 ? _value : Throws.IndexArgOutOfRange<T>(index);
+            set => Throws.CollectionIsImmutable();
+        }
+        void ICollection<T>.Add(T item) => Throws.CollectionIsImmutable();
+        void ICollection<T>.Clear() => Throws.CollectionIsImmutable();
+        bool ICollection<T>.Contains(T item) => EqualityComparer<T>.Default.Equals(item, _value);
+        void ICollection<T>.CopyTo(T[] array, int arrayIndex)
+        {
+            Guard.IsInRangeFor(arrayIndex, array);
+            array[arrayIndex] = _value;
+        }
+        IEnumerator<T> IEnumerable<T>.GetEnumerator() => GetEnumerator();
+        int IList<T>.IndexOf(T item) => EqualityComparer<T>.Default.Equals(item, _value) ? 0 : -1;
+        void IList<T>.Insert(int index, T item) => Throws.CollectionIsImmutable();
+        bool ICollection<T>.Remove(T item) { Throws.CollectionIsImmutable(); return default; }
+        void IList<T>.RemoveAt(int index) => Throws.CollectionIsImmutable();
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        public struct Enumerator : IEnumerator<T>
+        {
+            private readonly T _value;
+            private bool _disposed;
+
+            internal Enumerator(T value)
+            {
+                _value = value;
+            }
+
+            public readonly T Current => _value;
+
+            object IEnumerator.Current => Current!;
+
+            void IDisposable.Dispose() { }
+            public bool MoveNext()
+            {
+                if (_disposed)
+                    return false;
+                else {
+                    _disposed = true;
+                    return true;
+                }
+            }
+            public void Reset() => _disposed = false;
+        }
     }
 }

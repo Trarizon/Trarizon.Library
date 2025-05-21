@@ -47,6 +47,7 @@ Helpers for BCL Array, `Span` and collections. And more collections type.
 <details>
 <summary>Collection</summary>
 
+- `Singleton` : Return a list wrapper with only one element
 - `Dictionary`
     - `AtRef`
     - `GetOrAdd`

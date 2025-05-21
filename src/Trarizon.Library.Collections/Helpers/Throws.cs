@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 
 namespace Trarizon.Library.Collections.Helpers;
 [StackTraceHidden]
@@ -12,6 +13,10 @@ internal static class Throws
     [DoesNotReturn]
     public static void IteratorIsImmutable()
         => throw new InvalidOperationException("Iterator is immutable.");
+
+    [DoesNotReturn]
+    public static void CollectionIsImmutable()
+        => throw new InvalidOperationException("Collection is immutable.");
 
     [DoesNotReturn]
     public static void CollectionHasNoElement()
@@ -29,4 +34,11 @@ internal static class Throws
     internal static void KeyNotFound<T>(T key)
         => throw new KeyNotFoundException($"Cannot find key '{key}' in collection.");
 
+    [DoesNotReturn]
+    public static void IndexArgOutOfRange(int index, [CallerArgumentExpression(nameof(index))] string paramName = "")
+        => throw new ArgumentOutOfRangeException(paramName, index, null);
+
+    [DoesNotReturn]
+    public static T IndexArgOutOfRange<T>(int index, [CallerArgumentExpression(nameof(index))] string paramName = "")
+        => throw new ArgumentOutOfRangeException(paramName, index, null);
 }

@@ -6,6 +6,8 @@ using System.Text;
 namespace Trarizon.Library.Roslyn.Extensions;
 public static class IndentedTextWriterExtensions
 {
+    private static readonly string[] _newlineSeperators = ["\n", "\r\n"];
+
     /// <summary>
     /// Write a bracket and indent, auto indent back
     /// </summary>
@@ -20,7 +22,7 @@ public static class IndentedTextWriterExtensions
 
     public static void WriteMultipleLines(this IndentedTextWriter writer, string text)
     {
-        foreach (var line in text.Split(['\n'], StringSplitOptions.None)) {
+        foreach (var line in text.Split(_newlineSeperators, StringSplitOptions.None)) {
             writer.WriteLine(line);
         }
     }

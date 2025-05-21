@@ -67,6 +67,7 @@
             System.Diagnostics.CodeAnalysis.ExperimentalAttribute;
             
             System.Runtime.CompilerServices.CollectionBuilderAttribute;
+            System.Runtime.CompilerServices.CallerArgumentExpressionAttribute;
         </PolySharpIncludeGeneratedTypes>
     </PropertyGroup>
     
