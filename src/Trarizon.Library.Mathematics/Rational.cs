@@ -282,7 +282,7 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
         return IsNegative(y) ? x : y;
     }
 
-    public static Rational Min(Rational x,Rational y)
+    public static Rational Min(Rational x, Rational y)
     {
         if (x != y) {
             if (!IsNaN(x)) {
@@ -539,7 +539,7 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
         // shift >= 0, denominator >= 1
         else {
             var trailing = BitOperations.TrailingZeroCount(numerator);
-            Debug.Assert(trailing < 23);
+            Debug.Assert(trailing <= 23);
 
             // 110000 / 100 => 1100 / 1
             if (shift <= trailing) {
