@@ -42,6 +42,25 @@
         <PackageReference Include="Microsoft.Bcl.HashCode" Version="6.0.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="TraMath.Mirror.tt">
+        <Generator>TextTemplatingFileGenerator</Generator>
+        <LastGenOutput>TraMath.Mirror.ttg.cs</LastGenOutput>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="TraMath.Mirror.ttg.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>TraMath.Mirror.tt</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
     <!-- End Reference -->
 
     <PropertyGroup Label="Polyfills">

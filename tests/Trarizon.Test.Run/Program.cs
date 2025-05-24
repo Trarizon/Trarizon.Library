@@ -2,6 +2,7 @@
 
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
 using Trarizon.Library.CodeAnalysis;
 using Trarizon.Library.CodeGeneration;
 using Trarizon.Library.Collections;
@@ -17,7 +18,6 @@ EnumerateInts().Interleave(EnumerateInts(6).Reverse()).Print();
 ArrayInts().Interleave(ArrayInts(6).AsEnumerable().Reverse().ToArray()).Print();
 EnumerateInts().Interleave(EnumerateInts().Reverse()).Print();
 ArrayInts().Interleave(ArrayInts().AsEnumerable().Reverse().ToArray()).Print();
-
 //PrefixTree<char> t = new();
 
 //t.GetOrAdd("string");
