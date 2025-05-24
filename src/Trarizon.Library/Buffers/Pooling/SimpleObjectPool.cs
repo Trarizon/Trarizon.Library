@@ -1,4 +1,9 @@
 ﻿using Trarizon.Library.Collections;
+#if NETSTANDARD
+using ArrayMaxLengthProvider = Trarizon.Library.Collections.TraArray;
+#else
+using ArrayMaxLengthProvider = System.Array;
+#endif
 
 namespace Trarizon.Library.Buffers.Pooling;
 public sealed partial class SimpleObjectPool<T> : ObjectPool<T> where T : class
@@ -17,11 +22,7 @@ public sealed partial class SimpleObjectPool<T> : ObjectPool<T> where T : class
         _onReturn = onReturn;
         _onDispose = onDispose;
         _pooled = new();
-#if NETSTANDARD
-        _maxCount = maxCount < 0 ? TraArray.MaxLength : maxCount;
-#else
-        _maxCount = maxCount < 0 ? Array.MaxLength : maxCount;
-#endif
+        _maxCount = maxCount < 0 ? ArrayMaxLengthProvider.MaxLength : maxCount;
     }
 
     /// <inheritdoc />

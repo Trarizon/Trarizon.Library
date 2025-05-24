@@ -25,7 +25,7 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
     public Deque(int capacity)
     {
         Guard.IsGreaterThanOrEqualTo(capacity, 0);
-        _array = new T[capacity];
+        _array = capacity == 0 ? [] : new T[capacity];
     }
 
     #region Accessors
@@ -147,7 +147,7 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
         foreach (var item in collection) {
             buffer.Add(item);
         }
-        for(int i = buffer.Count - 1; i >= 0; i--) {
+        for (int i = buffer.Count - 1; i >= 0; i--) {
             EnqueueFirst(buffer[i]);
         }
 

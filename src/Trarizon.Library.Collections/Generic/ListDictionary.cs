@@ -19,7 +19,8 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
 
     public ListDictionary(int capacity, IEqualityComparer<TKey>? comparer = null)
     {
-        _pairs = new (TKey, TValue)[capacity];
+        Guard.IsGreaterThanOrEqualTo(capacity, 0);
+        _pairs = capacity == 0 ? [] : new (TKey, TValue)[capacity];
         _comparer = comparer;
     }
 
@@ -94,7 +95,7 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
 
     public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value)
     {
-        ref  var item = ref FindRef(key);
+        ref var item = ref FindRef(key);
         if (Unsafe.IsNullRef(ref item)) {
             value = default;
             return false;
@@ -186,7 +187,7 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
     void ICollection<KeyValuePair<TKey, TValue>>.Add(KeyValuePair<TKey, TValue> item) => Add(item.Key, item.Value);
     bool ICollection<KeyValuePair<TKey, TValue>>.Contains(KeyValuePair<TKey, TValue> item)
     {
-        ref  var findItem = ref FindRef(item.Key);
+        ref var findItem = ref FindRef(item.Key);
         if (Unsafe.IsNullRef(ref findItem))
             return false;
 
@@ -206,7 +207,7 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
     }
     bool ICollection<KeyValuePair<TKey, TValue>>.Remove(KeyValuePair<TKey, TValue> item)
     {
-        ref  var findItem = ref FindRef(item.Key);
+        ref var findItem = ref FindRef(item.Key);
         if (Unsafe.IsNullRef(ref findItem))
             return false;
         if (!EqualityComparer<TValue>.Default.Equals(findItem.Value, item.Value))

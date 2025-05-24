@@ -4,6 +4,9 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Trarizon.Library.Collections.Helpers;
+#if NETSTANDARD2_0
+using RuntimeHelpers = Trarizon.Library.Collections.Helpers.PfRuntimeHelpers;
+#endif
 
 namespace Trarizon.Library.Collections.Generic;
 [Experimental("TRALIB")]
@@ -449,15 +452,11 @@ public class ContiguousPrefixTreeDictionary<TKey, TValue> where TKey : notnull
         Debug.Assert(index > 0);
         ref var entry = ref _entries[index];
 
-#if NETSTANDARD
-        entry.Key = default!;
-        entry.Value = default!;
-#else
         if (RuntimeHelpers.IsReferenceOrContainsReferences<TKey>())
             entry.Key = default!;
         if (RuntimeHelpers.IsReferenceOrContainsReferences<TValue>())
             entry.Value = default!;
-#endif
+     
         _entries[entry.ParentOrFreeNext].Child = entry.NextSibling;
         entry.ParentOrFreeNext = _freeFirstIndex;
         entry.Version += 2;

@@ -58,8 +58,9 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
 
     public SortedList(int capacity, IComparer<T> comparer)
     {
+        Guard.IsGreaterThanOrEqualTo(capacity, 0);
         _comparer = comparer;
-        _array = new T[capacity];
+        _array = capacity == 0 ? [] : new T[capacity];
     }
 
     public ReadOnlySpan<T> AsSpan() => _array.AsSpan(0, _count);

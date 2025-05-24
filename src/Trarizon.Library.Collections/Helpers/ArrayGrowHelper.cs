@@ -3,6 +3,11 @@ using System.Runtime.CompilerServices;
 #if NETSTANDARD2_0
 using RuntimeHelpers = Trarizon.Library.Collections.Helpers.PfRuntimeHelpers;
 #endif
+#if NETSTANDARD
+using ArrayMaxLengthProvider = Trarizon.Library.Collections.TraArray;
+#else
+using ArrayMaxLengthProvider = System.Array;
+#endif
 
 namespace Trarizon.Library.Collections.Helpers;
 internal static partial class ArrayGrowHelper
@@ -102,12 +107,7 @@ internal static partial class ArrayGrowHelper
         Debug.Assert(length < expectedLength);
 
         int newLen;
-        var maxLength =
-#if NETSTANDARD
-            TraArray.MaxLength;
-#else
-            Array.MaxLength;
-#endif
+        var maxLength = ArrayMaxLengthProvider.MaxLength;
         if (length == 0)
             newLen = 4;
         else
