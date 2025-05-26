@@ -1,13 +1,12 @@
 ﻿# Trarizon.Library
 
 Miscellaneous Helpers
-This library use nuget package [`CommunityToolkit.HighPerformance`](https://github.com/communitytoolkit/dotnet) and `CommunityToolkit.Diagnostics` 
+This library use nuget package `CommunityToolkit.Diagnostics` 
 
 Contents:
 
 - [CodeAnalysis](#CodeAnalysis)
 - [CodeGeneration](#CodeGeneration)
-- [Collections and helpers](#Collections)
 - [Monads and wrappers](#Wrappers)
 - [Other helpers](#More)
 

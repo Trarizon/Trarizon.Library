@@ -4,48 +4,21 @@ Personal library, supports .NET 8/9, .NET Standard 2.0/2.1
 
 ~some method are just for fun though~
 
-## [Library](./src/Trarizon.Library/README.md)
+## Projects
 
-Miscellaneous stuff. Breaking changes may be frequent (orz.
+### General
 
-Some methods depends on [`CommunityToolkit`](https://github.com/CommunityToolkit/dotnet)
+Project|Summary
+:--|:--
+[Library](./src/Trarizon.Library)|Miscellaneous stuff. Breaking changes may be frequent (orz.
+[Library.Collections](./src/Trarizon.Library.Collections)|Collections types, extensions for BCL collection type, and more linqs
+[Library.Functional](./src/Trarizon.Library.Functional)|Monads `Optional` `Result` `Either`
+[Library.Mathematics](./src/Trarizon.Library.Mathematics)|Functions for number and mathematics
+[Library.Roslyn](./src/roslyn/Trarizon.Library.Roslyn)|Toolkit for source generator
 
-<details>
-<summary>brief</summary>
+### Specialized
 
-- CodeAnalysis/Generation
-- More collections, more extensions
-- Simple struct monads
-- Many utility methods extends from BCL
-
-</details>
-
-## GeneratorToolkit
-
-Toolkit for source generator
-
-<details>
-<summary>Deprecated</summary>
-
-## Deprecated
-
-### [Yieliception](./Trarizon.Yieliception/README.md) ([EN](./Trarizon.Yieliception/README.en.md))
-
-> [Archive branch](https://github.com/Trarizon/Trarizon.Library/tree/archive_yieliception/src/Trarizon.Yieliception)
-
-Provide interception for `I(Async)Enumerator<>.MoveNext(Async)`. 
-
-This mainly aims to extends `yield return`, provide communication capability to
-`yield return`-generated iterator. (like python
-
-> Example: [`Test.Run.Examples.YieliceptionExample`](./Trarizon.Test.Run/Examples/YieliceptionExample.cs)
-
-### TextCommanding
-
-> Use [`Trarizon.TextCommand`](https://github.com/Trarizon/Trarizon.TextCommand) instead
-> 
-> Original project in [this branch](https://github.com/Trarizon/Trarizon.Library/tree/archive_textcommanding/Trarizon.TextCommanding)
-
-Parse text input command(CLI like).
-
-</details>
+Project|Summary
+:--|:--
+[Windows](./src/windows/Trarizon.Library.Windows)|Encapsulate some windows apis
+[Wpf](./src/windows/Trarizon.Library.Windows)|For WPF

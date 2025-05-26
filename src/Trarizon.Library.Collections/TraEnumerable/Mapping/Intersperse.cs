@@ -4,6 +4,9 @@ using System.Diagnostics;
 namespace Trarizon.Library.Collections;
 public static partial class TraEnumerable
 {
+    /// <summary>
+    /// Inserts the specified separator between each element of the source sequence.
+    /// </summary>
     public static IEnumerable<T> Intersperse<T>(this IEnumerable<T> source, T seperator)
     {
         if (source.TryGetNonEnumeratedCount(out var count) && count <= 1) {

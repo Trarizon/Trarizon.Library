@@ -2,6 +2,7 @@
 
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Dynamic;
 using System.Runtime.InteropServices;
 using Trarizon.Library.CodeAnalysis;
 using Trarizon.Library.CodeGeneration;
@@ -11,54 +12,46 @@ using Trarizon.Library.Collections.Generic;
 using Trarizon.Library.Mathematics;
 using Trarizon.Test.Run;
 
+dynamic d = new DynamicPath("D:\\");
+d.Pictures.Hentai.剥ぎコラ.Open();
+
+Span<int> ints= [];
+ints.Contains(1);
+
 ((Rational)0.5f).Print();
 ((Rational)60.5f).Print();
 ((Rational)1.25f).Print();
 ((Rational)0.2f).Print();
 
 ((Rational)1 / 5).Print();
-//t.GetOrAdd("string");
-//t.GetOrAdd("stringnext");
-//t.GetOrAdd("bool");
-//t.GetOrAdd("bolt");
-//t.GetOrAdd("str");
-//t.GetOrAdd("");
 
-//Print();
-
-//t.Root.IsEnd.Print();
-
-//t.Remove("stringnext").Print();
-//Print();
-
-//t.Remove("").Print();
-
-//Print();
-//t.Root.IsEnd.Print();
-
-
-//RunBenchmarks();
-[Singleton]
-partial class D
+class DynamicPath(string path) : DynamicObject
 {
-    private D()
+    public override bool TryGetMember(GetMemberBinder binder, out object? result)
     {
-        Console.WriteLine(1);
+        var name = binder.Name;
+        var newpath = Path.Combine(path, name);
+        if (Directory.Exists(newpath)) {
+            result = new DynamicPath(newpath);
+            return true;
+        }
+        if (File.Exists(newpath)) {
+            result = new DynamicPath(newpath);
+            return true;
+        }
+        result = null;
+        return false;
     }
-}
 
-class A
-{
-    [FriendAccess(typeof(B))]
-    public string Name { get; set; }
-}
-
-class B
-{
-    public static string Name => new A().Name;
-}
-
-class C
-{
-    //public static string Name => new A().Name;
+    public void Open()
+    {
+        if (Directory.Exists(path)) {
+            Process.Start("explorer.exe", path);
+            return;
+        }
+        if (File.Exists(path)) {
+            Process.Start("explorer.exe", $"/select,{path}");
+            return;
+        }
+    }
 }
