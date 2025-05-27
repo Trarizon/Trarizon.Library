@@ -60,6 +60,18 @@ public class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
         }
     }
 
+    public bool TryGetNode(ReadOnlySpan<TKey> sequence, [MaybeNullWhen(false)] out Node node)
+    {
+        node = FindPrefix(sequence);
+        return node is not null;
+    }
+
+    public bool TryGetNode(IEnumerable<TKey> sequence, [MaybeNullWhen(false)] out Node node)
+    {
+        node = FindPrefix(sequence);
+        return node is not null;
+    }
+
     public bool ContainsKey(ReadOnlySpan<TKey> sequence)
     {
         var node = FindPrefix(sequence);
