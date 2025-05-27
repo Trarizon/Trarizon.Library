@@ -3,6 +3,9 @@ using System.Buffers;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Trarizon.Library.Collections.Helpers;
+#if NETSTANDARD2_0
+using RuntimeHelpers = Trarizon.Library.Collections.Helpers.PfRuntimeHelpers;
+#endif
 
 namespace Trarizon.Library.Collections.AllocOpt;
 /// <summary>
@@ -59,6 +62,8 @@ public struct AllocOptList<T> : IDisposable
         var (ofs, len) = range.GetOffsetAndLength(_count);
         return AsSpan(ofs, len);
     }
+
+    public readonly T[] ToArray() => AsSpan().ToArray();
 
     #endregion
 
@@ -248,7 +253,7 @@ public struct AllocOptList<T> : IDisposable
     public void Dispose()
     {
         if (_array.Length > 0) {
-            ArrayPool<T>.Shared.Return(_array);
+            ArrayPool<T>.Shared.Return(_array, RuntimeHelpers.IsReferenceOrContainsReferences<T>());
         }
         _array = null!;
     }

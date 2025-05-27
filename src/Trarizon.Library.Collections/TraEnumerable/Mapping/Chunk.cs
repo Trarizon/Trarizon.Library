@@ -1,4 +1,6 @@
-﻿namespace Trarizon.Library.Collections;
+﻿using Trarizon.Library.Collections.AllocOpt;
+
+namespace Trarizon.Library.Collections;
 public static partial class TraEnumerable
 {
     public static IEnumerable<(T, T?)> ChunkPair<T>(this IEnumerable<T> source)
@@ -46,6 +48,55 @@ public static partial class TraEnumerable
                 }
 
                 yield return (first, second, third);
+            }
+        }
+    }
+
+    public static IEnumerable<T[]> ChunkBy<T, TEquatable>(this IEnumerable<T> source, TEquatable seperator, bool ignoreEmptyChunk = false)
+        where TEquatable : IEquatable<T>
+    {
+        if (ignoreEmptyChunk)
+            return IterateExcludeEmpty(source, seperator);
+        else
+            return IterateIncludeEmpty(source, seperator);
+
+        static IEnumerable<T[]> IterateIncludeEmpty(IEnumerable<T> source, TEquatable seperator)
+        {
+            using var enumerator = source.GetEnumerator();
+            using AllocOptList<T> buffer = [];
+            while (enumerator.MoveNext()) {
+                var current = enumerator.Current;
+                if (seperator.Equals(current)) {
+                    yield return buffer.ToArray();
+                    buffer.Clear();
+                }
+                else {
+                    buffer.Add(current);
+                }
+            }
+            yield return buffer.ToArray();
+            buffer.Clear();
+        }
+
+        static IEnumerable<T[]> IterateExcludeEmpty(IEnumerable<T> source, TEquatable seperator)
+        {
+            using var enumerator = source.GetEnumerator();
+            using AllocOptList<T> buffer = [];
+            while (enumerator.MoveNext()) {
+                var current = enumerator.Current;
+                if (seperator.Equals(current)) {
+                    if (buffer.Count > 0) {
+                        yield return buffer.ToArray();
+                        buffer.Clear();
+                    }
+                }
+                else {
+                    buffer.Add(current);
+                }
+            }
+            if (buffer.Count > 0) {
+                yield return buffer.ToArray();
+                buffer.Clear();
             }
         }
     }

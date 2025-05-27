@@ -125,6 +125,7 @@ Linq extensions, in class `TraEnumerable`
     - `Adjacent` : Yield the value and its next value
     - `AggregateSelect` : `Aggregate` and returns all values in processing
     - `ChunkPair/Triple` : Returning tuple version of `Chunk`
+    - `ChunkBy` : Similiar to `string.Split`
     - `WithIndex` : Yield return index and item, `Index` in .NET 9
     - `Intersperse` : Inserts the specified separator between each element of the source sequence.
     - `Repeat` : Repeatly enumerate the collection
