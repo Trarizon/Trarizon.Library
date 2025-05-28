@@ -24,7 +24,6 @@ namespace Trarizon.Library.Wrappers;
 /// But you cannot call set twice, or else the first value will not be disposed
 /// </para>
 /// </summary>
-/// <typeparam name="T"></typeparam>
 public struct LazyInitDisposable : IDisposable
 {
     internal IDisposable? _value;

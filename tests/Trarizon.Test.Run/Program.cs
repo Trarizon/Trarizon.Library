@@ -18,6 +18,7 @@ d.Pictures.Hentai.剥ぎコラ.Open();
 Span<int> ints= [];
 ints.Contains(1);
 
+
 ((Rational)0.5f).Print();
 ((Rational)60.5f).Print();
 ((Rational)1.25f).Print();

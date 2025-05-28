@@ -85,7 +85,8 @@ overloads | `RemoveAt` `RemoveRange` with `Index`/`Range`
 `Comparison`| Helpers for comparison
 :-:|:--
 `IComparer.Reverse`| Reverse comparer
-static `EquatableByComparer`| Create a `IEquatable<>` implemented by comparer
+static `CreateComparable`| Create `IComparable<>` by 
+static `CreateEquatable`| Create `IEquatable<>`
 
 `Index`| Helpers for `Index`/`Range` or `int` as index
 :-:|:--

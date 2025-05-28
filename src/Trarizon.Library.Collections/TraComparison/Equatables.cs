@@ -7,10 +7,10 @@ using System.Runtime.CompilerServices;
 namespace Trarizon.Library.Collections;
 public static partial class TraComparison
 {
-    public static ComparerEquatable<T, TComparer> EquatableByComparer<T, TComparer>(T value, TComparer comparer) where TComparer : IEqualityComparer<T>
+    public static ComparerEquatable<T, TComparer> CreateEquatable<T, TComparer>(T value, TComparer comparer) where TComparer : IEqualityComparer<T>
         => new ComparerEquatable<T, TComparer>(value, comparer);
 
-    public static DefaultComparerEquatable<T> EquatableByComparer<T>(T value)
+    public static DefaultComparerEquatable<T> CreateEquatable<T>(T value)
         => new DefaultComparerEquatable<T>(value);
 
     public readonly struct ComparerEquatable<T, TComparer>(T value, TComparer comparer) : IEquatable<T> where TComparer : IEqualityComparer<T>

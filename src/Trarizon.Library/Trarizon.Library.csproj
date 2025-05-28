@@ -29,19 +29,12 @@
     <!-- Reference -->
 
     <ItemGroup>
+        <ProjectReference Include="..\roslyn\Trarizon.Library.Generators\Trarizon.Library.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+        <ProjectReference Include="..\roslyn\Trarizon.Library.Roslyn\Trarizon.Library.Roslyn.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
         <ProjectReference Include="..\Trarizon.Library.Collections\Trarizon.Library.Collections.csproj" />
         <ProjectReference Include="..\Trarizon.Library.Functional\Trarizon.Library.Functional.csproj" />
         <ProjectReference Include="..\Trarizon.Library.Mathematics\Trarizon.Library.Mathematics.csproj" />
-        <!--<ProjectReference Include="..\Trarizon.Library.GeneratorToolkit\Trarizon.Library.GeneratorToolkit.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />-->
-        <!--<ProjectReference Include="..\Trarizon.Library.SourceGeneration\Trarizon.Library.SourceGeneration.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />-->
-        <!--<ProjectReference Include="..\Trarizon.Library.Roslyn\Trarizon.Library.Roslyn.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-        <ProjectReference Include="..\Trarizon.Library.Generators\Trarizon.Library.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />-->
     </ItemGroup>
-
-    <!--<ItemGroup>
-        <None Include="..\Trarizon.Library.Generators\bin\$(Configuration)\netstandard2.0\Trarizon.Library.Roslyn.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-        <None Include="..\Trarizon.Library.Generators\bin\$(Configuration)\netstandard2.0\Trarizon.Library.Generators.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-    </ItemGroup>-->
 
     <ItemGroup>
         <PackageReference Include="CommunityToolkit.Diagnostics" Version="8.4.0" />

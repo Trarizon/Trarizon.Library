@@ -1,5 +1,9 @@
 ﻿# History
 
+## v1.1.0
+
+- Remove some overload of `Random.NextItem`
+
 ## v1.0.1
 
 - Seperate `Collections` to a new project

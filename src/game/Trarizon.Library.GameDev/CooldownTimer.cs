@@ -16,17 +16,7 @@ public struct CooldownTimer
 
     public void Reset() => _t = 0;
 
-    public bool Elapse(float deltaTime)
-    {
-        _t += deltaTime;
-        if (_t >= _maxTime) {
-            _t -= _maxTime;
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
+    public bool Elapse(float deltaTime) => Elapse(ref _t, _maxTime, deltaTime);
 
     public static bool Elapse(ref float timer, float maxTime, float deltaTime)
     {

@@ -7,7 +7,10 @@ using System.Runtime.CompilerServices;
 namespace Trarizon.Library.Collections;
 public static partial class TraComparison
 {
-    internal readonly struct ComparerComparable<T, TComparer>(T value, TComparer comparer) : IComparable<T> where TComparer : IComparer<T>
+    public static ComparerComparable<T, TComparer> CreateComparable<T, TComparer>(T value, TComparer comparer) where TComparer : IComparer<T>
+        => new ComparerComparable<T, TComparer>(value, comparer);
+
+    public readonly struct ComparerComparable<T, TComparer>(T value, TComparer comparer) : IComparable<T> where TComparer : IComparer<T>
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int CompareTo(T? other) => comparer.Compare(value, other);

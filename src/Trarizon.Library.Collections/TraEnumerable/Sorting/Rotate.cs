@@ -7,12 +7,14 @@ public static partial class TraEnumerable
 {
     public static IEnumerable<T> Rotate<T>(this IEnumerable<T> source, int splitPosition)
     {
-        if (splitPosition == 0)
+        if (splitPosition <= 0)
             return source;
 
         if (source.TryGetNonEnumeratedCount(out var count)) {
             if (splitPosition >= count)
                 return source;
+            if (source is IList<T> list)
+                return new ListRotateIterator<T>(list, splitPosition);
             return new CollectionRotateIterator<T>(source, splitPosition, count);
         }
 
@@ -20,7 +22,7 @@ public static partial class TraEnumerable
 
         static IEnumerable<T> Iterate(IEnumerable<T> source, int splitPosition)
         {
-            var firstPart = new AllocOptList<T>();
+            using var firstPart = new AllocOptList<T>();
 
             using var enumerator = source.GetEnumerator();
             for (int i = 0; i < splitPosition; i++) {
@@ -44,23 +46,25 @@ public static partial class TraEnumerable
 
     public static IEnumerable<T> Rotate<T>(this IEnumerable<T> source, Index splitPosition)
     {
-        if (splitPosition.IsFromEnd) {
-            if (source.TryGetNonEnumeratedCount(out var count)) {
-                return Rotate(source, splitPosition.GetOffset(count));
-            }
-            else {
-                var cache = new AllocOptList<T>();
-                cache.AddRange(source);
-
-                var split = splitPosition.GetOffset(cache.Count);
-                if (split < 0)
-                    return cache.AsSpan().ToArray();
-                return new ListRotateIterator<ArrayTruncation<T>, T>(new(cache.GetUnderlyingArray(), cache.Count), split);
-            }
-        }
-        else {
+        if (!splitPosition.IsFromEnd)
             return Rotate(source, splitPosition.Value);
+
+        if (source.TryGetNonEnumeratedCount(out var count)) {
+            var spl = splitPosition.GetOffset(count);
+            if (spl <= 0 || spl >= count)
+                return source;
+            if (source is IList<T> list)
+                return new ListRotateIterator<T>(list, spl);
+            return new CollectionRotateIterator<T>(source, spl, count);
         }
+
+        using var cache = new AllocOptList<T>();
+        cache.AddRange(source);
+
+        var split = splitPosition.GetOffset(cache.Count);
+        if (split <= 0)
+            return cache.AsSpan().ToArray();
+        return new ListRotateIterator<T>(cache.ToArray(), split);
     }
 
     private sealed class CollectionRotateIterator<T>(IEnumerable<T> source, int split, int count) : CollectionIteratorBase<T>
@@ -125,8 +129,7 @@ public static partial class TraEnumerable
         }
     }
 
-    private sealed class ListRotateIterator<TList, T>(TList list, int split) : ListIteratorBase<T>
-        where TList : IReadOnlyList<T>
+    private sealed class ListRotateIterator<T>(IList<T> list, int split) : ListIteratorBase<T>
     {
         private T? _current;
 
@@ -185,6 +188,6 @@ public static partial class TraEnumerable
             }
         }
 
-        protected override IteratorBase<T> Clone() => new ListRotateIterator<TList, T>(list, split);
+        protected override IteratorBase<T> Clone() => new ListRotateIterator<T>(list, split);
     }
 }

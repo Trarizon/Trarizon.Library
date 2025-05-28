@@ -2,11 +2,14 @@
 using Trarizon.Library.CodeGeneration;
 using Trarizon.Library.Collections;
 using Trarizon.Library.Mathematics;
-
 #if NETSTANDARD
 using ListMarshal = Trarizon.Library.Collections.TraCollection;
+using MathFLerp = Trarizon.Library.Mathematics.TraMath;
+using MathDLerp = Trarizon.Library.Mathematics.TraMath;
 #else
 using ListMarshal = System.Runtime.InteropServices.CollectionsMarshal;
+using MathFLerp = float;
+using MathDLerp = double;
 #endif
 
 
@@ -23,7 +26,7 @@ public static partial class TraRandom
         foreach (var w in weights) {
             totalWeight += w;
         }
-
+        
         float value = random.NextSingle() * totalWeight;
         for (int i = 0; i < weights.Length; i++) {
             if (value < weights[i])
@@ -46,18 +49,10 @@ public static partial class TraRandom
     #region Next Value
 
     public static float NextSingle(this Random random, float min, float max)
-#if NETSTANDARD
-        => TraMath.Lerp(min, max, random.NextSingle());
-#else
-        => float.Lerp(min, max, random.NextSingle());
-#endif
+        => MathFLerp.Lerp(min, max, random.NextSingle());
 
     public static double NextDouble(this Random random, double min, double max)
-#if NETSTANDARD
-        => min + random.NextDouble() * (max - min);
-#else
-        => double.Lerp(min, max, random.NextDouble());
-#endif
+        => MathDLerp.Lerp(min, max, random.NextDouble());
 
     public static bool NextBoolean(this Random random)
         => random.Next(2) != 0;
@@ -67,28 +62,6 @@ public static partial class TraRandom
         index = random.Next(items.Length);
         return items[index];
     }
-    public static T NextItem<T>(this Random random, Span<T> items, [OptionalOut] out int index) => random.NextItem((ReadOnlySpan<T>)items, out index);
-    public static T NextItem<T>(this Random random, T[] items, [OptionalOut] out int index) => random.NextItem(items.AsSpan(), out index);
-    public static T NextItem<T>(this Random random, List<T> items, [OptionalOut] out int index) => random.NextItem(ListMarshal.AsSpan(items), out index);
-    public static T NextItem<T>(this Random random, IReadOnlyList<T> items, [OptionalOut] out int index)
-    {
-        index = random.Next(items.Count);
-        return items[index];
-    }
 
     #endregion
-
-#if NETSTANDARD2_0
-
-    public static void Shuffle<T>(this Random random, Span<T> span)
-    {
-        for (int i = 0; i < span.Length - 1; i++) {
-            int j = random.Next(i, span.Length);
-            if (j != i) {
-                (span[j], span[i]) = (span[i], span[j]);
-            }
-        }
-    }
-
-#endif
 }

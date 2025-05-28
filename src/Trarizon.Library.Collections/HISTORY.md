@@ -6,4 +6,5 @@
 - Add `TraAlgorithm.LevenshteinDistance`
 - Add `IEnumerable.Intersperse`, `Interleave`, `RepeatInterleave`, `ChunkBy`
 - Add `TraCollection.Singleton`
+- Add `TraComparison.CreateComparable/Equatable`
 - Remove `IEnumerable.LookAhead`
