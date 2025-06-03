@@ -398,23 +398,24 @@ public class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
         }
 
         /// <summary>
-        /// Value ref, if the node doesnt contains a value, return a null ref
+        /// Value ref
         /// </summary>
         public ref TValue ValueRef
         {
             get {
-                if (!IsEnd) {
-                    return ref Unsafe.NullRef<TValue>();
-                }
-                else {
-                    return ref _value!;
-                }
+                if (!IsEnd)
+                    ThrowHelper.ThrowInvalidOperationException("The node doesn't contains a value");
+                return ref _value!;
             }
         }
+
+        public Node? Parent => _parent;
 
         public NodeChildrenCollection Children => new(this);
 
         public TValue? GetValueOrDefault() => _value;
+
+        public ref TValue GetValueRefOrNullRef() => ref IsEnd ? ref _value! : ref Unsafe.NullRef<TValue>();
     }
 
     public readonly struct NodeChildrenCollection : IEnumerable<Node>

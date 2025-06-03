@@ -336,9 +336,11 @@ public class PrefixTree<T>
         /// <summary>
         /// If the node is root, the value is always default
         /// </summary>
-        public T Value => _value;
+        public T? Value => _value;
 
         public ref readonly T ValueRef => ref _value;
+
+        public Node? Parent => _parent;
 
         public NodeChildrenCollection Children => new(this);
     }

@@ -8,3 +8,4 @@
 - Add `TraCollection.Singleton`
 - Add `TraComparison.CreateComparable/Equatable`
 - Remove `IEnumerable.LookAhead`
+- Add/Optimize apis of `PrefixTree`
