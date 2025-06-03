@@ -5,8 +5,8 @@
     <Project Path="src/Trarizon.Library.Mathematics/Trarizon.Library.Mathematics.csproj" />
     <Project Path="src/Trarizon.Library/Trarizon.Library.csproj" />
   </Folder>
-  <Folder Name="/src/experimental/">
-    <Project Path="src/experimental/Trarizon.Library.Experimental/Trarizon.Library.Experimental.csproj" Id="83bdac29-35ba-40ec-b954-58a3d2819f74" />
+  <Folder Name="/src/playground/">
+    <Project Path="src/playground/Trarizon.Library.Playground/Trarizon.Library.Playground.csproj" Id="83bdac29-35ba-40ec-b954-58a3d2819f74" />
   </Folder>
   <Folder Name="/src/game/">
     <Project Path="src/game/Trarizon.Library.GameDev/Trarizon.Library.GameDev.csproj" />

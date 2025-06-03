@@ -1,10 +1,15 @@
 ﻿#pragma warning disable TRAEXP
 
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using BenchmarkDotNet.Filters;
 using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Dynamic;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using Trarizon.Library.CodeAnalysis;
 using Trarizon.Library.CodeGeneration;
 using Trarizon.Library.Collections;
@@ -12,53 +17,9 @@ using Trarizon.Library.Collections.AllocOpt;
 using Trarizon.Library.Collections.Generic;
 using Trarizon.Library.Components;
 using Trarizon.Test.Run;
+using Microsoft.CodeAnalysis.CSharp.Scripting;
+using Microsoft.CodeAnalysis.Scripting;
 
-//TraAlgorithm.LevenshteinDistance("apple", "rad").Print();
-
-using var fsw = new FileSystemWatcher(@"D:\Pictures")
-{
-    Path = @"D:\Pictures",
-    NotifyFilter = NotifyFilters.Attributes
-                                 | NotifyFilters.CreationTime
-                                 | NotifyFilters.DirectoryName
-                                 | NotifyFilters.FileName
-                                 | NotifyFilters.LastAccess
-                                 | NotifyFilters.LastWrite
-                                 | NotifyFilters.Security
-                                 | NotifyFilters.Size,
-    EnableRaisingEvents = true,
-    IncludeSubdirectories = true,
-};
-
-string? prevDel = null;
-
-fsw.Changed += (s, e) =>
-{
-    (e.ChangeType, e.FullPath).Print();
-};
-
-fsw.Created += (s, e) =>
-{
-    if (prevDel != null
-        && Path.GetFileName(e.FullPath) == Path.GetFileName(prevDel)) {
-        ("Move", e.FullPath).Print();
-    }
-    else {
-        (e.ChangeType, e.FullPath).Print();
-    }
-    prevDel = null;
-};
-
-fsw.Deleted += (s, e) =>
-{
-    prevDel = e.FullPath;
-    (e.ChangeType, e.FullPath).Print();
-};
-
-fsw.Renamed += (s, e) =>
-{
-    (e.ChangeType, e.FullPath).Print();
-};
 
 Console.WriteLine("ready");
 Console.Read();
