@@ -1,5 +1,9 @@
 ﻿#pragma warning disable TRAEXP
 
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using BenchmarkDotNet.Filters;
+using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Dynamic;
@@ -11,6 +15,8 @@ using Trarizon.Library.Collections.AllocOpt;
 using Trarizon.Library.Collections.Generic;
 using Trarizon.Library.Mathematics;
 using Trarizon.Test.Run;
+using Microsoft.CodeAnalysis.CSharp.Scripting;
+using Microsoft.CodeAnalysis.Scripting;
 
 dynamic d = new DynamicPath("D:\\");
 d.Pictures.Hentai.剥ぎコラ.Open();
