@@ -1,5 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-using Trarizon.Library.CodeGeneration;
 using Trarizon.Library.Collections;
 #if NETSTANDARD
 using ListMarshal = Trarizon.Library.Collections.TraCollection;
@@ -34,23 +33,17 @@ public static class FlagNotifiable
     public static void InvokeGlobal<TFlag>(params ReadOnlySpan<TFlag> flags)
         => SharedFlagNotifiable<TFlag>.Instance.NotifyFlag(flags);
 
-    public static void RegisterNotificationAndInvoke<TSelf, TFlag>(this TSelf self, TFlag flag, Action<TSelf> action, Action<Action> removerOberserListener)
-        where TSelf : IFlagNotifiable<TSelf, TFlag>
+    public static void RegisterNotificationAndInvoke<T, TFlag>(this IFlagNotifiable<T, TFlag> self, TFlag flag, Action<T> action, Action<Action>? removeObserverListener = null)
+        where T : IFlagNotifiable<T, TFlag>
     {
         self.RegisterNotification(flag, action);
-        action.Invoke(self);
-        removerOberserListener(() => self.UnregisterNotification(flag, action));
+        action.Invoke((T)self);
+
+        if (removeObserverListener is not null)
+            removeObserverListener(() => self.UnregisterNotification(flag, action));
     }
 
-    public static void RegisterNotificationAndInvoke<TSelf, TFlag>(this TSelf self, TFlag flag, Action<TSelf> action)
-        where TSelf : IFlagNotifiable<TSelf, TFlag>
-    {
-        self.RegisterNotification(flag, action);
-        action.Invoke(self);
-    }
-
-    public static void RegisterNotificationAndInvoke<TSelf, TFlag>(this TSelf self, TFlag flag, Action action)
-        where TSelf : IFlagNotifiable<TFlag>
+    public static void RegisterNotificationAndInvoke<TFlag>(this IFlagNotifiable<TFlag> self, TFlag flag, Action action)
     {
         self.RegisterNotification(flag, action);
         action.Invoke();
