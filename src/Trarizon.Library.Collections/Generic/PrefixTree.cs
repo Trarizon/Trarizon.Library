@@ -3,21 +3,26 @@ using System.Diagnostics;
 using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections.Generic;
-public class PrefixTree<T>
+public partial class PrefixTree<T>
 {
-    private Node? _root;
-    private int _count;
+    internal Node? _root;
+    internal int _count;
     private int _nodeCount;
-    private int _version;
+    internal int _version;
     private IEqualityComparer<T>? _comparer;
 
-    public PrefixTree()
+    public PrefixTree() : this(null)
     {
     }
 
     public PrefixTree(IEqualityComparer<T>? comparer)
     {
-        _comparer = comparer;
+        if (!typeof(T).IsValueType) {
+            _comparer = comparer ?? EqualityComparer<T>.Default;
+        }
+        else if (comparer is not null && !ReferenceEquals(comparer, EqualityComparer<T>.Default)) {
+            _comparer = comparer;
+        }
     }
 
     #region Access
@@ -30,6 +35,8 @@ public class PrefixTree<T>
     /// Root's <see cref="Node.Value"/> is always default
     /// </summary>
     public Node Root => GetEnsuredRoot();
+
+    public IEqualityComparer<T> Comparer => _comparer ?? EqualityComparer<T>.Default;
 
     public bool Contains(ReadOnlySpan<T> sequence)
     {
@@ -87,7 +94,8 @@ public class PrefixTree<T>
             }
         }
         else {
-            var comparer = _comparer ??= EqualityComparer<T>.Default;
+            Debug.Assert(_comparer is not null);
+            var comparer = _comparer!;
             foreach (var val in prefix) {
                 var child = node._child;
                 while (child is not null) {
@@ -130,7 +138,8 @@ public class PrefixTree<T>
             }
         }
         else {
-            var comparer = _comparer ??= EqualityComparer<T>.Default;
+            Debug.Assert(_comparer is not null);
+            var comparer = _comparer!;
             foreach (var val in prefix) {
                 var child = node._child;
                 while (child is not null) {
@@ -225,12 +234,7 @@ public class PrefixTree<T>
         if (!node.IsEnd)
             return false;
 
-        _version++;
-        _count--;
-        node.IsEnd = false;
-        if (node._child is null) {
-            InvalidateFromLeaf(node);
-        }
+        RemoveInternal(node);
         return true;
     }
 
@@ -242,12 +246,7 @@ public class PrefixTree<T>
         if (!node.IsEnd)
             return false;
 
-        _version++;
-        _count--;
-        node.IsEnd = false;
-        if (node._child is null) {
-            InvalidateFromLeaf(node);
-        }
+        RemoveInternal(node);
         return true;
     }
 
@@ -263,6 +262,8 @@ public class PrefixTree<T>
 
     private Node GetOrAddChild(Node parent, T value)
     {
+        Debug.Assert(parent._tree == this);
+
         var child = parent._child;
         if (typeof(T).IsValueType && _comparer is null) {
             while (child is not null) {
@@ -272,7 +273,8 @@ public class PrefixTree<T>
             }
         }
         else {
-            var comparer = _comparer ??= EqualityComparer<T>.Default;
+            Debug.Assert(_comparer is not null);
+            var comparer = _comparer!;
             while (child is not null) {
                 if (comparer.Equals(value, child.Value!))
                     return child;
@@ -287,6 +289,19 @@ public class PrefixTree<T>
             parent._child = child;
             _nodeCount++;
             return child;
+        }
+    }
+
+    internal void RemoveInternal(Node endNode)
+    {
+        Debug.Assert(endNode._tree == this && endNode.IsEnd);
+
+        _version++;
+        _count--;
+
+        endNode.IsEnd = false;
+        if (endNode._child is null) {
+            InvalidateFromLeaf(endNode);
         }
     }
 

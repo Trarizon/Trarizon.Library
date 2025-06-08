@@ -41,4 +41,8 @@ internal static class Throws
     [DoesNotReturn]
     public static T IndexArgOutOfRange<T>(int index, [CallerArgumentExpression(nameof(index))] string paramName = "")
         => throw new ArgumentOutOfRangeException(paramName, index, null);
+
+    [DoesNotReturn]
+    public static void IncompatibleAlternateComparer()
+        => throw new InvalidOperationException("Incompatible alternate comparer");
 }

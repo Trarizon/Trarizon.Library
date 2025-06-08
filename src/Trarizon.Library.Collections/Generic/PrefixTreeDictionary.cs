@@ -6,21 +6,26 @@ using System.Runtime.CompilerServices;
 using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections.Generic;
-public class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
+public partial class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
 {
-    private Node? _root;
-    private int _count;
+    internal Node? _root;
+    internal int _count;
     private int _nodeCount;
-    private int _version;
+    internal int _version;
     private IEqualityComparer<TKey>? _comparer;
 
-    public PrefixTreeDictionary()
+    public PrefixTreeDictionary() : this(null)
     {
     }
 
     public PrefixTreeDictionary(IEqualityComparer<TKey>? comparer)
     {
-        _comparer = comparer;
+        if (!typeof(TKey).IsValueType) {
+            _comparer = comparer ?? EqualityComparer<TKey>.Default;
+        }
+        else if (comparer is not null && !ReferenceEquals(comparer, EqualityComparer<TKey>.Default)) {
+            _comparer = comparer;
+        }
     }
 
     #region Access
@@ -33,6 +38,8 @@ public class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
     /// Root's <see cref="Node.Key"/> is always default
     /// </summary>
     public Node Root => GetEnsuredRoot();
+
+    public IEqualityComparer<TKey> Comparer => _comparer ?? EqualityComparer<TKey>.Default;
 
     public bool TryGetValue(ReadOnlySpan<TKey> sequence, [MaybeNullWhen(false)] out TValue value)
     {
@@ -128,7 +135,8 @@ public class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
             }
         }
         else {
-            var comparer = _comparer ??= EqualityComparer<TKey>.Default;
+            Debug.Assert(_comparer is not null);
+            var comparer = _comparer!;
             foreach (var val in prefix) {
                 var child = node._child;
                 while (child is not null) {
@@ -171,7 +179,8 @@ public class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
             }
         }
         else {
-            var comparer = _comparer ??= EqualityComparer<TKey>.Default;
+            Debug.Assert(_comparer is not null);
+            var comparer = _comparer!;
             foreach (var val in prefix) {
                 var child = node._child;
                 while (child is not null) {
@@ -266,12 +275,7 @@ public class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
         if (!node.IsEnd)
             return false;
 
-        _version++;
-        _count--;
-        node.IsEnd = false;
-        if (node._child is null) {
-            InvalidateFromLeaf(node);
-        }
+        RemoveInternal(node);
         return true;
     }
 
@@ -283,12 +287,7 @@ public class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
         if (!node.IsEnd)
             return false;
 
-        _version++;
-        _count--;
-        node.IsEnd = false;
-        if (node._child is null) {
-            InvalidateFromLeaf(node);
-        }
+        RemoveInternal(node);
         return true;
     }
 
@@ -304,6 +303,8 @@ public class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
 
     private Node GetOrAddChild(Node parent, TKey key, TValue value)
     {
+        Debug.Assert(parent._tree == this);
+
         var child = parent._child;
         if (typeof(TKey).IsValueType && _comparer is null) {
             while (child is not null) {
@@ -313,7 +314,8 @@ public class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
             }
         }
         else {
-            var comparer = _comparer ??= EqualityComparer<TKey>.Default;
+            Debug.Assert(_comparer is not null);
+            var comparer = _comparer!;
             while (child is not null) {
                 if (comparer.Equals(key, child.Key!))
                     return child;
@@ -328,6 +330,18 @@ public class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
             parent._child = child;
             _nodeCount++;
             return child;
+        }
+    }
+
+    internal void RemoveInternal(Node endNode)
+    {
+        Debug.Assert(endNode._tree == this && endNode.IsEnd);
+
+        _version++;
+        _count--;
+        endNode.IsEnd = false;
+        if(endNode._child is null) {
+            InvalidateFromLeaf(endNode);
         }
     }
 
