@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Trarizon.Library.Collections.Helpers;
 
@@ -43,6 +44,12 @@ partial class PrefixTree<T>
         public PrefixTree<T> Tree { get; }
 
         public IAlternateEqualityComparer<TAlternate, T> Comparer => Unsafe.As<IAlternateEqualityComparer<TAlternate, T>>(Tree._comparer!);
+
+        public bool TryGetNode<TEnumerable>(TEnumerable sequence, [MaybeNullWhen(false)] out Node node) where TEnumerable : IEnumerable<TAlternate>, allows ref struct
+        {
+            node = FindPrefix(sequence);
+            return node is not null;
+        }
 
         public bool Contains<TEnumerable>(TEnumerable sequence) where TEnumerable : IEnumerable<TAlternate>, allows ref struct
         {
@@ -153,6 +160,12 @@ partial class PrefixTree<T>
 public static partial class PrefixTreeExtensions
 {
 #if NET9_0_OR_GREATER
+
+    public static bool TryGetNode<T, TAlternate>(this PrefixTree<T>.AlternateLookup<TAlternate> lookup, ReadOnlySpan<TAlternate> sequence, [MaybeNullWhen(false)] out PrefixTree<T>.Node node)
+    {
+        node = FindPrefix(lookup, sequence);
+        return node is not null;
+    }
 
     public static bool Contains<T, TAlternate>(this PrefixTree<T>.AlternateLookup<TAlternate> lookup, ReadOnlySpan<TAlternate> sequence)
     {

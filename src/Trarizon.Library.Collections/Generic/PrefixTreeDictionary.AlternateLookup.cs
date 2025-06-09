@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Trarizon.Library.Collections.Helpers;
 
@@ -44,7 +45,26 @@ partial class PrefixTreeDictionary<TKey, TValue>
 
         public IAlternateEqualityComparer<TAlternate, TKey> Comparer => Unsafe.As<IAlternateEqualityComparer<TAlternate, TKey>>(Tree._comparer!);
 
-        public bool Contains<TEnumerable>(TEnumerable sequence) where TEnumerable : IEnumerable<TAlternate>, allows ref struct
+        public bool TryGetValue<TEnumerable>(TEnumerable sequence, [MaybeNullWhen(false)] out TValue value) where TEnumerable : IEnumerable<TAlternate>, allows ref struct
+        {
+            var node = FindPrefix(sequence);
+            if (node is { IsEnd: true }) {
+                value = node.GetValueOrDefault()!;
+                return true;
+            }
+            else {
+                value = default;
+                return false;
+            }
+        }
+
+        public bool TryGetNode<TEnumerable>(TEnumerable sequence, [MaybeNullWhen(false)] out Node node) where TEnumerable : IEnumerable<TAlternate>, allows ref struct
+        {
+            node = FindPrefix(sequence);
+            return node is not null;
+        }
+
+        public bool ContainsKey<TEnumerable>(TEnumerable sequence) where TEnumerable : IEnumerable<TAlternate>, allows ref struct
         {
             var node = FindPrefix(sequence);
             if (node is null)
@@ -52,7 +72,7 @@ partial class PrefixTreeDictionary<TKey, TValue>
             return node.IsEnd;
         }
 
-        public bool ContainsPrefix<TEnumerable>(TEnumerable sequence) where TEnumerable : IEnumerable<TAlternate>, allows ref struct
+        public bool ContainsKeyPrefix<TEnumerable>(TEnumerable sequence) where TEnumerable : IEnumerable<TAlternate>, allows ref struct
         {
             var node = FindPrefix(sequence);
             return node is not null;
@@ -154,7 +174,28 @@ public static partial class PrefixTreeExtensions
 {
 #if NET9_0_OR_GREATER
 
-    public static bool Contains<TKey, TValue, TAlternate>(this PrefixTreeDictionary<TKey, TValue>.AlternateLookup<TAlternate> lookup, ReadOnlySpan<TAlternate> sequence)
+    public static bool TryGetValue<TKey, TValue, TAlternate>(this PrefixTreeDictionary<TKey, TValue>.AlternateLookup<TAlternate> lookup, ReadOnlySpan<TAlternate> sequence, [MaybeNullWhen(false)] out TValue value)
+         where TKey : notnull where TAlternate : notnull
+    {
+        var node = FindPrefix(lookup, sequence);
+        if (node is { IsEnd: true }) {
+            value = node.GetValueOrDefault()!;
+            return true;
+        }
+        else {
+            value = default;
+            return false;
+        }
+    }
+
+    public static bool TryGetNode<TKey, TValue, TAlternate>(this PrefixTreeDictionary<TKey, TValue>.AlternateLookup<TAlternate> lookup, ReadOnlySpan<TAlternate> sequence, [MaybeNullWhen(false)] out PrefixTreeDictionary<TKey, TValue>.Node node)
+        where TKey : notnull where TAlternate : notnull
+    {
+        node = FindPrefix(lookup, sequence);
+        return node is not null;
+    }
+
+    public static bool ContainsKey<TKey, TValue, TAlternate>(this PrefixTreeDictionary<TKey, TValue>.AlternateLookup<TAlternate> lookup, ReadOnlySpan<TAlternate> sequence)
         where TKey : notnull where TAlternate : notnull
     {
         var node = FindPrefix(lookup, sequence);
@@ -163,7 +204,7 @@ public static partial class PrefixTreeExtensions
         return node.IsEnd;
     }
 
-    public static bool ContainsPrefix<TKey, TValue, TAlternate>(this PrefixTreeDictionary<TKey, TValue>.AlternateLookup<TAlternate> lookup, ReadOnlySpan<TAlternate> sequence)
+    public static bool ContainsKeyPrefix<TKey, TValue, TAlternate>(this PrefixTreeDictionary<TKey, TValue>.AlternateLookup<TAlternate> lookup, ReadOnlySpan<TAlternate> sequence)
         where TKey : notnull where TAlternate : notnull
     {
         var node = FindPrefix(lookup, sequence);

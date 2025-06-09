@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections.Generic;
@@ -37,6 +38,18 @@ public partial class PrefixTree<T>
     public Node Root => GetEnsuredRoot();
 
     public IEqualityComparer<T> Comparer => _comparer ?? EqualityComparer<T>.Default;
+
+    public bool TryGetNode(ReadOnlySpan<T> sequence, [MaybeNullWhen(false)] out Node node)
+    {
+        node = FindPrefix(sequence);
+        return node is not null;
+    }
+
+    public bool TryGetNode(IEnumerable<T> sequence, [MaybeNullWhen(false)] out Node node)
+    {
+        node = FindPrefix(sequence);
+        return node is not null;
+    }
 
     public bool Contains(ReadOnlySpan<T> sequence)
     {
