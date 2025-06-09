@@ -1,4 +1,4 @@
-﻿namespace Trarizon.Library.GameDev;
+﻿namespace Trarizon.Library.Game;
 public struct CooldownTimer
 {
     private readonly float _maxTime;

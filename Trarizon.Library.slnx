@@ -9,7 +9,7 @@
     <Project Path="src/playground/Trarizon.Library.Playground/Trarizon.Library.Playground.csproj" Id="83bdac29-35ba-40ec-b954-58a3d2819f74" />
   </Folder>
   <Folder Name="/src/game/">
-    <Project Path="src/game/Trarizon.Library.GameDev/Trarizon.Library.GameDev.csproj" />
+    <Project Path="src/game/Trarizon.Library.Game/Trarizon.Library.Game.csproj" />
   </Folder>
   <Folder Name="/src/roslyn/">
     <Project Path="src/roslyn/Trarizon.Library.Generators/Trarizon.Library.Generators.csproj" />

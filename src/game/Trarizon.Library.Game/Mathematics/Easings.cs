@@ -1,4 +1,4 @@
-﻿namespace Trarizon.Library.GameDev.Mathematics;
+﻿namespace Trarizon.Library.Game.Mathematics;
 public static class Easings
 {
     public static float SineIn(float x) => 1 - MathF.Cos(x * (MathF.PI / 2));
