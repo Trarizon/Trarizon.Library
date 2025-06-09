@@ -6,6 +6,9 @@ using System.Runtime.CompilerServices;
 using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections.Generic;
+
+#if CONTIGUOUS_COLLECTIONS
+
 // TODO: Benchmark了一下，因为_entries要扩展，实际的内存消耗和BCL链表差不多，插入删除稍微快10%~20%左右
 // 但是很奇怪，遍历速度慢了一倍
 /// <summary>
@@ -531,3 +534,5 @@ public partial class ContiguousLinkedList<T> : ICollection<T>, IReadOnlyCollecti
         readonly IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
+
+#endif

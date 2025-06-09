@@ -9,4 +9,5 @@
 - Add `TraCollection.Singleton`
 - Add `TraComparison.CreateComparable/Equatable`
 - Remove `IEnumerable.LookAhead`
+- Remove Contiguous collections
 - Add/Optimize apis of `PrefixTree`

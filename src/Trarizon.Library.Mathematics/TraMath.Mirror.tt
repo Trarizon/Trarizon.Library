@@ -45,56 +45,6 @@ public static partial class TraMath
 
 <# } #>
     #endregion
-
-    #region IncAndWrap/Mod
-
-<# foreach(var num in nums.Where(n => n.IsInt)) { #>
-    #region For <#= num.Name #>
-
-    public static bool IncAndTryWrap(ref <#= num.Name #> number,  <#= num.Name #> delta,  <#= num.Name #> max)
-    {
-        number += delta;
-        if (number > max) {
-            number -= max;
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-
-    public static void IncAndWrap(ref <#= num.Name #> number, <#= num.Name #> delta, <#= num.Name #> max)
-    {
-        number += delta;
-        if (number > max) {
-            number -= max;
-        }
-    }
-
-    public static bool IncAndTryMod(ref <#= num.Name #> number, <#= num.Name #> delta, <#= num.Name #> max)
-    {
-        number += delta;
-        if (number > max) {
-            number %= max;
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-
-    public static void IncAndMod(ref <#= num.Name #> number, <#= num.Name #> delta, <#= num.Name #> max)
-    {
-        number += delta;
-        if (number > max) {
-            number %= max;
-        }
-    }
-
-    #endregion
-
-<# } #>
-    #endregion
     
     #region Map
 

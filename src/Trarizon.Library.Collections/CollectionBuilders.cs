@@ -11,6 +11,8 @@ public static class CollectionBuilders
         return list;
     }
 
+#if CONTIGUOUS_COLLECTIONS
+
     public static ContiguousLinkedList<T> CreateContiguousLinkedList<T>(ReadOnlySpan<T> values)
     {
         var list = new ContiguousLinkedList<T>();
@@ -20,6 +22,8 @@ public static class CollectionBuilders
         }
         return list;
     }
+
+#endif
 
     public static Deque<T> CreateDeque<T>(ReadOnlySpan<T> values)
     {

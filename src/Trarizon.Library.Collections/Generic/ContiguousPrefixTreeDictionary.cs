@@ -9,6 +9,9 @@ using RuntimeHelpers = Trarizon.Library.Collections.Helpers.PfRuntimeHelpers;
 #endif
 
 namespace Trarizon.Library.Collections.Generic;
+
+#if CONTIGUOUS_COLLECTIONS
+
 [Experimental("TRALIB")]
 public class ContiguousPrefixTreeDictionary<TKey, TValue> where TKey : notnull
 {
@@ -682,3 +685,5 @@ public class ContiguousPrefixTreeDictionary<TKey, TValue> where TKey : notnull
         }
     }
 }
+
+#endif

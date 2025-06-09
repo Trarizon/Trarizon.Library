@@ -22,51 +22,6 @@ public static partial class TraMath
 
     #endregion
 
-    #region IncAndWrap/Mod
-
-    public static bool IncAndTryWrap<T>(ref T number, T delta, T max) where T : struct, INumber<T>
-    {
-        number += delta;
-        if (number > max) {
-            number -= max;
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-
-    public static void IncAndWrap<T>(ref T number, T delta, T max) where T : struct, INumber<T>
-    {
-        number += delta;
-        if (number > max) {
-            number -= max;
-        }
-    }
-
-    public static bool IncAndTryMod<T>(ref T number, T delta, T max) where T : struct, INumber<T>
-    {
-        number += delta;
-        if (number > max) {
-            number %= max;
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-
-    public static void IncAndMod<T>(ref T number, T delta, T max) where T : struct, INumber<T>
-    {
-        number += delta;
-        if (number > max) {
-            number %= max;
-        }
-    }
-
-
-    #endregion
-
     #region Map
 
     /// <summary>

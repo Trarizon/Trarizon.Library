@@ -8,6 +8,9 @@ using RuntimeHelpers = Trarizon.Library.Collections.Helpers.PfRuntimeHelpers;
 #endif
 
 namespace Trarizon.Library.Collections.Generic;
+
+#if CONTIGUOUS_COLLECTIONS
+
 [Experimental("TRALIB")]
 public class ContiguousPrefixTree<T>
 {
@@ -619,3 +622,5 @@ public class ContiguousPrefixTree<T>
         }
     }
 }
+
+#endif

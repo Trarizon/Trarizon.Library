@@ -3,6 +3,9 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Trarizon.Library.Collections.Generic;
+
+#if CONTIGUOUS_COLLECTIONS
+
 partial class ContiguousLinkedList<T>
 {
     #region Access
@@ -102,3 +105,5 @@ public readonly struct ContiguousLinkedListNodeIndex : IEquatable<ContiguousLink
     public static bool operator ==(ContiguousLinkedListNodeIndex left, ContiguousLinkedListNodeIndex right) => left.Equals(right);
     public static bool operator !=(ContiguousLinkedListNodeIndex left, ContiguousLinkedListNodeIndex right) => !left.Equals(right);
 }
+
+#endif
