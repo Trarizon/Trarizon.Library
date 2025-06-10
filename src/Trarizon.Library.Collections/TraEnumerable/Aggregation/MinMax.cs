@@ -26,7 +26,7 @@ public static partial class TraEnumerable
         return (min, max);
     }
 
-    public static (T Min, T Max)? MinMaxOrNull<T, TComparer>(this IEnumerable<T> source)
+    public static (T Min, T Max)? MinMaxOrNull<T>(this IEnumerable<T> source)
         => source.MinMaxOrNull(Comparer<T>.Default);
 
     public static (T Min, T Max)? MinMaxOrNull<T, TComparer>(this IEnumerable<T> source, TComparer comparer) where TComparer : IComparer<T>
