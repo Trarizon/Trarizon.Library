@@ -77,6 +77,7 @@ Overloads for BCL exts| `Contains`, `Find`, `FindIndex`
 overload `List<>.AddRange`| Overload with `ReadOnlySpan<>`
 overloads | `RemoveAt` `RemoveRange` with `Index`/`Range`
 `List<>.MoveTo`| see `TraSpan.MoveTo`
+`List<>.ReplaceAll` | Replace items in list
 `List<>.GetLookup`| Get lookup wrapper for search
 `List<>.GetSortedModifier`| Get sorted modifier, with which modifying list keeps list elements in order
 

@@ -6,7 +6,7 @@
     - Add `AlternateLookup`
 - Add `TraAlgorithm.LevenshteinDistance`
 - Add `IEnumerable.Intersperse`, `Interleave`, `RepeatInterleave`, `ChunkBy`
-- Add `TraCollection.Singleton`
+- Add `TraCollection.Singleton`, `List.ReplaceAll`
 - Add `TraComparison.CreateComparable/Equatable`
 - Remove `IEnumerable.LookAhead`, remove redundant type parameter of `MinMaxOrNull`
 - Remove Contiguous collections

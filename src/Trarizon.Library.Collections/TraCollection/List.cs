@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Trarizon.Library.Collections.Helpers;
 
@@ -40,6 +41,17 @@ public static partial class TraCollection
 
     public static T[] GetUnderlyingArray<T>(List<T> list)
         => Utils<T>.GetUnderlyingArray(list);
+
+    public static void ReplaceAll<T>(this List<T> list, ReadOnlySpan<T> span)
+    {
+#if NET8_0_OR_GREATER
+        CollectionsMarshal.SetCount(list, span.Length);
+        span.CopyTo(CollectionsMarshal.AsSpan(list));
+#else
+        list.Clear();
+        list.AddRange(span);
+#endif
+    }
 
     public static void AddRange<T>(this List<T> list, ReadOnlySpan<T> span)
     {

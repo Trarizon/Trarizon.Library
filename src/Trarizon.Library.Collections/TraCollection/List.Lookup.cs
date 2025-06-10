@@ -1,22 +1,21 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
-
 namespace Trarizon.Library.Collections;
 public static partial class TraCollection
 {
-    public static Lookup<T, EqualityComparer<T>> GetLookup<T>(this List<T> list)
+    public static ListLookup<T, EqualityComparer<T>> GetLookup<T>(this List<T> list)
         => new(list, EqualityComparer<T>.Default);
 
-    public static Lookup<T, TComparer> GetLookup<T, TComparer>(this List<T> list, TComparer comparer) where TComparer : IEqualityComparer<T>
+    public static ListLookup<T, TComparer> GetLookup<T, TComparer>(this List<T> list, TComparer comparer) where TComparer : IEqualityComparer<T>
         => new(list, comparer);
 
-    public readonly struct Lookup<T, TComparer> where TComparer : IEqualityComparer<T>
+    public readonly struct ListLookup<T, TComparer> where TComparer : IEqualityComparer<T>
     {
         private readonly List<T> _list;
         private readonly TComparer _comparer;
 
-        internal Lookup(List<T> list, TComparer comparer)
+        internal ListLookup(List<T> list, TComparer comparer)
         {
             _list = list;
             _comparer = comparer;
