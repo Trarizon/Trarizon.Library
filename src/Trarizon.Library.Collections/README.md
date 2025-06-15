@@ -18,6 +18,7 @@ Collections types, helpers for BCL collections and related types, more linqs
 `Buffers`| summary
 :-:|:--
 `IArrayAllocator`|Abstraction for array allocation and release
+`NativeArray`|Unmanaged array
 
 `Generic` | General generic types
 :-:|:--
