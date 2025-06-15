@@ -11,3 +11,4 @@
 - Remove `IEnumerable.LookAhead`, remove redundant type parameter of `MinMaxOrNull`
 - Remove Contiguous collections
 - Add/Optimize apis of `PrefixTree`
+- Rename `SortedList<>.EnterTrackingScope(int)` to `EnterTrackingAtScope`

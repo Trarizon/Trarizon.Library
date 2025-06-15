@@ -359,7 +359,7 @@ public static class SortedListExtensions
     /// Track item at <paramref name="index"/> in list, when dispose, the index of item in 
     /// list will be auto-adjusted
     /// </summary>
-    public static SortedList<T>.TrackingScope EnterTrackingScope<T>(this SortedList<T> list, int index) where T : class
+    public static SortedList<T>.TrackingScope EnterTrackingAtScope<T>(this SortedList<T> list, int index) where T : class
     {
         return new SortedList<T>.TrackingScope(list, index, list[index]);
     }
