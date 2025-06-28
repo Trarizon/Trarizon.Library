@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+      <TargetFrameworks>netstandard2.0;netstandard2.1;net8.0;net9.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+      <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' Or '$(TargetFramework)' == 'netstandard2.1'">
+        <PackageReference Include="PolySharp" Version="1.15.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <!--<PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.2" />
+        <PackageReference Include="System.Collections.Immutable" Version="8.0.0" />-->
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+        <!--<PackageReference Include="Microsoft.Bcl.HashCode" Version="6.0.0" />
+        <PackageReference Include="Microsoft.Bcl.Memory" Version="9.0.4" />-->
+        <PackageReference Include="System.Memory" Version="4.6.3" />
+    </ItemGroup>
+
+    <PropertyGroup Label="Polyfills">
+        <PolySharpIncludeGeneratedTypes>
+            <!--System.Diagnostics.StackTraceHiddenAttribute;
+
+            System.Diagnostics.CodeAnalysis.DisallowNullAttribute;
+            System.Diagnostics.CodeAnalysis.MaybeNullAttribute;-->
+            System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute;
+            <!--System.Diagnostics.CodeAnalysis.MemberNotNullAttribute;
+            System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute;
+            System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute;
+            System.Diagnostics.CodeAnalysis.NotNullWhenAttribute;
+
+            System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute;
+            System.Diagnostics.CodeAnalysis.ExperimentalAttribute;
+
+            System.Runtime.CompilerServices.CollectionBuilderAttribute;
+            System.Runtime.CompilerServices.CallerArgumentExpressionAttribute;-->
+        </PolySharpIncludeGeneratedTypes>
+    </PropertyGroup>
+
+</Project>
