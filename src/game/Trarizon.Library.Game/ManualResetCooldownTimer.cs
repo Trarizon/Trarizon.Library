@@ -8,6 +8,8 @@ public struct ManualResetCooldownTimer
 
     public readonly float ElapsedTime => _t >= _maxTime ? _maxTime : _t;
 
+    public readonly float ElapsedPercentage => _t >= _maxTime ? 1f : _t / _maxTime;
+
     public readonly bool IsCompleted => _t >= _maxTime;
 
     public ManualResetCooldownTimer(float maxTime)

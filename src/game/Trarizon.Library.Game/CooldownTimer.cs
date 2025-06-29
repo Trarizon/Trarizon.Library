@@ -8,6 +8,8 @@ public struct CooldownTimer
 
     public readonly float ElapsedTime => _t;
 
+    public readonly float ElapsedPercentage => _t / _maxTime;
+
     public CooldownTimer(float maxTime)
     {
         _maxTime = maxTime;
