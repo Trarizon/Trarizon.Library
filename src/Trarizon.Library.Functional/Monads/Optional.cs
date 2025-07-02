@@ -6,12 +6,9 @@ public static class Optional
 {
     public static Optional<T> Of<T>(T value) => new(value);
 
-    public static Optional<T> Of<T>(T value, Func<T, bool> predicate) => predicate(value) ? new(value) : default;
+    public static Optional<T> FromNullable<T>(T? value) where T : class => value is null ? default : new(value);
 
-    public static Optional<TResult> Of<T, TResult>(T value, Func<T, bool> predicate, Func<T, TResult> valueSelector)
-        => predicate(value) ? new(valueSelector(value)) : default;
-
-    public static Optional<T> OfNotNull<T>(T? value) where T : class => value is null ? default : new(value);
+    public static Optional<T> FromNullable<T>(T? value) where T : struct => value is { } v ? new(v) : default;
 
     public static ref readonly T? GetValueRefOrDefaultRef<T>(this ref readonly Optional<T> optional)
         => ref optional._value;
@@ -20,11 +17,11 @@ public static class Optional
 
     #region Nullable
 
-    public static Optional<T> FromNullable<T>(T? value) where T : struct
-        => value.HasValue ? value.GetValueOrDefault()! : default;
-
     public static T? ToNullable<T>(this in Optional<T> optional) where T : struct
         => optional.HasValue ? optional._value : null;
+
+    public static T? ToNullable<T>(this Optional<T> optional) where T : class
+        => optional.GetValueOrDefault();
 
     #endregion
 
