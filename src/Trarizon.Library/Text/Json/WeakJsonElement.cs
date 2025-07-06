@@ -1,12 +1,12 @@
-﻿#if !NETSTANDARD
-
-using CommunityToolkit.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+#if NET8_0_OR_GREATER
 using System.Text.Json;
+#endif
 using Trarizon.Library.Wrappers;
 
+#if NET8_0_OR_GREATER
 namespace Trarizon.Library.Text.Json;
 /// <summary>
 /// Wraps <see cref="JsonValueKind"/> checking, if current kind is not expected,
@@ -109,7 +109,8 @@ public readonly struct WeakJsonElement(JsonElement element)
         if (typeof(T) == typeof(double)) return Unsafe.BitCast<double, T>(Element.GetDouble());
         if (typeof(T) == typeof(decimal)) return Unsafe.BitCast<decimal, T>(Element.GetDecimal());
 
-        return ThrowHelper.ThrowNotSupportedException<T?>("Unknown number type");
+        Throws.ThrowNotSupport("Unknown number type");
+        return default!;
     }
 
     public bool TryAsNumber<T>(out T value) where T : struct, INumber<T>
@@ -176,7 +177,8 @@ public readonly struct WeakJsonElement(JsonElement element)
         }
 
         value = default;
-        return ThrowHelper.ThrowNotSupportedException<bool>("Unknown number type");
+        Throws.ThrowNotSupport("Unknown number type");
+        return default!;
     }
 
     public DateTime? GetDateTime() => Element.ValueKind is JsonValueKind.String ? Element.GetDateTime() : null;

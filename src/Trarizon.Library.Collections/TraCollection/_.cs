@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.Diagnostics;
-using System.Collections;
+﻿using System.Collections;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Trarizon.Library.Collections.Helpers;
@@ -80,25 +79,43 @@ public static partial class TraCollection
         int ICollection<T>.Count => 1;
         int IReadOnlyCollection<T>.Count => 1;
         bool ICollection<T>.IsReadOnly => true;
-        T IReadOnlyList<T>.this[int index] => index == 0 ? _value : Throws.IndexArgOutOfRange<T>(index);
+        T IReadOnlyList<T>.this[int index]
+        {
+            get {
+                if (index == 0)
+                    return _value;
+                else {
+                    Throws.IndexArgOutOfRange(index);
+                    return default!;
+                }
+            }
+        }
+
         T IList<T>.this[int index]
         {
-            get => index == 0 ? _value : Throws.IndexArgOutOfRange<T>(index);
-            set => Throws.CollectionIsImmutable();
+            get {
+                if (index == 0)
+                    return _value;
+                else {
+                    Throws.IndexArgOutOfRange(index);
+                    return default!;
+                }
+            }
+            set => Throws.CollectionIsReadOnly();
         }
-        void ICollection<T>.Add(T item) => Throws.CollectionIsImmutable();
-        void ICollection<T>.Clear() => Throws.CollectionIsImmutable();
+        void ICollection<T>.Add(T item) => Throws.CollectionIsReadOnly();
+        void ICollection<T>.Clear() => Throws.CollectionIsReadOnly();
         bool ICollection<T>.Contains(T item) => EqualityComparer<T>.Default.Equals(item, _value);
         void ICollection<T>.CopyTo(T[] array, int arrayIndex)
         {
-            Guard.IsInRangeFor(arrayIndex, array);
+            Throws.ThrowIfIndexGreaterThanOrEqual(arrayIndex, array.Length);
             array[arrayIndex] = _value;
         }
         IEnumerator<T> IEnumerable<T>.GetEnumerator() => GetEnumerator();
         int IList<T>.IndexOf(T item) => EqualityComparer<T>.Default.Equals(item, _value) ? 0 : -1;
-        void IList<T>.Insert(int index, T item) => Throws.CollectionIsImmutable();
-        bool ICollection<T>.Remove(T item) { Throws.CollectionIsImmutable(); return default; }
-        void IList<T>.RemoveAt(int index) => Throws.CollectionIsImmutable();
+        void IList<T>.Insert(int index, T item) => Throws.CollectionIsReadOnly();
+        bool ICollection<T>.Remove(T item) { Throws.CollectionIsReadOnly(); return default; }
+        void IList<T>.RemoveAt(int index) => Throws.CollectionIsReadOnly();
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         public struct Enumerator : IEnumerator<T>

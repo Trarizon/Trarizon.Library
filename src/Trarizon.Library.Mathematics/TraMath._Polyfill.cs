@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Diagnostics;
+﻿using Trarizon.Library.Mathematics.Helpers;
 
 namespace Trarizon.Library.Mathematics;
 public static partial class TraMath
@@ -7,7 +7,7 @@ public static partial class TraMath
 
     public static int Clamp(int value, int min, int max)
     {
-        Guard.IsLessThanOrEqualTo(min, max);
+        Throws.ThrowIfGreaterThan(min, max);
         if (value < min) return min;
         if (value > max) return max;
         return value;
@@ -15,7 +15,7 @@ public static partial class TraMath
 
     public static float Clamp(float value, float min, float max)
     {
-        Guard.IsLessThanOrEqualTo(min, max);
+        Throws.ThrowIfGreaterThan(min, max);
         if (value < min) return min;
         if (value > max) return max;
         return value;
@@ -23,7 +23,7 @@ public static partial class TraMath
 
     public static double Clamp(double value, double min, double max)
     {
-        Guard.IsLessThanOrEqualTo(min, max);
+        Throws.ThrowIfGreaterThan(min, max);
         if (value < min) return min;
         if (value > max) return max;
         return value;

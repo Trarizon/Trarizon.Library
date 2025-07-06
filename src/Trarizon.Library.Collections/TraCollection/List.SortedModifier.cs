@@ -1,5 +1,5 @@
-﻿using CommunityToolkit.Diagnostics;
-using System.Diagnostics;
+﻿using System.Diagnostics;
+using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections;
 public static partial class TraCollection
@@ -186,7 +186,7 @@ public static partial class TraCollection
             internal TrackingScope(ListSortedModifier<T, TComparer> list, int index, T item)
             {
                 Debug.Assert(!typeof(T).IsValueType);
-                Guard.IsInRangeFor(index, list.List.AsListSpan());
+                Throws.ThrowIfIndexGreaterThanOrEqual(index, list.List.Count);
                 _list = list;
                 _index = index;
                 _item = item;
@@ -195,7 +195,7 @@ public static partial class TraCollection
             public void Dispose()
             {
                 if (!ReferenceEquals(_item, _list[_index])) {
-                    ThrowHelper.ThrowInvalidOperationException("The item is moved after tracking scope created");
+                    Throws.ThrowInvalidOperation("The item is moved during tracking.");
                 }
                 _list.NotifyEditedAt(_index);
             }

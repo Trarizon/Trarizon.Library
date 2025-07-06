@@ -5,13 +5,13 @@ using Trarizon.Library.Collections.Helpers;
 namespace Trarizon.Library.Collections;
 public static partial class TraCollection
 {
-#if !NETSTANDARD
+#if NET8_0_OR_GREATER
 
     public static ref TValue AtRef<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key) where TKey : notnull
     {
         ref var value = ref CollectionsMarshal.GetValueRefOrNullRef(dictionary, key);
         if (Unsafe.IsNullRef(ref value))
-            Throws.KeyNotFound(key);
+            Throws.KeyNotFound(key, nameof(Dictionary<,>));
         return ref value!;
     }
 

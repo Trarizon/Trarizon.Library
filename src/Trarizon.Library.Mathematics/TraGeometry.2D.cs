@@ -1,5 +1,5 @@
-﻿using CommunityToolkit.Diagnostics;
-using System.Numerics;
+﻿using System.Numerics;
+using Trarizon.Library.Mathematics.Helpers;
 
 namespace Trarizon.Library.Mathematics;
 public static partial class TraGeometry
@@ -12,7 +12,7 @@ public static partial class TraGeometry
             -3 or 1 => new Vector2(vector.Y, -vector.X),
             -2 or 2 => new Vector2(-vector.X, -vector.Y),
             -1 or 3 => new Vector2(-vector.Y, vector.X),
-            _ => ThrowHelper.ThrowInvalidOperationException<Vector2>("Unreachable"),
+            _ => Throws.ThrowUnreachable<Vector2>(),
         };
     }
 }

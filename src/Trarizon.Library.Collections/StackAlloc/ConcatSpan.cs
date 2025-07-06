@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.Diagnostics;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Trarizon.Library.Collections.Helpers;
@@ -42,7 +41,7 @@ public readonly ref struct ConcatSpan<T>(Span<T> first, Span<T> second)
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ConcatSpan<T> Slice(int startIndex, int length)
     {
-        Guard.IsLessThanOrEqualTo(startIndex + length, Length);
+        Throws.ThrowIfGreaterThan(startIndex + length, Length);
 
         if (length == 0)
             return default;
@@ -78,7 +77,7 @@ public readonly ref struct ConcatSpan<T>(Span<T> first, Span<T> second)
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void CopyTo(Span<T> destination)
     {
-        Guard.HasSizeGreaterThanOrEqualTo(destination, Length);
+        Throws.ThrowIfLessThan(destination.Length, Length);
 
         _first.CopyTo(destination);
         _second.CopyTo(destination[_first.Length..]);

@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.Diagnostics;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 
 namespace Trarizon.Library;
 public static class TraEnum
@@ -15,6 +14,8 @@ public static class TraEnum
             return (Unsafe.As<T, int>(ref value) & Unsafe.As<T, int>(ref flags)) != 0;
         if (Unsafe.SizeOf<T>() == 8)
             return (Unsafe.As<T, long>(ref value) & Unsafe.As<T, long>(ref flags)) != 0L;
-        return ThrowHelper.ThrowNotSupportedException<bool>("Not supported enum size");
+        
+        Throws.ThrowNotSupport("Not supported enum size");
+        return default!;
     }
 }

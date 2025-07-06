@@ -1,8 +1,5 @@
-﻿using CommunityToolkit.Diagnostics;
-using System;
-using System.Buffers;
+﻿using System.Buffers;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Runtime.CompilerServices;
 
 namespace Trarizon.Library.Text;
@@ -37,7 +34,7 @@ public static partial class TraString
                 return buffer[..written].ToString();
             }
             else {
-                ThrowHelper.ThrowInvalidOperationException("Invalid escaped sequence");
+                Throws.ThrowInvalidOperation("Invalid escaped sequence");
                 return default;
             }
         }
@@ -48,7 +45,7 @@ public static partial class TraString
                     return rented.AsSpan()[..written].ToString();
                 }
                 else {
-                    ThrowHelper.ThrowInvalidOperationException("Invalid escaped sequence");
+                    Throws.ThrowInvalidOperation("Invalid escaped sequence");
                     return default;
                 }
             }

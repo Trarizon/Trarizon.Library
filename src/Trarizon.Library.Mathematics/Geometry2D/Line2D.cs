@@ -1,6 +1,6 @@
-﻿using CommunityToolkit.Diagnostics;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Numerics;
+using Trarizon.Library.Mathematics.Helpers;
 
 namespace Trarizon.Library.Mathematics.Geometry2D;
 public readonly struct Line2D
@@ -13,7 +13,7 @@ public readonly struct Line2D
     public Line2D(float a, float b, float c)
     {
         if (a == 0 && b == 0)
-            ThrowHelper.ThrowArgumentException("x and y cannot both have zero coefficients simultaneously.");
+            Throws.ThrowArgument("x and y cannot both have zero coefficients simultaneously.");
 
         _a = a;
         _b = b;
@@ -65,7 +65,8 @@ public readonly struct Line2D
 
     public static Line2D CreatePoints(Vector2 p1, Vector2 p2)
     {
-        Guard.IsNotEqualTo(p1, p2);
+        if (p1 == p2)
+            Throws.ThrowArgument("p1 and p2 are same point");
 
         if (p1.X * p2.Y == p1.Y * p2.X)
             return new Line2D(p1.Y, -p2.X, 0f);

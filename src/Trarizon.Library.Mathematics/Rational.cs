@@ -1,10 +1,11 @@
-﻿using CommunityToolkit.Diagnostics;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using Int = int;
+using Trarizon.Library.Mathematics.Helpers;
+
 
 #if NETSTANDARD
 using BitOperations = Trarizon.Library.Mathematics.Helpers.PfBitOperations;
@@ -182,7 +183,8 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
 
     public static Rational Clamp(Rational value, Rational min, Rational max)
     {
-        Guard.IsLessThanOrEqualTo(min, max);
+        if (min > max)
+            Throws.ThrowArgument($"Argument min '{min}' should greather than max '{max}'.");
         if (value < min) return min;
         if (value > max) return max;
         return value;
@@ -453,8 +455,10 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
 
     int IComparable.CompareTo(object? obj)
     {
-        if (obj is not Rational number)
-            return ThrowHelper.ThrowInvalidOperationException<int>();
+        if (obj is not Rational number) {
+            Throws.ThrowInvalidOperation();
+            return default!;
+        }
         return Compare(this, number);
     }
 
@@ -880,7 +884,7 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
     public static Rational Parse(ReadOnlySpan<char> s, NumberStyles style, IFormatProvider? provider)
     {
         if (!TryParse(s, style, provider, out var result))
-            ThrowHelper.ThrowInvalidOperationException("Invalid ration number format");
+            Throws.ThrowInvalidOperation("Invalid ration number format");
         return result;
     }
 

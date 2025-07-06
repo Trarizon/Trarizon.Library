@@ -1,6 +1,6 @@
-﻿using CommunityToolkit.Diagnostics;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections.Buffers;
 public readonly unsafe struct NativeArray<T> : IDisposable
@@ -11,7 +11,7 @@ public readonly unsafe struct NativeArray<T> : IDisposable
     public ref T this[int index]
     {
         get {
-            Guard.IsLessThan((nuint)index, (nuint)_length);
+            Throws.ThrowIfIndexGreaterThanOrEqual(index, _length);
             return ref Unsafe.AsRef<T>((void*)(_ptr + index));
         }
     }
@@ -20,7 +20,7 @@ public readonly unsafe struct NativeArray<T> : IDisposable
 
     public NativeArray(int length)
     {
-        Guard.IsGreaterThanOrEqualTo(length, 0);
+        Throws.ThrowIfNegative(length); 
         _length = length;
         _ptr = Marshal.AllocHGlobal(length);
     }

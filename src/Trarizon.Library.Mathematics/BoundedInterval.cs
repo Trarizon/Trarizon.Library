@@ -1,6 +1,6 @@
-﻿using CommunityToolkit.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
+using Trarizon.Library.Mathematics.Helpers;
 
 namespace Trarizon.Library.Mathematics;
 public struct BoundedInterval : IEquatable<BoundedInterval>
@@ -22,7 +22,7 @@ public struct BoundedInterval : IEquatable<BoundedInterval>
     public BoundedInterval(float start, bool closedStart, float end, bool closedEnd)
     {
         if (start > end)
-            ThrowHelper.ThrowArgumentException("Start of interval should less than or equals to end");
+            Throws.ThrowArgument("Start of interval should less than or equals to end");
         Start = start;
         End = end;
         IsClosedStart = closedStart;

@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.Diagnostics;
-using System.Collections;
+﻿using System.Collections;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Trarizon.Library.Collections.Helpers;
@@ -25,7 +24,7 @@ public class RingQueue<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public RingQueue(int maxCount, RingQueueFullBehaviour fullBehaviour = RingQueueFullBehaviour.Overwrite)
     {
-        Guard.IsGreaterThan(maxCount, 0);
+        Throws.ThrowIfNegativeOrZero(maxCount);
         _array = [];
         _count = _head = _tail = 0;
         _fullBehaviour = fullBehaviour;
@@ -34,8 +33,8 @@ public class RingQueue<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public RingQueue(int maxCount, int initialCapacity, RingQueueFullBehaviour fullBehaviour = RingQueueFullBehaviour.Overwrite)
     {
-        Guard.IsGreaterThan(maxCount, 0);
-        Guard.IsGreaterThanOrEqualTo(initialCapacity, 0);
+        Throws.ThrowIfNegativeOrZero(maxCount);
+        Throws.ThrowIfNegative(initialCapacity);
         _array = initialCapacity == 0 ? [] : new T[Math.Min(maxCount, initialCapacity)];
         _count = _head = _tail = 0;
         _fullBehaviour = fullBehaviour;
@@ -66,14 +65,14 @@ public class RingQueue<T> : ICollection<T>, IReadOnlyCollection<T>
     public T PeekFirst()
     {
         if (!TryPeekFirst(out var item))
-            Throws.CollectionHasNoElement();
+            Throws.CollectionIsEmpty(nameof(RingQueue<>));
         return item;
     }
 
     public T PeekLast()
     {
         if (!TryPeekLast(out var item))
-            Throws.CollectionHasNoElement();
+            Throws.CollectionIsEmpty(nameof(RingQueue<>));
         return item;
     }
 
@@ -105,7 +104,7 @@ public class RingQueue<T> : ICollection<T>, IReadOnlyCollection<T>
     {
         if (_count == _maxCount) {
             if (_fullBehaviour is RingQueueFullBehaviour.Throw)
-                ThrowHelper.ThrowInvalidOperationException("Ring queue is full");
+                Throws.ThrowInvalidOperation("RingQueue is full.");
             else if (_fullBehaviour is RingQueueFullBehaviour.Discard)
                 return;
             _array[_tail] = item;
@@ -134,15 +133,15 @@ public class RingQueue<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public T DequeueFirst()
     {
-        if (!TryDequeueFirst(out var res)) 
-            Throws.CollectionHasNoElement();
+        if (!TryDequeueFirst(out var res))
+            Throws.CollectionIsEmpty(nameof(RingQueue<>));
         return res;
     }
 
     public T DequeueLast()
     {
-        if (!TryDequeueLast(out var res)) 
-            Throws.CollectionHasNoElement();
+        if (!TryDequeueLast(out var res))
+            Throws.CollectionIsEmpty(nameof(RingQueue<>));
         return res;
     }
 
@@ -299,7 +298,7 @@ public class RingQueue<T> : ICollection<T>, IReadOnlyCollection<T>
         private readonly void CheckVersion()
         {
             if (_version != _queue._version)
-                Throws.CollectionModifiedAfterEnumeratorCreated();
+                Throws.CollectionModifiedDuringEnumeration();
         }
 
         public readonly void Dispose() { }

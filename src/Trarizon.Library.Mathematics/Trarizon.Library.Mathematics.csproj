@@ -28,7 +28,6 @@
     <!-- Reference -->
 
     <ItemGroup>
-        <PackageReference Include="CommunityToolkit.Diagnostics" Version="8.4.0" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' Or '$(TargetFramework)' == 'netstandard2.1'">
@@ -36,29 +35,31 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.2" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
         <PackageReference Include="Microsoft.Bcl.HashCode" Version="6.0.0" />
+        <PackageReference Include="Microsoft.Bcl.Memory" Version="9.0.4" />
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="TraMath.Mirror.tt">
-        <Generator>TextTemplatingFileGenerator</Generator>
-        <LastGenOutput>TraMath.Mirror.ttg.cs</LastGenOutput>
-      </None>
+        <None Update="TraMath.Mirror.tt">
+            <Generator>TextTemplatingFileGenerator</Generator>
+            <LastGenOutput>TraMath.Mirror.ttg.cs</LastGenOutput>
+        </None>
     </ItemGroup>
 
     <ItemGroup>
-      <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+        <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Update="TraMath.Mirror.ttg.cs">
-        <DesignTime>True</DesignTime>
-        <AutoGen>True</AutoGen>
-        <DependentUpon>TraMath.Mirror.tt</DependentUpon>
-      </Compile>
+        <Compile Update="TraMath.Mirror.ttg.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>TraMath.Mirror.tt</DependentUpon>
+        </Compile>
     </ItemGroup>
 
     <!-- End Reference -->
@@ -67,6 +68,9 @@
         <PolySharpIncludeGeneratedTypes>
             System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute;
             System.Diagnostics.CodeAnalysis.NotNullWhenAttribute;
+
+            System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute;
+            System.Runtime.CompilerServices.CallerArgumentExpressionAttribute;
         </PolySharpIncludeGeneratedTypes>
     </PropertyGroup>
 

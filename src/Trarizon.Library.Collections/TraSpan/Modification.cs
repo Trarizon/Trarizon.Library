@@ -1,15 +1,15 @@
-﻿using CommunityToolkit.Diagnostics;
-using System.Buffers;
+﻿using System.Buffers;
 using System.Diagnostics;
 using Trarizon.Library.Collections.Buffers;
+using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections;
 public static partial class TraSpan
 {
     public static void MoveTo<T>(this Span<T> span, int fromIndex, int toIndex)
     {
-        Guard.IsInRangeFor(fromIndex, span);
-        Guard.IsInRangeFor(toIndex, span);
+        Throws.ThrowIfIndexGreaterThanOrEqual(fromIndex, span.Length);
+        Throws.ThrowIfIndexGreaterThanOrEqual(toIndex, span.Length);
 
         if (fromIndex == toIndex)
             return;
@@ -33,8 +33,8 @@ public static partial class TraSpan
 
     public static void MoveTo<T>(this Span<T> span, int fromIndex, int toIndex, int length)
     {
-        Guard.IsGreaterThanOrEqualTo(fromIndex, 0);
-        Guard.IsGreaterThanOrEqualTo(toIndex, 0);
+        Throws.ThrowIfNegative(fromIndex);
+        Throws.ThrowIfNegative(toIndex);
 
         if (length <= 0)
             return;
@@ -42,11 +42,11 @@ public static partial class TraSpan
             return;
 
         if (fromIndex > toIndex) {
-            Guard.IsLessThanOrEqualTo(fromIndex + length, span.Length);
+            Throws.ThrowIfGreaterThan(fromIndex + length, span.Length);
             Core(span, toIndex, toIndex + length, length, fromIndex - toIndex);
         }
         else {
-            Guard.IsLessThanOrEqualTo(toIndex + length, span.Length);
+            Throws.ThrowIfGreaterThan(toIndex + length, span.Length);
             Core(span, fromIndex, toIndex, toIndex - fromIndex, length);
         }
 

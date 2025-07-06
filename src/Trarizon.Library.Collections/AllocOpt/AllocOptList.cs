@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.Diagnostics;
-using System.Buffers;
+﻿using System.Buffers;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Trarizon.Library.Collections.Helpers;
@@ -25,7 +24,7 @@ public struct AllocOptList<T> : IDisposable
 
     public AllocOptList(int minInitialCapacity)
     {
-        Guard.IsGreaterThanOrEqualTo(minInitialCapacity, 0);
+        Throws.ThrowIfNegative(minInitialCapacity);
 
         if (minInitialCapacity == 0)
             _array = [];
@@ -42,11 +41,11 @@ public struct AllocOptList<T> : IDisposable
     public readonly T this[int index]
     {
         get {
-            Guard.IsLessThan((uint)index, (uint)_count);
+            Throws.ThrowIfIndexGreaterThanOrEqual(index, _count);
             return Unsafes.GetReferenceAt(_array, index);
         }
         set {
-            Guard.IsLessThan((uint)index, (uint)_count);
+            Throws.ThrowIfIndexGreaterThanOrEqual(index, _count);
             Unsafes.GetReferenceAt(_array, index) = value;
         }
     }
@@ -114,7 +113,7 @@ public struct AllocOptList<T> : IDisposable
 
     public void Insert(int index, T item)
     {
-        Guard.IsLessThan((uint)index, (uint)_count);
+        Throws.ThrowIfIndexGreaterThanOrEqual(index, _count);
 
         EnsureArrayForInsertion(index, 1);
         _array[index] = item;
@@ -123,7 +122,7 @@ public struct AllocOptList<T> : IDisposable
 
     public void InsertRange(int index, IEnumerable<T> items)
     {
-        Guard.IsLessThan((uint)index, (uint)_count);
+        Throws.ThrowIfIndexGreaterThanOrEqual(index, _count);
 
         if (items.TryGetNonEnumeratedCount(out var count)) {
             if (count <= 0)
@@ -150,7 +149,7 @@ public struct AllocOptList<T> : IDisposable
 
     public void InsertRange(int index, ReadOnlySpan<T> items)
     {
-        Guard.IsLessThan((uint)index, (uint)_count);
+        Throws.ThrowIfIndexGreaterThanOrEqual(index, _count);
 
         int count = items.Length;
         if (count <= 0)
@@ -185,7 +184,7 @@ public struct AllocOptList<T> : IDisposable
 
     public void RemoveAt(int index)
     {
-        Guard.IsLessThan((uint)index, (uint)_count);
+        Throws.ThrowIfIndexGreaterThanOrEqual(index, _count);
 
         ArrayGrowHelper.ShiftLeftForRemoveAndFree(_array, _count, index, 1);
         _count--;
@@ -193,9 +192,9 @@ public struct AllocOptList<T> : IDisposable
 
     public void RemoveRange(int index, int count)
     {
-        Guard.IsGreaterThanOrEqualTo(count, 0);
-        Guard.IsGreaterThanOrEqualTo(index, 0);
-        Guard.IsLessThan(index + count, _count);
+        Throws.ThrowIfNegative(index);
+        Throws.ThrowIfNegative(count);
+        Throws.ThrowIfGreaterThanOrEqual(index + count, _count);
 
         ArrayGrowHelper.ShiftLeftForRemoveAndFree(_array, _count, index, count);
         _count -= count;

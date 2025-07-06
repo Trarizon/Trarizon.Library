@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.Diagnostics;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Trarizon.Library.Collections.Helpers;
 
@@ -36,7 +35,7 @@ internal class BinaryTree<T>
     /// <param name="childNavigation">Where to put the new child of <paramref name="value"/></param>
     public Node Add(Node node, T value, BinaryTreeNavigation navigation, BinaryTreeNavigation childNavigation = BinaryTreeNavigation.LeftChild)
     {
-        ValidateNode(node);
+        ValidateNodeBelonging(node);
 
         var @new = new Node(this, value);
         switch (navigation) {
@@ -77,7 +76,7 @@ internal class BinaryTree<T>
                 break;
             }
             default:
-                ThrowHelper.ThrowInvalidOperationException("Unknown navigation");
+                Throws.ThrowInvalidOperation("Unknown navigation.");
                 break;
         }
 
@@ -96,16 +95,16 @@ internal class BinaryTree<T>
                     parent._right = child;
                     break;
                 default:
-                    ThrowHelper.ThrowInvalidOperationException("Unknown child navigation");
+                    Throws.ThrowInvalidOperation("Unknown child navigation.");
                     break;
             }
         }
     }
 
-    private void ValidateNode(Node node)
+    private void ValidateNodeBelonging(Node node)
     {
         if (node._tree != this)
-            Throws.NodeNotBelongsToCollection();
+            Throws.ThrowInvalidOperation("Node does not belong to this BinaryTree.");
     }
 
     public sealed class Node

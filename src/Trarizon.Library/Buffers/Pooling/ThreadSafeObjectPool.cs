@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.Diagnostics;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Diagnostics;
 
 namespace Trarizon.Library.Buffers.Pooling;
@@ -56,7 +55,8 @@ public sealed class ThreadSafeObjectPool<T> : ObjectPool<T> where T : class
                         return item;
                     }
                     else {
-                        return ThrowHelper.ThrowInvalidOperationException<T>("Failed to rent new item, object pool is full");
+                        Throws.ThrowInvalidOperation("Failed to rent new item, object pool is full");
+                        return default!;
                     }
                 }
 

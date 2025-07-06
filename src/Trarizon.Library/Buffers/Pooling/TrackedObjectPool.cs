@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.Diagnostics;
-using Trarizon.Library.Collections;
+﻿using Trarizon.Library.Collections;
 
 namespace Trarizon.Library.Buffers.Pooling;
 public sealed class TrackedObjectPool<T> : ObjectPool<T> where T : class
@@ -46,7 +45,7 @@ public sealed class TrackedObjectPool<T> : ObjectPool<T> where T : class
         else {
             if (_rented.Count == _maxCount) {
                 item = default!;
-                ThrowHelper.ThrowInvalidOperationException("Failed to rent new item, object pool is full");
+                Throws.ThrowInvalidOperation("Failed to rent new item, object pool is full");
             }
             item = _createFactory();
             _rented.Add(item);
@@ -58,7 +57,7 @@ public sealed class TrackedObjectPool<T> : ObjectPool<T> where T : class
     {
         var index = _rented.IndexOf(item);
         if (index < 0) {
-            ThrowHelper.ThrowInvalidOperationException("Try to return a object that is not pooled.");
+            Throws.ThrowInvalidOperation("Try to return a object that is not pooled.");
         }
 
         _rented.RemoveAt(index);

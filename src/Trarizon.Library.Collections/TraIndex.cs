@@ -1,5 +1,5 @@
-﻿using CommunityToolkit.Diagnostics;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
+using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections;
 public static class TraIndex
@@ -18,7 +18,7 @@ public static class TraIndex
     public static int GetCheckedOffset(this Index index, int length)
     {
         var offset = index.GetOffset(length);
-        Guard.IsLessThan((uint)offset, (uint)length);
+        Throws.ThrowIfIndexGreaterThanOrEqual(offset, length);
         return offset;
     }
 
@@ -33,15 +33,15 @@ public static class TraIndex
     public static (int Start, int End) GetCheckedStartAndEndOffset(this Range range, int length)
     {
         var (start, end) = range.GetStartAndEndOffset(length);
-        Guard.IsLessThanOrEqualTo((uint)end, (uint)length);
-        Guard.IsLessThanOrEqualTo((uint)start, (uint)end);
+        Throws.ThrowIfGreaterThan((uint)end, (uint)length);
+        Throws.ThrowIfGreaterThan((uint)start, (uint)end);
         return (start, end);
     }
 
     public static void ValidateSliceArgs(int start, int sliceLength, int count)
     {
-        Guard.IsGreaterThanOrEqualTo(start, 0);
-        Guard.IsGreaterThanOrEqualTo(sliceLength, 0);
-        Guard.IsLessThanOrEqualTo(start + sliceLength, count);
+        Throws.ThrowIfNegative(start);
+        Throws.ThrowIfNegative(sliceLength);
+        Throws.ThrowIfGreaterThan(start + sliceLength, count);
     }
 }

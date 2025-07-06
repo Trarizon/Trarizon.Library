@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.Diagnostics;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -30,7 +29,7 @@ public readonly ref partial struct ReversedSpan<T>
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get {
-            Guard.IsLessThan((uint)index, (uint)Length);
+            Throws.ThrowIfGreaterThanOrEqual(index, Length);
             return ref DangerousGetReferenceAt(index);
         }
     }
@@ -72,7 +71,7 @@ public readonly ref partial struct ReversedSpan<T>
         var start = Length - 1 - length;
         return new ReversedSpan<T>(_span.Slice(start, length));
 #else
-        Guard.IsLessThanOrEqualTo((ulong)(uint)index + (ulong)(uint)length, (ulong)(uint)_length);
+        Throws.ThrowIfGreaterThan((uint)index + (uint)length, (uint)_length);
         return new ReversedSpan<T>(ref DangerousGetReferenceAt(index), length);
 #endif
     }
@@ -83,14 +82,14 @@ public readonly ref partial struct ReversedSpan<T>
         var length = Length - index;
         return new ReversedSpan<T>(_span[..length]);
 #else
-        Guard.IsLessThan((uint)index, (uint)_length);
+        Throws.ThrowIfGreaterThanOrEqual(index, _length);
         return new ReversedSpan<T>(ref DangerousGetReferenceAt(index), _length - index);
 #endif
     }
 
     public void CopyTo(Span<T> destination)
     {
-        Guard.HasSizeGreaterThanOrEqualTo(destination, Length);
+        Throws.ThrowIfLessThan(destination.Length, Length);
 
         for (int i = 0; i < Length; i++) {
             Unsafes.GetReferenceAt(destination, i) = DangerousGetReferenceAt(i);

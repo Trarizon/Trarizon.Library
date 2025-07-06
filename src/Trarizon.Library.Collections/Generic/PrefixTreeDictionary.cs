@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.Diagnostics;
-using System.Collections;
+﻿using System.Collections;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
@@ -401,12 +400,12 @@ public partial class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
         {
             get {
                 if (!IsEnd)
-                    ThrowHelper.ThrowInvalidOperationException("The node doesn't contains a value");
+                    ThrowNoValue();
                 return _value!;
             }
             set {
                 if (!IsEnd)
-                    ThrowHelper.ThrowInvalidOperationException("The node doesn't contains a value");
+                    ThrowNoValue();
                 _value = value;
             }
         }
@@ -418,7 +417,7 @@ public partial class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
         {
             get {
                 if (!IsEnd)
-                    ThrowHelper.ThrowInvalidOperationException("The node doesn't contains a value");
+                    ThrowNoValue();
                 return ref _value!;
             }
         }
@@ -430,6 +429,10 @@ public partial class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
         public TValue? GetValueOrDefault() => _value;
 
         public ref TValue GetValueRefOrNullRef() => ref IsEnd ? ref _value! : ref Unsafe.NullRef<TValue>();
+
+        [DoesNotReturn]
+        private static void ThrowNoValue()
+            => Throws.ThrowInvalidOperation("The node doesn't contains a value");
     }
 
     public readonly struct NodeChildrenCollection : IEnumerable<Node>
@@ -469,7 +472,7 @@ public partial class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
                     return false;
 
                 if (_version != _parent._tree._version)
-                    Throws.CollectionModifiedAfterEnumeratorCreated();
+                    Throws.CollectionModifiedDuringEnumeration();
 
                 _current = _node;
                 _node = _node._nextSibling;

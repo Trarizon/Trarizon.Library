@@ -84,7 +84,7 @@ internal partial class OptionalOutGenerator : IIncrementalGenerator
                                                 null,
                                                 SyntaxFactory.Token(synk),
                                                 SymbolEqualityComparer.Default.Equals(symbol, parameterSymbol)
-                                                    ? SyntaxFactory.IdentifierName("-")
+                                                    ? SyntaxFactory.IdentifierName("_")
                                                     : SyntaxFactory.IdentifierName(syntax.Identifier));
                                         }))))))
                     .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken));

@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.Diagnostics;
-using System.Collections;
+﻿using System.Collections;
 using System.Diagnostics;
 using Trarizon.Library.Collections.Helpers;
 
@@ -14,11 +13,11 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
     public T this[int index]
     {
         get {
-            Guard.IsLessThan((uint)index, (uint)_count);
+            Throws.ThrowIfIndexGreaterThanOrEqual(index, _count);
             return _array[index];
         }
         set {
-            Guard.IsLessThan((uint)index, (uint)_count);
+            Throws.ThrowIfIndexGreaterThanOrEqual(index, _count);
             _array[index] = value;
             NotifyEditedAt(index);
         }
@@ -30,7 +29,7 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
     {
         get => _array.Length;
         set {
-            Guard.IsGreaterThanOrEqualTo(value, _count);
+            Throws.ThrowIfLessThan(value, _count);
             if (value == _count)
                 return;
             T[] array = new T[value];
@@ -58,7 +57,7 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
 
     public SortedList(int capacity, IComparer<T> comparer)
     {
-        Guard.IsGreaterThanOrEqualTo(capacity, 0);
+        Throws.ThrowIfNegative(capacity);
         _comparer = comparer;
         _array = capacity == 0 ? [] : new T[capacity];
     }
@@ -152,7 +151,7 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
 
     public void RemoveAt(int index)
     {
-        Guard.IsLessThan((uint)index, (uint)_count);
+        Throws.ThrowIfIndexGreaterThanOrEqual(index, _count);
 
         ArrayGrowHelper.ShiftLeftForRemoveAndFree(_array, _count, index, 1);
         _count--;
@@ -259,7 +258,7 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
     IEnumerator<T> IEnumerable<T>.GetEnumerator() => GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     int IList<T>.IndexOf(T item) => Math.Max(BinarySearch(item), -1);
-    void IList<T>.Insert(int index, T item) => ThrowHelper.ThrowInvalidOperationException("Cannot insert at specific position to SortedList");
+    void IList<T>.Insert(int index, T item) => Throws.ThrowNotSupport("Cannot insert into SortedList.");
     bool ICollection<T>.Remove(T item) => Remove(item) >= 0;
     void ICollection<T>.Add(T item) => Add(item);
 
@@ -314,7 +313,7 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
         private readonly void CheckVersion()
         {
             if (_version != _list._version)
-                Throws.CollectionModifiedAfterEnumeratorCreated();
+                Throws.CollectionModifiedDuringEnumeration();
         }
     }
 
@@ -327,7 +326,7 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
         internal TrackingScope(SortedList<T> list, int index, T item)
         {
             Debug.Assert(!typeof(T).IsValueType);
-            Guard.IsInRangeFor(index, list.AsSpan());
+            Throws.ThrowIfIndexGreaterThanOrEqual(index, list.Count);
             _list = list;
             _index = index;
             _item = item;
@@ -336,7 +335,7 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
         public void Dispose()
         {
             if (!ReferenceEquals(_item, _list[_index])) {
-                ThrowHelper.ThrowInvalidOperationException("The item is moved after tracking scope created");
+                Throws.ThrowInvalidOperation("The item is moved during tracking.");
             }
             _list.NotifyEditedAt(_index);
         }

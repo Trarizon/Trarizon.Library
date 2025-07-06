@@ -36,10 +36,6 @@
         <ProjectReference Include="..\Trarizon.Library.Mathematics\Trarizon.Library.Mathematics.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="CommunityToolkit.Diagnostics" Version="8.4.0" />
-    </ItemGroup>
-
     <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' Or '$(TargetFramework)' == 'netstandard2.1'">
         <PackageReference Include="PolySharp" Version="1.15.0">
             <PrivateAssets>all</PrivateAssets>
@@ -55,10 +51,11 @@
     <PropertyGroup Label="Polyfills">
         <PolySharpIncludeGeneratedTypes>
             System.Diagnostics.CodeAnalysis.ExperimentalAttribute;
-            
+
             System.Diagnostics.CodeAnalysis.MaybeNullAttribute;
             System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute;
-            
+
+            System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute;
             System.Runtime.CompilerServices.IsExternalInit;
         </PolySharpIncludeGeneratedTypes>
     </PropertyGroup>

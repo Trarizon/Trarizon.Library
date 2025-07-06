@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.Diagnostics;
-using System.Collections;
+﻿using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Trarizon.Library.Collections.Helpers;
@@ -19,7 +18,7 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
 
     public ListDictionary(int capacity, IEqualityComparer<TKey>? comparer = null)
     {
-        Guard.IsGreaterThanOrEqualTo(capacity, 0);
+        Throws.ThrowIfNegative(capacity);
         _pairs = capacity == 0 ? [] : new (TKey, TValue)[capacity];
         _comparer = comparer;
     }
@@ -35,7 +34,7 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
         get {
             ref var item = ref FindRef(key);
             if (Unsafe.IsNullRef(ref item)) {
-                Throws.KeyNotFound(key);
+                Throws.KeyNotFound(key, nameof(ListDictionary<,>));
                 return default;
             }
 
@@ -58,7 +57,7 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
     public void Add(TKey key, TValue value)
     {
         if (!TryAdd(key, value))
-            ThrowHelper.ThrowArgumentException(nameof(key), $"Key duplicated.");
+            Throws.KeyAlreadyExists(key, nameof(ListDictionary<,>));
         return;
     }
 
@@ -195,8 +194,8 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
     }
     void ICollection<KeyValuePair<TKey, TValue>>.CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
     {
-        Guard.IsGreaterThanOrEqualTo(arrayIndex, 0);
-        Guard.HasSizeGreaterThanOrEqualTo(array, arrayIndex + Count);
+        Throws.ThrowIfNegative(arrayIndex);
+        Throws.ThrowIfLessThan(array.Length, arrayIndex + Count);
 
         if (Count == 0)
             return;
@@ -269,7 +268,7 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
         private readonly void CheckVersion()
         {
             if (_version != _dict._version)
-                Throws.CollectionModifiedAfterEnumeratorCreated();
+                Throws.CollectionModifiedDuringEnumeration();
         }
     }
 
@@ -288,8 +287,8 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
 
         public void CopyTo(TKey[] array, int arrayIndex)
         {
-            Guard.IsGreaterThanOrEqualTo(arrayIndex, 0);
-            Guard.HasSizeGreaterThanOrEqualTo(array, arrayIndex + Count);
+            Throws.ThrowIfNegative(arrayIndex);
+            Throws.ThrowIfLessThan(array.Length, arrayIndex + Count);
 
             if (Count == 0)
                 return;
@@ -301,8 +300,8 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
 
         public Enumerator GetEnumerator() => new(_dict);
 
-        void ICollection<TKey>.Add(TKey item) => ThrowHelper.ThrowNotSupportedException();
-        void ICollection<TKey>.Clear() => ThrowHelper.ThrowNotSupportedException();
+        void ICollection<TKey>.Add(TKey item) => Throws.ThrowNotSupport();
+        void ICollection<TKey>.Clear() => Throws.ThrowNotSupport();
         IEnumerator<TKey> IEnumerable<TKey>.GetEnumerator() => GetEnumerator();
         bool ICollection<TKey>.Remove(TKey item) => false;
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -348,8 +347,8 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
 
         public void CopyTo(TValue[] array, int arrayIndex)
         {
-            Guard.IsGreaterThanOrEqualTo(arrayIndex, 0);
-            Guard.HasSizeGreaterThanOrEqualTo(array, arrayIndex + Count);
+            Throws.ThrowIfNegative(arrayIndex);
+            Throws.ThrowIfLessThan(array.Length, arrayIndex + Count);
 
             if (Count == 0)
                 return;
@@ -361,8 +360,8 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
 
         public Enumerator GetEnumerator() => new(_dict);
 
-        void ICollection<TValue>.Add(TValue item) => ThrowHelper.ThrowNotSupportedException();
-        void ICollection<TValue>.Clear() => ThrowHelper.ThrowNotSupportedException();
+        void ICollection<TValue>.Add(TValue item) => Throws.ThrowNotSupport();
+        void ICollection<TValue>.Clear() => Throws.ThrowNotSupport();
         IEnumerator<TValue> IEnumerable<TValue>.GetEnumerator() => GetEnumerator();
         bool ICollection<TValue>.Remove(TValue item) => false;
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

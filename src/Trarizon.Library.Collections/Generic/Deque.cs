@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.Diagnostics;
-using System.Collections;
+﻿using System.Collections;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
@@ -24,7 +23,7 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public Deque(int capacity)
     {
-        Guard.IsGreaterThanOrEqualTo(capacity, 0);
+        Throws.ThrowIfNegative(capacity);
         _array = capacity == 0 ? [] : new T[capacity];
     }
 
@@ -314,7 +313,7 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
     public T DequeueFirst()
     {
         if (!TryDequeueFirst(out var res)) {
-            Throws.CollectionHasNoElement();
+            Throws.CollectionIsEmpty(nameof(Deque<>));
         }
         return res;
     }
@@ -322,7 +321,7 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
     public T DequeueLast()
     {
         if (!TryDequeueLast(out var res)) {
-            Throws.CollectionHasNoElement();
+            Throws.CollectionIsEmpty(nameof(Deque<>));
         }
         return res;
     }
@@ -375,7 +374,7 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public int EnsureCapacity(int capacity)
     {
-        Guard.IsGreaterThanOrEqualTo(capacity, 0);
+        Throws.ThrowIfNegative(capacity);
         if (_array.Length < capacity) {
             GrowAndCopy(capacity, 0);
         }
@@ -392,7 +391,7 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public void TrimExcess(int capacity)
     {
-        Guard.IsGreaterThanOrEqualTo(capacity, _count);
+        Throws.ThrowIfLessThan(capacity, _count);
         if (capacity == _array.Length)
             return;
 
@@ -490,7 +489,7 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
         private readonly void CheckVersion()
         {
             if (_version != _deque._version)
-                Throws.CollectionModifiedAfterEnumeratorCreated();
+                Throws.CollectionModifiedDuringEnumeration();
         }
 
         public readonly void Dispose() { }

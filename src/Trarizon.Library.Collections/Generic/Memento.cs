@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.Diagnostics;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Trarizon.Library.Collections.Helpers;
 using Trarizon.Library.Collections.StackAlloc;
@@ -51,7 +50,7 @@ public class Memento<T>
     public T Peek()
     {
         if (!TryPeek(out var item))
-            Throws.CollectionHasNoElement();
+            Throws.CollectionIsEmpty(nameof(Memento<>));
         return item;
     }
 
@@ -79,7 +78,7 @@ public class Memento<T>
     public T PeekInactive()
     {
         if (!TryPeekInactive(out var item))
-            ThrowHelper.ThrowInvalidOperationException("Memento has no inactive item");
+            ThrowNoInactiveItem();
         return item;
     }
 
@@ -154,7 +153,7 @@ public class Memento<T>
     public void Rollback(out T item)
     {
         if (!TryRollback(out item!))
-            Throws.CollectionHasNoElement();
+            Throws.CollectionIsEmpty(nameof(Memento<>));
     }
 
     public bool TryRollback([MaybeNullWhen(false)] out T item)
@@ -174,7 +173,7 @@ public class Memento<T>
     public void Reapply(out T item)
     {
         if (!TryReapply(out item!))
-            ThrowHelper.ThrowInvalidOperationException("No more item to reapply");
+            ThrowNoInactiveItem();
     }
 
     public bool TryReapply([MaybeNullWhen(false)] out T item)
@@ -213,6 +212,10 @@ public class Memento<T>
     public TaggedEnumerable EnumerateTagged() => new(this);
 
     #endregion
+
+    [DoesNotReturn]
+    private static void ThrowNoInactiveItem()
+          => Throws.ThrowInvalidOperation("Memento has no inactive item.");
 
     private void GrowAndCopy(int expectedCapacity)
     {
@@ -304,7 +307,7 @@ public class Memento<T>
         private readonly void CheckVersion()
         {
             if (_version != _memento._version)
-                Throws.CollectionModifiedAfterEnumeratorCreated();
+                Throws.CollectionModifiedDuringEnumeration();
         }
 
         internal void SetEnd() => _index = -1;

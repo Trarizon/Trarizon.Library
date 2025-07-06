@@ -1,6 +1,6 @@
-﻿using CommunityToolkit.Diagnostics;
-using System.Collections;
+﻿using System.Collections;
 using System.Diagnostics;
+using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections.Generic;
 public readonly struct TriangularArray<T>
@@ -17,8 +17,8 @@ public readonly struct TriangularArray<T>
     public ref T this[int levelIndex, int itemIndex]
     {
         get {
-            Guard.IsLessThan((uint)levelIndex, (uint)_level);
-            Guard.IsLessThanOrEqualTo((uint)itemIndex, (uint)levelIndex);
+            Throws.ThrowIfIndexGreaterThanOrEqual(levelIndex, _level);
+            Throws.ThrowIfGreaterThan((uint)itemIndex, (uint)levelIndex);
 
             if (levelIndex == 0) {
                 Debug.Assert(itemIndex == 0);
@@ -36,7 +36,7 @@ public readonly struct TriangularArray<T>
 
     public Span<T> AsLevelSpan(int levelIndex)
     {
-        Guard.IsLessThan((uint)levelIndex, (uint)_level);
+        Throws.ThrowIfIndexGreaterThanOrEqual(levelIndex, _level);
 
         if (levelIndex == 0)
             return _array.AsSpan(0, 1);
@@ -80,7 +80,7 @@ public readonly struct TriangularArray<T>
 
 #if NET9_0_OR_GREATER
 
-        object IEnumerator.Current => ThrowHelper.ThrowInvalidOperationException<object>();
+        object IEnumerator.Current { get { Throws.ThrowInvalidOperation(); return default!; } }
 
         IEnumerator<Span<T>> IEnumerable<Span<T>>.GetEnumerator() => GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

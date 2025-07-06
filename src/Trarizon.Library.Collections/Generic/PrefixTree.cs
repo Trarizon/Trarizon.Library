@@ -410,7 +410,7 @@ public partial class PrefixTree<T>
                     return false;
 
                 if (_version != _parent._tree._version)
-                    Throws.CollectionModifiedAfterEnumeratorCreated();
+                    Throws.CollectionModifiedDuringEnumeration();
 
                 _current = _node;
                 _node = _node._nextSibling;
