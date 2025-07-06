@@ -2,6 +2,7 @@
   <Folder Name="/src/">
     <Project Path="src/Trarizon.Library.Collections/Trarizon.Library.Collections.csproj" />
     <Project Path="src/Trarizon.Library.Functional/Trarizon.Library.Functional.csproj" />
+    <Project Path="src/Trarizon.Library.Linq/Trarizon.Library.Linq.csproj" Id="73aeb31c-0c9a-4717-be06-809de583e2ff" />
     <Project Path="src/Trarizon.Library.Mathematics/Trarizon.Library.Mathematics.csproj" />
     <Project Path="src/Trarizon.Library/Trarizon.Library.csproj" />
   </Folder>
