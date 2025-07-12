@@ -5,6 +5,7 @@ using System.CodeDom.Compiler;
 using System.Linq;
 using System.Threading;
 using Trarizon.Library.Roslyn.CSharp;
+using Trarizon.Library.Roslyn.Diagnostics;
 using Trarizon.Library.Roslyn.Emitting;
 using Trarizon.Library.Roslyn.Extensions;
 

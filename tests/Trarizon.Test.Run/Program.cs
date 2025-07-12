@@ -17,9 +17,14 @@ using Trarizon.Library.Mathematics;
 using Trarizon.Test.Run;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
+using System.Runtime.CompilerServices;
 
 dynamic d = new DynamicPath("D:\\");
 d.Pictures.Hentai.剥ぎコラ.Open();
+
+string str = "Hello, World!";
+
+Unsafe.AsRef(in str.AsSpan()[0]) = 'a';
 
 Span<int> ints= [];
 ints.Contains(1);

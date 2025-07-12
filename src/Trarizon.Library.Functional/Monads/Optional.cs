@@ -4,6 +4,8 @@ using System.Diagnostics.CodeAnalysis;
 namespace Trarizon.Library.Functional.Monads;
 public static class Optional
 {
+    public static OptionalNoneBuilder None => default;
+
     public static Optional<T> Of<T>(T value) => new(value);
 
     public static Optional<T> FromNullable<T>(T? value) where T : class => value is null ? default : new(value);
@@ -104,6 +106,8 @@ public readonly struct Optional<T>
 
     #region Creation
 
+    public static implicit operator Optional<T>(OptionalNoneBuilder none) => default;
+
     public static implicit operator Optional<T>(T value) => new(value);
 
     #endregion
@@ -164,4 +168,9 @@ public readonly struct Optional<T>
     #endregion
 
     public override string ToString() => HasValue ? _value.ToString() ?? string.Empty : string.Empty;
+}
+
+public readonly struct OptionalNoneBuilder
+{
+    public Optional<T> Build<T>() => default;
 }

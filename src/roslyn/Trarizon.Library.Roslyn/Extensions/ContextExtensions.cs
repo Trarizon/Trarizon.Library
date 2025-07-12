@@ -1,6 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System;
+using Trarizon.Library.Roslyn.Diagnostics;
 using Trarizon.Library.Roslyn.Emitting;
 
 namespace Trarizon.Library.Roslyn.Extensions;
@@ -19,10 +20,10 @@ public static class ContextExtensions
     {
         context.RegisterSourceOutput(result, static (context, result) =>
         {
-            foreach (var diag in result.DiagnosticDatas) {
+            foreach (var diag in result.Diagnostics) {
                 context.ReportDiagnostic(diag.ToDiagnostic());
             }
-            if (result.Result.TryGetValue(out var emitter)) {
+            if (result.Value.TryGetValue(out var emitter)) {
                 context.AddSource(emitter.GeneratedFileName, emitter.Emit());
             }
         });
@@ -32,10 +33,10 @@ public static class ContextExtensions
     {
         context.RegisterSourceOutput(result, static (context, result) =>
         {
-            foreach (var diag in result.DiagnosticDatas) {
+            foreach (var diag in result.Diagnostics) {
                 context.ReportDiagnostic(diag.ToDiagnostic());
             }
-            if (result.Result.TryGetValue(out var emitter)) {
+            if (result.Value.TryGetValue(out var emitter)) {
                 var res = emitter.Emit();
 #if DEBUG
                 Console.WriteLine(res);
