@@ -35,6 +35,25 @@
         </PackageReference>
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="Monads\Either.tt">
+        <Generator>TextTemplatingFileGenerator</Generator>
+        <LastGenOutput>Either.ttg.cs</LastGenOutput>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Monads\Either.ttg.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>Either.tt</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
     <!--<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     </ItemGroup>-->
 

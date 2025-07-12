@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 
 namespace Trarizon.Library.Functional.Monads;
-public static class Either
+public static partial class Either
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Either<TLeft, TRight> Left<TLeft, TRight>(TLeft leftValue)
@@ -141,7 +141,7 @@ public readonly struct Either<TLeft, TRight>
 
     #endregion
 
-    #region Convertor
+    #region Converter
 
     public Either<TRight, TLeft> Swap()
         => new(!_isLeft, _right, _left);
@@ -149,7 +149,7 @@ public readonly struct Either<TLeft, TRight>
     public TResult Match<TResult>(Func<TLeft, TResult> leftSelector, Func<TRight, TResult> rightSelector)
         => IsLeft ? leftSelector(_left) : rightSelector(_right);
 
-    public void Match(Action<TLeft>? leftSelector,Action<TRight>? rightSelector)
+    public void Match(Action<TLeft>? leftSelector, Action<TRight>? rightSelector)
     {
         if (IsLeft)
             leftSelector?.Invoke(_left);
