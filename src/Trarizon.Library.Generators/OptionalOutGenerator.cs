@@ -30,7 +30,7 @@ internal partial class OptionalOutGenerator : IIncrementalGenerator
     {
         public string GeneratedFileName => $"{methodSymbol.ToValidFileNameString()}.{parameterSymbol.Name}.g.cs";
 
-        public static ParseResult<Emitter> Parse(GeneratorAttributeSyntaxContext context, CancellationToken cancellationToken)
+        public static DiagnosticResult<Emitter> Parse(GeneratorAttributeSyntaxContext context, CancellationToken cancellationToken)
         {
             if (context.TargetNode is not ParameterSyntax prmSyntax)
                 return default;

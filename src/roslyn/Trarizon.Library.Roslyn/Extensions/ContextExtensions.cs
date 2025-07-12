@@ -15,7 +15,7 @@ public static class ContextExtensions
     public static void ReportDiagnostic(this in SyntaxNodeAnalysisContext context, DiagnosticDescriptor descriptor, Location? location, params object[]? message)
         => context.ReportDiagnostic(Diagnostic.Create(descriptor, location, message));
 
-    public static void RegisterSourceOutput<T>(this in IncrementalGeneratorInitializationContext context, IncrementalValuesProvider<ParseResult<T>> result) where T : ISourceEmitterWithIndentedWriter
+    public static void RegisterSourceOutput<T>(this in IncrementalGeneratorInitializationContext context, IncrementalValuesProvider<DiagnosticResult<T>> result) where T : ISourceEmitterWithIndentedWriter
     {
         context.RegisterSourceOutput(result, static (context, result) =>
         {
@@ -28,7 +28,7 @@ public static class ContextExtensions
         });
     }
 
-    public static void RegisterSourceOutputAndPrintDebug<T>(this in IncrementalGeneratorInitializationContext context, IncrementalValuesProvider<ParseResult<T>> result) where T : ISourceEmitterWithIndentedWriter
+    public static void RegisterSourceOutputAndPrintDebug<T>(this in IncrementalGeneratorInitializationContext context, IncrementalValuesProvider<DiagnosticResult<T>> result) where T : ISourceEmitterWithIndentedWriter
     {
         context.RegisterSourceOutput(result, static (context, result) =>
         {

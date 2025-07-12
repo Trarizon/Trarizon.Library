@@ -38,7 +38,7 @@ internal partial class SingletonGenerator : IIncrementalGenerator
 
         public string GeneratedFileName => $"{symbol.ToValidFileNameString()}.g.cs";
 
-        public static ParseResult<Emitter> Parse(GeneratorAttributeSyntaxContext context, CancellationToken cancellationToken)
+        public static DiagnosticResult<Emitter> Parse(GeneratorAttributeSyntaxContext context, CancellationToken cancellationToken)
         {
             if (context.TargetNode is not ClassDeclarationSyntax classSyntax)
                 return new DiagnosticData(Diag.SingletonIsClassOnly, (context.TargetNode as TypeDeclarationSyntax)?.Identifier);
@@ -89,7 +89,7 @@ internal partial class SingletonGenerator : IIncrementalGenerator
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            ParseResult<Emitter> res = new();
+            DiagnosticResult<Emitter> res = new();
 
             // constructor
 

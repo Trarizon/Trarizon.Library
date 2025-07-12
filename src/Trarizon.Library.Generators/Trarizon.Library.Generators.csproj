@@ -27,7 +27,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Trarizon.Library.Roslyn\Trarizon.Library.Roslyn.csproj" />
+      <ProjectReference Include="..\roslyn\Trarizon.Library.Roslyn\Trarizon.Library.Roslyn.csproj" />
     </ItemGroup>
 
     <!-- End References -->

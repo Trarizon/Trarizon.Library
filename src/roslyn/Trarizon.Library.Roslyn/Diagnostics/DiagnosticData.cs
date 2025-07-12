@@ -1,6 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 
-namespace Trarizon.Library.Roslyn;
+namespace Trarizon.Library.Roslyn.Diagnostics;
 public sealed record DiagnosticData(
     DiagnosticDescriptor Descriptor,
     Location? Location,

@@ -4,6 +4,7 @@
     <Project Path="src/Trarizon.Library.Functional/Trarizon.Library.Functional.csproj" />
     <Project Path="src/Trarizon.Library.Mathematics/Trarizon.Library.Mathematics.csproj" />
     <Project Path="src/Trarizon.Library/Trarizon.Library.csproj" />
+    <Project Path="src/Trarizon.Library.Generators/Trarizon.Library.Generators.csproj" />
   </Folder>
   <Folder Name="/src/playground/">
     <Project Path="src/playground/Trarizon.Library.Playground/Trarizon.Library.Playground.csproj" Id="83bdac29-35ba-40ec-b954-58a3d2819f74" />
@@ -12,7 +13,6 @@
     <Project Path="src/game/Trarizon.Library.Game/Trarizon.Library.Game.csproj" />
   </Folder>
   <Folder Name="/src/roslyn/">
-    <Project Path="src/roslyn/Trarizon.Library.Generators/Trarizon.Library.Generators.csproj" />
     <Project Path="src/roslyn/Trarizon.Library.Roslyn/Trarizon.Library.Roslyn.csproj" />
   </Folder>
   <Folder Name="/src/windows/">
