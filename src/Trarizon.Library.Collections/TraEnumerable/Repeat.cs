@@ -1,11 +1,11 @@
 ﻿using System.Buffers;
 using System.Runtime.CompilerServices;
-using Trarizon.Library.Linq.Helpers;
+using Trarizon.Library.Collections.Helpers;
 #if NETSTANDARD2_0
-using RuntimeHelpers = Trarizon.Library.Linq.Helpers.PfRuntimeHelpers;
+using RuntimeHelpers = Trarizon.Library.Collections.Helpers.PfRuntimeHelpers;
 #endif
 
-namespace Trarizon.Library.Linq;
+namespace Trarizon.Library.Collections;
 public static partial class TraEnumerable
 {
     public static IEnumerable<T> Repeat<T>(this IEnumerable<T> source, int count)
@@ -95,7 +95,7 @@ public static partial class TraEnumerable
         {
             get {
                 var count = list.Count;
-                Throws.IfNegativeOrGreaterThanOrEqual(index, count * repeat);
+                Throws.ThrowIfIndexGreaterThanOrEqual(index, count * repeat);
                 return list[index % count];
             }
         }
@@ -150,7 +150,7 @@ public static partial class TraEnumerable
         {
             get {
                 var count = list.Count;
-                Throws.IfNegativeOrGreaterThanOrEqual(index, count * repeat);
+                Throws.ThrowIfIndexGreaterThanOrEqual(index, count * repeat);
                 return list[index / count];
             }
         }

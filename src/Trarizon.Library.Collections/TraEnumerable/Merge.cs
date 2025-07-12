@@ -1,4 +1,4 @@
-﻿namespace Trarizon.Library.Linq;
+﻿namespace Trarizon.Library.Collections;
 public static partial class TraEnumerable
 {
     public static IEnumerable<T> Merge<T, TComparer>(this IEnumerable<T> first, IEnumerable<T> second, TComparer comparer) where TComparer : IComparer<T>

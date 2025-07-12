@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
-using Trarizon.Library.Linq.Helpers;
+using Trarizon.Library.Collections.Helpers;
 
-namespace Trarizon.Library.Linq;
+namespace Trarizon.Library.Collections;
 public static partial class TraEnumerable
 {
     /// <remarks>

@@ -1,4 +1,4 @@
-﻿namespace Trarizon.Library.Linq;
+﻿namespace Trarizon.Library.Collections;
 public static partial class TraEnumerable
 {
     /// <summary>

@@ -1,8 +1,8 @@
 ﻿using System.Collections;
 using System.Diagnostics;
-using Trarizon.Library.Linq.Helpers;
+using Trarizon.Library.Collections.Helpers;
 
-namespace Trarizon.Library.Linq;
+namespace Trarizon.Library.Collections;
 public static partial class TraEnumerable
 {
     private abstract class IteratorBase<T> : IEnumerable<T>, IEnumerator<T>
@@ -65,8 +65,8 @@ public static partial class TraEnumerable
         public virtual void CopyTo(T[] array, int arrayIndex)
         {
             int count = Count;
-            Throws.IfNegative(arrayIndex);
-            Throws.IfGreaterThan(arrayIndex, array.Length - count);
+            Throws.ThrowIfNegative(arrayIndex);
+            Throws.ThrowIfGreaterThan(arrayIndex, array.Length - count);
 
             var span = array.AsSpan(arrayIndex, count);
             int i = 0;
@@ -77,8 +77,8 @@ public static partial class TraEnumerable
 
         void ICollection.CopyTo(Array array, int index)
         {
-            Throws.IfNegative(index);
-            Throws.IfGreaterThan(index, array.Length - Count);
+            Throws.ThrowIfNegative(index);
+            Throws.ThrowIfGreaterThan(index, array.Length - Count);
 
             if (array.Rank != 1)
                 Throws.ThrowInvalidOperation("Array must have rank 1");

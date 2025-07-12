@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
-namespace Trarizon.Library.Linq;
+namespace Trarizon.Library.Collections;
 public static partial class TraEnumerable
 {
     public static IEnumerable<T> Rotate<T>(this IEnumerable<T> source, int splitPosition)

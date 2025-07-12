@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
-namespace Trarizon.Library.Linq;
+namespace Trarizon.Library.Collections;
 public static partial class TraEnumerable
 {
     /// <summary>

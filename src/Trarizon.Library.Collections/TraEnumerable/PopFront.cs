@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
-using Trarizon.Library.Linq.Helpers;
+using Trarizon.Library.Collections.Helpers;
 
-namespace Trarizon.Library.Linq;
+namespace Trarizon.Library.Collections;
 public static partial class TraEnumerable
 {
     public static IEnumerable<T> PopFront<T>(this IEnumerable<T> source, int count, out IEnumerable<T> leading)

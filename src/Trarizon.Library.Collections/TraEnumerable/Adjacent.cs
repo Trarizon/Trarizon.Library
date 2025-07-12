@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace Trarizon.Library.Linq;
+namespace Trarizon.Library.Collections;
 public static partial class TraEnumerable
 {
     public static IEnumerable<(T, T)> Adjacent<T>(this IEnumerable<T> source)

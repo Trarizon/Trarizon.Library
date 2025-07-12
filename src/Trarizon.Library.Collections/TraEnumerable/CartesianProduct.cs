@@ -1,4 +1,4 @@
-﻿namespace Trarizon.Library.Linq;
+﻿namespace Trarizon.Library.Collections;
 public static partial class TraEnumerable
 {
     public static IEnumerable<(T, T2)> CartesianProduct<T, T2>(this IEnumerable<T> first, IEnumerable<T2> second)

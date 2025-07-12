@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace Trarizon.Library.Linq;
+namespace Trarizon.Library.Collections;
 public static partial class TraEnumerable
 {
     /// <summary>
@@ -12,33 +12,33 @@ public static partial class TraEnumerable
         if (source.TryGetNonEnumeratedCount(out var count)) {
             switch (count) {
                 case < 0:
-                    return new(0u);
+                    return new(0);
                 case 1:
                     if (source is IList<T> list) {
-                        return new(1u, list[0]);
+                        return new(1, list[0]);
                     }
                     else {
                         using var e = source.GetEnumerator();
                         e.MoveNext();
-                        return new(1u, e.Current);
+                        return new(1, e.Current);
                     }
                 default:
-                    return new(2u);
+                    return new(2);
             }
         }
 
         using var enumerator = source.GetEnumerator();
 
         if (!enumerator.MoveNext()) {
-            return new(0u);
+            return new(0);
         }
 
         var val = enumerator.Current;
         if (!enumerator.MoveNext()) {
-            return new(1u, val);
+            return new(1, val);
         }
 
-        return new(2u);
+        return new(2);
     }
 
     /// <summary>
@@ -55,26 +55,26 @@ public static partial class TraEnumerable
             current = enumerator.Current;
             if (predicate(current)) {
                 if (found) {
-                    return new(2u);
+                    return new(2);
                 }
                 found = true;
             }
         }
 
         if (found) {
-            return new(1u, current);
+            return new(1, current);
         }
         else {
-            return new(0u);
+            return new(0);
         }
     }
 
     public readonly struct SingleResult<T>
     {
-        private readonly uint _count;
+        private readonly byte _count;
         private readonly T? _value;
 
-        internal SingleResult(uint count, T? value = default)
+        internal SingleResult(byte count, T? value = default)
         {
             _count = count;
             _value = value;

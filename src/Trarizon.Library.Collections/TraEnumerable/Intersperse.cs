@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
-using Trarizon.Library.Linq.Helpers;
+using Trarizon.Library.Collections.Helpers;
 
-namespace Trarizon.Library.Linq;
+namespace Trarizon.Library.Collections;
 public static partial class TraEnumerable
 {
     /// <summary>
@@ -40,7 +40,7 @@ public static partial class TraEnumerable
         public override T this[int index]
         {
             get {
-                Throws.IfNegativeOrGreaterThanOrEqual(index, Count);
+                Throws.ThrowIfIndexGreaterThanOrEqual(index, Count);
                 if (index % 2 == 0)
                     return list[index / 2];
                 else

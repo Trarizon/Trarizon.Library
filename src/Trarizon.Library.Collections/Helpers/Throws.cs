@@ -83,7 +83,7 @@ internal static partial class Throws
     #region Exception
 
     [DoesNotReturn]
-    private static void ThrowArgumentOutOfRange(string? paramName, object? value, string? message)
+    public static void ThrowArgumentOutOfRange(string? paramName, object? value, string? message)
         => throw new ArgumentOutOfRangeException(paramName, value, message);
 
     [DoesNotReturn]
@@ -126,7 +126,16 @@ internal static partial class Throws
     [DoesNotReturn]
     public static void IndexArgOutOfRange(int index, [CallerArgumentExpression(nameof(index))] string paramName = "")
         => ThrowArgumentOutOfRange(paramName, index, null);
+   
     [DoesNotReturn]
     public static void IncompatibleAlternateComparer()
         => ThrowInvalidOperation("Incompatible alternate comparer");
+
+    [DoesNotReturn]
+    public static void IteratorNotSupport([CallerMemberName] string memberName = "")
+        => throw new NotSupportedException($"Iterator doesn't support member '{memberName}'.");
+
+    [DoesNotReturn]
+    public static void CollectionIsEmpty()
+        => ThrowInvalidOperation("Collection must not be empty.");
 }

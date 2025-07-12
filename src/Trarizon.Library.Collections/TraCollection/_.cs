@@ -8,25 +8,6 @@ public static partial class TraCollection
 {
     public static ReadOnlySingletonCollection<T> Singleton<T>(T value) => new ReadOnlySingletonCollection<T>(value);
 
-    internal static bool TryGetSpan<T>(this IEnumerable<T> source, out ReadOnlySpan<T> span)
-    {
-        if (source.GetType() == typeof(T[])) {
-            span = Unsafe.As<T[]>(source).AsSpan();
-            return true;
-        }
-        if (source.GetType() == typeof(List<T>)) {
-            var list = Unsafe.As<List<T>>(source);
-#if NET8_0_OR_GREATER
-            span = CollectionsMarshal.AsSpan(list);
-#else
-            span = Utils<T>.GetUnderlyingArray(list);
-#endif
-            return true;
-        }
-        span = default;
-        return false;
-    }
-
     public static class Utils<T>
     {
         #region List
