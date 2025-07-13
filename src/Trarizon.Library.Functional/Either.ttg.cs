@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
-namespace Trarizon.Library.Functional.Monads;
+namespace Trarizon.Library.Functional;
 public static partial class Either
 {
     [DoesNotReturn]

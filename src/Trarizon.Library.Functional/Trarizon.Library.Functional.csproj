@@ -36,7 +36,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="Monads\Either.tt">
+      <None Update="Either.tt">
         <Generator>TextTemplatingFileGenerator</Generator>
         <LastGenOutput>Either.ttg.cs</LastGenOutput>
       </None>
@@ -47,7 +47,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Update="Monads\Either.ttg.cs">
+      <Compile Update="Either.ttg.cs">
         <DesignTime>True</DesignTime>
         <AutoGen>True</AutoGen>
         <DependentUpon>Either.tt</DependentUpon>

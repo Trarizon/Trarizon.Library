@@ -16,7 +16,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
-namespace Trarizon.Library.Functional.Monads;
+namespace Trarizon.Library.Functional;
 <# if (generateCount > 2) { #>
 public static partial class Either
 {
