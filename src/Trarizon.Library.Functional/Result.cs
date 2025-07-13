@@ -2,28 +2,29 @@
 #define EITHER
 
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace Trarizon.Library.Functional;
 public static class Result
 {
-    public static Result<T, TError> Success<T, TError>(T value) where TError : class
+    public static Result<T, TError> Success<T, TError>(T value)
         => new(value);
 
     public static ResultSuccessBuilder<T> Success<T>(T value)
         => new(value);
 
-    public static Result<T, TError> Error<T, TError>(TError error) where TError : class
+    public static Result<T, TError> Error<T, TError>(TError error)
         => new(error);
 
-    public static ResultFailedBuilder<TError> Error<TError>(TError error) where TError : class
+    public static ResultFailedBuilder<TError> Error<TError>(TError error)
         => new(error);
 
     public static T GetValueOrThrowError<T, TException>(this in Result<T, TException> result) where TException : Exception
     {
         if (!result.IsSuccess)
-            ThrowException(result._error);
+            ThrowException(result.Error);
         return result._value;
 
         [DoesNotReturn]
@@ -31,38 +32,45 @@ public static class Result
             => throw exception;
     }
 
-    public static ref readonly T? GetValueRefOrDefaultRef<T, TError>(this ref readonly Result<T, TError> result) where TError : class
+    public static ref readonly T? GetValueRefOrDefaultRef<T, TError>(this ref readonly Result<T, TError> result)
         => ref result._value;
 
 #if OPTIONAL
 
-    public static Optional<T> ToOptional<T, TError>(this in Result<T, TError> result) where TError : class
+    public static Optional<T> ToOptional<T, TError>(this in Result<T, TError> result)
         => result.IsSuccess ? Optional.Of(result._value) : default;
 
-    public static Optional<TError> ToOptionalError<T, TError>(this in Result<T, TError> result) where TError : class
-        => result.IsError ? Optional.Of(result._error) : default;
+    public static Optional<TError> ToOptionalError<T, TError>(this in Result<T, TError> result)
+        => result.IsError ? Optional.Of(result.Error) : default;
 
 #endif
 
 #if EITHER
 
-    public static Either<T, TError> AsEitherLeft<T, TError>(this in Result<T, TError> result) where TError : class
-        => result.IsSuccess ? new(result._value) : new(result._error);
+    public static Either<T, TError> AsEitherLeft<T, TError>(this in Result<T, TError> result)
+        => result.IsSuccess ? new(result._value) : new(result.Error);
 
-    public static Either<TError, T> AsEitherRight<T, TError>(this in Result<T, TError> result) where TError : class
-        => result.IsSuccess ? new(result._value) : new(result._error);
+    public static Either<TError, T> AsEitherRight<T, TError>(this in Result<T, TError> result)
+        => result.IsSuccess ? new(result._value) : new(result.Error);
 
 #endif
 
     [DoesNotReturn]
     internal static void ThrowResultIsError() => throw new InvalidOperationException("Result<> is error");
+
+    internal class ValueTypeBox<T>(T value)
+    {
+        public readonly T Value = value;
+    }
 }
 
+/// <summary>
+/// Monad Result, Note that if TError is struct, the error value will be boxed
+/// </summary>
 public readonly struct Result<T, TError>
-    where TError : class
 {
     internal readonly T? _value;
-    internal readonly TError? _error;
+    internal readonly object? _error;
 
     #region Accessor
 
@@ -80,7 +88,21 @@ public readonly struct Result<T, TError>
     /// </summary>
     public T Value => _value!;
 
-    public TError? Error => _error;
+    public TError? Error
+    {
+        get {
+            if (typeof(TError).IsValueType) {
+                Debug.Assert(_error is Result.ValueTypeBox<TError>);
+                var box = Unsafe.As<Result.ValueTypeBox<TError>>(_error);
+                if (box is null)
+                    return default;
+                return box.Value;
+            }
+            else {
+                return Unsafe.As<object?, TError?>(ref Unsafe.AsRef(in _error));
+            }
+        }
+    }
 
     public T GetValueOrThrow()
     {
@@ -99,7 +121,7 @@ public readonly struct Result<T, TError>
     public bool TryGetValue([MaybeNullWhen(false)] out T value, [MaybeNullWhen(true)] out TError error)
     {
         value = _value;
-        error = _error;
+        error = Error;
         return IsSuccess;
     }
 
@@ -113,7 +135,7 @@ public readonly struct Result<T, TError>
     [MemberNotNullWhen(false, nameof(_value)), MemberNotNullWhen(true, nameof(_error), nameof(Error))]
     public bool TryGetError([MaybeNullWhen(false)] out TError error)
     {
-        error = _error;
+        error = Error;
         return IsError;
     }
 
@@ -121,9 +143,25 @@ public readonly struct Result<T, TError>
 
     #region Creator
 
-    private Result(T? value, TError? error) { _value = value; _error = error; }
+    private Result(T value, object? error)
+    {
+        _value = value;
+        _error = error;
+    }
 
-    public Result(T value) : this(value, null) { }
+    private Result(T? value, TError? error)
+    {
+        _value = value;
+
+        if (typeof(TError).IsValueType) {
+            _error = new Result.ValueTypeBox<TError>(error!);
+        }
+        else {
+            _error = error;
+        }
+    }
+
+    public Result(T value) : this(value, default(object)) { }
 
     public Result(TError error) : this(default, error) { }
 
@@ -140,14 +178,14 @@ public readonly struct Result<T, TError>
     #region Convertor
 
     public TResult Match<TResult>(Func<T, TResult> successSelector, Func<TError, TResult> errorSelector)
-        => IsSuccess ? successSelector(_value) : errorSelector(_error);
+        => IsSuccess ? successSelector(_value) : errorSelector(Error);
 
     public void Match(Action<T>? successSelector, Action<TError>? errorSelector)
     {
         if (IsSuccess)
             successSelector?.Invoke(_value);
         else
-            errorSelector?.Invoke(_error);
+            errorSelector?.Invoke(Error);
     }
 
     public void MatchValue(Action<T> selector)
@@ -157,17 +195,17 @@ public readonly struct Result<T, TError>
 
     public void MatchError(Action<TError> selector)
     {
-        if (IsError) selector(_error);
+        if (IsError) selector(Error);
     }
 
     public Result<TResult, TError> Select<TResult>(Func<T, TResult> selector)
-        => IsSuccess ? new(selector(_value)) : new(_error);
+        => IsSuccess ? new(selector(_value)) : new(Error);
 
-    public Result<T, TResult> SelectError<TResult>(Func<TError, TResult> selector) where TResult : class
-        => IsSuccess ? new(_value) : new(selector(_error));
+    public Result<T, TResult> SelectError<TResult>(Func<TError, TResult> selector) 
+        => IsSuccess ? new(_value) : new(selector(Error));
 
     public Result<TResult, TError> Bind<TResult>(Func<T, Result<TResult, TError>> selector)
-        => IsSuccess ? selector(_value) : new(_error);
+        => IsSuccess ? selector(_value) : new(Error);
 
     #endregion
 
@@ -194,11 +232,11 @@ public readonly struct ResultSuccessBuilder<T>
     internal ResultSuccessBuilder(T value) => _value = value;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Result<T, TError> Build<TError>() where TError : class => _value;
+    public Result<T, TError> Build<TError>() => _value;
 }
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public readonly struct ResultFailedBuilder<TError> where TError : class
+public readonly struct ResultFailedBuilder<TError>
 {
     internal readonly TError _error;
 

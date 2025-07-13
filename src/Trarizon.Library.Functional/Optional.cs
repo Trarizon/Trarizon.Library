@@ -34,10 +34,10 @@ public static class Optional
 
 #if RESULT
 
-    public static Result<T, TError> ToResult<T, TError>(this in Optional<T> optional, TError error) where TError : class
+    public static Result<T, TError> ToResult<T, TError>(this in Optional<T> optional, TError error)
         => optional.HasValue ? new(optional._value) : new(error);
 
-    public static Result<T, TError> ToResult<T, TError>(this in Optional<T> optional, Func<TError> errorSelector) where TError : class
+    public static Result<T, TError> ToResult<T, TError>(this in Optional<T> optional, Func<TError> errorSelector)
         => optional.HasValue ? new(optional._value) : new(errorSelector());
 
 #endif

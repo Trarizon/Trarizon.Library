@@ -1,4 +1,7 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿#define OPTIONAL
+#define RESULT
+
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace Trarizon.Library.Functional;
@@ -20,9 +23,7 @@ public static partial class Either
     public static ref readonly TRight? GetRightRefOrDefaultRef<TLeft, TRight>(this ref readonly Either<TLeft, TRight> either)
         => ref either._right;
 
-    #region Conversion
-
-    #region Optional
+#if OPTIONAL
 
     public static Optional<TLeft> ToOptionalLeft<TLeft, TRight>(this in Either<TLeft, TRight> either)
         => either.IsLeft ? Optional.Of(either._left) : default;
@@ -30,20 +31,20 @@ public static partial class Either
     public static Optional<TRight> ToOptionalRight<TLeft, TRight>(this in Either<TLeft, TRight> either)
         => either.IsRight ? Optional.Of(either._right) : default;
 
-    #endregion
+#endif
 
-    #region Result
+#if RESULT
 
-    public static Result<TLeft, TError> ToResultLeft<TLeft, TRight, TError>(this in Either<TLeft, TRight> either, TError error) where TError : class
+    public static Result<TLeft, TError> ToResultLeft<TLeft, TRight, TError>(this in Either<TLeft, TRight> either, TError error)
         => either.IsLeft ? new(either._left) : new(error);
 
-    public static Result<TLeft, TError> ToResultLeft<TLeft, TRight, TError>(this in Either<TLeft, TRight> either, Func<TRight, TError> errorSelector) where TError : class
+    public static Result<TLeft, TError> ToResultLeft<TLeft, TRight, TError>(this in Either<TLeft, TRight> either, Func<TRight, TError> errorSelector)
         => either.IsLeft ? new(either._left) : new(errorSelector(either._right));
 
-    public static Result<TRight, TError> ToResultRight<TLeft, TRight, TError>(this in Either<TLeft, TRight> either, TError error) where TError : class
+    public static Result<TRight, TError> ToResultRight<TLeft, TRight, TError>(this in Either<TLeft, TRight> either, TError error)
         => either.IsRight ? new(either._right) : new(error);
 
-    public static Result<TRight, TError> ToResultRight<TLeft, TRight, TError>(this in Either<TLeft, TRight> either, Func<TLeft, TError> errorSelector) where TError : class
+    public static Result<TRight, TError> ToResultRight<TLeft, TRight, TError>(this in Either<TLeft, TRight> either, Func<TLeft, TError> errorSelector)
         => either.IsRight ? new(either._right) : new(errorSelector(either._left));
 
     public static Result<TLeft, TRight> AsResultLeft<TLeft, TRight>(this in Either<TLeft, TRight> either) where TRight : class
@@ -52,9 +53,7 @@ public static partial class Either
     public static Result<TRight, TLeft> AsResultRight<TLeft, TRight>(this in Either<TLeft, TRight> either) where TLeft : class
         => either.IsRight ? new(either._right) : new(either._left);
 
-    #endregion
-
-    #endregion
+#endif
 
     [DoesNotReturn]
     internal static void EitherHasNoValue(bool left) => throw new InvalidOperationException($"Either<,> has no {(left ? "left" : "right")} value");
