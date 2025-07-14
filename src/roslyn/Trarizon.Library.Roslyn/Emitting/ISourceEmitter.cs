@@ -4,19 +4,13 @@ using System.IO;
 namespace Trarizon.Library.Roslyn.Emitting;
 public interface ISourceEmitter
 {
-    string Emit();
-    string GeneratedFileName { get; }
-}
-
-public interface ISourceEmitterWithIndentedWriter
-{
     void Emit(IndentedTextWriter writer);
     string GeneratedFileName { get; }
 }
 
 public static class ISourceEmitterExtensions
 {
-    public static string Emit(this ISourceEmitterWithIndentedWriter emitter)
+    public static string Emit(this ISourceEmitter emitter)
     {
         using var sw = new StringWriter();
         using var writer = new IndentedTextWriter(sw);

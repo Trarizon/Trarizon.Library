@@ -23,7 +23,7 @@ internal partial class SingletonGenerator : IIncrementalGenerator
             (node, token) => node is TypeDeclarationSyntax,
             Emitter.Parse);
 
-        context.RegisterSourceOutputAndPrintDebug(filter);
+        context.RegisterSourceOutputAndPrintOnConsole(filter);
     }
 
     private sealed class Emitter(
@@ -33,7 +33,7 @@ internal partial class SingletonGenerator : IIncrementalGenerator
         string? providerTypeIdentifier,
         bool shouldEmitPrivateCtor,
         bool isInternalInstance,
-        bool hasNewKeyword) : ISourceEmitterWithIndentedWriter
+        bool hasNewKeyword) : ISourceEmitter
     {
         private bool UseSingletonProvider => providerTypeIdentifier is not null;
 
@@ -97,7 +97,7 @@ internal partial class SingletonGenerator : IIncrementalGenerator
             bool hasCustomPrivateCtor = false;
 
             if (!classSymbol.Constructors.TrySingle(ctor => !ctor.IsStatic).IsSingleOrEmpty(out var first)) {
-                res.AddDiagnostics(new DiagnosticData(Diag.D_SingletonHasOneOrNoneCtor, classSyntax.Identifier));
+                res.AppendDiagnostic(new DiagnosticData(Diag.D_SingletonHasOneOrNoneCtor, classSyntax.Identifier));
                 goto EndCtor;
             }
 
@@ -114,17 +114,16 @@ internal partial class SingletonGenerator : IIncrementalGenerator
                     DeclaredAccessibility: Accessibility.NotApplicable or Accessibility.Private,
                     Parameters.Length: 0
                 })) {
-                res.AddDiagnostics(new DiagnosticData(Diag.SingletonShouldHaveProperCtor, first.DeclaringSyntaxReferences[0]));
+                res.AppendDiagnostic(new DiagnosticData(Diag.SingletonShouldHaveProperCtor, first.DeclaringSyntaxReferences[0]));
             }
 
         EndCtor:
-            res.Result = new Emitter(classSyntax, classSymbol,
+            return res.SelectValue(new Emitter(classSyntax, classSymbol,
                 instancePropertyIdentifier,
                 singleProviderIdentifer,
                 shouldEmitPrivateCtor: !hasCustomPrivateCtor,
                 isInternalInstance: options.HasFlag(SingletonOptionsMirror.IsInternalInstance),
-                hasNewKeyword: isDuplicateWithBaseMemberName);
-            return res;
+                hasNewKeyword: isDuplicateWithBaseMemberName));
         }
 
         public void Emit(IndentedTextWriter writer)

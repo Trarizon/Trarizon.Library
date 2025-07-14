@@ -15,6 +15,19 @@ public static class CompilationExtensions
     public static ITypeSymbol? GetTypeSymbolByRuntimeType(this Compilation compilation, Type type)
         => RuntimeHelper.GetTypeSymbolByRuntimeType(compilation, type);
 
+    #region RuntimeHelpers
+
+    public static bool IsRuntimeType(this Compilation compilation, ITypeSymbol symbol, Type runtimeType, bool includeNullability = false)
+    {
+        var comparer = includeNullability ? SymbolEqualityComparer.IncludeNullability : SymbolEqualityComparer.Default;
+        return comparer.Equals(symbol, compilation.GetTypeSymbolByRuntimeType(runtimeType));
+    }
+
+    public static bool IsRuntimeType<T>(this Compilation compilation, ITypeSymbol symbol, bool includeNullability = false)
+        => compilation.IsRuntimeType(symbol, typeof(T), includeNullability);
+
+    #endregion
+
     private static class RuntimeHelper
     {
         private static readonly Dictionary<Compilation, Dictionary<Type, ITypeSymbol>> _dict = new();

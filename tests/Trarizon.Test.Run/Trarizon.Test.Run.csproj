@@ -20,6 +20,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\src\Trarizon.Library.Functional\Trarizon.Library.Functional.csproj" />
 		<ProjectReference Include="..\..\src\Trarizon.Library.Generators\Trarizon.Library.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 		<ProjectReference Include="..\..\src\Trarizon.Library.Roslyn\Trarizon.Library.Roslyn.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 		<ProjectReference Include="..\..\src\Trarizon.Library\Trarizon.Library.csproj" />

@@ -9,8 +9,10 @@
     <PropertyGroup>
         <Title>Trarizon.Library.Roslyn</Title>
         <!--<PackageReadmeFile>README.md</PackageReadmeFile>-->
-        <Version>0.0.1</Version>
+        <Version>0.0.14</Version>
         <!--<Description>Trarizon's personal library, for functional programming</Description>-->
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>$(NoWarn);1591</NoWarn>
     </PropertyGroup>
     
     <!-- References -->
@@ -26,9 +28,9 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="System.Memory" Version="4.6.3" PrivateAssets="all" GeneratePathProperty="true" />
-        <PackageReference Include="Trarizon.Library.Collections" Version="1.0.1.1" PrivateAssets="all" GeneratePathProperty="true" />
-        <PackageReference Include="Trarizon.Library.Functional" Version="1.0.0.4" PrivateAssets="all" GeneratePathProperty="true" />
+        <PackageReference Include="System.Memory" Version="4.6.3" />
+        <PackageReference Include="Trarizon.Library.Collections" Version="1.0.1.1" />
+        <PackageReference Include="Trarizon.Library.Functional" Version="1.0.0.5" />
     </ItemGroup>
 
     <!-- End References -->
@@ -36,14 +38,14 @@
     <PropertyGroup>
         <PolySharpIncludeGeneratedTypes>
             System.Diagnostics.CodeAnalysis.MaybeNullAttribute;
+            System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute;
+            System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute;
             System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute;
             System.Diagnostics.CodeAnalysis.NotNullWhenAttribute;
 
             System.Runtime.CompilerServices.IsExternalInit;
         </PolySharpIncludeGeneratedTypes>
         <!--
-            System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute;
-            System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute;
 
             System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute;
 
@@ -52,7 +54,7 @@
 
     <!-- Dependency -->
 
-    <Target Name="GetDependencyTargetPaths">
+    <!--<Target Name="GetDependencyTargetPaths">
         <ItemGroup>
             <TargetPathWithTargetPlatformMoniker Include="$(PKGTrarizon_Library_Collections)\lib\netstandard2.0\Trarizon.Library.Collections.dll" IncludeRuntimeDependency="false" />
             <TargetPathWithTargetPlatformMoniker Include="$(PKGTrarizon_Library_Functional)\lib\netstandard2.0\Trarizon.Library.Functional.dll" IncludeRuntimeDependency="false" />
@@ -62,7 +64,7 @@
 
     <PropertyGroup>
         <GetTargetPathDependsOn>$(GetTargetPathDependsOn);GetDependencyTargetPaths</GetTargetPathDependsOn>
-    </PropertyGroup>
+    </PropertyGroup>-->
 
     <!-- End Dependency -->
 

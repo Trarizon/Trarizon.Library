@@ -219,15 +219,15 @@ internal partial class FriendAccessAnalyzer : DiagnosticAnalyzer
             if (friend.TypeKind is TypeKind.Interface) {
                 return accessor.AllInterfaces
                     .AsEnumerable()
-                    .Contains(friend, SymbolExtensions.OriginalDefinationEqualityComparer);
+                    .Contains(friend, SymbolEqualityComparer.OriginalDefination);
             }
             else {
                 return accessor.BaseTypes()
-                    .Contains(friend, SymbolExtensions.OriginalDefinationEqualityComparer);
+                    .Contains(friend, SymbolEqualityComparer.OriginalDefination);
             }
         }
 
         bool AccessPredicate_None((INamedTypeSymbol, ITypeSymbol) tpl)
-            => SymbolExtensions.OriginalDefinationEqualityComparer.Equals(tpl.Item1, tpl.Item2);
+            => SymbolEqualityComparer.OriginalDefination.Equals(tpl.Item1, tpl.Item2);
     }
 }

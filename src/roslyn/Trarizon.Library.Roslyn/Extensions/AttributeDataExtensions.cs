@@ -1,8 +1,10 @@
-﻿using Microsoft.CodeAnalysis;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Trarizon.Library.Collections;
+using Trarizon.Library.Functional;
+using TypedConstant = Microsoft.CodeAnalysis.TypedConstant;
+using AttributeData = Microsoft.CodeAnalysis.AttributeData;
 
 namespace Trarizon.Library.Roslyn.Extensions;
 public static class AttributeDataExtensions
@@ -32,7 +34,7 @@ public static class AttributeDataExtensions
 
     public static ImmutableArray<T> CastArray<T>(this in Optional<TypedConstant> typedConstant)
     {
-        if(typedConstant.HasValue) {
+        if (typedConstant.HasValue) {
             return typedConstant.Value.CastArray<T>();
         }
         else {

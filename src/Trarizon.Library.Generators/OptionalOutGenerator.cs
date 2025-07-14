@@ -20,14 +20,14 @@ internal partial class OptionalOutGenerator : IIncrementalGenerator
             (node, token) => node is ParameterSyntax,
             Emitter.Parse);
 
-        context.RegisterSourceOutputAndPrintDebug(filter);
+        context.RegisterSourceOutputAndPrintOnConsole(filter);
     }
 
     private sealed class Emitter(
         MethodDeclarationSyntax methodDeclaration,
         IMethodSymbol methodSymbol,
         ParameterSyntax parameterSyntax,
-        IParameterSymbol parameterSymbol) : ISourceEmitterWithIndentedWriter
+        IParameterSymbol parameterSymbol) : ISourceEmitter
     {
         public string GeneratedFileName => $"{methodSymbol.ToValidFileNameString()}.{parameterSymbol.Name}.g.cs";
 
