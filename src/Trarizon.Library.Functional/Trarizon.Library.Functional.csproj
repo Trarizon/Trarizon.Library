@@ -13,8 +13,8 @@
 
     <PropertyGroup>
         <Title>Trarizon.Library.Functional</Title>
-        <!--<PackageReadmeFile>README.md</PackageReadmeFile>-->
-        <Version>1.0.0.5</Version>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <Version>1.0.0</Version>
         <Description>Trarizon's personal library, for functional programming</Description>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>$(NoWarn);1591</NoWarn>
@@ -24,7 +24,7 @@
 
     <ItemGroup Label="NugetItems">
         <None Include="..\..\LICENSE" Pack="True" PackagePath="" />
-        <!--<None Include="README.md" Pack="True" PackagePath="" />-->
+        <None Include="README.md" Pack="True" PackagePath="" />
     </ItemGroup>
     
     <!-- End Nuget-->
