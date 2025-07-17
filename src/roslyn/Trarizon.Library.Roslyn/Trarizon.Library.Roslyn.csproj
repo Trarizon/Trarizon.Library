@@ -29,8 +29,8 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="System.Memory" Version="4.6.3" />
-        <PackageReference Include="Trarizon.Library.Collections" Version="1.0.1.1" />
-        <PackageReference Include="Trarizon.Library.Functional" Version="1.0.0.5" />
+        <PackageReference Include="Trarizon.Library.Collections" Version="1.0.1" />
+        <PackageReference Include="Trarizon.Library.Functional" Version="1.0.0" />
     </ItemGroup>
 
     <!-- End References -->
