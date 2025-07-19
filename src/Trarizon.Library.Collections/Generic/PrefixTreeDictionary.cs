@@ -203,65 +203,33 @@ public partial class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
     #region Modification
 
     public Node GetOrAdd(ReadOnlySpan<TKey> sequence, TValue value)
-    {
-        var node = GetEnsuredRoot();
-        foreach (var item in sequence) {
-            node = GetOrAddChild(node, item, value);
-        }
-        _version++;
-        _count++;
-
-        node.IsEnd = true;
-        return node;
-    }
+        => GetOrAddInternal(sequence, value, out _);
 
     public Node GetOrAdd(IEnumerable<TKey> sequence, TValue value)
+        => GetOrAddInternal(sequence, value, out _);
+
+    public bool TryAdd(ReadOnlySpan<TKey> sequence, TValue value, [MaybeNullWhen(false)] out Node node)
     {
-        var node = GetEnsuredRoot();
-        foreach (var item in sequence) {
-            node = GetOrAddChild(node, item, value);
-        }
-        _version++;
-        _count++;
-
-        node.IsEnd = true;
-        return node;
-    }
-
-    public bool TryAdd(ReadOnlySpan<TKey> sequence, TValue value, out Node node)
-    {
-        node = GetEnsuredRoot();
-        foreach (var item in sequence) {
-            node = GetOrAddChild(node, item, value);
-        }
-
-        _version++;
-        _count++;
-
-        if (node.IsEnd) {
+        var n = GetOrAddInternal(sequence, value, out var exists);
+        if (exists) {
+            node = default;
             return false;
         }
         else {
-            node.IsEnd = true;
+            node = n;
             return true;
         }
     }
 
-    public bool TryAdd(IEnumerable<TKey> sequence, TValue value, out Node node)
+    public bool TryAdd(IEnumerable<TKey> sequence, TValue value, [MaybeNullWhen(false)] out Node node)
     {
-        node = GetEnsuredRoot();
-        foreach (var item in sequence) {
-            node = GetOrAddChild(node, item, value);
-        }
-
-        _version++;
-        _count++;
-
-        if (node.IsEnd) {
+        var n = GetOrAddInternal(sequence, value, out var exists);
+        if (exists) {
+            node = default;
             return false;
         }
         else {
-            node.IsEnd = true;
+            node = n;
             return true;
         }
     }
@@ -300,7 +268,47 @@ public partial class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
         _version++;
     }
 
-    private Node GetOrAddChild(Node parent, TKey key, TValue value)
+    private Node GetOrAddInternal(ReadOnlySpan<TKey> sequence, TValue value, out bool exists)
+    {
+        var node = GetEnsuredRoot();
+        foreach (var item in sequence) {
+            node = GetOrAddChild(node, item);
+        }
+
+        _version++;
+        _count++;
+
+        if (node.IsEnd) {
+            exists = true;
+        }
+        else {
+            exists = false;
+            node.SetIsEnd(value);
+        }
+        return node;
+    }
+
+    private Node GetOrAddInternal(IEnumerable<TKey> sequence, TValue value, out bool exists)
+    {
+        var node = GetEnsuredRoot();
+        foreach (var item in sequence) {
+            node = GetOrAddChild(node, item);
+        }
+
+        _version++;
+        _count++;
+
+        if (node.IsEnd) {
+            exists = true;
+        }
+        else {
+            exists = false;
+            node.SetIsEnd(value);
+        }
+        return node;
+    }
+
+    private Node GetOrAddChild(Node parent, TKey key)
     {
         Debug.Assert(parent._tree == this);
 
@@ -323,7 +331,7 @@ public partial class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
         }
 
         {
-            child = new Node(this, key, value);
+            child = new Node(this, key);
             child._parent = parent;
             child._nextSibling = parent._child;
             parent._child = child;
@@ -338,8 +346,8 @@ public partial class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
 
         _version++;
         _count--;
-        endNode.IsEnd = false;
-        if(endNode._child is null) {
+        endNode.SetNotEnd();
+        if (endNode._child is null) {
             InvalidateFromLeaf(endNode);
         }
     }
@@ -380,14 +388,14 @@ public partial class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
         private readonly TKey _key;
         private TValue? _value;
 
-        internal Node(PrefixTreeDictionary<TKey, TValue> tree, TKey key, TValue? value = default)
+        internal Node(PrefixTreeDictionary<TKey, TValue> tree, TKey key)
         {
             _tree = tree;
             _key = key;
         }
 
         [MemberNotNullWhen(true, nameof(_value))]
-        public bool IsEnd { get; internal set; }
+        public bool IsEnd { get; private set; }
 
         /// <summary>
         /// If the node is root, the key is always default
@@ -429,6 +437,18 @@ public partial class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
         public TValue? GetValueOrDefault() => _value;
 
         public ref TValue GetValueRefOrNullRef() => ref IsEnd ? ref _value! : ref Unsafe.NullRef<TValue>();
+
+        internal void SetIsEnd(TValue value)
+        {
+            _value = value;
+            IsEnd = true;
+        }
+
+        internal void SetNotEnd()
+        {
+            IsEnd = false;
+            _value = default;
+        }
 
         [DoesNotReturn]
         private static void ThrowNoValue()

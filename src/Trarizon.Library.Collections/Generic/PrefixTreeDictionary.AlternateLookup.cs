@@ -78,21 +78,20 @@ partial class PrefixTreeDictionary<TKey, TValue>
             return node is not null;
         }
 
-        public Node GetOrAdd<TEnumerable>(TEnumerable sequence) where TEnumerable : IEnumerable<TAlternate>, allows ref struct
-        {
-            var node = AddInternal(sequence);
-            node.IsEnd = true;
-            return node;
-        }
+        public Node GetOrAdd<TEnumerable>(TEnumerable sequence, TValue value) where TEnumerable : IEnumerable<TAlternate>, allows ref struct
+            => GetOrAddInternal(sequence, value, out _);
 
-        public bool TryAdd<TEnumerable>(TEnumerable sequence, out Node node) where TEnumerable : IEnumerable<TAlternate>, allows ref struct
+        public bool TryAdd<TEnumerable>(TEnumerable sequence, TValue value, [MaybeNullWhen(false)] out Node node) where TEnumerable : IEnumerable<TAlternate>, allows ref struct
         {
-            node = AddInternal(sequence);
-            if (node.IsEnd)
+            var n = GetOrAddInternal(sequence, value, out var exists);
+            if (exists) {
+                node = default;
                 return false;
-
-            node.IsEnd = true;
-            return true;
+            }
+            else {
+                node = n;
+                return true;
+            }
         }
 
         public bool Remove<TEnumerable>(TEnumerable sequence) where TEnumerable : IEnumerable<TAlternate>, allows ref struct
@@ -107,14 +106,23 @@ partial class PrefixTreeDictionary<TKey, TValue>
             return true;
         }
 
-        private Node AddInternal<TEnumerable>(TEnumerable sequence) where TEnumerable : IEnumerable<TAlternate>, allows ref struct
+        private Node GetOrAddInternal<TEnumerable>(TEnumerable sequence, TValue value, out bool exists) where TEnumerable : IEnumerable<TAlternate>, allows ref struct
         {
             var node = Tree.GetEnsuredRoot();
             foreach (var item in sequence) {
                 node = GetOrAddChild(node, item);
             }
+
             Tree._version++;
             Tree._count++;
+
+            if (node.IsEnd) {
+                exists = true;
+            }
+            else {
+                exists = false;
+                node.SetIsEnd(value);
+            }
             return node;
         }
 
@@ -170,10 +178,10 @@ partial class PrefixTreeDictionary<TKey, TValue>
 #endif
 }
 
-public static partial class PrefixTreeExtensions
-{
 #if NET9_0_OR_GREATER
 
+public static partial class PrefixTreeExtensions
+{
     public static bool TryGetValue<TKey, TValue, TAlternate>(this PrefixTreeDictionary<TKey, TValue>.AlternateLookup<TAlternate> lookup, ReadOnlySpan<TAlternate> sequence, [MaybeNullWhen(false)] out TValue value)
          where TKey : notnull where TAlternate : notnull
     {
@@ -211,23 +219,22 @@ public static partial class PrefixTreeExtensions
         return node is not null;
     }
 
-    public static PrefixTreeDictionary<TKey, TValue>.Node GetOrAdd<TKey, TValue, TAlternate>(this PrefixTreeDictionary<TKey, TValue>.AlternateLookup<TAlternate> lookup, ReadOnlySpan<TAlternate> sequence)
+    public static PrefixTreeDictionary<TKey, TValue>.Node GetOrAdd<TKey, TValue, TAlternate>(this PrefixTreeDictionary<TKey, TValue>.AlternateLookup<TAlternate> lookup, ReadOnlySpan<TAlternate> sequence, TValue value)
         where TKey : notnull where TAlternate : notnull
-    {
-        var node = AddInternal(lookup, sequence);
-        node.IsEnd = true;
-        return node;
-    }
+        => lookup.GetOrAddInternal(sequence, value, out _);
 
-    public static bool TryAdd<TKey, TValue, TAlternate>(this PrefixTreeDictionary<TKey, TValue>.AlternateLookup<TAlternate> lookup, ReadOnlySpan<TAlternate> sequence, out PrefixTreeDictionary<TKey, TValue>.Node node)
+    public static bool TryAdd<TKey, TValue, TAlternate>(this PrefixTreeDictionary<TKey, TValue>.AlternateLookup<TAlternate> lookup, ReadOnlySpan<TAlternate> sequence, TValue value, [MaybeNullWhen(false)] out PrefixTreeDictionary<TKey, TValue>.Node node)
         where TKey : notnull where TAlternate : notnull
     {
-        node = AddInternal(lookup, sequence);
-        if (node.IsEnd)
+        var n = lookup.GetOrAddInternal(sequence, value, out var exists);
+        if (exists) {
+            node = default;
             return false;
-
-        node.IsEnd = true;
-        return true;
+        }
+        else {
+            node = n;
+            return true;
+        }
     }
 
     public static bool Remove<TKey, TValue, TAlternate>(this PrefixTreeDictionary<TKey, TValue>.AlternateLookup<TAlternate> lookup, ReadOnlySpan<TAlternate> sequence)
@@ -243,16 +250,24 @@ public static partial class PrefixTreeExtensions
         return true;
     }
 
-    private static PrefixTreeDictionary<TKey, TValue>.Node AddInternal<TKey, TValue, TAlternate>(this PrefixTreeDictionary<TKey, TValue>.AlternateLookup<TAlternate> lookup, ReadOnlySpan<TAlternate> sequence)
+    private static PrefixTreeDictionary<TKey, TValue>.Node GetOrAddInternal<TKey, TValue, TAlternate>(this PrefixTreeDictionary<TKey, TValue>.AlternateLookup<TAlternate> lookup, ReadOnlySpan<TAlternate> sequence, TValue value, out bool exists)
         where TKey : notnull where TAlternate : notnull
     {
-        var tree = lookup.Tree;
-        var node = tree.Root;
+        var node = lookup.Tree.Root;
         foreach (var item in sequence) {
             node = lookup.GetOrAddChild(node, item);
         }
-        tree._version++;
-        tree._count++;
+
+        lookup.Tree._version++;
+        lookup.Tree._count++;
+
+        if (node.IsEnd) {
+            exists = true;
+        }
+        else {
+            exists = false;
+            node.SetIsEnd(value);
+        }
         return node;
     }
 
@@ -284,6 +299,6 @@ public static partial class PrefixTreeExtensions
 
         return node;
     }
+}
 
 #endif
-}
