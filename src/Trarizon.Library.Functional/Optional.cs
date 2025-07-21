@@ -1,5 +1,6 @@
-﻿#define RESULT
-#define EITHER
+﻿//#define MONAD
+//#define RESULT
+//#define EITHER
 
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
@@ -40,6 +41,15 @@ public static class Optional
     public static Result<T, TError> ToResult<T, TError>(this in Optional<T> optional, Func<TError> errorSelector)
         => optional.HasValue ? new(optional._value) : new(errorSelector());
 
+    public static Result<Optional<T>, TError> Transpose<T, TError>(this in Optional<Result<T, TError>> optional)
+    {
+        if (optional._hasValue) {
+            ref readonly var result = ref optional._value;
+            return result.IsSuccess ? Optional.Of(result._value) : Result.Error(result.Error);
+        }
+        return Result.Success(Optional<T>.None);
+    }
+
 #endif
 
 #if EITHER
@@ -71,6 +81,9 @@ public static class Optional
 }
 
 public readonly struct Optional<T>
+#if MONAD
+    : IMonad
+#endif
 {
     internal readonly bool _hasValue;
     internal readonly T? _value;
@@ -137,6 +150,12 @@ public readonly struct Optional<T>
 
     #endregion
 
+    public static bool operator true(Optional<T> optional) => optional.HasValue;
+
+    public static bool operator false(Optional<T> optional) => !optional.HasValue;
+
+    public static Optional<T> operator |(Optional<T> left, Optional<T> right) => left.HasValue ? left : right;
+
     #region Convertor
 
     public TResult Match<TResult>(Func<T, TResult> selector, Func<TResult> noValueSelector)
@@ -159,6 +178,10 @@ public readonly struct Optional<T>
     {
         if (!_hasValue) selector();
     }
+
+    public Optional<T> Or(Optional<T> other) => _hasValue ? this : other;
+
+    public Optional<T> Or(Func<Optional<T>> otherSelector) => _hasValue ? this : otherSelector();
 
     public Optional<TResult> Select<TResult>(Func<T, TResult> selector)
         => HasValue ? new(selector(_value)) : default;
@@ -200,7 +223,29 @@ public readonly struct Optional<T>
 
     #endregion
 
-    public override string ToString() => HasValue ? _value.ToString() ?? string.Empty : string.Empty;
+    public override string ToString() => ToString(includeVariantInfo: false);
+
+    public string ToString(bool includeVariantInfo)
+    {
+        if (includeVariantInfo) {
+            if (HasValue) {
+                string? str;
+#if MONAD
+                if (_value is IMonad monad)
+                    str = monad.ToString(true);
+                else
+#endif
+                    str = _value.ToString();
+                return str is null ? "Optional Value" : $"Value({str})";
+            }
+            else {
+                return "Optional None";
+            }
+        }
+        else {
+            return HasValue ? _value.ToString() ?? "" : "";
+        }
+    }
 }
 
 #if NET9_0_OR_GREATER
@@ -322,5 +367,9 @@ public readonly ref struct RefOptional<T> where T : allows ref struct
 [EditorBrowsable(EditorBrowsableState.Never)]
 public readonly struct OptionalNoneBuilder
 {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Optional<T> Build<T>() => default;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Result<Optional<T>, TError> Build<T, TError>() => Result.Success(Optional<T>.None);
 }

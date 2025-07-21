@@ -10,6 +10,7 @@
 // 对LinkedList来说，Contiguous添加删除比BCL的要快10%~20%左右，内存分配差不多
 // 对LinkedList来说，Contiguous的遍历很慢（BCL 20+ vs Contiguous 70+）
 // 有一个可能？我这里都是一次性直接添加的，所以内存姑且还是连续的？
+#if false
 
 #pragma warning disable TRALIB
 
@@ -65,3 +66,5 @@ internal class Noded_Vs_ContiguousCollection
     }
 
 }
+
+#endif

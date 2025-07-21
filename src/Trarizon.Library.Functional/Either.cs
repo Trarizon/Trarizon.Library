@@ -1,5 +1,5 @@
-﻿#define OPTIONAL
-#define RESULT
+﻿//#define OPTIONAL
+//#define RESULT
 
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;

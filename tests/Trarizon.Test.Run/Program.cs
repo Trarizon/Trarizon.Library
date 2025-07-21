@@ -1,6 +1,5 @@
 ﻿#pragma warning disable TRAEXP
 
-//using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using BenchmarkDotNet.Filters;
 using System;
@@ -19,4 +18,15 @@ using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
 using System.Runtime.CompilerServices;
 using Trarizon.Library.Functional;
+using System.Threading.Tasks;
 
+
+Optional<Result<int, string>> x = Optional.Of(Result.Success<int, string>(1));
+
+x.Transpose().ToString(true).Print();
+
+x = Optional.None;
+x.Transpose().ToString(true).Print();
+
+x = Optional.Of(Result.Error<int, string>("Err"));
+x.Transpose().ToString(true).Print();

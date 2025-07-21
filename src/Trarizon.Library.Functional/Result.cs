@@ -1,5 +1,5 @@
-﻿#define OPTIONAL
-#define EITHER
+﻿//#define OPTIONAL
+//#define EITHER
 
 using System.ComponentModel;
 using System.Diagnostics;
@@ -43,6 +43,17 @@ public static class Result
     public static Optional<TError> ToOptionalError<T, TError>(this in Result<T, TError> result)
         => result.IsError ? Optional.Of(result.Error) : default;
 
+    public static Optional<Result<T, TError>> Transpose<T, TError>(this in Result<Optional<T>, TError> result)
+    {
+        if (result.IsSuccess) {
+            ref readonly var optional = ref result._value;
+            return optional.HasValue ? Optional.Of(Result.Success<T, TError>(optional._value)) : Optional.None;
+        }
+        else {
+            return Optional.Of(Result.Error<T, TError>(result.Error));
+        }
+    }
+
 #endif
 
 #if EITHER
@@ -56,20 +67,31 @@ public static class Result
 #endif
 
     [DoesNotReturn]
-    internal static void ThrowResultIsError() => throw new InvalidOperationException("Result<> is error");
+    internal static void ThrowResultIsError<TError>(TError error) => throw new ResultErrorException<TError>(error);
 
     internal class ValueTypeBox<T>(T value)
     {
         public readonly T Value = value;
+
+        public string ToString(bool includeVariantInfo)
+        {
+            if (Value is IMonad monad)
+                return monad.ToString(includeVariantInfo);
+            return Value!.ToString() ?? "";
+        }
+
+        public override string? ToString() => Value!.ToString();
     }
 }
 
 /// <summary>
 /// Monad Result, Note that if TError is struct, the error value will be boxed
 /// </summary>
-public readonly struct Result<T, TError>
+public readonly struct Result<T, TError> : IMonad
 {
     internal readonly T? _value;
+    // For reference type, we store the TError
+    // For value type, we box it into Result.ValueTypeBox<T>
     internal readonly object? _error;
 
     #region Accessor
@@ -107,7 +129,7 @@ public readonly struct Result<T, TError>
     public T GetValueOrThrow()
     {
         if (!IsSuccess)
-            Result.ThrowResultIsError();
+            Result.ThrowResultIsError(Error);
         return _value;
     }
 
@@ -143,9 +165,10 @@ public readonly struct Result<T, TError>
 
     #region Creator
 
-    private Result(T value, object? error)
+    private Result(T? value, object? error)
     {
         _value = value;
+        Debug.Assert(error is null || error is TError || (typeof(T).IsValueType && error is Result.ValueTypeBox<TError>));
         _error = error;
     }
 
@@ -199,25 +222,50 @@ public readonly struct Result<T, TError>
     }
 
     public Result<TResult, TError> Select<TResult>(Func<T, TResult> selector)
-        => IsSuccess ? new(selector(_value)) : new(Error);
+        => IsSuccess ? new(selector(_value)) : new(default!, _error);
 
-    public Result<T, TResult> SelectError<TResult>(Func<TError, TResult> selector) 
+    public Result<T, TResult> SelectError<TResult>(Func<TError, TResult> selector)
         => IsSuccess ? new(_value) : new(selector(Error));
 
+    public Result<TResult, TResultError> Select<TResult, TResultError>(Func<T, TResult> valueSelector, Func<TError, TResultError> errorSelector)
+        => IsSuccess ? new(valueSelector(_value)) : new(errorSelector(Error));
+
     public Result<TResult, TError> Bind<TResult>(Func<T, Result<TResult, TError>> selector)
-        => IsSuccess ? selector(_value) : new(Error);
+        => IsSuccess ? selector(_value) : new(default!, _error);
 
     #endregion
 
-    public override string ToString()
+    public override string ToString() => ToString(includeVariantInfo: false);
+
+    public string ToString(bool includeVariantInfo)
     {
-        if (IsSuccess) {
-            var str = _value.ToString();
-            return str is null ? "Result Value" : $"Value: {str}";
+        if (includeVariantInfo) {
+            if (IsSuccess) {
+                string? str;
+                if (_value is IMonad monad)
+                    str = monad.ToString(true);
+                else
+                    str = _value.ToString();
+                return str is null ? "Result Success" : $"Success({str})";
+            }
+            else {
+                string? str;
+                if (typeof(TError).IsValueType)
+                    str = Unsafe.As<Result.ValueTypeBox<TError>>(_error).ToString(true);
+                else if (Error is IMonad monad)
+                    str = monad.ToString(true);
+                else
+                    str = Error.ToString();
+                return str is null ? "Result Error" : $"Error({str})";
+            }
         }
         else {
-            var str = _error.ToString();
-            return str is null ? "Result Error" : $"Error: {str}";
+            if (IsSuccess) {
+                return _value.ToString() ?? "";
+            }
+            else {
+                return Error.ToString() ?? "";
+            }
         }
     }
 }
@@ -247,3 +295,9 @@ public readonly struct ResultFailedBuilder<TError>
 }
 
 #nullable restore
+
+public sealed class ResultErrorException<TError>(TError error)
+    : InvalidOperationException($"Result<,> is Error{(error is null ? "" : $"({error})")}")
+{
+    public TError Error => error;
+}
