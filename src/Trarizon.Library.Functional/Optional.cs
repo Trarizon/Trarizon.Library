@@ -33,6 +33,20 @@ public static class Optional
     public static ref readonly T? GetValueRefOrDefaultRef<T>(this ref readonly Optional<T> optional)
         => ref optional._value;
 
+    public static Optional<IEnumerable<T>> Collect<T>(this IEnumerable<Optional<T>> optionals)
+    {
+        var values = new List<T>();
+        foreach (var optional in optionals) {
+            if (optional.HasValue) {
+                values.Add(optional._value);
+            }
+            else {
+                return None;
+            }
+        }
+        return values;
+    }
+
 #if RESULT
 
     public static Result<T, TError> ToResult<T, TError>(this in Optional<T> optional, TError error)

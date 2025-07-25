@@ -21,12 +21,6 @@ using Trarizon.Library.Functional;
 using System.Threading.Tasks;
 
 
-Optional<Result<int, string>> x = Optional.Of(Result.Success<int, string>(1));
+var res = Result.Error(StringComparison.OrdinalIgnoreCase).Build<int>();
 
-x.Transpose().ToString(true).Print();
-
-x = Optional.None;
-x.Transpose().ToString(true).Print();
-
-x = Optional.Of(Result.Error<int, string>("Err"));
-x.Transpose().ToString(true).Print();
+res.Print();

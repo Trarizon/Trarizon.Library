@@ -19,7 +19,7 @@ internal partial class OptionalOutGenerator : IIncrementalGenerator
             Type_Attribute_FullName,
             (node, token) => node is ParameterSyntax,
             Emitter.Parse);
-
+        
         context.RegisterSourceOutputAndPrintOnConsole(filter);
     }
 
