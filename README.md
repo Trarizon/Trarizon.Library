@@ -14,7 +14,8 @@ Project|Summary
 [Library.Collections](./src/Trarizon.Library.Collections)|Collections types, extensions for BCL collection type, and more linqs
 [Library.Functional](./src/Trarizon.Library.Functional)|Monads `Optional` `Result` `Either`
 [Library.Mathematics](./src/Trarizon.Library.Mathematics)|Functions for number and mathematics
-[Library.Roslyn](./src/roslyn/Trarizon.Library.Roslyn)|Toolkit for source generator
+[Library.Roslyn](./src/compile-time/Trarizon.Library.Roslyn)|Toolkit for source generator
+[Library.CodeAnalysis](./src/compile-time/Trarizon.CodeAnalysis)|Attribute types for source generator and diagnostic analyzers
 
 ### Specialized
 

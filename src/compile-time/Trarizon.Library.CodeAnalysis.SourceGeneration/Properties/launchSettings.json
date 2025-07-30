@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "CodeAnalysis (Run)": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "..\\..\\..\\tests\\Trarizon.Test.Run\\Trarizon.Test.Run.csproj"
+    },
+    "CodeAnalysis": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "..\\..\\..\\tests\\Trarizon.Test.CodeAnalysis\\Trarizon.Test.CodeAnalysis.csproj"
+    }
+  }
+}

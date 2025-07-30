@@ -1,0 +1,73 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <LangVersion>preview</LangVersion>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+        <IsRoslynComponent>true</IsRoslynComponent>
+        <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    </PropertyGroup>
+
+    <!-- References -->
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="4.14.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
+        <PackageReference Include="PolySharp" Version="1.15.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Trarizon.Library.Functional" Version="1.0.0" PrivateAssets="all" GeneratePathProperty="true" />
+        <PackageReference Include="Trarizon.Library.Collections" Version="1.0.1" PrivateAssets="all" GeneratePathProperty="true" />
+        <PackageReference Include="System.Memory" Version="4.6.3" PrivateAssets="all" GeneratePathProperty="true" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Trarizon.Library.Roslyn\Trarizon.Library.Roslyn.csproj" />
+    </ItemGroup>
+
+    <!-- End References -->
+
+    <!-- PolySharp -->
+
+    <PropertyGroup>
+        <PolySharpIncludeGeneratedTypes>
+        </PolySharpIncludeGeneratedTypes>
+        <!--
+            System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute;
+            System.Diagnostics.CodeAnalysis.NotNullWhenAttribute;
+            System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute;
+            System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute;
+
+            System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute;
+
+            System.Runtime.CompilerServices.IsExternalInit;
+            -->
+    </PropertyGroup>
+
+    <!-- PolySharp End-->
+
+    <!--Dependency-->
+
+    <PropertyGroup>
+        <GetTargetPathDependsOn>$(GetTargetPathDependsOn);GetDependencyTargetPaths</GetTargetPathDependsOn>
+    </PropertyGroup>
+
+    <Target Name="GetDependencyTargetPaths">
+        <ItemGroup>
+            <TargetPathWithTargetPlatformMoniker Include="$(PKGTrarizon_Library_Functional)\lib\netstandard2.0\*.dll" IncludeRuntimeDependency="false" />
+            <TargetPathWithTargetPlatformMoniker Include="$(PKGTrarizon_Library_Collections)\lib\netstandard2.0\*.dll" IncludeRuntimeDependency="false" />
+            <TargetPathWithTargetPlatformMoniker Include="$(PKGSystem_Memory)\lib\netstandard2.0\*.dll" IncludeRuntimeDependency="false" />
+        </ItemGroup>
+    </Target>
+
+    <!--End Dependency-->
+
+</Project>

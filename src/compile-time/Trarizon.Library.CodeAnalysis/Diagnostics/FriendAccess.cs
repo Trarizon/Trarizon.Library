@@ -1,6 +1,7 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 
-namespace Trarizon.Library.CodeAnalysis;
+namespace Trarizon.Library.CodeAnalysis.Diagnostics;
 [AttributeUsage(
     AttributeTargets.Constructor |
     AttributeTargets.Method |
@@ -11,16 +12,4 @@ namespace Trarizon.Library.CodeAnalysis;
 public sealed class FriendAccessAttribute(params Type[] friendTypes) : Attribute
 {
     public Type[] FriendTypes { get; } = friendTypes;
-
-    public FriendAccessOptions Options { get; init; }
-}
-
-[Flags]
-public enum FriendAccessOptions
-{
-    None = 0,
-    /// <summary>
-    /// Allow allow derived types of given type to access
-    /// </summary>
-    AllowInherits = 1,
 }

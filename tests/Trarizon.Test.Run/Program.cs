@@ -7,8 +7,6 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Dynamic;
 using System.Runtime.InteropServices;
-using Trarizon.Library.CodeAnalysis;
-using Trarizon.Library.CodeGeneration;
 using Trarizon.Library.Collections;
 using Trarizon.Library.Collections.AllocOpt;
 using Trarizon.Library.Collections.Generic;
@@ -19,8 +17,24 @@ using Microsoft.CodeAnalysis.Scripting;
 using System.Runtime.CompilerServices;
 using Trarizon.Library.Functional;
 using System.Threading.Tasks;
+using Trarizon.Library.CodeAnalysis.Generation;
+using Trarizon.Library.CodeAnalysis.Diagnostics;
 
 
 var res = Result.Error(StringComparison.OrdinalIgnoreCase).Build<int>();
 
 res.Print();
+
+_ = S.Instance.T();
+
+[Singleton]
+partial class S
+{
+    [FriendAccess(typeof(F))]
+    public string T() => ToString();
+}
+
+class F
+{
+    public static string Create() => S.Instance.T();
+}

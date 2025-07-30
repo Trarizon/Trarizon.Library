@@ -1,7 +1,5 @@
 ﻿using System.Diagnostics;
-using Trarizon.Library.CodeGeneration;
 using Trarizon.Library.Collections;
-using Trarizon.Library.Mathematics;
 #if NETSTANDARD
 using ListMarshal = Trarizon.Library.Collections.TraCollection;
 using MathFLerp = Trarizon.Library.Mathematics.TraMath;
@@ -26,7 +24,7 @@ public static partial class TraRandom
         foreach (var w in weights) {
             totalWeight += w;
         }
-        
+
         float value = random.NextSingle() * totalWeight;
         for (int i = 0; i < weights.Length; i++) {
             if (value < weights[i])
@@ -57,11 +55,14 @@ public static partial class TraRandom
     public static bool NextBoolean(this Random random)
         => random.Next(2) != 0;
 
-    public static T NextItem<T>(this Random random, ReadOnlySpan<T> items, [OptionalOut] out int index)
+    public static T NextItem<T>(this Random random, ReadOnlySpan<T> items, out int index)
     {
         index = random.Next(items.Length);
         return items[index];
     }
+
+    public static T NextItem<T>(this Random random, ReadOnlySpan<T> items)
+        => items[random.Next(items.Length)];
 
     #endregion
 }

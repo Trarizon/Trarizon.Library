@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <LangVersion>preview</LangVersion>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <None Include="..\Trarizon.Library.CodeAnalysis.SourceGeneration\bin\$(Configuration)\netstandard2.0\Trarizon.Library.CodeAnalysis.SourceGeneration.dll"  PackagePath="analyzers\dotnet\cs" Pack="true" Visible="false" />
+    </ItemGroup>
+
+</Project>

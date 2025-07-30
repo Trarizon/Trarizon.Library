@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Trarizon.Library" Version="0.4.1.9" />
+    <PackageReference Include="Trarizon.Library" Version="1.0.0" />
   </ItemGroup>
 
 </Project>
