@@ -22,27 +22,23 @@ partial class SingletonGenerator
             .GetNamedArgument("SingletonProviderName")
             .Cast<string>();
 
-        public SingletonOptions GetOptions() => attribute
-            .GetNamedArgument("Options")
-            .Cast<SingletonOptions>();
+        public bool GetGenerateProvider() => attribute
+            .GetNamedArgument("GenerateProvider")
+            .Cast<bool>();
+
+        public SingletonAccessibility GetInstanceAccessibility() => attribute
+            .GetNamedArgument("InstanceAccessibility")
+            .Cast<SingletonAccessibility>();
     }
 
-    [Flags]
-    internal enum SingletonOptions
+    internal enum SingletonAccessibility
     {
-        None = 0,
-        /// <summary>
-        /// Generate a singleton provider to keep the instance.
-        /// </summary>
-        /// <remarks>
-        /// When use a provider, the instance will be created only when you access the instance property.
-        /// Otherwise, once you access the type, instance will be created, and all other static member will all be created
-        /// </remarks>
-        GenerateProvider = 1,
-        /// <summary>
-        /// Mark the instance as internal
-        /// </summary>
-        IsInternalAccessibility = 1 << 1,
+        Public = 0,
+        Internal,
+        Protected,
+        Private,
+        PrivateProtected,
+        ProtectedInternal,
     }
 
     internal static class Descriptors

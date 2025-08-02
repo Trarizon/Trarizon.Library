@@ -6,9 +6,7 @@ Console.WriteLine("Hello, World!");
 
 //var invk = S.Instance.T();
 
-
-
-[Singleton]
+[Singleton()]
 partial class S
 {
     [FriendAccess(typeof(F))]

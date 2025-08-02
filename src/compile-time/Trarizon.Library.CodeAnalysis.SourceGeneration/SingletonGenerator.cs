@@ -32,7 +32,7 @@ internal partial class SingletonGenerator : IIncrementalGenerator
         string instancePropertyIdentifier,
         string? providerTypeIdentifier,
         bool shouldEmitPrivateCtor,
-        bool isInternalInstance,
+        SingletonAccessibility instanceAccessibility,
         bool hasNewKeyword) : ISourceEmitter
     {
         public static DiagnosticResult<Emitter> Parse(GeneratorAttributeSyntaxContext context, CancellationToken cancellationToken)
@@ -64,9 +64,8 @@ internal partial class SingletonGenerator : IIncrementalGenerator
                 .Contains(instancePropertyIdentifier);
 
             // Singleton options
-            var options = attribute.GetOptions();
             string? singletonProviderIdentifier;
-            if (options.HasFlag(SingletonOptions.GenerateProvider)) {
+            if (attribute.GetGenerateProvider()) {
                 singletonProviderIdentifier = attribute.GetSingletonProviderName();
                 if (singletonProviderIdentifier is null)
                     singletonProviderIdentifier = RuntimeAttribute.DefaultSingletonProviderName;
@@ -79,6 +78,8 @@ internal partial class SingletonGenerator : IIncrementalGenerator
             else {
                 singletonProviderIdentifier = null;
             }
+
+            var instanceAccessibility = attribute.GetInstanceAccessibility();
 
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -113,7 +114,7 @@ internal partial class SingletonGenerator : IIncrementalGenerator
                 instancePropertyIdentifier: instancePropertyIdentifier,
                 providerTypeIdentifier: singletonProviderIdentifier,
                 shouldEmitPrivateCtor: !hasCustomPrivateCtor,
-                isInternalInstance: options.HasFlag(SingletonOptions.IsInternalAccessibility),
+                instanceAccessibility: instanceAccessibility,
                 hasNewKeyword: isBaseTypeHasMember));
         }
 
@@ -155,7 +156,16 @@ internal partial class SingletonGenerator : IIncrementalGenerator
         private void EmitInstanceProperty(IndentedTextWriter writer)
         {
             writer.WriteLine(Codes.GeneratedCodeAttributeList);
-            var accessibility = isInternalInstance ? "internal" : "public";
+            var accessibility = instanceAccessibility switch
+            {
+                SingletonAccessibility.Public => "public",
+                SingletonAccessibility.Internal => "internal",
+                SingletonAccessibility.Protected => "protected",
+                SingletonAccessibility.Private => "private",
+                SingletonAccessibility.PrivateProtected => "private protected",
+                SingletonAccessibility.ProtectedInternal => "protected internal",
+                _ => "public",
+            };
             var @new = hasNewKeyword ? "new " : null;
             string prop = $"{accessibility} static {@new}{symbol.ToFullQualifiedDisplayString()} {instancePropertyIdentifier}";
 
