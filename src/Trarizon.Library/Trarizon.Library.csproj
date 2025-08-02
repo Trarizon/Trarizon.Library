@@ -22,6 +22,11 @@
     <ItemGroup Label="NugetItems">
         <None Include="..\..\LICENSE" Pack="True" PackagePath="" />
         <None Include="README.md" Pack="True" PackagePath="" />
+        <None Include="TraDelegate.ttg.cs">
+          <DesignTime>True</DesignTime>
+          <AutoGen>True</AutoGen>
+          <DependentUpon>TraDelegate.tt</DependentUpon>
+        </None>
     </ItemGroup>
     
     <!-- End Nugets -->
@@ -44,6 +49,25 @@
     
     <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
         <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.6.3" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <None Update="TraDelegate.tt">
+        <Generator>TextTemplatingFileGenerator</Generator>
+        <LastGenOutput>TraDelegate.ttg.cs</LastGenOutput>
+      </None>
+    </ItemGroup>
+    
+    <ItemGroup>
+      <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <Compile Update="TraDelegate.ttg.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>TraDelegate.tt</DependentUpon>
+      </Compile>
     </ItemGroup>
 
     <PropertyGroup Label="Polyfills">

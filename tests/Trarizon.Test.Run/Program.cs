@@ -19,22 +19,23 @@ using Trarizon.Library.Functional;
 using System.Threading.Tasks;
 using Trarizon.Library.CodeAnalysis.Generation;
 using Trarizon.Library.CodeAnalysis.Diagnostics;
+using Trarizon.Library;
 
 
 var res = Result.Error(StringComparison.OrdinalIgnoreCase).Build<int>();
 
 res.Print();
 
-_ = S.Instance.T();
 
-[Singleton]
-partial class S
+void A()
 {
-    [FriendAccess(typeof(F))]
-    public string T() => ToString();
+    string? s= null;
+
+    B(ref s);
+    s.ToString();
 }
 
-class F
+void B(ref string b)
 {
-    public static string Create() => S.Instance.T();
+
 }
