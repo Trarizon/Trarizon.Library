@@ -36,7 +36,7 @@ public ref struct StackAllocBitArray(Span<uint> allocatedSpace)
     }
 
     /// <summary>
-    /// Get the length of <see cref="BitContainer"/> array that caller should allocate
+    /// Get the length of array that caller should allocate
     /// </summary>
     /// <param name="bitLength"></param>
     /// <returns></returns>

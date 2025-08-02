@@ -16,7 +16,7 @@
         <Version>1.0.1</Version>
         <Description>Trarizon's personal library, collections</Description>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <NoWarn>$(NoWarn);1591</NoWarn>
+        <NoWarn>$(NoWarn);1591;1573</NoWarn>
     </PropertyGroup>
     
     <Import Project="..\..\Nuget.props" />

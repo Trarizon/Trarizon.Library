@@ -12,7 +12,7 @@ public static partial class TraArray
     /// Note that the result maybe <see langword="null"/> if <paramref name="array"/> is default.
     /// </summary>
     /// <returns>
-    /// A <see cref="IEnumerable{T}"/> representing the array, <see cref="null"/> if <paramref name="array"/> is default.
+    /// A <see cref="IEnumerable{T}"/> representing the array, <see langword="null"/> if <paramref name="array"/> is default.
     /// </returns>
     public static IEnumerable<T>? AsEnumerableOrNull<T>(this ImmutableArray<T> array)
         => ImmutableCollectionsMarshal.AsArray(array)!;

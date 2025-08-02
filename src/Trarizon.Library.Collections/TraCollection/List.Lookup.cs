@@ -65,7 +65,6 @@ public static partial class TraCollection
         /// its not recommanded to use this if you sure list doesn't
         /// contain repeated elements.
         /// </remarks>
-        /// <param name="item"></param>
         public void RemoveAll(T equalItem)
         {
             var comparer = _comparer;

@@ -240,7 +240,7 @@ public struct AllocOptList<T> : IDisposable
 
     /// <summary>
     /// Ensure capacity of collection is greater than <paramref name="capacity"/>,
-    /// unlike <see cref="List{T}.EnsureCapacity(int)"/>, this method doesn't throw if <paramref name="capacity"/> less than current
+    /// this method doesn't throw if <paramref name="capacity"/> less than current
     /// </summary>
     public void EnsureCapacity(int capacity)
     {
