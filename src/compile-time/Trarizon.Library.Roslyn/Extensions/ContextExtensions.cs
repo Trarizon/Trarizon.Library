@@ -1,13 +1,21 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
-using System;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using Trarizon.Library.Roslyn.Collections.Comparisons;
 using Trarizon.Library.Roslyn.Diagnostics;
-using Trarizon.Library.Roslyn.Emitting;
 
 namespace Trarizon.Library.Roslyn.Extensions;
-public static class ContextExtensions
+public static partial class ContextExtensions
 {
+    public static IncrementalValueProvider<ImmutableArray<T>> WithImmutableArraySequenceComparer<T>(this IncrementalValueProvider<ImmutableArray<T>> provider)
+        => provider.WithComparer(ImmutableArraySequenceEqualityComparer<T>.Default);
+
+    public static IncrementalValuesProvider<ImmutableArray<T>> WithImmutableArraySequenceComparer<T>(this IncrementalValuesProvider<ImmutableArray<T>> provider)
+        => provider.WithComparer(ImmutableArraySequenceEqualityComparer<T>.Default);
+
+    #region Diagnostics
+
     public static void ReportDiagnostic(this in OperationAnalysisContext context, DiagnosticDescriptor descriptor, Location? location, params object[]? message)
         => context.ReportDiagnostic(Diagnostic.Create(descriptor, location, message));
 
@@ -25,4 +33,6 @@ public static class ContextExtensions
 
     public static void ReportDiagnostic(this in SyntaxNodeAnalysisContext context, DiagnosticDescriptor descriptor, Location? location, params object[]? message)
         => context.ReportDiagnostic(Diagnostic.Create(descriptor, location, message));
+
+    #endregion
 }

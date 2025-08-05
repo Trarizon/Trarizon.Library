@@ -1,7 +1,7 @@
 ﻿using System.CodeDom.Compiler;
 using System.IO;
 
-namespace Trarizon.Library.Roslyn.Emitting;
+namespace Trarizon.Library.Roslyn.SourceInfos.CSharp.Emitting;
 public interface ISourceEmitter
 {
     void Emit(IndentedTextWriter writer);

@@ -1,6 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Trarizon.Library.Roslyn.SourceInfos;
 
 namespace Trarizon.Library.Roslyn.Extensions;
 public static partial class SymbolExtensions
@@ -15,18 +16,19 @@ public static partial class SymbolExtensions
         return attribute is not null;
     }
 
-    public static bool TryGetGeneratedCodeAttribute(this ISymbol symbol, string? tool, string? version, [NotNullWhen(true)] out AttributeData? attribute)
+    public static bool TryGetGeneratedCodeAttribute(this ISymbol symbol, Functional.Optional<string> tool, Functional.Optional<string> version, [NotNullWhen(true)] out AttributeData? attribute)
     {
         attribute = null;
 
-        if (!KnownLiterals.GeneratedCodeAttributeProxy.TryGet(symbol, out var attrProxy))
-            return false;
-        if (tool is not null && tool != attrProxy.Tool)
-            return false;
-        if (version is not null && version != attrProxy.Version)
+        if (!symbol.TryGetAttributeData(KnownInfos.GeneratedCodeAttribute.TypeFullName, out var attr))
             return false;
 
-        attribute = attrProxy.AttributeData;
+        if (tool.TryGetValue(out var vtool) && vtool != attr.GetConstructorArgument(0).Cast<string>())
+            return false;
+        if (version.TryGetValue(out var vver) && vver != attr.GetConstructorArgument(1).Cast<string>())
+            return false;
+
+        attribute = attr;
         return true;
     }
 }

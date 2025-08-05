@@ -6,8 +6,18 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <PropertyGroup>
+        <Title>Trarizon.Library.CodeAnalysis</Title>
+        <!--<PackageReadmeFile>README.md</PackageReadmeFile>-->
+        <Version>0.0.0.2</Version>
+        <!--<Description>Trarizon's personal library, for functional programming</Description>-->
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>$(NoWarn);1591</NoWarn>
+    </PropertyGroup>
+
     <ItemGroup>
       <None Include="..\Trarizon.Library.CodeAnalysis.SourceGeneration\bin\$(Configuration)\netstandard2.0\Trarizon.Library.CodeAnalysis.SourceGeneration.dll"  PackagePath="analyzers\dotnet\cs" Pack="true" Visible="false" />
+      <None Include="..\Trarizon.Library.Roslyn\bin\$(Configuration)\netstandard2.0\Trarizon.Library.Roslyn.dll"  PackagePath="analyzers\dotnet\cs" Pack="true" Visible="false" />
     </ItemGroup>
 
 </Project>

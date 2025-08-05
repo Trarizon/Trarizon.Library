@@ -33,6 +33,25 @@
         <PackageReference Include="Trarizon.Library.Functional" Version="1.0.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="PiplineEqualityHelpers.tt">
+        <Generator>TextTemplatingFileGenerator</Generator>
+        <LastGenOutput>PiplineEqualityHelpers.tt.cs</LastGenOutput>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="PiplineEqualityHelpers.tt.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>PiplineEqualityHelpers.tt</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
     <!-- End References -->
 
     <PropertyGroup>

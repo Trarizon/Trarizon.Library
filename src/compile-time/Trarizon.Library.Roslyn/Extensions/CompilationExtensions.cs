@@ -13,7 +13,7 @@ namespace Trarizon.Library.Roslyn.Extensions;
 public static class CompilationExtensions
 {
     public static ITypeSymbol? GetTypeSymbolByRuntimeType(this Compilation compilation, Type type)
-        => RuntimeHelper.GetTypeSymbolByRuntimeType(compilation, type);
+        => RuntimeInfoHelper.GetTypeSymbolByRuntimeType(compilation, type);
 
     #region RuntimeHelpers
 
@@ -28,7 +28,7 @@ public static class CompilationExtensions
 
     #endregion
 
-    private static class RuntimeHelper
+    private static class RuntimeInfoHelper
     {
         private static readonly Dictionary<Compilation, Dictionary<Type, ITypeSymbol>> _dict = new();
 

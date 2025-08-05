@@ -17,15 +17,10 @@ using Microsoft.CodeAnalysis.Scripting;
 using System.Runtime.CompilerServices;
 using Trarizon.Library.Functional;
 using System.Threading.Tasks;
-using Trarizon.Library.CodeAnalysis.Generation;
-using Trarizon.Library.CodeAnalysis.Diagnostics;
 using Trarizon.Library;
 
 
-var res = Result.Error(StringComparison.OrdinalIgnoreCase).Build<int>();
-
-res.Print();
-
+RunBenchmarks();
 
 void A()
 {

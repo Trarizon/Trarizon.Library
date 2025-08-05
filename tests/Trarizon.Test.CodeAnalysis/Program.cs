@@ -6,17 +6,17 @@ Console.WriteLine("Hello, World!");
 
 //var invk = S.Instance.T();
 
-[Singleton()]
+
+[Singleton]
 partial class S
 {
     [FriendAccess(typeof(F))]
-    public string T() => ToString();
+    public string? T() => ToString();
 
-    public string D => base.ToString()?.Replace('c', 'd');
+    public string? D => base.ToString().Replace('c', 'd');
 
     public event Action? Ac;
 }
-
 [ExternalSealed]
 public class Extern
 {
