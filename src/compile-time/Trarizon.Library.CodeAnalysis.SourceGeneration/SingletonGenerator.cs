@@ -10,10 +10,9 @@ using Trarizon.Library.CodeAnalysis.SourceGeneration.Literals;
 using Trarizon.Library.Collections;
 using Trarizon.Library.Functional;
 using Trarizon.Library.Roslyn.Diagnostics;
+using Trarizon.Library.Roslyn.Emitting;
 using Trarizon.Library.Roslyn.Extensions;
 using Trarizon.Library.Roslyn.SourceInfos;
-using Trarizon.Library.Roslyn.SourceInfos.CSharp;
-using Trarizon.Library.Roslyn.SourceInfos.CSharp.Emitting;
 using Trarizon.Library.Roslyn.SourceInfos.Emitting;
 
 namespace Trarizon.Library.CodeAnalysis.SourceGeneration;
@@ -42,23 +41,22 @@ internal partial class SingletonGenerator : IIncrementalGenerator
     private Result<EmitModel, DiagnosticData>? Parse(GeneratorAttributeSyntaxContext context, CancellationToken cancellationToken)
     {
         if (context.TargetNode is not ClassDeclarationSyntax syntax)
-            return new DiagnosticData(Descriptors.OnlyClassCanBeSingleton, ((TypeDeclarationSyntax)context.TargetNode).Identifier);
+            return default;
 
         if (context.TargetSymbol is not INamedTypeSymbol symbol)
             return default;
 
         if (symbol.IsAbstract || symbol.IsStatic)
-            return new DiagnosticData(Descriptors.SingletonShouldBeSealed, syntax.Identifier);
+            return default;
 
         if (context.Attributes is not [var attr])
             return default;
 
         var attribute = new RuntimeAttribute(attr);
         var instancePropertyIdentifier = attribute.GetInstancePropertyName();
-        if (instancePropertyIdentifier is null)
-            instancePropertyIdentifier = RuntimeAttribute.DefaultInstancePropertyName;
-        else if (!CodeValidation.IsValidIdentifier(instancePropertyIdentifier))
-            return new DiagnosticData(Descriptors.InvalidIdentifier, syntax.Identifier, instancePropertyIdentifier);
+        if (!Utils.IsValidInstancePropertyIdentifier(instancePropertyIdentifier, out instancePropertyIdentifier)) {
+            return default;
+        }
 
         // Check if base type has member with same name;
 
@@ -67,19 +65,11 @@ internal partial class SingletonGenerator : IIncrementalGenerator
             .Contains(instancePropertyIdentifier);
 
         // Singleton options
-        string? singletonProviderIdentifier;
-        if (attribute.GetGenerateProvider()) {
-            singletonProviderIdentifier = attribute.GetSingletonProviderName();
-            if (singletonProviderIdentifier is null)
-                singletonProviderIdentifier = RuntimeAttribute.DefaultSingletonProviderName;
-            else if (!CodeValidation.IsValidIdentifier(singletonProviderIdentifier))
-                return new DiagnosticData(Descriptors.InvalidIdentifier, syntax.Identifier, singletonProviderIdentifier);
-
-            if (instancePropertyIdentifier == singletonProviderIdentifier)
-                return new DiagnosticData(Descriptors.InstancePropertyNameAndSingletonProviderNameShouldBeDifferent, syntax.Identifier);
-        }
-        else {
-            singletonProviderIdentifier = null;
+        string? singletonProviderIdentifier = attribute.GetSingletonProviderName();
+        if (singletonProviderIdentifier is not null) {
+            if (!Utils.IsValidProviderIdentifier(singletonProviderIdentifier, out singletonProviderIdentifier)) {
+                return default;
+            }
         }
 
         var instanceAccessibility = attribute.GetInstanceAccessibility();
@@ -89,34 +79,18 @@ internal partial class SingletonGenerator : IIncrementalGenerator
 
         // constructor
 
-        bool hasCustomPrivateCtor = false;
-
-        // Declared multiple constructors
-        if (!symbol.Constructors.TrySingle(ctor => !ctor.IsStatic).IsSingleOrEmpty(out var first)) {
-            return new DiagnosticData(Descriptors.SingletonShouldHaveCorrectCtor, syntax.Identifier);
-        }
-
-        // No declared ctor, ok
-        if (first is null || first.IsImplicitlyDeclared) {
-            goto EndCtor;
-        }
-
-        // ctor is explicit defined
-        hasCustomPrivateCtor = true;
-        var ctor = first;
-        if (first is not
+        bool hasCustomPrivateCtor = symbol.InstanceConstructors.Any(c =>
+        {
+            return c is
             {
+                IsImplicitlyDeclared: false,
                 DeclaredAccessibility: Accessibility.NotApplicable or Accessibility.Private,
                 Parameters.Length: 0
-            }) {
-            // Not private non-param ctor
-            return new DiagnosticData(Descriptors.SingletonShouldHaveCorrectCtor, syntax.Identifier);
-        }
-
-    EndCtor:
+            };
+        });
 
         return new EmitModel(
-            CodeInfoFactory.GetTypeDeclaration(symbol, syntax),
+            CodeFactory.GetTypeHierarchy(symbol, syntax),
             symbol.Name,
             symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
             $"{symbol.ToValidFileNameString()}.g.cs",
@@ -128,7 +102,7 @@ internal partial class SingletonGenerator : IIncrementalGenerator
     }
 
     private sealed record EmitModel(
-        TypeDeclarationCodeInfo TypeDecl,
+        TypeHierarchyInfo TypeDecl,
         string TypeName,
         string FullQualifiedTypeName,
         string GeneratedFileName,
@@ -148,7 +122,7 @@ internal partial class SingletonGenerator : IIncrementalGenerator
             writer.WriteLine(CodeFactory.AutoGeneratedTopCommentTrivia);
             writer.WriteLine();
 
-            using (writer.EmitCSharpPartialTypeAndContainingTypeAndNamespaces(TypeDecl.Parent)) {
+            using (writer.EmitCSharpPartialTypeHierarchy(TypeDecl.Parent)) {
                 writer.WriteLine($"sealed partial class {TypeDecl.Name}");
                 using (writer.EnterBracketDedentScope('{')) {
                     if (EmitPrivateCtor) {

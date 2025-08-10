@@ -12,13 +12,10 @@ public sealed class SingletonAttribute : Attribute
     /// <summary>
     /// Name of the genereted singleton provider,
     /// default name is <c>__SingletonProvider</c>
+    /// <br />
+    /// <see langword="null" /> if no provider needed, empty string if use default provider name
     /// </summary>
-    /// <remarks>
-    /// The value has no effect if no provider is generated
-    /// </remarks>
     public string? SingletonProviderName { get; set; }
-
-    public bool GenerateProvider { get; set; }
 
     public SingletonAccessibility InstanceAccessibility { get; set; }
 }

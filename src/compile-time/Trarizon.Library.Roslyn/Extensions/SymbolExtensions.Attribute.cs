@@ -6,15 +6,35 @@ using Trarizon.Library.Roslyn.SourceInfos;
 namespace Trarizon.Library.Roslyn.Extensions;
 public static partial class SymbolExtensions
 {
-    public static bool TryGetAttributeData([NotNullWhen(true)] this ISymbol? symbol, string attributeTypeFullName, [NotNullWhen(true)] out AttributeData? attribute)
+    public static bool TryGetAttributeData(this ISymbol symbol, INamedTypeSymbol attributeType, [MaybeNullWhen(false)] out AttributeData attributeData)
     {
-        if (symbol is null) {
-            attribute = null;
-            return false;
+        foreach (var attr in symbol.GetAttributes()) {
+            if (SymbolEqualityComparer.Default.Equals(attr.AttributeClass, attributeType)) {
+                attributeData = attr;
+                return true;
+            }
         }
-        attribute = symbol.GetAttributes().FirstOrDefault(attr => attr.AttributeClass.MatchDisplayString(attributeTypeFullName));
-        return attribute is not null;
+        attributeData = null;
+        return false;
     }
+
+    public static bool HasAttribute(this ISymbol symbol, INamedTypeSymbol attributeType) 
+        => symbol.TryGetAttributeData(attributeType, out _);
+
+    public static bool TryGetAttributeData(this ISymbol symbol, string attributeTypeFullName, [NotNullWhen(true)] out AttributeData? attributeData)
+    {
+        foreach (var attr in symbol.GetAttributes()) {
+            if (attr.AttributeClass?.ToDisplayString() == attributeTypeFullName) {
+                attributeData = attr;
+                return true;
+            }
+        }
+        attributeData = null;
+        return false;
+    }
+
+    public static bool HasAttribute(this ISymbol symbol, string attributeTypeFullName) 
+        => symbol.TryGetAttributeData(attributeTypeFullName, out _);
 
     public static bool TryGetGeneratedCodeAttribute(this ISymbol symbol, Functional.Optional<string> tool, Functional.Optional<string> version, [NotNullWhen(true)] out AttributeData? attribute)
     {

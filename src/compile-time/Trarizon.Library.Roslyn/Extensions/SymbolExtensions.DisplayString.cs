@@ -25,12 +25,6 @@ public static partial class SymbolExtensions
         return builder.ToString();
     }
 
-    /// <summary>
-    /// Return the full qualified display string, include prefix <c>global::</c>
-    /// </summary>
-    public static string ToFullQualifiedDisplayString(this ISymbol symbol)
-        => symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-
     /// <returns><see langword="null"/> if <paramref name="symbol"/> is global namespace</returns>
     public static string? ToNonGlobalDisplayString(this INamespaceSymbol symbol)
     {

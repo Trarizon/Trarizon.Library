@@ -1,12 +1,47 @@
 ﻿using Microsoft.CodeAnalysis;
-using System;
-using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using Trarizon.Library.CodeAnalysis.SourceGeneration.Literals;
 using Trarizon.Library.Roslyn.Extensions;
+using Trarizon.Library.Roslyn.SourceInfos;
 
 namespace Trarizon.Library.CodeAnalysis.SourceGeneration;
 partial class SingletonGenerator
 {
+    internal static class Utils
+    {
+        public static bool IsValidInstancePropertyIdentifier([NotNullWhen(false)] string? identifier, [MaybeNullWhen(false)] out string actualIdentifier)
+        {
+            if (identifier is null) {
+                actualIdentifier = "Instance";
+                return true;
+            }
+
+            if (CodeValidation.IsValidIdentifier(identifier)) {
+                actualIdentifier = identifier;
+                return true;
+            }
+
+            actualIdentifier = null;
+            return false;
+        }
+
+        public static bool IsValidProviderIdentifier(string identifier, [MaybeNullWhen(false)] out string actualIdentifier)
+        {
+            if (identifier == "") {
+                actualIdentifier = "__SingletonProvider";
+                return true;
+            }
+
+            if (CodeValidation.IsValidIdentifier(identifier)) {
+                actualIdentifier = identifier;
+                return true;
+            }
+
+            actualIdentifier = null;
+            return false;
+        }
+    }
+
     internal readonly struct RuntimeAttribute(AttributeData attribute)
     {
         public const string TypeFullName = Namespaces.TrarizonGeneration + ".SingletonAttribute";
@@ -21,10 +56,6 @@ partial class SingletonGenerator
         public string? GetSingletonProviderName() => attribute
             .GetNamedArgument("SingletonProviderName")
             .Cast<string>();
-
-        public bool GetGenerateProvider() => attribute
-            .GetNamedArgument("GenerateProvider")
-            .Cast<bool>();
 
         public SingletonAccessibility GetInstanceAccessibility() => attribute
             .GetNamedArgument("InstanceAccessibility")
@@ -43,8 +74,6 @@ partial class SingletonGenerator
 
     internal static class Descriptors
     {
-        public static ImmutableArray<DiagnosticDescriptor> GetAnalyzerDiagnostics() => [CallSingletonConstrucotrMauallyIsNotAllowed];
-
         public static readonly DiagnosticDescriptor InvalidIdentifier = new(
             DiagnosticIds.Singleton + "00",
             "Invalid identifier",

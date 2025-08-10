@@ -2,7 +2,7 @@
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 
-namespace Trarizon.Library.Roslyn.SourceInfos.Emitting;
+namespace Trarizon.Library.Roslyn.Emitting;
 public static class IndentedTextWriterExtensions
 {
     private static readonly string[] _newlineSeperators = ["\n", "\r\n"];

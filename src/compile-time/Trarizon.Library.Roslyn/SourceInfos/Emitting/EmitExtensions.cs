@@ -1,43 +1,32 @@
 ﻿using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Text;
-using Trarizon.Library.Roslyn.SourceInfos.Emitting;
+using Trarizon.Library.Roslyn.Emitting;
 
-namespace Trarizon.Library.Roslyn.SourceInfos.CSharp.Emitting;
+namespace Trarizon.Library.Roslyn.SourceInfos.Emitting;
 public static class EmitExtensions
 {
-    public static IndentedTextWriterExtensions.DeferDedents EmitCSharpNamespace(this IndentedTextWriter writer, string? @namespace)
+    public static IndentedTextWriterExtensions.DeferDedents EmitCSharpPartialTypeHierarchy(this IndentedTextWriter writer, TypeHierarchyInfo? type)
     {
-        if (@namespace is null) {
-            return default;
-        }
-
-        writer.WriteLine($"namespace {@namespace}");
-        return writer.EnterBracketDedentScope('{');
-    }
-
-    public static IndentedTextWriterExtensions.DeferDedents EmitCSharpNamespace(this IndentedTextWriter writer, NamespaceDeclarationCodeInfo ns)
-    {
-        return ns.EmitCSharp(writer);
-    }
-
-    public static IndentedTextWriterExtensions.DeferDedents EmitCSharpPartialTypeAndContainingTypeAndNamespaces(this IndentedTextWriter writer, NamespaceOrTypeDeclarationCodeInfo? nsType)
-    {
-        if (nsType is null)
+        if (type is null)
             return default;
 
-        var cur = nsType;
-        var stack = new Stack<NamespaceOrTypeDeclarationCodeInfo>();
+        var cur = type;
+        var stack = new Stack<TypeHierarchyInfo>();
         while (cur is not null) {
             stack.Push(cur);
             cur = cur.Parent;
         }
-
         var defer = writer.EnterIndentTrackingScope();
-        foreach (var nst in stack) {
-            defer.Append(nst.EmitCSharp);
+        foreach (var t in stack) {
+            if (t.IsNamespace) {
+                defer.Writer.WriteLine($"{t.Keywords} {t.Name}");
+            }
+            else {
+                defer.Writer.WriteLine($"partial {t.Keywords} {t.Name}");
+            }
+            defer.WriteBracketAndIndent('{');
         }
-
         return defer.ToDeferDedents();
     }
 

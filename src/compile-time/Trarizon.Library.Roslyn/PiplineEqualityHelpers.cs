@@ -1,4 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Trarizon.Library.Roslyn.Collections;
@@ -7,6 +8,9 @@ namespace Trarizon.Library.Roslyn;
 public static partial class PiplineEqualityHelpers
 {
     public static SequenceEquatableImmutableArray<T> ToSequenceEquatableImmutableArray<T>(this IEnumerable<T> source)
+        => new(source.ToImmutableArray());
+
+    public static SequenceEquatableImmutableArray<T> ToSequenceEquatableImmutableArray<T>(this ReadOnlySpan<T> source)
         => new(source.ToImmutableArray());
 
     public static SequenceEquatableCollection<T[], T> WrapAsPiplineEquatable<T>(this T[] list) => new(list);

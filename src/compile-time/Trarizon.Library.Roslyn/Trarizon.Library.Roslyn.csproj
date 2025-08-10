@@ -4,6 +4,7 @@
         <TargetFramework>netstandard2.0</TargetFramework>
         <LangVersion>preview</LangVersion>
         <Nullable>enable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -14,7 +15,7 @@
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>$(NoWarn);1591</NoWarn>
     </PropertyGroup>
-    
+
     <!-- References -->
 
     <ItemGroup>
@@ -34,22 +35,22 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="PiplineEqualityHelpers.tt">
-        <Generator>TextTemplatingFileGenerator</Generator>
-        <LastGenOutput>PiplineEqualityHelpers.tt.cs</LastGenOutput>
-      </None>
+        <None Update="PiplineEqualityHelpers.tt">
+            <Generator>TextTemplatingFileGenerator</Generator>
+            <LastGenOutput>PiplineEqualityHelpers.tt.cs</LastGenOutput>
+        </None>
     </ItemGroup>
 
     <ItemGroup>
-      <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+        <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Update="PiplineEqualityHelpers.tt.cs">
-        <DesignTime>True</DesignTime>
-        <AutoGen>True</AutoGen>
-        <DependentUpon>PiplineEqualityHelpers.tt</DependentUpon>
-      </Compile>
+        <Compile Update="PiplineEqualityHelpers.tt.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>PiplineEqualityHelpers.tt</DependentUpon>
+        </Compile>
     </ItemGroup>
 
     <!-- End References -->
@@ -61,7 +62,7 @@
             System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute;
             System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute;
             System.Diagnostics.CodeAnalysis.NotNullWhenAttribute;
-
+            
             System.Runtime.CompilerServices.IsExternalInit;
         </PolySharpIncludeGeneratedTypes>
         <!--

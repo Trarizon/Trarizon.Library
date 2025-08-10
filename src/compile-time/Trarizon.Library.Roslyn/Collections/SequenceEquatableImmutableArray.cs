@@ -8,10 +8,13 @@ namespace Trarizon.Library.Roslyn.Collections;
 public readonly struct SequenceEquatableImmutableArray<T>(ImmutableArray<T> array)
     : IEquatable<SequenceEquatableImmutableArray<T>>
     , IReadOnlyCollection<T>
+    , IReadOnlyList<T>
 {
     public ImmutableArray<T> Array { get; } = array;
 
-    public int Count => ((IReadOnlyCollection<T>)Array).Count;
+    public int Length => Array.Length;
+
+    public T this[int index] => Array[index];
 
     public bool Equals(SequenceEquatableImmutableArray<T> other)
     {
@@ -41,7 +44,11 @@ public readonly struct SequenceEquatableImmutableArray<T>(ImmutableArray<T> arra
     public static bool operator ==(SequenceEquatableImmutableArray<T> left, SequenceEquatableImmutableArray<T> right) => left.Equals(right);
     public static bool operator !=(SequenceEquatableImmutableArray<T> left, SequenceEquatableImmutableArray<T> right) => !(left == right);
 
+    public static implicit operator SequenceEquatableImmutableArray<T>(ImmutableArray<T> array) => new(array);
+
     public ImmutableArray<T>.Enumerator GetEnumerator() => Array.GetEnumerator();
     IEnumerator<T> IEnumerable<T>.GetEnumerator() => ((IEnumerable<T>)Array).GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)Array).GetEnumerator();
+   
+    int IReadOnlyCollection<T>.Count => Length;
 }
