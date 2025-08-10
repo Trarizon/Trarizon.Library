@@ -1,0 +1,64 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".tt.cs" #>
+<#
+    const string NsDiag = "Trarizon.Library.CodeAnalysis.Diagnostics.";
+
+    TypeMetadata[] types = new TypeMetadata[]
+    {
+        new("Trarizon.Library.CodeAnalysis.Generation.SingletonAttribute") { GenerateMetadataName = true },
+        new(NsDiag + "ExternalSealedAttribute"),
+        new(NsDiag + "FriendAccessAttribute"),
+    };
+#>
+using Microsoft.CodeAnalysis;
+
+namespace Trarizon.Library.CodeAnalysis.SourceGeneration;
+/// <summary>
+/// TryGetXXX, get type symbol of runtime lib types
+/// </summary>
+internal static class CompilationGetTypeSymbols
+{
+<# foreach (var (metadataName, name) in types) { #>
+    public static bool TryGet<#= name #>(this Compilation compilation, out INamedTypeSymbol <#= name #>Symbol)
+    {
+        <#= name #>Symbol = compilation.GetTypeByMetadataName("<#= metadataName #>")!;
+        return <#= name #>Symbol is not null;
+    }
+
+<# } #>
+}
+
+internal static class RuntimeTypeMetadataNames
+{
+<# foreach (var (metadataName, name) in types.Where(t => t.GenerateMetadataName)) { #>
+    public const string <#= name #> = "<#= metadataName #>";
+<# } #>
+}
+
+<#+
+struct TypeMetadata
+{
+    public static TypeMetadata GeneratedCodeAttribute { get; } = new("System.CodeDom.Compiler.GeneratedCodeAttribute") { GenerateMetadataName = true };
+    public static TypeMetadata IntercpetsLocationAttribute { get; } = new("System.Runtime.CompilerServices.InterceptsLocationAttribute") { GenerateMetadataName = true };
+
+    private readonly string _metadataName;
+    private readonly string _name;
+
+    public string MetadataName => _metadataName;
+
+    public string Name => _name ?? _metadataName.Substring(_metadataName.LastIndexOf('.') + 1);
+
+    public bool GenerateMetadataName { get; set; }
+
+    public TypeMetadata(string metadataName, string name) => (_metadataName, _name) = (metadataName, name);
+
+    public TypeMetadata(string metadataName) : this(metadataName, null) { }
+
+    public void Deconstruct(out string metadataName, out string name)
+        => (metadataName, name) = (MetadataName, Name);
+}
+#>

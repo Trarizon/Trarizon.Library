@@ -28,15 +28,6 @@ public static partial class ContextExtensions
     public static void ReportDiagnostic(this in SymbolAnalysisContext context, DiagnosticDescriptor descriptor, Location? location, params object[]? message)
         => context.ReportDiagnostic(Diagnostic.Create(descriptor, location, message));
 
-    public static bool ReportDiagnosticWhenNotNull(this in SymbolAnalysisContext context, [NotNullWhen(false)] DiagnosticData? diagnostic)
-    {
-        if (diagnostic is not null) {
-            context.ReportDiagnostic(diagnostic.ToDiagnostic());
-            return true;
-        }
-        return false;
-    }
-
     public static void ReportDiagnostic(this in SyntaxNodeAnalysisContext context, DiagnosticDescriptor descriptor, Location? location, params object[]? message)
         => context.ReportDiagnostic(Diagnostic.Create(descriptor, location, message));
 

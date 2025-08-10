@@ -44,8 +44,6 @@ partial class SingletonGenerator
 
     internal readonly struct RuntimeAttribute(AttributeData attribute)
     {
-        public const string TypeFullName = Namespaces.TrarizonGeneration + ".SingletonAttribute";
-
         public const string DefaultInstancePropertyName = "Instance";
         public const string DefaultSingletonProviderName = "__SingletonProvider";
 

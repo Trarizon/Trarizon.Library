@@ -29,7 +29,7 @@ internal sealed class SingletonAnalyzer : DiagnosticAnalyzer
         context.RegisterCompilationStartAction(context =>
         {
             var compilation = context.Compilation;
-            if (compilation.GetTypeByMetadataName(RuntimeAttribute.TypeFullName) is not { } singletonAttributeSymbol) {
+            if (!compilation.TryGetSingletonAttribute(out var singletonAttributeSymbol)) {
                 return;
             }
 
@@ -66,7 +66,7 @@ internal sealed class SingletonAnalyzer : DiagnosticAnalyzer
 
                 var providerIdentifier = attr.GetSingletonProviderName();
                 if (providerIdentifier is not null) {
-                    if (providerIdentifier is not null && !Utils.IsValidInstancePropertyIdentifier(providerIdentifier, out _)) {
+                    if (providerIdentifier is not null && !Utils.IsValidProviderIdentifier(providerIdentifier, out _)) {
                         context.ReportDiagnostic(
                             Descriptors.InvalidIdentifier,
                             symbol.Locations[0],
@@ -107,39 +107,34 @@ internal sealed class SingletonAnalyzer : DiagnosticAnalyzer
 
             }, SymbolKind.NamedType);
 
+            // Dont call ctor manually
+            context.RegisterOperationAction(context =>
+            {
+                if (context.IsGeneratedCode)
+                    return;
+
+                var operation = (IObjectCreationOperation)context.Operation;
+
+                Optional.OfNotNull(operation.Constructor)
+                    .Where(ctor => IsSingletonType(ctor.ContainingType))
+                    .MatchValue(_ => context.ReportDiagnostic(
+                        Descriptors.CallSingletonConstrucotrMauallyIsNotAllowed,
+                        operation.Syntax.GetLocation()));
+            }, OperationKind.ObjectCreation);
+
+            bool IsSingletonType(ITypeSymbol? symbol)
+            {
+                if (symbol is not INamedTypeSymbol type)
+                    return false;
+
+                if (type.IsValueType || type.IsRecord)
+                    return false;
+
+                if (type.IsAbstract || type.IsStatic)
+                    return false;
+
+                return type.HasAttribute(singletonAttributeSymbol);
+            }
         });
-
-        context.RegisterOperationAction(
-            DoNotCallCtorManually,
-            OperationKind.ObjectCreation);
-    }
-
-    private void DoNotCallCtorManually(OperationAnalysisContext context)
-    {
-        if (context.IsGeneratedCode)
-            return;
-
-        var operation = (IObjectCreationOperation)context.Operation;
-
-        Optional.OfNotNull(operation.Constructor)
-            .Where(ctor => IsSingletonType(ctor.ContainingType))
-            .MatchValue(_ => context.ReportDiagnostic(
-                Descriptors.CallSingletonConstrucotrMauallyIsNotAllowed,
-                operation.Syntax.GetLocation()));
-    }
-
-    private bool IsSingletonType(ITypeSymbol? symbol)
-    {
-        if (symbol is not INamedTypeSymbol type)
-            return false;
-
-        if (type.IsValueType || type.IsRecord)
-            return false;
-
-        if (type.IsAbstract || type.IsStatic)
-            return false;
-
-        return type.GetAttributes()
-            .Any(attr => attr.AttributeClass.MatchDisplayString(RuntimeAttribute.TypeFullName));
     }
 }

@@ -22,9 +22,3 @@ public static class Categories
     public const string AccessControl = Default + ".AccessControl";
 }
 
-public static class Namespaces
-{
-    public const string TrarizonCodeAnalysis = "Trarizon.Library.CodeAnalysis";
-    public const string TrarizonDiagnostics = "Trarizon.Library.CodeAnalysis.Diagnostics";
-    public const string TrarizonGeneration = "Trarizon.Library.CodeAnalysis.Generation";
-}

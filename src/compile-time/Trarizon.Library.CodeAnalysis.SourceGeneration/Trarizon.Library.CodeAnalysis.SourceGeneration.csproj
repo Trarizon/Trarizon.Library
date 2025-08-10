@@ -33,6 +33,30 @@
       <ProjectReference Include="..\Trarizon.Library.Roslyn\Trarizon.Library.Roslyn.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="_RuntimeLibraryLiterals.tt">
+        <Generator>TextTemplatingFileGenerator</Generator>
+        <LastGenOutput>_RuntimeLibraryLiterals.tt.cs</LastGenOutput>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="CompilationGetTypes.tt.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>CompilationGetTypes.tt</DependentUpon>
+      </Compile>
+      <Compile Update="_RuntimeLibraryLiterals.tt.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>_RuntimeLibraryLiterals.tt</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
     <!-- End References -->
 
     <!-- PolySharp -->

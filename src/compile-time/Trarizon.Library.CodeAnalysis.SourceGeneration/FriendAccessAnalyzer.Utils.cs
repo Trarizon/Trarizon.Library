@@ -1,34 +1,11 @@
 ﻿using Microsoft.CodeAnalysis;
-using System.Collections.Immutable;
 using Trarizon.Library.CodeAnalysis.SourceGeneration.Literals;
-using Trarizon.Library.Roslyn.Extensions;
 
 namespace Trarizon.Library.CodeAnalysis.SourceGeneration;
 partial class FriendAccessAnalyzer
 {
-    readonly struct RuntimeAttribute(AttributeData attribute)
-    {
-        private const string TypeName = "FriendAccessAttribute";
-        private const string TypeFullName = $"{Namespaces.TrarizonDiagnostics}.{TypeName}";
-
-        public static bool IsThisType(AttributeData attribute)
-            => attribute.AttributeClass.MatchDisplayString(TypeFullName);
-
-        public ImmutableArray<ITypeSymbol> GetFriendTypes() => attribute
-            .GetConstructorArgument(0)
-            .CastArray<ITypeSymbol>();
-    }
-
     static class Descriptors
     {
-        public static ImmutableArray<DiagnosticDescriptor> GetDescriptors() =>
-        [
-            FriendMemberCannotBeAccessed,
-            FriendMemberMayBeAccessedByOtherAssembly,
-            FriendTypeShouldNotOnExplicitInterfaceMember,
-            FriendTypeRecommendBeUnbounded,
-        ];
-
         public static readonly DiagnosticDescriptor FriendMemberCannotBeAccessed = new(
             DiagnosticIds.FriendAccess + "01",
             "Friend member cannot be accessable",

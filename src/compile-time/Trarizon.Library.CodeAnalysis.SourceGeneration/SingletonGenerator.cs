@@ -2,7 +2,6 @@
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.CodeDom.Compiler;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -22,7 +21,7 @@ internal partial class SingletonGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var filter = context.SyntaxProvider.ForAttributeWithMetadataName(
-            RuntimeAttribute.TypeFullName,
+            RuntimeTypeMetadataNames.SingletonAttribute,
             (n, _) => n is TypeDeclarationSyntax,
             Parse)
             .OfNotNull();
@@ -74,9 +73,6 @@ internal partial class SingletonGenerator : IIncrementalGenerator
 
         var instanceAccessibility = attribute.GetInstanceAccessibility();
 
-        //var res = new DiagnosticResult<EmitModel>();
-        var diags = new List<DiagnosticData>();
-
         // constructor
 
         bool hasCustomPrivateCtor = symbol.InstanceConstructors.Any(c =>
@@ -93,7 +89,7 @@ internal partial class SingletonGenerator : IIncrementalGenerator
             CodeFactory.GetTypeHierarchy(symbol, syntax),
             symbol.Name,
             symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
-            $"{symbol.ToValidFileNameString()}.g.cs",
+            $"{symbol.ToFileNameString()}.g.cs",
             instancePropertyIdentifier,
             singletonProviderIdentifier,
             EmitPrivateCtor: !hasCustomPrivateCtor,

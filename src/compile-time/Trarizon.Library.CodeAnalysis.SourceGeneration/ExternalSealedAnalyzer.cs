@@ -1,10 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
-using System;
 using System.Collections.Immutable;
-using System.Linq;
 using Trarizon.Library.CodeAnalysis.SourceGeneration.Literals;
 using Trarizon.Library.Collections;
 using Trarizon.Library.Roslyn.Extensions;
@@ -27,31 +23,21 @@ internal sealed partial class ExternalSealedAnalyzer : DiagnosticAnalyzer
         context.EnableConcurrentExecution();
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.Analyze | GeneratedCodeAnalysisFlags.ReportDiagnostics);
 
-        context.RegisterSyntaxNodeAction(
-            Validate,
-            SyntaxKind.ClassDeclaration,
-            SyntaxKind.StructDeclaration,
-            SyntaxKind.InterfaceDeclaration,
-            SyntaxKind.RecordDeclaration,
-            SyntaxKind.RecordStructDeclaration);
+        context.RegisterCompilationStartAction(context =>
+        {
+            var compilation = context.Compilation;
+            if (!compilation.TryGetExternalSealedAttribute(out var externalSealedAttributeSymbol))
+                return;
+
+            context.RegisterSymbolAction(context =>
+            {
+                var symbol = (INamedTypeSymbol)context.Symbol;
+
+                if (symbol.BaseType?.HasAttribute(externalSealedAttributeSymbol) ?? false) {
+                    context.ReportDiagnostic(Diag, symbol.Locations[0]);
+                }
+
+            }, SymbolKind.NamedType);
+        });
     }
-
-    private void Validate(SyntaxNodeAnalysisContext context)
-    {
-        var typeSyntax = (TypeDeclarationSyntax)context.Node;
-        var symbol = context.SemanticModel.GetDeclaredSymbol(typeSyntax, context.CancellationToken);
-
-        if (symbol is null)
-            return;
-
-        typeSyntax.BaseList?.Types
-            .Select(s => (s, context.SemanticModel.GetTypeInfo(s.Type).Type!))
-            .Where(tpl => tpl.Item2 is not null)
-            .Where(tpl => !SymbolEqualityComparer.Default.Equals(symbol.ContainingAssembly, tpl.Item2.ContainingAssembly))
-            .Where(tpl => IsExternalSealed(tpl.Item2))
-            .ForEach(tpl => context.ReportDiagnostic(Diag, tpl.s.GetLocation()));
-    }
-
-    private static bool IsExternalSealed(ITypeSymbol symbol)
-        => symbol.GetAttributes().Any(attr => attr.AttributeClass.MatchDisplayString($"{Namespaces.TrarizonDiagnostics}.ExternalSealedAttribute"));
 }
