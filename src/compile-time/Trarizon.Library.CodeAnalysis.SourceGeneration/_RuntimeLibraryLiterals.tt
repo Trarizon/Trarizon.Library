@@ -22,11 +22,11 @@ namespace Trarizon.Library.CodeAnalysis.SourceGeneration;
 /// </summary>
 internal static class CompilationGetTypeSymbols
 {
-<# foreach (var (metadataName, name) in types) { #>
-    public static bool TryGet<#= name #>(this Compilation compilation, out INamedTypeSymbol <#= name #>Symbol)
+<# foreach (var (metadataName, name, camelName) in types) { #>
+    public static bool TryGet<#= name #>(this Compilation compilation, out INamedTypeSymbol <#= camelName #>Symbol)
     {
-        <#= name #>Symbol = compilation.GetTypeByMetadataName("<#= metadataName #>")!;
-        return <#= name #>Symbol is not null;
+        <#= camelName #>Symbol = compilation.GetTypeByMetadataName("<#= metadataName #>")!;
+        return <#= camelName #>Symbol is not null;
     }
 
 <# } #>
@@ -52,6 +52,14 @@ struct TypeMetadata
 
     public string Name => _name ?? _metadataName.Substring(_metadataName.LastIndexOf('.') + 1);
 
+    public string CamelName
+    {
+        get {
+            var pascal = Name;
+            return char.ToLowerInvariant(pascal[0]) + pascal.Substring(1);
+        }
+    }
+
     public bool GenerateMetadataName { get; set; }
 
     public TypeMetadata(string metadataName, string name) => (_metadataName, _name) = (metadataName, name);
@@ -60,5 +68,8 @@ struct TypeMetadata
 
     public void Deconstruct(out string metadataName, out string name)
         => (metadataName, name) = (MetadataName, Name);
+
+    public void Deconstruct(out string metadataName, out string name, out string camelName)
+        => (metadataName, name, camelName) = (MetadataName, Name, CamelName);
 }
 #>

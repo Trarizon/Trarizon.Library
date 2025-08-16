@@ -6,22 +6,22 @@ namespace Trarizon.Library.CodeAnalysis.SourceGeneration;
 /// </summary>
 internal static class CompilationGetTypeSymbols
 {
-    public static bool TryGetSingletonAttribute(this Compilation compilation, out INamedTypeSymbol SingletonAttributeSymbol)
+    public static bool TryGetSingletonAttribute(this Compilation compilation, out INamedTypeSymbol singletonAttributeSymbol)
     {
-        SingletonAttributeSymbol = compilation.GetTypeByMetadataName("Trarizon.Library.CodeAnalysis.Generation.SingletonAttribute")!;
-        return SingletonAttributeSymbol is not null;
+        singletonAttributeSymbol = compilation.GetTypeByMetadataName("Trarizon.Library.CodeAnalysis.Generation.SingletonAttribute")!;
+        return singletonAttributeSymbol is not null;
     }
 
-    public static bool TryGetExternalSealedAttribute(this Compilation compilation, out INamedTypeSymbol ExternalSealedAttributeSymbol)
+    public static bool TryGetExternalSealedAttribute(this Compilation compilation, out INamedTypeSymbol externalSealedAttributeSymbol)
     {
-        ExternalSealedAttributeSymbol = compilation.GetTypeByMetadataName("Trarizon.Library.CodeAnalysis.Diagnostics.ExternalSealedAttribute")!;
-        return ExternalSealedAttributeSymbol is not null;
+        externalSealedAttributeSymbol = compilation.GetTypeByMetadataName("Trarizon.Library.CodeAnalysis.Diagnostics.ExternalSealedAttribute")!;
+        return externalSealedAttributeSymbol is not null;
     }
 
-    public static bool TryGetFriendAccessAttribute(this Compilation compilation, out INamedTypeSymbol FriendAccessAttributeSymbol)
+    public static bool TryGetFriendAccessAttribute(this Compilation compilation, out INamedTypeSymbol friendAccessAttributeSymbol)
     {
-        FriendAccessAttributeSymbol = compilation.GetTypeByMetadataName("Trarizon.Library.CodeAnalysis.Diagnostics.FriendAccessAttribute")!;
-        return FriendAccessAttributeSymbol is not null;
+        friendAccessAttributeSymbol = compilation.GetTypeByMetadataName("Trarizon.Library.CodeAnalysis.Diagnostics.FriendAccessAttribute")!;
+        return friendAccessAttributeSymbol is not null;
     }
 
 }
