@@ -65,7 +65,7 @@ internal static partial class ArrayGrowHelper
     {
         Debug.Assert(expectedLength > array.Length);
         Debug.Assert(copyLength <= array.Length);
-
+        
         var originalArray = array;
         GrowNonMove(ref array, expectedLength);
         originalArray.AsSpan(..copyLength).CopyTo(array);

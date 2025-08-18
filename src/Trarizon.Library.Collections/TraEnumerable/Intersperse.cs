@@ -12,7 +12,7 @@ public static partial class TraEnumerable
         if (source.TryGetNonEnumeratedCount(out var count) && count <= 1) {
             return source;
         }
-        
+
         if (source is T[] arr)
             return new ArrayIntersperseIterator<T>(arr, seperator);
 
@@ -98,5 +98,39 @@ public static partial class TraEnumerable
         }
 
         protected override IteratorBase<T> Clone() => new ArrayIntersperseIterator<T>(list, seperator);
+
+        public override bool Contains(T value)
+        {
+            if (EqualityComparer<T>.Default.Equals(value, seperator))
+                return true;
+            return list.Contains(value);
+        }
+
+        public override int IndexOf(T item)
+        {
+            if (EqualityComparer<T>.Default.Equals(item, seperator)) {
+                if (list.Length >= 2)
+                    return 1;
+                else
+                    return -1;
+            }
+
+            var idx = Array.IndexOf(list, item);
+            if (idx < 0)
+                return -1;
+            return idx * 2;
+        }
+
+        internal override T TryGetFirst(out bool exists)
+        {
+            exists = true;
+            return list[0];
+        }
+
+        internal override T TryGetLast(out bool exists)
+        {
+            exists = true;
+            return list[^1];
+        }
     }
 }

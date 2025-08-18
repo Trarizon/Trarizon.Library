@@ -10,6 +10,11 @@ public static partial class TraEnumerable
             return false;
         }
 
+        if (source is IteratorBase<T> iterator) {
+            element = iterator.TryCheapAt(index, out var exists);
+            return exists;
+        }
+
         if (source is IList<T> list) {
             if (index >= list.Count) {
                 element = default;

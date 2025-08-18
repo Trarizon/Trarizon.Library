@@ -13,7 +13,7 @@ public static partial class PiplineEqualityHelpers
     public static SequenceEquatableImmutableArray<T> ToSequenceEquatableImmutableArray<T>(this ReadOnlySpan<T> source)
         => new(source.ToImmutableArray());
 
-    public static SequenceEquatableCollection<T[], T> WrapAsPiplineEquatable<T>(this T[] list) => new(list);
+    //public static SequenceEquatableCollection<T[], T> WrapAsPiplineEquatable<T>(this T[] list) => new(list);
 
     // Get a Location object that doesn't store a reference to the compilation.
     public static Location ToPiplineEquatableLocation(this Location location)

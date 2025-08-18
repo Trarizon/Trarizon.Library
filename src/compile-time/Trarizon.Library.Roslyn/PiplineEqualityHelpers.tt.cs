@@ -7,10 +7,4 @@ using Trarizon.Library.Roslyn.Collections;
 namespace Trarizon.Library.Roslyn;
 public static partial class PiplineEqualityHelpers
 {
-    public static SequenceEquatableCollection<ImmutableArray<T>, T> WrapAsPiplineEquatable<T>(this ImmutableArray<T> source)
-        => new SequenceEquatableCollection<ImmutableArray<T>, T>(source);
-    public static SequenceEquatableCollection<IEnumerable<T>, T> WrapAsPiplineEquatable<T>(this IEnumerable<T> source)
-        => new SequenceEquatableCollection<IEnumerable<T>, T>(source);
-    public static SequenceEquatableCollection<List<T>, T> WrapAsPiplineEquatable<T>(this List<T> source)
-        => new SequenceEquatableCollection<List<T>, T>(source);
 }

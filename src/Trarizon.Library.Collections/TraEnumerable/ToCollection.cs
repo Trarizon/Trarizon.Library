@@ -1,5 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Trarizon.Library.Collections.AllocOpt;
+using Trarizon.Library.Collections.Buffers;
 
 namespace Trarizon.Library.Collections;
 public static partial class TraEnumerable
@@ -17,6 +19,14 @@ public static partial class TraEnumerable
     /// </summary>
     public static IEnumerable<T> EmptyIfNull<T>(this IEnumerable<T>? source)
         => source ?? [];
+
+    public static IArrayAllocator<T>.AutoReleaseScope<IArrayAllocatorExt.ArrayPoolAllocator<T>> ToPooledArray<T>(this IEnumerable<T> source, out int count)
+    {
+        AllocOptList<T> builder = new();
+        builder.AddRange(source);
+        count = builder.Count;
+        return builder.GetUnderlyingArray();
+    }
 
     internal static bool TryGetSpan<T>(this IEnumerable<T> source, out ReadOnlySpan<T> span)
     {

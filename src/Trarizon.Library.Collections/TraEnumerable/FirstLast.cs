@@ -17,6 +17,10 @@ public static partial class TraEnumerable
                     value = list[0];
                     return true;
                 }
+                if (source is IteratorBase<T> iterator) {
+                    value = iterator.TryGetFirst(out var exists);
+                    return exists;
+                }
                 goto ByEnumerate;
             }
             else {
@@ -61,6 +65,10 @@ public static partial class TraEnumerable
                 if (source is IList<T> list) {
                     value = list[^1];
                     return true;
+                }
+                if (source is IteratorBase<T> iterator) {
+                    value = iterator.TryGetLast(out var exists);
+                    return exists;
                 }
                 goto ByEnumerate;
             }

@@ -6,6 +6,13 @@ namespace Trarizon.Library.Collections.Helpers;
 [StackTraceHidden]
 internal static partial class Throws
 {
+    #region Checks
+
+    public static bool IsIndexGreaterThanOrEqual(int value, int other)
+        => (uint)value >= (uint)other;
+
+    #endregion
+
     #region Condition
 
     public static void ThrowIfNegative(int value, [CallerArgumentExpression(nameof(value))] string name = "")
@@ -126,7 +133,7 @@ internal static partial class Throws
     [DoesNotReturn]
     public static void IndexArgOutOfRange(int index, [CallerArgumentExpression(nameof(index))] string paramName = "")
         => ThrowArgumentOutOfRange(paramName, index, null);
-   
+
     [DoesNotReturn]
     public static void IncompatibleAlternateComparer()
         => ThrowInvalidOperation("Incompatible alternate comparer");

@@ -108,9 +108,13 @@ public static partial class TraEnumerable
     #region Polyfills
 
 #if NETSTANDARD
-
-    public static bool TryGetNonEnumeratedCount<T>(this IEnumerable<T> source, out int count)
+    public
+#else
+    private
+#endif
+    static bool TryGetNonEnumeratedCount<T>(this IEnumerable<T> source, out int count)
     {
+#if NETSTANDARD
         if (source is ICollection<T> collection) {
             count = collection.Count;
             return true;
@@ -119,11 +123,19 @@ public static partial class TraEnumerable
             count = ngcollection.Count;
             return true;
         }
+#else
+        if(Enumerable.TryGetNonEnumeratedCount(source, out count)) {
+            return true;
+        }
+#endif
+
+        if (source is IteratorBase<T> iterator) {
+            count = iterator.TryGetCheapCount(out bool exists);
+            return exists;
+        }
         count = 0;
         return false;
     }
 
-#endif
-
-    #endregion
+#endregion
 }

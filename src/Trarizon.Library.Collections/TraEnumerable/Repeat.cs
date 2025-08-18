@@ -62,6 +62,7 @@ public static partial class TraEnumerable
         }
     }
 
+    // [1,2,3,4,5], 2 => [1,1,2,2,3,3,4,4,5,5]
     public static IEnumerable<T> RepeatInterleave<T>(this IEnumerable<T> source, int count)
     {
         if (count == 1)
@@ -139,6 +140,22 @@ public static partial class TraEnumerable
         protected override IteratorBase<T> Clone() => new ListRepeatIterator<T>(list, repeat);
 
         public ListRepeatIterator<T> Repeat(int count) => new ListRepeatIterator<T>(list, repeat * count);
+
+        public override bool Contains(T item) => list.Contains(item);
+
+        public override int IndexOf(T item) => list.IndexOf(item);
+
+        internal override T TryGetFirst(out bool exists)
+        {
+            exists = true;
+            return list[0];
+        }
+
+        internal override T TryGetLast(out bool exists)
+        {
+            exists = true;
+            return list[^1];
+        }
     }
 
     private sealed class ListRepeatInterleaveIterator<T>(IList<T> list, int repeat) : ListIteratorBase<T>
@@ -194,5 +211,21 @@ public static partial class TraEnumerable
         protected override IteratorBase<T> Clone() => new ListRepeatInterleaveIterator<T>(list, repeat);
 
         public ListRepeatInterleaveIterator<T> RepeatInterleave(int count) => new ListRepeatInterleaveIterator<T>(list, repeat * count);
+
+        public override bool Contains(T item) => list.Contains(item);
+
+        public override int IndexOf(T item) => list.IndexOf(item) * repeat;
+
+        internal override T TryGetFirst(out bool exists)
+        {
+            exists = true;
+            return list[0];
+        }
+
+        internal override T TryGetLast(out bool exists)
+        {
+            exists = true;
+            return list[^1];
+        }
     }
 }

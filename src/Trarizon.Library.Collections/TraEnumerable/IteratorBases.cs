@@ -5,7 +5,7 @@ using Trarizon.Library.Collections.Helpers;
 namespace Trarizon.Library.Collections;
 public static partial class TraEnumerable
 {
-    private abstract class IteratorBase<T> : IEnumerable<T>, IEnumerator<T>
+    private abstract partial class IteratorBase<T> : IEnumerable<T>, IEnumerator<T>
     {
         protected const int MinPreservedState = -2;
         protected const int InitState = -1;
@@ -42,6 +42,12 @@ public static partial class TraEnumerable
     private abstract class CollectionIteratorBase<T> : IteratorBase<T>, ICollection<T>, IReadOnlyCollection<T>, ICollection
     {
         public abstract int Count { get; }
+
+        internal sealed override int TryGetCheapCount(out bool exists)
+        {
+            exists = true;
+            return Count;
+        }
 
         public virtual bool Contains(T item)
         {
@@ -102,7 +108,25 @@ public static partial class TraEnumerable
 
         T IList<T>.this[int index] { get => this[index]; set => Throws.IteratorNotSupport(); }
 
-        public int IndexOf(T item)
+        internal sealed override T TryCheapAt(int index, out bool exists)
+        {
+            exists = true;
+            return this[index];
+        }
+
+        internal override T TryGetFirst(out bool exists)
+        {
+            exists = true;
+            return this[0];
+        }
+
+        internal override T TryGetLast(out bool exists)
+        {
+            exists = true;
+            return this[Count - 1];
+        }
+
+        public virtual int IndexOf(T item)
         {
             if (typeof(T).IsValueType) {
                 for (int i = 0; i < Count; i++) {
@@ -120,8 +144,6 @@ public static partial class TraEnumerable
                 return -1;
             }
         }
-
-        public sealed override bool Contains(T item) => IndexOf(item) != -1;
 
         void IList<T>.Insert(int index, T item) => Throws.IteratorNotSupport();
         void IList<T>.RemoveAt(int index) => Throws.IteratorNotSupport();

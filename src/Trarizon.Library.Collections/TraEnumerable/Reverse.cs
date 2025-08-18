@@ -1,4 +1,6 @@
-﻿namespace Trarizon.Library.Collections;
+﻿using System.Diagnostics;
+
+namespace Trarizon.Library.Collections;
 public static partial class TraEnumerable
 {
     public static IEnumerable<T> LazyReverse<T>(this IEnumerable<T> source)
@@ -29,6 +31,28 @@ public static partial class TraEnumerable
         protected override IteratorBase<T> Clone() => new ListLazyReverseIterator<T>(list);
 
         public IList<T> Reverse() => list;
+
+        public override bool Contains(T item) => list.Contains(item);
+
+        public override int IndexOf(T item)
+        {
+            var index = list.IndexOf(item);
+            return index == -1 ? -1 : list.Count - index - 1;
+        }
+
+        internal override T TryGetFirst(out bool exists)
+        {
+            Debug.Assert(list.Count > 0);
+            exists = true;
+            return list[^1];
+        }
+
+        internal override T TryGetLast(out bool exists)
+        {
+            Debug.Assert(list.Count > 0);
+            exists = true;
+            return list[0];
+        }
     }
 
 }

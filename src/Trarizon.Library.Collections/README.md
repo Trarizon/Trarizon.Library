@@ -145,3 +145,4 @@ Linq extensions, in class `TraEnumerable`
     - `ForEach`
     - `EmptyIfNull` : Return empty collection if source collection is `null`
     - `TryToNonEmptyList` : If collection is not empty, then collect items into `List<>`, in one iteration
+    - `ToPooledArray` : Return a disposable wrapper of `T[]` rented from `ArrayPool<T>`

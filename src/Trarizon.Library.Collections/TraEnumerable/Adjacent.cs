@@ -62,5 +62,13 @@ public static partial class TraEnumerable
         }
 
         protected override IteratorBase<(T, T)> Clone() => new ArrayAdjacentIterator<T>(source);
+
+        public override bool Contains((T, T) value)
+        {
+            var idx = Array.IndexOf(source, value.Item1,0, source.Length - 1);
+            if (idx == -1)
+                return false;
+            return EqualityComparer<T>.Default.Equals(source[idx + 1], value.Item2);
+        }
     }
 }

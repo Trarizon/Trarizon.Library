@@ -49,8 +49,8 @@ public static partial class TraEnumerable
         public override (T, T2) this[int index]
         {
             get {
-                var div = Math.DivRem(index, second.Length, out var rem);
-                return (first[div], second[rem]);
+            var div = Math.DivRem(index, second.Length, out var rem);
+            return (first[div], second[rem]);
             }
         }
 
@@ -89,5 +89,21 @@ public static partial class TraEnumerable
         }
 
         protected override IteratorBase<(T, T2)> Clone() => new ArrayCartesianProductIterator<T, T2>(first, second);
+
+        public override bool Contains((T, T2) value)
+        {
+            return first.Contains(value.Item1) && second.Contains(value.Item2);
+        }
+
+        public override int IndexOf((T, T2) item)
+        {
+            var index1 = Array.IndexOf(first,item.Item1); 
+            if (index1 < 0)
+                return -1;
+            var index2 = Array.IndexOf(second, item.Item2);
+            if (index2 < 0)
+                return -1;
+            return index1 * second.Length + index2;
+        }
     }
 }

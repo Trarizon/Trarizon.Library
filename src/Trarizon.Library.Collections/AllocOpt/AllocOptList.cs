@@ -1,6 +1,7 @@
 ﻿using System.Buffers;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using Trarizon.Library.Collections.Buffers;
 using Trarizon.Library.Collections.Helpers;
 #if NETSTANDARD2_0
 using RuntimeHelpers = Trarizon.Library.Collections.Helpers.PfRuntimeHelpers;
@@ -50,7 +51,8 @@ public struct AllocOptList<T> : IDisposable
         }
     }
 
-    public readonly T[] GetUnderlyingArray() => _array;
+    public readonly IArrayAllocator<T>.AutoReleaseScope<IArrayAllocatorExt.ArrayPoolAllocator<T>> GetUnderlyingArray()
+        => new(new(ArrayPool<T>.Shared), _array, RuntimeHelpers.IsReferenceOrContainsReferences<T>());
 
     public readonly Span<T> AsSpan() => _array.AsSpan(0, _count);
 

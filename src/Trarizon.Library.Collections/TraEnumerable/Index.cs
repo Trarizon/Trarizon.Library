@@ -5,10 +5,11 @@ public static partial class TraEnumerable
 
     public static IEnumerable<(int Index, T Item)> Index<T>(this IEnumerable<T> source)
     {
-        if (source is T[] array)
-            return array.Length == 0 ? [] : new ListWithIndexIterator<T>(array);
-        if (source.IsEmptyArray())
-            return [];
+        if (source is IList<T> list) {
+            if (source.IsEmptyArray())
+                return [];
+            return new ListWithIndexIterator<T>(list);
+        }
         return Iterate(source);
 
         static IEnumerable<(int, T)> Iterate(IEnumerable<T> source)
@@ -20,11 +21,11 @@ public static partial class TraEnumerable
         }
     }
 
-    private sealed class ListWithIndexIterator<T>(T[] array) : ListIteratorBase<(int, T)>
+    private sealed class ListWithIndexIterator<T>(IList<T> array) : ListIteratorBase<(int, T)>
     {
         public override (int, T) this[int index] => (index, array[index]);
 
-        public override int Count => array.Length;
+        public override int Count => array.Count;
 
         private (int, T) _current;
         public override (int, T) Current => _current;
@@ -32,6 +33,18 @@ public static partial class TraEnumerable
         public override bool MoveNext() => MoveNext_Index(ref _current);
 
         protected override IteratorBase<(int, T)> Clone() => new ListWithIndexIterator<T>(array);
+
+        public override bool Contains((int, T) value)
+        {
+            return EqualityComparer<T>.Default.Equals(array[value.Item1], value.Item2);
+        }
+
+        public override int IndexOf((int, T) item)
+        {
+            if (Contains(item))
+                return item.Item1;
+            return -1;
+        }
     }
 
 #endif
