@@ -1,6 +1,7 @@
 ﻿//#define MONAD
 //#define RESULT
 //#define EITHER
+//#define EXT_ENUMERABLE
 
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
@@ -79,6 +80,23 @@ public static class Optional
 
     public static Either<TLeft, T> ToEitherLeft<T, TLeft>(this in Optional<T> optional, Func<TLeft> leftSelector)
         => optional.HasValue ? new(optional._value) : new(leftSelector());
+
+#endif
+
+#if EXT_ENUMERABLE
+
+    public static IEnumerable<TResult> WhereSelect<T, TResult>(this IEnumerable<T> source, Func<T, Optional<TResult>> selector)
+    {
+        if (source is T[] { Length: 0 })
+            return [];
+        return source.Select(selector).OfValue();
+    }
+
+    /// <summary>
+    /// Filters an sequence of optional values and returns a new sequence containing those that has value
+    /// </summary>
+    public static IEnumerable<T> OfValue<T>(this IEnumerable<Optional<T>> source)
+        => source.Where(x => x.HasValue).Select(x => x.Value);
 
 #endif
 

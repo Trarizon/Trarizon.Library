@@ -7,7 +7,7 @@
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
-        <DefineConstants>$(DefineConstants);MONAD;OPTIONAL;RESULT;EITHER</DefineConstants>
+        <DefineConstants>$(DefineConstants);MONAD;OPTIONAL;RESULT;EITHER;EXT_ENUMERABLE</DefineConstants>
     </PropertyGroup>
 
     <!-- Nuget -->

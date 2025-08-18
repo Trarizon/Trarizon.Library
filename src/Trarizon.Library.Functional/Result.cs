@@ -1,5 +1,6 @@
 ﻿//#define OPTIONAL
 //#define EITHER
+//#define EXT_ENUMERABLE
 
 using System.ComponentModel;
 using System.Diagnostics;
@@ -77,6 +78,16 @@ public static partial class Result
 
     public static Either<TError, T> AsEitherRight<T, TError>(this in Result<T, TError> result)
         => result.IsSuccess ? new(result._value) : new(result.Error);
+
+#endif
+
+#if EXT_ENUMERABLE
+
+    public static IEnumerable<T> OfValue<T, TError>(this IEnumerable<Result<T, TError>> source)
+        => source.Where(x => x.IsSuccess).Select(x => x.Value);
+
+    public static IEnumerable<TError> OfError<T, TError>(this IEnumerable<Result<T, TError>> source)
+        => source.Where(x => x.IsError).Select(x => x.Error!);
 
 #endif
 
