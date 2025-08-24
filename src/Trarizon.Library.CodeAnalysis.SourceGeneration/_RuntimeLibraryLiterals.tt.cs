@@ -24,6 +24,12 @@ internal static class CompilationGetTypeSymbols
         return friendAccessAttributeSymbol is not null;
     }
 
+    public static bool TryGetTSelfAttribute(this Compilation compilation, out INamedTypeSymbol tSelfAttributeSymbol)
+    {
+        tSelfAttributeSymbol = compilation.GetTypeByMetadataName("Trarizon.Library.CodeAnalysis.Diagnostics.TSelfAttribute")!;
+        return tSelfAttributeSymbol is not null;
+    }
+
 }
 
 internal static class RuntimeTypeMetadataNames

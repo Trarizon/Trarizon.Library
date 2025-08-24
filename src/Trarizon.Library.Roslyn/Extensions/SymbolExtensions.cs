@@ -113,7 +113,7 @@ public static partial class SymbolExtensions
         return type.AllInterfaces.Contains(interfaceType, SymbolEqualityComparer.Default);
     }
 
-    public static bool IsImplements(this ITypeSymbol type, string interfaceTypeFullName)
+    public static bool IsImplementsByTypeFullName(this ITypeSymbol type, string interfaceTypeFullName)
     {
         foreach (var itf in type.AllInterfaces) {
             if (itf.MatchDisplayString(interfaceTypeFullName))

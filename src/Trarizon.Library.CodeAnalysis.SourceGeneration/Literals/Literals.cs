@@ -14,6 +14,7 @@ internal static class DiagnosticIds
     public const string FriendAccess = "TRACA00";
     public const string Singleton = "TRACA01";
     public const string ExternalSealed = "TRACA02";
+    public const string TSelf = "TRACA03";
 }
 
 public static class Categories

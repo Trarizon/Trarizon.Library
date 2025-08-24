@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using Trarizon.Library.Functional;
 using Trarizon.Library.Roslyn.Collections;
 
@@ -9,6 +10,13 @@ public static class DiagnosticResult
 {
     public static DiagnosticResult<T> Success<T>(T result) => result;
     public static DiagnosticResult<T> Success<T>(T result, SequenceEquatableImmutableArray<DiagnosticData> diagnosticDatas) => new(result, diagnosticDatas);
+
+    public static DiagnosticResult<IEnumerable<T>> CollectValues<T>(this IEnumerable<DiagnosticResult<T>> source)
+    {
+        return new(
+            Optional.Of(source.Where(x => x.IsSuccess).Select(x => x.Value)),
+            source.SelectMany(x => x.Diagnostics).ToSequenceEquatableImmutableArray());
+    }
 }
 
 public readonly struct DiagnosticResult<T>
@@ -30,7 +38,7 @@ public readonly struct DiagnosticResult<T>
 
     public DiagnosticResult(T result) : this(result, default) { }
     public DiagnosticResult(Optional<T> result) : this(result, default) { }
-    public DiagnosticResult(SequenceEquatableImmutableArray<DiagnosticData> diagnostics): this(default, diagnostics) { }
+    public DiagnosticResult(SequenceEquatableImmutableArray<DiagnosticData> diagnostics) : this(default, diagnostics) { }
     public DiagnosticResult(DiagnosticData diagnostic) : this(default, new([diagnostic])) { }
 
     public static implicit operator DiagnosticResult<T>(T result) => new(result, default);

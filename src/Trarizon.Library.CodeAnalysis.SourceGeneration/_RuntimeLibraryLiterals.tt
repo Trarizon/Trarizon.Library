@@ -12,6 +12,7 @@
         new("Trarizon.Library.CodeAnalysis.Generation.SingletonAttribute") { GenerateMetadataName = true },
         new(NsDiag + "ExternalSealedAttribute"),
         new(NsDiag + "FriendAccessAttribute"),
+        new(NsDiag + "TSelfAttribute"),
     };
 #>
 using Microsoft.CodeAnalysis;
