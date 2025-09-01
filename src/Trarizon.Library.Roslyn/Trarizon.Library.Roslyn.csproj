@@ -10,7 +10,7 @@
     <PropertyGroup>
         <Title>Trarizon.Library.Roslyn</Title>
         <!--<PackageReadmeFile>README.md</PackageReadmeFile>-->
-        <Version>0.0.14</Version>
+        <Version>0.0.1.0</Version>
         <!--<Description>Trarizon's personal library, for functional programming</Description>-->
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>$(NoWarn);1591</NoWarn>
@@ -31,7 +31,7 @@
         </PackageReference>
         <PackageReference Include="System.Memory" Version="4.6.3" />
         <PackageReference Include="Trarizon.Library.Collections" Version="1.0.1" />
-        <PackageReference Include="Trarizon.Library.Functional" Version="1.0.0" />
+        <PackageReference Include="Trarizon.Library.Functional" Version="1.0.1" />
     </ItemGroup>
 
     <ItemGroup>
