@@ -14,8 +14,8 @@ public static class Optional
 
     public static Optional<T> Of<T>(T value) => new(value);
 
-    public static Optional<T> Create<T>(bool hasValue, T? value)
-        => hasValue ? new(value!) : default;
+    public static Optional<T> Create<T>(bool hasValue, T value)
+        => hasValue ? new(value) : default;
 
     #region To Nullable
 
@@ -26,14 +26,15 @@ public static class Optional
     public static T? ToNullable<T>(this in Optional<T> optional) where T : struct
         => optional.HasValue ? optional._value : null;
 
-    public static T? ToNullable<T>(this Optional<T> optional) where T : class
-        => optional.GetValueOrDefault();
-
     #endregion
 
     public static ref readonly T? GetValueRefOrDefaultRef<T>(this ref readonly Optional<T> optional)
         => ref optional._value;
 
+    /// <summary>
+    /// Collect all values in Optional&lt;T>, return None if one of item is None
+    /// </summary>
+    /// <returns></returns>
     public static Optional<IEnumerable<T>> Collect<T>(this IEnumerable<Optional<T>> optionals)
     {
         var values = new List<T>();
@@ -89,13 +90,13 @@ public static class Optional
     {
         if (source is T[] { Length: 0 })
             return [];
-        return source.Select(selector).OfValue();
+        return source.Select(selector).WhereHasValue();
     }
 
     /// <summary>
     /// Filters an sequence of optional values and returns a new sequence containing those that has value
     /// </summary>
-    public static IEnumerable<T> OfValue<T>(this IEnumerable<Optional<T>> source)
+    public static IEnumerable<T> WhereHasValue<T>(this IEnumerable<Optional<T>> source)
         => source.Where(x => x.HasValue).Select(x => x.Value);
 
 #endif

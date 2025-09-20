@@ -24,7 +24,7 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Trarizon.Library.Functional" Version="1.0.0" PrivateAssets="all" GeneratePathProperty="true" />
+        <PackageReference Include="Trarizon.Library.Functional" Version="1.0.2" PrivateAssets="all" GeneratePathProperty="true" />
         <PackageReference Include="Trarizon.Library.Collections" Version="1.0.1" PrivateAssets="all" GeneratePathProperty="true" />
         <PackageReference Include="System.Memory" Version="4.6.3" PrivateAssets="all" GeneratePathProperty="true" />
     </ItemGroup>

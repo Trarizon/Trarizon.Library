@@ -15,7 +15,7 @@
     <PropertyGroup>
         <Title>Trarizon.Library.Functional</Title>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <Version>1.0.1.1</Version>
+        <Version>1.0.2</Version>
         <Description>Trarizon's personal library, for functional programming</Description>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>$(NoWarn);1591</NoWarn>

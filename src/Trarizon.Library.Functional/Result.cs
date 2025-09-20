@@ -24,6 +24,9 @@ public static partial class Result
     public static ResultFailedBuilder<TError> Failure<TError>(TError error)
         => new(error);
 
+    public static Result<T, TError> Create<T, TError>(bool isSuccess, T value, TError error) 
+        => isSuccess ? new(value) : new(error);
+
     public static T GetValueOrThrowError<T, TException>(this in Result<T, TException> result) where TException : Exception
     {
         if (!result.IsSuccess)
@@ -38,27 +41,13 @@ public static partial class Result
     public static ref readonly T? GetValueRefOrDefaultRef<T, TError>(this ref readonly Result<T, TError> result)
         => ref result._value;
 
-    public static Result<IEnumerable<T>, TError> Collect<T, TError>(this IEnumerable<Result<T, TError>> results)
-    {
-        var values = new List<T>();
-        foreach (var result in results) {
-            if (result.IsSuccess) {
-                values.Add(result._value);
-            }
-            else {
-                return result.Error;
-            }
-        }
-        return values;
-    }
-
 #if OPTIONAL
 
     public static Optional<T> ToOptional<T, TError>(this in Result<T, TError> result)
         => result.IsSuccess ? Optional.Of(result._value) : default;
 
     public static Optional<TError> ToOptionalError<T, TError>(this in Result<T, TError> result)
-        => result.IsError ? Optional.Of(result.Error) : default;
+        => result.IsFailure ? Optional.Of(result.Error) : default;
 
     public static Optional<Result<T, TError>> Transpose<T, TError>(this in Result<Optional<T>, TError> result)
     {
@@ -85,11 +74,11 @@ public static partial class Result
 
 #if EXT_ENUMERABLE
 
-    public static IEnumerable<T> OfValue<T, TError>(this IEnumerable<Result<T, TError>> source)
+    public static IEnumerable<T> WhereIsSuccess<T, TError>(this IEnumerable<Result<T, TError>> source)
         => source.Where(x => x.IsSuccess).Select(x => x.Value);
 
-    public static IEnumerable<TError> OfError<T, TError>(this IEnumerable<Result<T, TError>> source)
-        => source.Where(x => x.IsError).Select(x => x.Error!);
+    public static IEnumerable<TError> WhereIsFailure<T, TError>(this IEnumerable<Result<T, TError>> source)
+        => source.Where(x => x.IsFailure).Select(x => x.Error!);
 
 #endif
 
@@ -108,7 +97,7 @@ public static partial class Result
 }
 
 /// <summary>
-/// Monad Result, Note that if TError is struct, the error value will be boxed
+/// Monad Result, Note that if TError is struct, the error value will be boxed, some boxes will be cached
 /// </summary>
 public readonly struct Result<T, TError>
 #if MONAD
@@ -128,7 +117,7 @@ public readonly struct Result<T, TError>
 
     [MemberNotNullWhen(false, nameof(_value))]
     [MemberNotNullWhen(true, nameof(_error), nameof(Error))]
-    public bool IsError => _error is not null;
+    public bool IsFailure => _error is not null;
 
     /// <summary>
     /// Unlike <see cref="Nullable{T}.Value"/>, this property won't throw
@@ -170,7 +159,7 @@ public readonly struct Result<T, TError>
     public bool TryGetError([MaybeNullWhen(false)] out TError error)
     {
         error = Error;
-        return IsError;
+        return IsFailure;
     }
 
     #endregion
@@ -208,7 +197,7 @@ public readonly struct Result<T, TError>
 
     public Result<TResult, TError> Cast<TResult>() => IsSuccess ? new((TResult)(object)_value) : new(default!, _error);
 
-    public Result<T, TNewError> CastError<TNewError>() => IsError ? new(default!, (TNewError)(object)Error) : new(_value);
+    public Result<T, TNewError> CastError<TNewError>() => IsFailure ? new(default!, (TNewError)(object)Error) : new(_value);
 
     public Result<TResult, TNewError> Cast<TResult, TNewError>() => IsSuccess ? new((TResult)(object)_value) : new(default!, (TNewError)(object)Error);
 
@@ -230,7 +219,7 @@ public readonly struct Result<T, TError>
 
     public void MatchError(Action<TError> selector)
     {
-        if (IsError) selector(Error);
+        if (IsFailure) selector(Error);
     }
 
     public Result<TResult, TError> Select<TResult>(Func<T, TResult> selector)
@@ -293,6 +282,15 @@ public readonly struct ResultSuccessBuilder<T>
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Result<T, TError> Build<TError>() => _value;
+
+    public bool IsSuccess => true;
+    public bool IsFailure => false;
+    public T Value => _value;
+    public ResultSuccessBuilder<TResult> Cast<TResult>() => new((TResult)(object)_value!);
+    public void MatchValue(Action<T> selector) => selector(_value);
+    public ResultSuccessBuilder<TResult> Select<TResult>(Func<T, TResult> selector) => new(selector(_value));
+    public string ToString(bool includeVariantInfo) => Build<object>().ToString(includeVariantInfo);
+    public override string ToString() => ToString(includeVariantInfo: false);
 }
 
 [EditorBrowsable(EditorBrowsableState.Never)]
@@ -304,6 +302,15 @@ public readonly struct ResultFailedBuilder<TError>
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Result<T, TError> Build<T>() => _error;
+
+    public bool IsSuccess => false;
+    public bool IsFailure => true;
+    public TError Error => _error;
+    public ResultFailedBuilder<TNewError> CastError<TNewError>() => new((TNewError)(object)_error!);
+    public void MatchError(Action<TError> selector) => selector(_error);
+    public ResultFailedBuilder<TNewError> SelectError<TNewError>(Func<TError, TNewError> selector) => new(selector(_error));
+    public string ToString(bool includeVariantInfo) => Build<object>().ToString(includeVariantInfo);
+    public override string ToString() => ToString(includeVariantInfo: false);
 }
 
 #nullable restore
