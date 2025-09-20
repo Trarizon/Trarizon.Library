@@ -1,4 +1,5 @@
-﻿//#define OPTIONAL
+﻿//#define MONAD
+//#define OPTIONAL
 //#define EITHER
 //#define EXT_ENUMERABLE
 
@@ -6,6 +7,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using Trarizon.Library.Functional.Internal;
 
 namespace Trarizon.Library.Functional;
 public static partial class Result
@@ -16,10 +18,10 @@ public static partial class Result
     public static ResultSuccessBuilder<T> Success<T>(T value)
         => new(value);
 
-    public static Result<T, TError> Error<T, TError>(TError error)
+    public static Result<T, TError> Failure<T, TError>(TError error)
         => new(error);
 
-    public static ResultFailedBuilder<TError> Error<TError>(TError error)
+    public static ResultFailedBuilder<TError> Failure<TError>(TError error)
         => new(error);
 
     public static T GetValueOrThrowError<T, TException>(this in Result<T, TException> result) where TException : Exception
@@ -65,7 +67,7 @@ public static partial class Result
             return optional.HasValue ? Optional.Of(Result.Success<T, TError>(optional._value)) : Optional.None;
         }
         else {
-            return Optional.Of(Result.Error<T, TError>(result.Error));
+            return Optional.Of(Result.Failure<T, TError>(result.Error));
         }
     }
 
@@ -94,131 +96,13 @@ public static partial class Result
     [DoesNotReturn]
     internal static void ThrowResultIsError<TError>(TError error) => throw new ResultErrorException<TError>(error);
 
-    internal sealed class ValueTypeBox<T>(T value)
-    {
-        public readonly T Value = value;
-    }
-
     internal static class ErrorHelper
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object? Wrap<T>(T? value)
-        {
-            if (typeof(T).IsValueType) {
-                if (value is null) {
-                    return CacheDefault<T>.Value;
-                }
-                if (typeof(T) == typeof(bool)) {
-                    var val = Unsafe.As<T, bool>(ref value!);
-                    return val ? CacheBoolean.True : CacheBoolean.False;
-                }
-#if NETSTANDARD2_0
-                if (typeof(T) == typeof(int)) {
-                    return Cache32.Get(Unsafe.As<T, int>(ref value!));
-                }
-#else
-                if (!RuntimeHelpers.IsReferenceOrContainsReferences<T>()) {
-                    if (Unsafe.SizeOf<T>() == sizeof(byte) && Unsafe.As<T, byte>(ref value) == default(byte))
-                        return CacheDefault<byte>.Value;
-                    if (Unsafe.SizeOf<T>() == sizeof(short) && Unsafe.As<T, short>(ref value) == default(short))
-                        return CacheDefault<short>.Value;
-                    if (Unsafe.SizeOf<T>() == sizeof(int))
-                        return Cache32.Get(Unsafe.As<T, int>(ref value));
-                    if (Unsafe.SizeOf<T>() == sizeof(long) && Unsafe.As<T, long>(ref value) == default(long))
-                        return CacheDefault<long>.Value;
-                }
-#endif
-                return new ValueTypeBox<T>(value!);
-            }
-            else {
-                return value;
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T? Get<T>(object? value)
-        {
-            Debug.Assert(IsValidErrorObject<T>(value));
-
-            if (typeof(T).IsValueType) {
-                var box = Unsafe.As<ValueTypeBox<T>>(value);
-                if (box is null)
-                    return default;
-                return box.Value;
-            }
-            else {
-                Debug.Assert(value is T);
-                return Unsafe.As<object?, T?>(ref value);
-            }
-        }
-
         public static string ToStringIncludeVariantInfo<T>(ValueTypeBox<T> value)
         {
             if (value.Value is IMonad monad)
                 return monad.ToString(true);
             return value.ToString() ?? "";
-        }
-
-        public static bool IsValidErrorObject<T>(object? obj)
-        {
-            if (obj is null)
-                return true;
-            if (!typeof(T).IsValueType)
-                return true;
-
-#if NETSTANDARD2_0
-            return obj is ValueTypeBox<T>;
-#else
-            if (obj is ValueTypeBox<T>)
-                return true;
-            if (!RuntimeHelpers.IsReferenceOrContainsReferences<T>()) {
-                if (Unsafe.SizeOf<T>() == sizeof(byte) && obj is ValueTypeBox<byte>)
-                    return true;
-                if (Unsafe.SizeOf<T>() == sizeof(short) && obj is ValueTypeBox<short>)
-                    return true;
-                if (Unsafe.SizeOf<T>() == sizeof(int) && obj is ValueTypeBox<int>)
-                    return true;
-                if (Unsafe.SizeOf<T>() == sizeof(long) && obj is ValueTypeBox<long>)
-                    return true;
-            }
-            return false;
-#endif
-        }
-
-        private static class CacheDefault<T>
-        {
-            public static readonly ValueTypeBox<T> Value = new ValueTypeBox<T>(default!);
-        }
-
-        private static class CacheBoolean
-        {
-            public static readonly ValueTypeBox<bool> True = new ValueTypeBox<bool>(true);
-            public static readonly ValueTypeBox<bool> False = new ValueTypeBox<bool>(false);
-        }
-
-        private static class Cache32
-        {
-            private const int Min = -16;
-            private const int Max = 16;
-
-#if NET8_0_OR_GREATER
-            private static Arr _cache;
-#else
-            private static readonly ValueTypeBox<int>?[] _cache = new ValueTypeBox<int>[Max - Min];
-#endif
-
-            public static ValueTypeBox<int> Get(int value)
-            {
-                if (value < Min || value >= Max)
-                    return new ValueTypeBox<int>(value);
-                return _cache[value - Min] ??= new ValueTypeBox<int>(value);
-            }
-
-#if NET8_0_OR_GREATER
-
-            [InlineArray(Max - Min)] struct Arr { ValueTypeBox<int> _; }
-
-#endif
         }
     }
 }
@@ -226,7 +110,10 @@ public static partial class Result
 /// <summary>
 /// Monad Result, Note that if TError is struct, the error value will be boxed
 /// </summary>
-public readonly struct Result<T, TError> : IMonad
+public readonly struct Result<T, TError>
+#if MONAD
+    : IMonad
+#endif
 {
     internal readonly T? _value;
     // For reference type, we store the TError
@@ -249,7 +136,7 @@ public readonly struct Result<T, TError> : IMonad
     /// </summary>
     public T Value => _value!;
 
-    public TError? Error => Result.ErrorHelper.Get<TError>(_error);
+    public TError? Error => ValueTypeBox.GetValueOrDefault<TError>(_error);
 
     public T GetValueOrThrow()
     {
@@ -293,14 +180,14 @@ public readonly struct Result<T, TError> : IMonad
     private Result(T? value, object? error)
     {
         _value = value;
-        Debug.Assert(Result.ErrorHelper.IsValidErrorObject<TError>(error));
+        Debug.Assert(ValueTypeBox.IsValueTypeBoxOrReferenceObject<TError>(error));
         _error = error;
     }
 
     private Result(T? value, TError? error)
     {
         _value = value;
-        _error = Result.ErrorHelper.Wrap<TError>(error);
+        _error = ValueTypeBox.BoxIfValueType(error);
     }
 
     public Result(T value) : this(value, default(object)) { }
@@ -318,6 +205,12 @@ public readonly struct Result<T, TError> : IMonad
     #endregion
 
     #region Convertor
+
+    public Result<TResult, TError> Cast<TResult>() => IsSuccess ? new((TResult)(object)_value) : new(default!, _error);
+
+    public Result<T, TNewError> CastError<TNewError>() => IsError ? new(default!, (TNewError)(object)Error) : new(_value);
+
+    public Result<TResult, TNewError> Cast<TResult, TNewError>() => IsSuccess ? new((TResult)(object)_value) : new(default!, (TNewError)(object)Error);
 
     public TResult Match<TResult>(Func<T, TResult> successSelector, Func<TError, TResult> errorSelector)
         => IsSuccess ? successSelector(_value) : errorSelector(Error);
@@ -370,7 +263,7 @@ public readonly struct Result<T, TError> : IMonad
             else {
                 string? str;
                 if (typeof(TError).IsValueType)
-                    str = Result.ErrorHelper.ToStringIncludeVariantInfo(Unsafe.As<Result.ValueTypeBox<TError>>(_error));
+                    str = Result.ErrorHelper.ToStringIncludeVariantInfo(Unsafe.As<ValueTypeBox<TError>>(_error));
                 else if (Error is IMonad monad)
                     str = monad.ToString(true);
                 else

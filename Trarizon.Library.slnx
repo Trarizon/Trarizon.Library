@@ -1,16 +1,17 @@
 <Solution>
   <Folder Name="/src/">
-    <Project Path="src/Trarizon.Library.Collections/Trarizon.Library.Collections.csproj" />
-    <Project Path="src/Trarizon.Library.Functional/Trarizon.Library.Functional.csproj" />
-    <Project Path="src/Trarizon.Library.Mathematics/Trarizon.Library.Mathematics.csproj" />
-    <Project Path="src/Trarizon.Library/Trarizon.Library.csproj" />
     <Project Path="src/Trarizon.Library.CodeAnalysis.SourceGeneration/Trarizon.Library.CodeAnalysis.SourceGeneration.csproj" Id="da8c0c3b-6451-4ae2-9560-1869b3f567df" />
     <Project Path="src/Trarizon.Library.CodeAnalysis/Trarizon.Library.CodeAnalysis.csproj" Id="65311f88-d657-41e5-8a47-aa6a9b945e5b" />
+    <Project Path="src/Trarizon.Library.Collections/Trarizon.Library.Collections.csproj" />
+    <Project Path="src/Trarizon.Library.Functional.SourceGeneration/Trarizon.Library.Functional.SourceGeneration.csproj" Id="30cfa818-c34c-4ccc-bef6-979b6b9aaff5" />
+    <Project Path="src/Trarizon.Library.Functional/Trarizon.Library.Functional.csproj" />
+    <Project Path="src/Trarizon.Library.Mathematics/Trarizon.Library.Mathematics.csproj" />
     <Project Path="src/Trarizon.Library.Roslyn/Trarizon.Library.Roslyn.csproj" />
+    <Project Path="src/Trarizon.Library/Trarizon.Library.csproj" />
   </Folder> 
 <Folder Name="/src/playground/">
-    <Project Path="src/playground/Trarizon.Library.Playground/Trarizon.Library.Playground.csproj" Id="83bdac29-35ba-40ec-b954-58a3d2819f74" />
-  </Folder>
+  <Project Path="src/playground/Trarizon.Library.Playground/Trarizon.Library.Playground.csproj" Id="83bdac29-35ba-40ec-b954-58a3d2819f74" />
+</Folder>
   
   <Folder Name="/src/game/">
     <Project Path="src/game/Trarizon.Library.Game/Trarizon.Library.Game.csproj" />
