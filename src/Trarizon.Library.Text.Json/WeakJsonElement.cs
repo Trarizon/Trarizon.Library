@@ -1,12 +1,9 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-#if NET8_0_OR_GREATER
 using System.Text.Json;
-#endif
-using Trarizon.Library.Wrappers;
+using Trarizon.Library.Text.Json.Internal;
 
-#if NET8_0_OR_GREATER
 namespace Trarizon.Library.Text.Json;
 /// <summary>
 /// Wraps <see cref="JsonValueKind"/> checking, if current kind is not expected,
@@ -92,28 +89,68 @@ public readonly struct WeakJsonElement(JsonElement element)
         }
     }
 
-    public T? AsNumber<T>() where T : struct, INumber<T>
+    public T? AsNumber<T>() where T : struct
+#if NET7_0_OR_GREATER
+        , INumber<T>
+#endif
     {
         if (Element.ValueKind is not JsonValueKind.Number)
             return null;
 
-        if (typeof(T) == typeof(byte)) return Unsafe.BitCast<byte, T>(Element.GetByte());
-        if (typeof(T) == typeof(sbyte)) return Unsafe.BitCast<sbyte, T>(Element.GetSByte());
-        if (typeof(T) == typeof(short)) return Unsafe.BitCast<short, T>(Element.GetInt16());
-        if (typeof(T) == typeof(ushort)) return Unsafe.BitCast<ushort, T>(Element.GetUInt16());
-        if (typeof(T) == typeof(int)) return Unsafe.BitCast<int, T>(Element.GetInt32());
-        if (typeof(T) == typeof(uint)) return Unsafe.BitCast<uint, T>(Element.GetUInt32());
-        if (typeof(T) == typeof(long)) return Unsafe.BitCast<long, T>(Element.GetInt64());
-        if (typeof(T) == typeof(ulong)) return Unsafe.BitCast<ulong, T>(Element.GetUInt64());
-        if (typeof(T) == typeof(float)) return Unsafe.BitCast<float, T>(Element.GetSingle());
-        if (typeof(T) == typeof(double)) return Unsafe.BitCast<double, T>(Element.GetDouble());
-        if (typeof(T) == typeof(decimal)) return Unsafe.BitCast<decimal, T>(Element.GetDecimal());
+        if (typeof(T) == typeof(byte)) {
+            var val = Element.GetByte();
+            return Unsafe.As<byte, T>(ref val);
+        }
+        if (typeof(T) == typeof(sbyte)) {
+            var val = Element.GetSByte();
+            return Unsafe.As<sbyte, T>(ref val);
+        }
+        if (typeof(T) == typeof(short)) {
+            var val = Element.GetInt16();
+            return Unsafe.As<short, T>(ref val);
+        }
+        if (typeof(T) == typeof(ushort)) {
+            var val = Element.GetUInt16();
+            return Unsafe.As<ushort, T>(ref val);
+        }
+        if (typeof(T) == typeof(int)) {
+            var val = Element.GetInt32();
+            return Unsafe.As<int, T>(ref val);
+        }
+        if (typeof(T) == typeof(uint)) {
+            var val = Element.GetUInt32();
+            return Unsafe.As<uint, T>(ref val);
+        }
+        if (typeof(T) == typeof(long)) {
+            var val = Element.GetInt64();
+            return Unsafe.As<long, T>(ref val);
+        }
+        if (typeof(T) == typeof(ulong)) {
+            var val = Element.GetUInt64();
+            return Unsafe.As<ulong, T>(ref val);
+        }
+        if (typeof(T) == typeof(float)) {
+            var val = Element.GetSingle();
+            return Unsafe.As<float, T>(ref val);
+        }
+        if (typeof(T) == typeof(double)) {
+            var val = Element.GetDouble();
+            return Unsafe.As<double, T>(ref val);
+        }
+        if (typeof(T) == typeof(decimal)) {
+            var val = Element.GetDecimal();
+            return Unsafe.As<decimal, T>(ref val);
+        }
 
         Throws.ThrowNotSupport("Unknown number type");
         return default!;
+
     }
 
-    public bool TryAsNumber<T>(out T value) where T : struct, INumber<T>
+    public bool TryAsNumber<T>(out T value) where T : struct
+#if NET7_0_OR_GREATER
+        , INumber<T>
+#endif
     {
         if (Element.ValueKind is not JsonValueKind.Number) {
             value = default;
@@ -122,57 +159,57 @@ public readonly struct WeakJsonElement(JsonElement element)
 
         if (typeof(T) == typeof(byte)) {
             bool res = Element.TryGetByte(out var val);
-            value = Unsafe.BitCast<byte, T>(val);
+            value = Unsafe.As<byte, T>(ref val);
             return res;
         }
         if (typeof(T) == typeof(sbyte)) {
             bool res = Element.TryGetSByte(out var val);
-            value = Unsafe.BitCast<sbyte, T>(val);
+            value = Unsafe.As<sbyte, T>(ref val);
             return res;
         }
         if (typeof(T) == typeof(short)) {
             bool res = Element.TryGetInt16(out var val);
-            value = Unsafe.BitCast<short, T>(val);
+            value = Unsafe.As<short, T>(ref val);
             return res;
         }
         if (typeof(T) == typeof(ushort)) {
             bool res = Element.TryGetUInt16(out var val);
-            value = Unsafe.BitCast<ushort, T>(val);
+            value = Unsafe.As<ushort, T>(ref val);
             return res;
         }
         if (typeof(T) == typeof(int)) {
             bool res = Element.TryGetInt32(out var val);
-            value = Unsafe.BitCast<int, T>(val);
+            value = Unsafe.As<int, T>(ref val);
             return res;
         }
         if (typeof(T) == typeof(uint)) {
             bool res = Element.TryGetUInt32(out var val);
-            value = Unsafe.BitCast<uint, T>(val);
+            value = Unsafe.As<uint, T>(ref val);
             return res;
         }
         if (typeof(T) == typeof(long)) {
             bool res = Element.TryGetInt64(out var val);
-            value = Unsafe.BitCast<long, T>(val);
+            value = Unsafe.As<long, T>(ref val);
             return res;
         }
         if (typeof(T) == typeof(ulong)) {
             bool res = Element.TryGetUInt64(out var val);
-            value = Unsafe.BitCast<ulong, T>(val);
+            value = Unsafe.As<ulong, T>(ref val);
             return res;
         }
         if (typeof(T) == typeof(float)) {
             bool res = Element.TryGetSingle(out var val);
-            value = Unsafe.BitCast<float, T>(val);
+            value = Unsafe.As<float, T>(ref val);
             return res;
         }
         if (typeof(T) == typeof(double)) {
             bool res = Element.TryGetDouble(out var val);
-            value = Unsafe.BitCast<double, T>(val);
+            value = Unsafe.As<double, T>(ref val);
             return res;
         }
         if (typeof(T) == typeof(decimal)) {
             bool res = Element.TryGetDecimal(out var val);
-            value = Unsafe.BitCast<decimal, T>(val);
+            value = Unsafe.As<decimal, T>(ref val);
             return res;
         }
 
@@ -225,5 +262,3 @@ public readonly struct WeakJsonElement(JsonElement element)
         return false;
     }
 }
-
-#endif

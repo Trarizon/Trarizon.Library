@@ -1,33 +1,36 @@
 ﻿#pragma warning disable TRAEXP
 
-using Microsoft.CodeAnalysis.CSharp;
-using BenchmarkDotNet.Filters;
-using System;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Dynamic;
-using System.Runtime.InteropServices;
+using System.Text.Json;
 using Trarizon.Library.Collections;
-using Trarizon.Library.Collections.AllocOpt;
-using Trarizon.Library.Collections.Generic;
-using Trarizon.Library.Mathematics;
-using Trarizon.Test.Run;
-using Microsoft.CodeAnalysis.CSharp.Scripting;
-using Microsoft.CodeAnalysis.Scripting;
-using System.Runtime.CompilerServices;
-using Trarizon.Library.Functional;
-using System.Threading.Tasks;
-using Trarizon.Library;
+using Trarizon.Library.Text.Json;
 
-IEnumerable<int> intss = [];
-_ = intss.Cast<int>();
+var json = JsonDocument.Parse("""
+    {
+        "a": [
+            {
+                "a": 1,
+                "b": 2
+            },
+            {
+                "a": 3,
+                "b": 4
+            }
+        ],
+        "b": {
+            "b": 3,
+            "c": 2
+        }
+    }
+    """);
 
-Optional<object> ints = 1;
+dynamic obj = json.GetDynamicRootElement();
 
-_ = ints.Cast<int>();
+Console.WriteLine(obj.a);
+Console.WriteLine((JsonElement)obj.b);
+Console.WriteLine(obj.b.c);
+//Console.WriteLine(obj.c);
 
-Result<int, string> res = default;
-
-_ = res.Cast<ValueType>();
-_ = res.CastError<string>();
-
+foreach (var item in obj.a) {
+    Console.WriteLine(item.a);
+    Console.WriteLine(item.b);
+}

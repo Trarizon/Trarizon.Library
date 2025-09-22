@@ -7,6 +7,7 @@
     <Project Path="src/Trarizon.Library.Functional/Trarizon.Library.Functional.csproj" />
     <Project Path="src/Trarizon.Library.Mathematics/Trarizon.Library.Mathematics.csproj" />
     <Project Path="src/Trarizon.Library.Roslyn/Trarizon.Library.Roslyn.csproj" />
+    <Project Path="src/Trarizon.Library.Text.Json/Trarizon.Library.Text.Json.csproj" Id="23211bd5-bc40-4a79-82ee-ef529854dc2e" />
     <Project Path="src/Trarizon.Library/Trarizon.Library.csproj" />
   </Folder> 
 <Folder Name="/src/playground/">
