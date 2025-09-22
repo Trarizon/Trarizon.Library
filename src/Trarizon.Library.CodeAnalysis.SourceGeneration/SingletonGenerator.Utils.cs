@@ -49,15 +49,15 @@ partial class SingletonGenerator
 
         public string? GetInstancePropertyName() => attribute
             .GetNamedArgument("InstancePropertyName")
-            .Cast<string>();
+            .CastValue<string>();
 
         public string? GetSingletonProviderName() => attribute
             .GetNamedArgument("SingletonProviderName")
-            .Cast<string>();
+            .CastValue<string>();
 
         public SingletonAccessibility GetInstanceAccessibility() => attribute
             .GetNamedArgument("InstanceAccessibility")
-            .Cast<SingletonAccessibility>();
+            .CastValue<SingletonAccessibility>();
     }
 
     internal enum SingletonAccessibility

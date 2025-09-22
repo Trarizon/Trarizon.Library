@@ -24,10 +24,10 @@ public static class AttributeDataExtensions
     }
 
     [return: NotNullIfNotNull(nameof(defaultValue))]
-    public static T? Cast<T>(this in Optional<TypedConstant> typedConstant, T? defaultValue = default)
+    public static T? CastValue<T>(this in Optional<TypedConstant> typedConstant, T? defaultValue = default)
     {
         if (typedConstant.HasValue)
-            return typedConstant.Value.Cast<T>();
+            return typedConstant.Value.CastValue<T>();
         else
             return defaultValue;
     }
@@ -42,7 +42,7 @@ public static class AttributeDataExtensions
         }
     }
 
-    public static T Cast<T>(this TypedConstant typedConstant)
+    public static T CastValue<T>(this TypedConstant typedConstant)
     {
         return (T)typedConstant.Value!;
     }
@@ -52,6 +52,6 @@ public static class AttributeDataExtensions
         var arr = constant.Values;
         if (arr is [])
             return [];
-        return [.. arr.Select(Cast<T>)];
+        return [.. arr.Select(CastValue<T>)];
     }
 }
