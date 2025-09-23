@@ -10,12 +10,9 @@
     <Project Path="src/Trarizon.Library.Text.Json/Trarizon.Library.Text.Json.csproj" Id="23211bd5-bc40-4a79-82ee-ef529854dc2e" />
     <Project Path="src/Trarizon.Library/Trarizon.Library.csproj" />
   </Folder> 
-<Folder Name="/src/playground/">
-  <Project Path="src/playground/Trarizon.Library.Playground/Trarizon.Library.Playground.csproj" Id="83bdac29-35ba-40ec-b954-58a3d2819f74" />
-</Folder>
-  
-  <Folder Name="/src/game/">
-    <Project Path="src/game/Trarizon.Library.Game/Trarizon.Library.Game.csproj" />
+  <Folder Name="/src/playground/">
+    <Project Path="src/playground/Trarizon.Library.Playground/Trarizon.Library.Playground.csproj" Id="83bdac29-35ba-40ec-b954-58a3d2819f74" />
+    <Project Path="src/playground/Trarizon.Library.Game/Trarizon.Library.Game.csproj" />
   </Folder>
   <Folder Name="/src/windows/">
     <Project Path="src/windows/Trarizon.Library.Windows/Trarizon.Library.Windows.csproj" />
@@ -27,7 +24,7 @@
     <Project Path="tests/Trarizon.Test.Run/Trarizon.Test.Run.csproj" />
     <Project Path="tests/Trarizon.Test.UnitTest/Trarizon.Test.UnitTest.csproj" />
   </Folder>
-  <Folder Name="/解决方案项/">
+  <Folder Name="/SolutionItems/">
     <File Path="LICENSE" />
     <File Path="Nuget.props" />
     <File Path="README.md" />
