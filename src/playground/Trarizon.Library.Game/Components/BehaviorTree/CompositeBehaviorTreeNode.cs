@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Trarizon.Library.Game.Components.BehaviorTree;
-public abstract class CompositeBehaviorTreeNode(IEnumerable<BehaviorTreeNode> nodes) : BehaviorTreeNode
+﻿namespace Trarizon.Library.Game.Components.BehaviorTree;
+public abstract class CompositeBehaviorTreeNode(BehaviorTreeNode[] nodes) : BehaviorTreeNode
 {
-    protected IEnumerable<BehaviorTreeNode> Nodes { get; } = nodes;
+    protected BehaviorTreeNode[] Nodes { get; } = nodes;
 }
