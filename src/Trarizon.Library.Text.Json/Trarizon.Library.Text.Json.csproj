@@ -10,7 +10,7 @@
     <PropertyGroup>
         <Title>Trarizon.Library.Text.Json</Title>
         <!--<PackageReadmeFile>README.md</PackageReadmeFile>-->
-        <Version>1.0.0</Version>
+        <Version>0.0.1</Version>
         <Description>Trarizon's personal library, extends System.Text.Json</Description>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>$(NoWarn);1591</NoWarn>

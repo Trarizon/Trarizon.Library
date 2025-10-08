@@ -3,10 +3,11 @@ using System.Dynamic;
 using System.Text.Json;
 
 namespace Trarizon.Library.Text.Json.Dynamic;
-public sealed class DynamicJsonElement(JsonElement jsonElement) : DynamicObject, IEnumerable<object?>
+public sealed class DynamicJsonElement(JsonElement jsonElement, bool suppressNull) : DynamicObject, IEnumerable<object?>
 {
     private readonly JsonElement _element = jsonElement;
     private IEnumerable<string>? _memeberNames;
+    private readonly bool _suppressNull = suppressNull;
 
     public override IEnumerable<string> GetDynamicMemberNames()
     {
@@ -41,6 +42,10 @@ public sealed class DynamicJsonElement(JsonElement jsonElement) : DynamicObject,
             result = GetObject(property);
             return true;
         }
+        if (_suppressNull) {
+            result = null;
+            return true;
+        }
         return base.TryGetMember(binder, out result);
     }
 
@@ -63,6 +68,10 @@ public sealed class DynamicJsonElement(JsonElement jsonElement) : DynamicObject,
             }
         }
 
+        if (_suppressNull) {
+            result = null;
+            return true;
+        }
         return base.TryGetIndex(binder, indexes, out result);
     }
 
@@ -339,18 +348,18 @@ public sealed class DynamicJsonElement(JsonElement jsonElement) : DynamicObject,
 
     public override string ToString() => _element.ToString();
 
-    private static object? GetObject(JsonElement element)
+    private object? GetObject(JsonElement element)
     {
         return element.ValueKind switch
         {
-            JsonValueKind.Object => new DynamicJsonElement(element),
-            JsonValueKind.Array => new DynamicJsonElement(element),
+            JsonValueKind.Object => new DynamicJsonElement(element, _suppressNull),
+            JsonValueKind.Array => new DynamicJsonElement(element, _suppressNull),
             JsonValueKind.String => element.GetString(),
             JsonValueKind.Number => element.TryGetInt64(out var l) ? l : element.GetDouble(),
             JsonValueKind.True => true,
             JsonValueKind.False => false,
             JsonValueKind.Null => null,
-            _ => new DynamicJsonElement(element)
+            _ => new DynamicJsonElement(element, _suppressNull)
         };
     }
 
