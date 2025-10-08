@@ -23,14 +23,6 @@ var json = JsonDocument.Parse("""
     }
     """);
 
-dynamic obj = json.GetDynamicRootElement();
+dynamic obj = json.GetDynamicRootElement(true);
 
-Console.WriteLine(obj.a);
-Console.WriteLine((JsonElement)obj.b);
-Console.WriteLine(obj.b.c);
-//Console.WriteLine(obj.c);
-
-foreach (var item in obj.a) {
-    Console.WriteLine(item.a);
-    Console.WriteLine(item.b);
-}
+Console.WriteLine((string)obj.b.d.a);
