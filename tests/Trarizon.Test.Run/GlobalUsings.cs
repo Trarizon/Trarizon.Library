@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using Trarizon.Library.Collections;
+using Trarizon.Library.Linq;
 
 namespace Trarizon.Test.Run;
 public static class GlobalUsings

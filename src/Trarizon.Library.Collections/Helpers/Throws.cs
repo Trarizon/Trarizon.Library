@@ -3,15 +3,10 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace Trarizon.Library.Collections.Helpers;
+
 [StackTraceHidden]
 internal static partial class Throws
 {
-    #region Checks
-
-    public static bool IsIndexGreaterThanOrEqual(int value, int other)
-        => (uint)value >= (uint)other;
-
-    #endregion
 
     #region Condition
 
@@ -137,12 +132,4 @@ internal static partial class Throws
     [DoesNotReturn]
     public static void IncompatibleAlternateComparer()
         => ThrowInvalidOperation("Incompatible alternate comparer");
-
-    [DoesNotReturn]
-    public static void IteratorNotSupport([CallerMemberName] string memberName = "")
-        => throw new NotSupportedException($"Iterator doesn't support member '{memberName}'.");
-
-    [DoesNotReturn]
-    public static void CollectionIsEmpty()
-        => ThrowInvalidOperation("Collection must not be empty.");
 }

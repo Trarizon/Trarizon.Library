@@ -1,6 +1,30 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Collections;
+using System.Runtime.CompilerServices;
 
 namespace Trarizon.Library.Collections.Helpers;
+
+#if NETSTANDARD
+
+internal static class Polyfills
+{
+    public static bool TryGetNonEnumeratedCount<T>(this IEnumerable<T> source, out int count)
+    {
+        if (source is ICollection<T> collection) {
+            count = collection.Count;
+            return true;
+        }
+        if (source is ICollection ngcollection) {
+            count = ngcollection.Count;
+            return true;
+        }
+        count = 0;
+        return false;
+    }
+
+}
+
+#endif
+
 #if NETSTANDARD2_0
 internal static class PfRuntimeHelpers
 {

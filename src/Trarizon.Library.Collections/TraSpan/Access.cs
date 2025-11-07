@@ -33,13 +33,13 @@ public static partial class TraSpan
 #if NETSTANDARD
         => new(span);
 #else
-        => new(ref Unsafes.GetReferenceAt(span, span.Length - 1), span.Length);
+        => new(ref Utils.GetReferenceAt(span, span.Length - 1), span.Length);
 #endif
 
     public static ReadOnlyReversedSpan<T> AsReversed<T>(this ReadOnlySpan<T> span)
 #if NETSTANDARD
         => new(span);
 #else
-        => new(in Unsafes.GetReferenceAt(span, span.Length - 1), span.Length);
+        => new(in Utils.GetReferenceAt(span, span.Length - 1), span.Length);
 #endif
 }

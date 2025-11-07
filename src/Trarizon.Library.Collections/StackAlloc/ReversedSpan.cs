@@ -45,7 +45,7 @@ public readonly ref partial struct ReversedSpan<T>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ref T DangerousGetReferenceAt(int index)
 #if NETSTANDARD
-        => ref Unsafes.GetReferenceAt(_span, Length - 1 - index);
+        => ref Utils.GetReferenceAt(_span, Length - 1 - index);
 #else
         => ref Unsafe.Subtract(ref _reference, index);
 #endif
@@ -92,7 +92,7 @@ public readonly ref partial struct ReversedSpan<T>
         Throws.ThrowIfLessThan(destination.Length, Length);
 
         for (int i = 0; i < Length; i++) {
-            Unsafes.GetReferenceAt(destination, i) = DangerousGetReferenceAt(i);
+            Utils.GetReferenceAt(destination, i) = DangerousGetReferenceAt(i);
         }
     }
 
@@ -102,7 +102,7 @@ public readonly ref partial struct ReversedSpan<T>
             return false;
 
         for (int i = 0; i < Length; i++) {
-            Unsafes.GetReferenceAt(destination, i) = DangerousGetReferenceAt(i);
+            Utils.GetReferenceAt(destination, i) = DangerousGetReferenceAt(i);
         }
         return true;
     }
