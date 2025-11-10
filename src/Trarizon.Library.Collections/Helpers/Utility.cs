@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace Trarizon.Library.Collections.Helpers;
 
-internal static class Utils
+internal static class Utility
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ref T GetReferenceAt<T>(ReadOnlySpan<T> span, int index)

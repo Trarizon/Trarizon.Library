@@ -1,4 +1,4 @@
-﻿using Trarizon.Library.Wrappers;
+﻿using Trarizon.Library.Functional;
 
 namespace Trarizon.Test.UnitTest;
 [TestClass]

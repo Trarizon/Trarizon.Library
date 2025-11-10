@@ -21,7 +21,7 @@ public readonly ref struct ReadOnlyConcatSpan<T>(ReadOnlySpan<T> first, ReadOnly
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get {
             if (index < _first.Length)
-                return ref Utils.GetReferenceAt(_first, index);
+                return ref Utility.GetReferenceAt(_first, index);
             index -= _first.Length;
             // _second[index] will throw if out of range
             return ref _second[index];

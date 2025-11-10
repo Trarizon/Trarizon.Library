@@ -43,11 +43,11 @@ public struct AllocOptList<T> : IDisposable
     {
         get {
             Throws.ThrowIfIndexGreaterThanOrEqual(index, _count);
-            return Utils.GetReferenceAt(_array, index);
+            return Utility.GetReferenceAt(_array, index);
         }
         set {
             Throws.ThrowIfIndexGreaterThanOrEqual(index, _count);
-            Utils.GetReferenceAt(_array, index) = value;
+            Utility.GetReferenceAt(_array, index) = value;
         }
     }
 

@@ -1,51 +1,120 @@
-﻿namespace Trarizon.Library.Linq;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Trarizon.Library.Linq;
 
 public static partial class TraTraversable
 {
-    public static IEnumerable<T> DeepFirstTraverse<T>(this T source, bool includeSelf = false) where T : IChildrenTraversable<T>
+    public static IEnumerable<T> TraverseDeepFirst<T>(this IChildrenTraversable<T> source) where T : IChildrenTraversable<T>
+    {
+        using var traverser = new DeepFirstTraverser<T>(source.GetChildrenEnumerator());
+        while (traverser.MoveNext(out var current)) {
+            yield return current;
+        }
+    }
+
+    public static IEnumerable<T> TraverseBreadthFirst<T>(this IChildrenTraversable<T> source) where T : IChildrenTraversable<T>
+    {
+        using var traverse = new BreadthFirstTraverser<T>(source.GetChildrenEnumerator());
+        while (traverse.MoveNext(out var current)) {
+            yield return current;
+        }
+    }
+
+    public static IEnumerable<T> TraverseDeepFirst<T>(this T source, bool includeSelf = false) where T : IChildrenTraversable<T>
     {
         if (includeSelf)
             yield return source;
 
-        var childrenEnumerator = source.GetChildrenEnumerator();
+        using var traverser = new DeepFirstTraverser<T>(source.GetChildrenEnumerator());
+        while (traverser.MoveNext(out var current)) {
+            yield return current;
+        }
+    }
 
-        Stack<IEnumerator<T>> enumerators = new();
-        enumerators.Push(childrenEnumerator);
+    public static IEnumerable<T> TraverseBreadthFirst<T>(this T source, bool includeSelf = false) where T : IChildrenTraversable<T>
+    {
+        if (includeSelf)
+            yield return source;
 
-        try {
-            while (enumerators.TryPeek(out var enumerator)) {
+        using var traverse = new BreadthFirstTraverser<T>(source.GetChildrenEnumerator());
+        while (traverse.MoveNext(out var current)) {
+            yield return current;
+        }
+    }
+
+    private readonly struct DeepFirstTraverser<T> : IDisposable
+        where T : IChildrenTraversable<T>
+    {
+        private readonly Stack<IEnumerator<T>> _stack;
+
+        internal DeepFirstTraverser(IEnumerator<T> root)
+        {
+            _stack = new();
+            _stack.Push(root);
+        }
+
+        public bool MoveNext([MaybeNullWhen(false)] out T current)
+        {
+            while (_stack.TryPeek(out var enumerator)) {
                 if (enumerator.MoveNext()) {
-                    var current = enumerator.Current;
-                    yield return current;
-                    enumerators.Push(current.GetChildrenEnumerator());
+                    current = enumerator.Current;
+                    _stack.Push(current.GetChildrenEnumerator());
+                    return true;
                 }
                 else {
                     enumerator.Dispose();
-                    enumerators.Pop();
+                    _stack.Pop();
                 }
             }
+            current = default;
+            return false;
         }
-        finally {
-            foreach (var e in enumerators) {
-                e.Dispose();
+
+        public void Dispose()
+        {
+            foreach (var item in _stack) {
+                item.Dispose();
             }
         }
     }
 
-    public static IEnumerable<T> BreadthFirstTraverse<T>(this T source, bool includeSelf = false) where T : IChildrenTraversable<T>
+    private struct BreadthFirstTraverser<T> : IDisposable
+        where T : IChildrenTraversable<T>
     {
-        if (includeSelf)
-            yield return source;
+        private readonly Queue<IEnumerator<T>> _queue;
+        private IEnumerator<T> _enumerator;
 
-        Queue<IChildrenTraversable<T>> queue = new();
-        queue.Enqueue(source);
+        internal BreadthFirstTraverser(IEnumerator<T> root)
+        {
+            _queue = new();
+            _enumerator = root;
+        }
 
-        while (queue.TryDequeue(out var current)) {
-            using var enumerator = current.GetChildrenEnumerator();
-            while (enumerator.MoveNext()) {
-                var child = enumerator.Current;
-                yield return child;
-                queue.Enqueue(child);
+        public bool MoveNext([MaybeNullWhen(false)] out T current)
+        {
+        Begin:
+            if (_enumerator.MoveNext()) {
+                current = _enumerator.Current;
+                _queue.Enqueue(current.GetChildrenEnumerator());
+                return true;
+            }
+
+            _enumerator.Dispose();
+
+            if (_queue.TryDequeue(out var en)) {
+                _enumerator = en;
+                goto Begin;
+            }
+
+            current = default;
+            return false;
+        }
+
+        public void Dispose()
+        {
+            _enumerator.Dispose();
+            foreach (var item in _queue) {
+                item.Dispose();
             }
         }
     }

@@ -7,7 +7,7 @@ public class StackAllocTest
     [TestMethod]
     public void BitArray()
     {
-        StackAllocBitArray bits = new(stackalloc byte[StackAllocBitArray.GetArrayLength(11)]);
+        StackAllocBitArray bits = new(stackalloc uint[StackAllocBitArray.GetArrayLength(11)]);
         Assert.AreEqual(bits.Length, 16);
 
         bool[] comp = new bool[bits.Length];

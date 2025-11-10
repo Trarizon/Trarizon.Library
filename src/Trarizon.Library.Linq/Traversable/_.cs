@@ -1,4 +1,5 @@
-﻿namespace Trarizon.Library.Linq;
+﻿
+namespace Trarizon.Library.Linq;
 
 public static partial class TraTraversable
 {

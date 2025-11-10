@@ -42,5 +42,5 @@ IEnumerable<string> value(string v)
 }
 
 TraTraversable.Create("string", value)
-    .DeepFirstTraverse()
+    .TraverseDeepFirst()
     .ForEach(v => Console.WriteLine(v.Value));
