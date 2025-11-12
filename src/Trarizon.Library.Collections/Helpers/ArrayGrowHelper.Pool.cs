@@ -1,9 +1,6 @@
 ﻿using System.Buffers;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-#if NETSTANDARD2_0
-using RuntimeHelpers = Trarizon.Library.Collections.Helpers.PfRuntimeHelpers;
-#endif
 
 namespace Trarizon.Library.Collections.Helpers;
 internal static partial class ArrayGrowHelper

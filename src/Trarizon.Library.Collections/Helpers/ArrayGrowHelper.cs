@@ -1,10 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
-#if NETSTANDARD2_0
-using RuntimeHelpers = Trarizon.Library.Collections.Helpers.PfRuntimeHelpers;
-#endif
 #if NETSTANDARD
-using ArrayMaxLengthProvider = Trarizon.Library.Collections.TraArray;
+using ArrayMaxLengthProvider = Trarizon.Library.Collections.TraCollection;
 #else
 using ArrayMaxLengthProvider = System.Array;
 #endif

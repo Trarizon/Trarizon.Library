@@ -8,6 +8,7 @@ using Trarizon.Library.Collections.Helpers;
 #endif
 
 namespace Trarizon.Library.Collections.Generic;
+
 [CollectionBuilder(typeof(CollectionBuilders), nameof(CollectionBuilders.CreateListDictionary))]
 public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue> where TKey : notnull
 {
@@ -41,7 +42,13 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
             return item.Value;
         }
         set {
-            FindRefOrAddDefault(key, out var _) = value;
+            ref var item = ref FindRef(key);
+            if (Unsafe.IsNullRef(ref item)) {
+                AddInternal(key, value);
+            }
+            else {
+                item.Value = value;
+            }
             _version++;
         }
     }
@@ -63,12 +70,11 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
 
     public bool TryAdd(TKey key, TValue value)
     {
-        ref var val = ref FindRefOrAddDefault(key, out var exist);
-        if (exist)
+        ref var val = ref FindRef(key);
+        if (!Unsafe.IsNullRef(ref val)) {
             return false;
-
-        val = value;
-        _version++;
+        }
+        AddInternal(key, value);
         return true;
     }
 
@@ -103,6 +109,15 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
         return true;
     }
 
+    private void AddInternal(TKey key, TValue value)
+    {
+        if (_count == _pairs.Length) {
+            ArrayGrowHelper.Grow(ref _pairs, _count + 1, _count);
+        }
+        _pairs[_count++] = (key, value);
+        _version++;
+    }
+
     private ref (TKey Key, TValue Value) FindRef(TKey key)
     {
         if (typeof(TKey).IsValueType && _comparer is null) {
@@ -119,33 +134,6 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
             }
         }
         return ref Unsafe.NullRef<(TKey, TValue)>();
-    }
-
-    private ref TValue FindRefOrAddDefault(TKey key, out bool exist)
-    {
-        if (typeof(TKey).IsValueType && _comparer is null) {
-            foreach (ref var pair in _pairs.AsSpan(_count)) {
-                if (EqualityComparer<TKey>.Default.Equals(pair.Key, key)) {
-                    exist = true;
-                    return ref pair.Value;
-                }
-            }
-        }
-        else {
-            _comparer ??= EqualityComparer<TKey>.Default;
-            foreach (ref var pair in _pairs.AsSpan(_count)) {
-                if (_comparer.Equals(pair.Key, key)) {
-                    exist = true;
-                    return ref pair.Value;
-                }
-            }
-        }
-        if (_count == _pairs.Length) {
-            ArrayGrowHelper.Grow(ref _pairs, _count + 1, _count);
-        }
-        _pairs[_count] = (key, default!);
-        exist = false;
-        return ref _pairs[_count++].Value;
     }
 
     /// <summary>

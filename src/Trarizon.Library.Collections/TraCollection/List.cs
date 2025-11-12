@@ -1,7 +1,5 @@
 ﻿using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections;
 public static partial class TraCollection
@@ -16,31 +14,17 @@ public static partial class TraCollection
     internal static Span<T> AsListSpan<T>(this List<T> list)
     {
 #if NETSTANDARD
-        return Utils<T>.GetUnderlyingArray(list).AsSpan(..list.Count);
+        return AsSpan(list);
 #else
         return CollectionsMarshal.AsSpan(list);
 #endif
     }
 
-#if NETSTANDARD
-
-    public static Span<T> AsSpan<T>(List<T> list)
-        => AsListSpan(list);
-
-    public static void EnsureCapacity<T>(this List<T> list, int expectedCapacity)
-    {
-        if (expectedCapacity <= list.Capacity)
-            return;
-        list.Capacity = ArrayGrowHelper.GetNewLength(list.Capacity, expectedCapacity);
-    }
-
-#endif
-
     public static ref T AtRef<T>(this List<T> list, int index)
         => ref list.AsListSpan()[index];
 
     public static T[] GetUnderlyingArray<T>(List<T> list)
-        => Utils<T>.GetUnderlyingArray(list);
+        => UnsafeAccess<T>.GetItems(list);
 
     public static void ReplaceAll<T>(this List<T> list, ReadOnlySpan<T> span)
     {
@@ -108,7 +92,7 @@ public static partial class TraCollection
         // If we modified in Span, the field _version of List<> won't update, so here we manually
         // use SetCount to update _version;
 #if NET9_0_OR_GREATER
-        Utils<T>.GetVersion(list)++;
+        UnsafeAccess<T>.GetVersion(list)++;
 #elif NETSTANDARD
         // If list is empty, and count no change, normally there's no operation requires updating version
         Debug.Assert(list.Count > 0);

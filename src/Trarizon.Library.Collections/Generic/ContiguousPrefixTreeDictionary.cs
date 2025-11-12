@@ -3,9 +3,6 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Trarizon.Library.Collections.Helpers;
-#if NETSTANDARD2_0
-using RuntimeHelpers = Trarizon.Library.Collections.Helpers.PfRuntimeHelpers;
-#endif
 
 namespace Trarizon.Library.Collections.Generic;
 

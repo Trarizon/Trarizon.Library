@@ -13,7 +13,7 @@ public static class TraEncoding
         }
     }
 
-    public static unsafe int GetBytess(this Encoding encoding, ReadOnlySpan<char> chars, Span<byte> bytes)
+    public static unsafe int GetBytes(this Encoding encoding, ReadOnlySpan<char> chars, Span<byte> bytes)
     {
         if (chars.IsEmpty)
             return 0;

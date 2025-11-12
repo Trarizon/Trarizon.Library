@@ -1,6 +1,6 @@
 ﻿using Trarizon.Library.Collections;
 #if NETSTANDARD
-using ArrayMaxLengthProvider = Trarizon.Library.Collections.TraArray;
+using ArrayMaxLengthProvider = Trarizon.Library.Collections.TraCollection;
 #else
 using ArrayMaxLengthProvider = System.Array;
 #endif

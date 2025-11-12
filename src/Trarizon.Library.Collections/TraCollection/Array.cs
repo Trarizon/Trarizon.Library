@@ -2,7 +2,8 @@
 using System.Diagnostics.CodeAnalysis;
 
 namespace Trarizon.Library.Collections;
-public static partial class TraArray
+
+public static partial class TraCollection
 {
     public static bool TryAt<T>(this ImmutableArray<T> array, int index, [MaybeNullWhen(false)] out T element)
     {
@@ -13,4 +14,7 @@ public static partial class TraArray
         element = array[index];
         return true;
     }
+
+    public static ImmutableArray<T> EmptyIfDefault<T>(this ImmutableArray<T> array)
+        => array.IsDefault ? [] : array;
 }

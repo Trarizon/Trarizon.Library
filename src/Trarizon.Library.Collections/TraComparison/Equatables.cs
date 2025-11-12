@@ -10,16 +10,13 @@ public static partial class TraComparison
     public static ComparerEquatable<T, TComparer> CreateEquatable<T, TComparer>(T value, TComparer comparer) where TComparer : IEqualityComparer<T>
         => new ComparerEquatable<T, TComparer>(value, comparer);
 
-    public static DefaultComparerEquatable<T> CreateEquatable<T>(T value)
-        => new DefaultComparerEquatable<T>(value);
-
     public readonly struct ComparerEquatable<T, TComparer>(T value, TComparer comparer) : IEquatable<T> where TComparer : IEqualityComparer<T>
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Equals(T? other) => comparer.Equals(value, other);
     }
 
-    public readonly struct DefaultComparerEquatable<T>(T value) : IEquatable<T>, IEquatable<DefaultComparerEquatable<T>>
+    internal readonly struct DefaultComparerEquatable<T>(T value) : IEquatable<T>, IEquatable<DefaultComparerEquatable<T>>
     {
         private readonly T _value = value;
 
@@ -32,5 +29,11 @@ public static partial class TraComparison
         public override bool Equals(object? obj) => obj is DefaultComparerEquatable<T> other && Equals(other);
 
         public override int GetHashCode() => _value?.GetHashCode() ?? 0;
+
+        public static bool operator ==(DefaultComparerEquatable<T> left, DefaultComparerEquatable<T> right)
+            => left.Equals(right);
+
+        public static bool operator !=(DefaultComparerEquatable<T> left, DefaultComparerEquatable<T> right)
+            => !(left == right);
     }
 }

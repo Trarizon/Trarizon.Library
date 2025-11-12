@@ -35,6 +35,7 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.2" />
+		<PackageReference Include="System.Collections.Immutable" Version="8.0.0" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
@@ -46,8 +47,9 @@
 		<PolySharpIncludeGeneratedTypes>
 			System.Diagnostics.StackTraceHiddenAttribute;
 
-			System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute;
 			System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute;
+			System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute;
+			System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute;
 
 			System.Runtime.CompilerServices.CallerArgumentExpressionAttribute;
 			<!--
@@ -56,7 +58,6 @@
 			System.Diagnostics.CodeAnalysis.MaybeNullAttribute;
 			System.Diagnostics.CodeAnalysis.MemberNotNullAttribute;
 			System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute;
-			System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute;
 			System.Diagnostics.CodeAnalysis.NotNullWhenAttribute;
 
 			System.Diagnostics.CodeAnalysis.ExperimentalAttribute;

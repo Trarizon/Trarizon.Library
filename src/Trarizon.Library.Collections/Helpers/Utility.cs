@@ -17,11 +17,7 @@ internal static class Utility
         }
         if (source.GetType() == typeof(List<T>)) {
             var list = Unsafe.As<List<T>>(source);
-#if NET8_0_OR_GREATER
-            span = CollectionsMarshal.AsSpan(list);
-#else
-            span = Unsafe.As<StrongBox<T[]>>(list).Value;
-#endif
+            span = list.AsListSpan();
             return true;
         }
         span = default;

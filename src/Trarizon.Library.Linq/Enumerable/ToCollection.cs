@@ -1,6 +1,7 @@
 ﻿using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Collections.Immutable;
 
 namespace Trarizon.Library.Linq;
 
@@ -12,6 +13,25 @@ public static partial class TraEnumerable
             action.Invoke(item);
         }
     }
+ 
+    /// <summary>
+    /// Returns the underlying array as <see cref="IEnumerable{T}"/>, to get a better performance with linq.
+    /// Note that the result maybe <see langword="null"/> if <paramref name="array"/> is default.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="IEnumerable{T}"/> representing the array, <see langword="null"/> if <paramref name="array"/> is default.
+    /// </returns>
+    public static IEnumerable<T>? AsEnumerableOrNull<T>(this ImmutableArray<T> array)
+        => ImmutableCollectionsMarshal.AsArray(array)!;
+
+    /// <summary>
+    /// Returns the underlying array as <see cref="IEnumerable{T}"/>, to get a better performance with linq.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="IEnumerable{T}"/> representing the array, if <paramref name="array"/> is default, returns empty array
+    /// </returns>
+    public static IEnumerable<T> AsEnumerable<T>(this ImmutableArray<T> array)
+        => array.IsDefault ? [] : array.AsEnumerableOrNull()!;
 
     /// <summary>
     /// If <paramref name="source"/> is <see langword="null"/>, this method returns an empty collection,

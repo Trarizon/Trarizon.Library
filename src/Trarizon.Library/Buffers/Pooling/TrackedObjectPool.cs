@@ -1,4 +1,9 @@
 ﻿using Trarizon.Library.Collections;
+#if NETSTANDARD
+using ArrU = Trarizon.Library.Collections.TraCollection;
+#else
+using ArrU = System.Array;
+#endif
 
 namespace Trarizon.Library.Buffers.Pooling;
 public sealed class TrackedObjectPool<T> : ObjectPool<T> where T : class
@@ -19,11 +24,7 @@ public sealed class TrackedObjectPool<T> : ObjectPool<T> where T : class
         _onDispose = onDispose;
         _pooled = new();
         _rented = [];
-#if NETSTANDARD
-        _maxCount = maxCount < 0 ? TraArray.MaxLength : maxCount;
-#else
-        _maxCount = maxCount < 0 ? Array.MaxLength : maxCount;
-#endif
+        _maxCount = maxCount < 0 ? ArrU.MaxLength : maxCount;
     }
 
     /// <inheritdoc />
