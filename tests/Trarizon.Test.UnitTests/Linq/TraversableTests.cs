@@ -1,12 +1,12 @@
-﻿using System.Collections;
+﻿using FluentAssertions;
+using System.Collections;
 using Trarizon.Library.Linq;
 
-namespace Trarizon.Test.UnitTest.Linq;
+namespace Trarizon.Test.UnitTests.Linq;
 
-[TestClass]
-public class Traversable
+public class TraversableTests
 {
-    private TreeNode<int> _deepFirstTree = new TreeNode<int>(1)
+    private readonly TreeNode<int> _deepFirstTree = new TreeNode<int>(1)
     {
         new TreeNode<int>(2)
         {
@@ -29,7 +29,7 @@ public class Traversable
         new TreeNode<int>(10)
     };
 
-    private TreeNode<int> _breadthFirstTree = new TreeNode<int>(1)
+    private readonly TreeNode<int> _breadthFirstTree = new TreeNode<int>(1)
     {
         new TreeNode<int>(2)
         {
@@ -51,23 +51,23 @@ public class Traversable
         },
         new TreeNode<int>(4)
     };
-
-    [TestMethod]
+   
+    [Fact]
     public void TraverseDeepFirst()
     {
         var tree = _deepFirstTree;
 
         var result = TraTraversable.TraverseDeepFirst(tree, includeSelf: true);
-        Assert.AreSequenceEqual(result.Select(x => x.Value), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+        result.Select(x => x.Value).Should().Equal([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
     }
 
-    [TestMethod]
+    [Fact]
     public void TraverseBreadthFirst()
     {
         var tree = _breadthFirstTree;
 
         var result = TraTraversable.TraverseBreadthFirst(tree, includeSelf: true);
-        Assert.AreSequenceEqual(result.Select(x => x.Value), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+        result.Select(x => x.Value).Should().Equal([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
     }
 
     private class TreeNode<T>(T value) : IChildrenTraversable<TreeNode<T>>, IEnumerable<TreeNode<T>>

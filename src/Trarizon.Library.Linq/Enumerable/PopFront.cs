@@ -4,11 +4,11 @@ namespace Trarizon.Library.Linq;
 
 public static partial class TraEnumerable
 {
-    public static IEnumerable<T> PopFront<T>(this IEnumerable<T> source, int count, out IEnumerable<T> leading)
+    public static IEnumerable<T> PopFront<T>(this IEnumerable<T> source, int count, out IEnumerable<T> leadings)
     {
         var front = new PopFrontIterator<T>(source, count);
         var rest = front.GetRestCollection();
-        leading = front;
+        leadings = front;
         return rest;
     }
 

@@ -22,16 +22,16 @@ public static partial class TraEnumerable
         }
     }
 
-    extension<T>(IEnumerable<T> source)
-    {
-        public IEnumerable<T> OfTypeUntil<TExcept>()
-        {
-            foreach (var item in source) {
-                if (item is TExcept)
-                    yield break;
-                else
-                    yield return item;
-            }
-        }
-    }
+    //extension<T>(IEnumerable<T> source)
+    //{
+    //    public IEnumerable<T> OfTypeUntil<TExcept>()
+    //    {
+    //        foreach (var item in source) {
+    //            if (item is TExcept)
+    //                yield break;
+    //            else
+    //                yield return item;
+    //        }
+    //    }
+    //}
 }

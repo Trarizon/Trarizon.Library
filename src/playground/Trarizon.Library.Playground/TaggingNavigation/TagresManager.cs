@@ -5,7 +5,7 @@ namespace Trarizon.Library.Experimental.TaggingNavigation;
 internal class TagresManager
 {
     private HashSet<Item> _items;
-    private PrefixTreeDictionary<string, Tag> _tags;
+    private PrefixTreeDictionary_old<string, Tag> _tags;
 
     public void AddTag(Tag tag)
     {

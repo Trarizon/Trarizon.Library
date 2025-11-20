@@ -5,44 +5,58 @@ using System.Runtime.CompilerServices;
 using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections.Generic;
+
 public partial class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
 {
     internal Node? _root;
     internal int _count;
     private int _nodeCount;
     internal int _version;
-    private IEqualityComparer<TKey>? _comparer;
+    private readonly IEqualityComparer<TKey>? _comparer;
 
-    public PrefixTreeDictionary() : this(null)
+    public Node Root
     {
-    }
-
-    public PrefixTreeDictionary(IEqualityComparer<TKey>? comparer)
-    {
-        if (!typeof(TKey).IsValueType) {
-            _comparer = comparer ?? EqualityComparer<TKey>.Default;
-        }
-        else if (comparer is not null && !ReferenceEquals(comparer, EqualityComparer<TKey>.Default)) {
-            _comparer = comparer;
+        get {
+            if (_root is null) {
+                _root = new(this, default);
+            }
+            return _root;
         }
     }
-
-    #region Access
-
-    public int Count => _count;
 
     public int NodeCount => _nodeCount;
 
-    /// <summary>
-    /// Root's <see cref="Node.Key"/> is always default
-    /// </summary>
-    public Node Root => GetEnsuredRoot();
+    public int Count => _count;
 
     public IEqualityComparer<TKey> Comparer => _comparer ?? EqualityComparer<TKey>.Default;
 
+    public TValue this[ReadOnlySpan<TKey> sequence]
+    {
+        get {
+            if (!TryGetValue(sequence, out var value))
+                Throws.KeyNotFound(sequence, nameof(PrefixTreeDictionary<,>));
+            return value;
+        }
+        set {
+            if (!TryAdd(sequence, value, out var node)) {
+                node.SetIsEnd(value);
+                _version++;
+            }
+        }
+    }
+
+    public PrefixTreeDictionary(IEqualityComparer<TKey>? comparer = null)
+    {
+        if (!typeof(TKey).IsValueType)
+            _comparer = comparer ?? EqualityComparer<TKey>.Default;
+        else if (comparer is not null && !ReferenceEquals(comparer, EqualityComparer<TKey>.Default))
+            _comparer = comparer;
+        _nodeCount = 1;
+    }
+
     public bool TryGetValue(ReadOnlySpan<TKey> sequence, [MaybeNullWhen(false)] out TValue value)
     {
-        var node = FindPrefix(sequence);
+        var node = FindPrefixNode(sequence);
         if (node is { IsEnd: true }) {
             value = node.GetValueOrDefault()!;
             return true;
@@ -55,7 +69,7 @@ public partial class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
 
     public bool TryGetValue(IEnumerable<TKey> sequence, [MaybeNullWhen(false)] out TValue value)
     {
-        var node = FindPrefix(sequence);
+        var node = FindPrefixNode(sequence);
         if (node is { IsEnd: true }) {
             value = node.GetValueOrDefault()!;
             return true;
@@ -66,52 +80,35 @@ public partial class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
         }
     }
 
-    public bool TryGetNode(ReadOnlySpan<TKey> sequence, [MaybeNullWhen(false)] out Node node)
+    public bool TryGetNode(ReadOnlySpan<TKey> prefixSequence, [MaybeNullWhen(false)] out Node node)
     {
-        node = FindPrefix(sequence);
+        node = FindPrefixNode(prefixSequence);
         return node is not null;
     }
 
-    public bool TryGetNode(IEnumerable<TKey> sequence, [MaybeNullWhen(false)] out Node node)
+    public bool TryGetNode(IEnumerable<TKey> prefixSequence, [MaybeNullWhen(false)] out Node node)
     {
-        node = FindPrefix(sequence);
+        node = FindPrefixNode(prefixSequence);
         return node is not null;
     }
 
     public bool ContainsKey(ReadOnlySpan<TKey> sequence)
-    {
-        var node = FindPrefix(sequence);
-        if (node is null)
-            return false;
-        return node.IsEnd;
-    }
+        => FindPrefixNode(sequence) is { IsEnd: true };
 
     public bool ContainsKey(IEnumerable<TKey> sequence)
-    {
-        var node = FindPrefix(sequence);
-        if (node is null)
-            return false;
-        return node.IsEnd;
-    }
+        => FindPrefixNode(sequence) is { IsEnd: true };
 
-    public bool ContainsKeyPrefix(ReadOnlySpan<TKey> sequence)
-    {
-        var node = FindPrefix(sequence);
-        if (node is null)
-            return false;
-        return true;
-    }
+    public bool ContainsKeyPrefix(ReadOnlySpan<TKey> prefixSequence)
+        => FindPrefixNode(prefixSequence) is not null;
 
-    public bool ContainsKeyPrefix(IEnumerable<TKey> sequence)
-    {
-        var node = FindPrefix(sequence);
-        if (node is null)
-            return false;
-        return true;
-    }
+    public bool ContainsKeyPrefix(IEnumerable<TKey> prefixSequence)
+        => FindPrefixNode(prefixSequence) is not null;
 
-    private Node? FindPrefix(ReadOnlySpan<TKey> prefix)
+    private Node? FindPrefixNode(ReadOnlySpan<TKey> prefix)
     {
+        if (prefix.IsEmpty)
+            return Root;
+
         if (_root is null)
             return null;
 
@@ -119,13 +116,12 @@ public partial class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
 
         if (typeof(TKey).IsValueType && _comparer is null) {
             foreach (var val in prefix) {
-                var child = node._child;
-                while (child is not null) {
+                var children = node.ChildrenSpan;
+                foreach (var child in children) {
                     if (EqualityComparer<TKey>.Default.Equals(child.Key!, val)) {
                         node = child;
                         goto ContinueFor;
                     }
-                    child = child._nextSibling;
                 }
                 return null;
 
@@ -137,13 +133,12 @@ public partial class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
             Debug.Assert(_comparer is not null);
             var comparer = _comparer!;
             foreach (var val in prefix) {
-                var child = node._child;
-                while (child is not null) {
+                var children = node.ChildrenSpan;
+                foreach (var child in children) {
                     if (comparer.Equals(child.Key!, val)) {
                         node = child;
                         goto ContinueFor;
                     }
-                    child = child._nextSibling;
                 }
                 return null;
 
@@ -151,10 +146,11 @@ public partial class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
                 continue;
             }
         }
+
         return node;
     }
 
-    private Node? FindPrefix(IEnumerable<TKey> prefix)
+    private Node? FindPrefixNode(IEnumerable<TKey> prefix)
     {
         if (_root is null)
             return null;
@@ -163,13 +159,12 @@ public partial class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
 
         if (typeof(TKey).IsValueType && _comparer is null) {
             foreach (var val in prefix) {
-                var child = node._child;
-                while (child is not null) {
+                var children = node.ChildrenSpan;
+                foreach (var child in children) {
                     if (EqualityComparer<TKey>.Default.Equals(child.Key!, val)) {
                         node = child;
                         goto ContinueFor;
                     }
-                    child = child._nextSibling;
                 }
                 return null;
 
@@ -181,13 +176,12 @@ public partial class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
             Debug.Assert(_comparer is not null);
             var comparer = _comparer!;
             foreach (var val in prefix) {
-                var child = node._child;
-                while (child is not null) {
+                var children = node.ChildrenSpan;
+                foreach (var child in children) {
                     if (comparer.Equals(child.Key!, val)) {
                         node = child;
                         goto ContinueFor;
                     }
-                    child = child._nextSibling;
                 }
                 return null;
 
@@ -195,244 +189,182 @@ public partial class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
                 continue;
             }
         }
+
         return node;
     }
-
-    #endregion
-
-    #region Modification
 
     public Node GetOrAdd(ReadOnlySpan<TKey> sequence, TValue value)
-        => GetOrAddInternal(sequence, value, out _);
+    {
+        TryAdd(sequence, value, out var node);
+        return node;
+    }
 
     public Node GetOrAdd(IEnumerable<TKey> sequence, TValue value)
-        => GetOrAddInternal(sequence, value, out _);
-
-    public bool TryAdd(ReadOnlySpan<TKey> sequence, TValue value, [MaybeNullWhen(false)] out Node node)
     {
-        var n = GetOrAddInternal(sequence, value, out var exists);
-        if (exists) {
-            node = default;
-            return false;
-        }
-        else {
-            node = n;
-            return true;
-        }
+        TryAdd(sequence, value, out var node);
+        return node;
     }
 
-    public bool TryAdd(IEnumerable<TKey> sequence, TValue value, [MaybeNullWhen(false)] out Node node)
+    public bool TryAdd(ReadOnlySpan<TKey> sequence, TValue value, out Node node)
     {
-        var n = GetOrAddInternal(sequence, value, out var exists);
-        if (exists) {
-            node = default;
-            return false;
-        }
-        else {
-            node = n;
-            return true;
-        }
-    }
-
-    public bool Remove(ReadOnlySpan<TKey> sequence)
-    {
-        var node = FindPrefix(sequence);
-        if (node is null)
-            return false;
-        if (!node.IsEnd)
-            return false;
-
-        RemoveInternal(node);
-        return true;
-    }
-
-    public bool Remove(IEnumerable<TKey> sequence)
-    {
-        var node = FindPrefix(sequence);
-        if (node is null)
-            return false;
-        if (!node.IsEnd)
-            return false;
-
-        RemoveInternal(node);
-        return true;
-    }
-
-    public void Clear()
-    {
-        _count = 0;
-        _nodeCount = 0;
-        if (_root is not null) {
-            _root._child = null;
-        }
-        _version++;
-    }
-
-    private Node GetOrAddInternal(ReadOnlySpan<TKey> sequence, TValue value, out bool exists)
-    {
-        var node = GetEnsuredRoot();
+        node = Root;
         foreach (var item in sequence) {
             node = GetOrAddChild(node, item);
         }
 
+        if (node.IsEnd) {
+            return false;
+        }
+
         _version++;
         _count++;
-
-        if (node.IsEnd) {
-            exists = true;
-        }
-        else {
-            exists = false;
-            node.SetIsEnd(value);
-        }
-        return node;
+        node.SetIsEnd(value);
+        return true;
     }
 
-    private Node GetOrAddInternal(IEnumerable<TKey> sequence, TValue value, out bool exists)
+    public bool TryAdd(IEnumerable<TKey> sequence, TValue value, out Node node)
     {
-        var node = GetEnsuredRoot();
+        node = Root;
         foreach (var item in sequence) {
             node = GetOrAddChild(node, item);
         }
 
+        if (node.IsEnd) {
+            return false;
+        }
         _version++;
         _count++;
-
-        if (node.IsEnd) {
-            exists = true;
-        }
-        else {
-            exists = false;
-            node.SetIsEnd(value);
-        }
-        return node;
+        node.SetIsEnd(value);
+        return true;
     }
 
     private Node GetOrAddChild(Node parent, TKey key)
     {
         Debug.Assert(parent._tree == this);
 
-        var child = parent._child;
         if (typeof(TKey).IsValueType && _comparer is null) {
-            while (child is not null) {
-                if (EqualityComparer<TKey>.Default.Equals(key, child.Key!))
+            foreach (var child in parent.ChildrenSpan) {
+                if (EqualityComparer<TKey>.Default.Equals(child.Key!, key)) {
                     return child;
-                child = child._nextSibling;
+                }
             }
         }
         else {
             Debug.Assert(_comparer is not null);
             var comparer = _comparer!;
-            while (child is not null) {
-                if (comparer.Equals(key, child.Key!))
+            foreach (var child in parent.ChildrenSpan) {
+                if (comparer.Equals(child.Key!, key)) {
                     return child;
-                child = child._nextSibling;
+                }
             }
         }
 
-        {
-            child = new Node(this, key);
-            child._parent = parent;
-            child._nextSibling = parent._child;
-            parent._child = child;
-            _nodeCount++;
-            return child;
-        }
+        var node = new Node(this, key);
+        parent.AddChildAndSetParent(node);
+        _nodeCount++;
+        return node;
     }
 
-    internal void RemoveInternal(Node endNode)
+    public bool Remove(ReadOnlySpan<TKey> sequence)
+    {
+        var node = FindPrefixNode(sequence);
+        if (node is not { IsEnd: true })
+            return false;
+
+        RemoveEndNode(node);
+        _count--;
+        _version++;
+        return true;
+    }
+
+    public bool Remove(IEnumerable<TKey> sequence)
+    {
+        var node = FindPrefixNode(sequence);
+        if (node is not { IsEnd: true })
+            return false;
+
+        RemoveEndNode(node);
+        _count--;
+        _version++;
+        return true;
+    }
+
+    internal void RemoveEndNode(Node endNode)
     {
         Debug.Assert(endNode._tree == this && endNode.IsEnd);
+        Debug.Assert(_root is not null, "If there's any node in the tree, the root node should have been initialized");
 
-        _version++;
-        _count--;
         endNode.SetNotEnd();
-        if (endNode._child is null) {
-            InvalidateFromLeaf(endNode);
+        if (endNode.ChildrenSpan.IsEmpty) {
+            // If this is leaf, remove redundant nodes on this branch
+            var node = endNode;
+            do {
+                Debug.Assert(node._parent is not null);
+                var parent = node._parent!;
+                parent.RemoveChild(node);
+                _nodeCount--;
+                node = parent;
+            } while (node != _root && node.ChildrenSpan.IsEmpty && !node.IsEnd);
         }
     }
 
-    private void InvalidateFromLeaf(Node node)
+    public void Clear()
     {
-        Debug.Assert(node._child is null);
-
-        do {
-            Debug.Assert(node._parent is not null);
-            var parent = node._parent!;
-            Debug.Assert(parent._child is not null);
-            var child = parent._child!;
-
-            // node is not the first child, remove it from children list
-            if (child != node) {
-                while (child._nextSibling != node) {
-                    Debug.Assert(child._nextSibling is not null);
-                    child = child._nextSibling!;
-                }
-                child._nextSibling = node._nextSibling;
-            }
-            _nodeCount--;
-            node = parent;
-        } while (node != _root && !node.IsEnd);
+        _count = 0;
+        _nodeCount = 1;
+        _root?.ClearChildren();
+        _version++;
     }
-
-    #endregion
-
-    private Node GetEnsuredRoot() => _root ??= new Node(this, default!);
 
     public sealed class Node
     {
         internal PrefixTreeDictionary<TKey, TValue> _tree;
         internal Node? _parent;
-        internal Node? _child;
-        internal Node? _nextSibling;
-        private readonly TKey _key;
+        private Node[] _children;
+        private int _childCount = 0;
+        private readonly TKey? _key;
         private TValue? _value;
+        private bool _end = false;
 
-        internal Node(PrefixTreeDictionary<TKey, TValue> tree, TKey key)
+        internal Node(PrefixTreeDictionary<TKey, TValue> tree, TKey? key)
         {
             _tree = tree;
+            _children = [];
             _key = key;
-        }
-
-        [MemberNotNullWhen(true, nameof(_value))]
-        public bool IsEnd { get; private set; }
-
-        /// <summary>
-        /// If the node is root, the key is always default
-        /// </summary>
-        public TKey Key => _key;
-
-        public ref readonly TKey KeyRef => ref _key;
-
-        public TValue Value
-        {
-            get {
-                if (!IsEnd)
-                    ThrowNoValue();
-                return _value!;
-            }
-            set {
-                if (!IsEnd)
-                    ThrowNoValue();
-                _value = value;
-            }
-        }
-
-        /// <summary>
-        /// Value ref
-        /// </summary>
-        public ref TValue ValueRef
-        {
-            get {
-                if (!IsEnd)
-                    ThrowNoValue();
-                return ref _value!;
-            }
         }
 
         public Node? Parent => _parent;
 
+        public TKey? Key => _key;
+
+        public ref readonly TKey? KeyRef => ref _key;
+
+        public TValue Value
+        {
+            get {
+                if (!IsEnd) ThrowNoValue();
+                return _value!;
+            }
+            set {
+                if (!IsEnd) ThrowNoValue();
+                _value = value;
+            }
+        }
+
+        public ref TValue ValueRef
+        {
+            get {
+                if (!IsEnd) ThrowNoValue();
+                return ref _value!;
+            }
+        }
+
+        [MemberNotNullWhen(true, nameof(_value))]
+        public bool IsEnd => _end;
+
         public NodeChildrenCollection Children => new(this);
+
+        internal ReadOnlySpan<Node> ChildrenSpan => _children.AsSpan(0, _childCount);
 
         public TValue? GetValueOrDefault() => _value;
 
@@ -441,13 +373,52 @@ public partial class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
         internal void SetIsEnd(TValue value)
         {
             _value = value;
-            IsEnd = true;
+            _end = true;
         }
 
         internal void SetNotEnd()
         {
-            IsEnd = false;
+            _end = false;
             _value = default;
+        }
+
+        internal int ChildCount => _childCount;
+
+        internal void AddChildAndSetParent(Node child)
+        {
+            Debug.Assert(child._parent is null);
+
+            if (_childCount == _children.Length) {
+                ArrayGrowHelper.Grow(ref _children, _childCount + 1, _childCount);
+            }
+
+            child._parent = this;
+            _children[_childCount++] = child;
+        }
+
+        internal void RemoveChild(Node child)
+        {
+            Debug.Assert(child._parent == this);
+
+            int i = ChildIndexOf(child);
+            Debug.Assert(i >= 0);
+            ArrayGrowHelper.ShiftLeftForRemoveAndFree(_children, _childCount, i, 1);
+            _childCount--;
+        }
+
+        internal void ClearChildren()
+        {
+            Array.Clear(_children, 0, _childCount);
+            _childCount = 0;
+        }
+
+        private int ChildIndexOf(Node child)
+        {
+            for (int i = 0; i < _childCount; i++) {
+                if (_children[i] == child)
+                    return i;
+            }
+            return -1;
         }
 
         [DoesNotReturn]
@@ -459,48 +430,48 @@ public partial class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
     {
         private readonly Node _node;
 
-        public bool IsEmpty => _node._child is null;
+        public bool IsEmpty => _node.ChildCount == 0;
 
         internal NodeChildrenCollection(Node node)
-        {
-            _node = node;
-        }
+            => _node = node;
 
-        public readonly Enumerator GetEnumerator() => new Enumerator(_node);
-        IEnumerator<Node> IEnumerable<Node>.GetEnumerator() => GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        public Enumerator GetEnumerator() => new(_node);
+        readonly IEnumerator<Node> IEnumerable<Node>.GetEnumerator() => GetEnumerator();
+        readonly IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         public struct Enumerator : IEnumerator<Node>
         {
             private readonly Node _parent;
             private readonly int _version;
-            private Node? _node;
+            private int _index;
             private Node? _current;
-
-            public readonly Node Current => _current!;
 
             internal Enumerator(Node node)
             {
                 _parent = node;
                 _version = node._tree._version;
-                _node = node._child;
+                _index = 0;
             }
+
+            public readonly Node Current => _current!;
+
+            object IEnumerator.Current => Current;
 
             public bool MoveNext()
             {
-                if (_node is null)
-                    return false;
-
                 if (_version != _parent._tree._version)
                     Throws.CollectionModifiedDuringEnumeration();
 
-                _current = _node;
-                _node = _node._nextSibling;
+                var children = _parent.ChildrenSpan;
+                if (_index >= children.Length)
+                    return false;
+
+                _current = children[_index];
+                _index++;
                 return true;
             }
 
-            public void Reset() => _node = _parent._child;
-            readonly object IEnumerator.Current => Current;
+            void IEnumerator.Reset() => _index = 0;
             readonly void IDisposable.Dispose() { }
         }
     }

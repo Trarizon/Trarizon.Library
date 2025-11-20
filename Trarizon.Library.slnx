@@ -23,7 +23,7 @@
     <Project Path="tests/Trarizon.Test.CodeAnalysis/Trarizon.Test.CodeAnalysis.csproj" Id="7a4055e2-c95f-4afe-aa31-3e8affedf67a" />
     <Project Path="tests/Trarizon.Test.Nuget/Trarizon.Test.Nuget.csproj" />
     <Project Path="tests/Trarizon.Test.Run/Trarizon.Test.Run.csproj" />
-    <Project Path="tests/Trarizon.Test.UnitTest/Trarizon.Test.UnitTest.csproj" />
+    <Project Path="tests/Trarizon.Test.UnitTests/Trarizon.Test.UnitTests.csproj" />
   </Folder>
   <Folder Name="/SolutionItems/">
     <File Path="LICENSE" />

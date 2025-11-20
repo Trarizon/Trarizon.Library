@@ -1,15 +1,25 @@
-﻿using BenchmarkDotNet.Attributes;
+﻿/*
+| Method      | Job       | Runtime   | array     | val           | cmp                  | Mean      | Error     | StdDev    | Allocated |
+|------------ |---------- |---------- |---------- |-------------- |--------------------- |----------:|----------:|----------:|----------:|
+| MGeneralInt | .NET 10.0 | .NET 10.0 | Int32[5]  | 2             | ?                    | 1.8865 ns | 0.0561 ns | 0.0525 ns |         - |
+| MSpValInt   | .NET 10.0 | .NET 10.0 | Int32[5]  | 2             | ?                    | 0.9903 ns | 0.0301 ns | 0.0267 ns |         - |
+| MGeneralInt | .NET 10.0 | .NET 10.0 | Int32[5]  | 2             | Syste(...)nt32] [66] | 1.8853 ns | 0.0393 ns | 0.0349 ns |         - |
+| MSpValInt   | .NET 10.0 | .NET 10.0 | Int32[5]  | 2             | Syste(...)nt32] [66] | 1.3603 ns | 0.0339 ns | 0.0318 ns |         - |
+| MGeneralObj | .NET 10.0 | .NET 10.0 | Object[4] | System.Object | ?                    | 6.6674 ns | 0.1127 ns | 0.1054 ns |         - |
+| MGeneralObj | .NET 10.0 | .NET 10.0 | Object[4] | System.Object | ?                    | 6.6401 ns | 0.0923 ns | 0.0863 ns |         - |
+| MSpValObj   | .NET 10.0 | .NET 10.0 | Object[4] | System.Object | ?                    | 7.0762 ns | 0.0441 ns | 0.0368 ns |         - |
+| MSpValObj   | .NET 10.0 | .NET 10.0 | Object[4] | System.Object | ?                    | 7.1987 ns | 0.0916 ns | 0.0812 ns |         - |
+ */
+// 对int来说，特化快了1倍，甚至比直接传Default compare快
+// 对object来说，通用模式快了一点，7ns到6.6ns
+
+using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
-using System.Buffers;
+using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using Trarizon.Library.Collections;
-using Trarizon.Library.Collections.Generic;
-using Trarizon.Library.Wrappers;
+using System.Text;
 
-#pragma warning disable TRALIB
-
-namespace Trarizon.Test.Run;
+namespace Trarizon.Test.Run.HistoryBenchmarks;
 
 [MemoryDiagnoser]
 public class Benchmarks
@@ -45,7 +55,7 @@ public class Benchmarks
 
     [Benchmark]
     [ArgumentsSource(nameof(ArgsInt))]
-    public int MGeneralInt(int[] array,int val, IEqualityComparer<int>? cmp)
+    public int MGeneralInt(int[] array, int val, IEqualityComparer<int>? cmp)
         => MGeneral(array, val, cmp);
 
     [Benchmark]

@@ -4,10 +4,11 @@ using System.Runtime.CompilerServices;
 using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections.Generic;
-partial class PrefixTreeDictionary<TKey, TValue>
-{
+
 #if NET9_0_OR_GREATER
 
+partial class PrefixTreeDictionary<TKey, TValue>
+{
     public AlternateLookup<TAlternate> GetAlternateLookup<TAlternate>() where TAlternate : notnull, allows ref struct
     {
         if (!IsCompatibleAlternateKey<TAlternate>(this)) {
@@ -27,27 +28,25 @@ partial class PrefixTreeDictionary<TKey, TValue>
     }
 
     internal static bool IsCompatibleAlternateKey<TAlternate>(PrefixTreeDictionary<TKey, TValue> tree) where TAlternate : allows ref struct
-    {
-        return tree._comparer is IAlternateEqualityComparer<TAlternate, TKey>;
-    }
+        => tree._comparer is IAlternateEqualityComparer<TAlternate, TKey>;
 
     public readonly struct AlternateLookup<TAlternate> where TAlternate : notnull, allows ref struct
     {
-        internal AlternateLookup(PrefixTreeDictionary<TKey, TValue> tree)
-        {
-            // If comparer is null, typeof(T) is always value type, and the default comparer will never be IAlternateComaprer
-            Debug.Assert(tree._comparer is not null);
-            Debug.Assert(IsCompatibleAlternateKey<TAlternate>(tree));
-            Tree = tree;
-        }
-
         public PrefixTreeDictionary<TKey, TValue> Tree { get; }
 
         public IAlternateEqualityComparer<TAlternate, TKey> Comparer => Unsafe.As<IAlternateEqualityComparer<TAlternate, TKey>>(Tree._comparer!);
 
-        public bool TryGetValue<TEnumerable>(TEnumerable sequence, [MaybeNullWhen(false)] out TValue value) where TEnumerable : IEnumerable<TAlternate>, allows ref struct
+        public AlternateLookup(PrefixTreeDictionary<TKey, TValue> tree)
         {
-            var node = FindPrefix(sequence);
+            // If comparer is null, typeof(T) is always value type, and the default comparer will never be IAlternateComaprer
+            Debug.Assert(tree._comparer is not null);
+            Debug.Assert(tree._comparer is IAlternateEqualityComparer<TAlternate, TKey>);
+            Tree = tree;
+        }
+
+        public bool TryGetValue(IEnumerable<TAlternate> sequence, [MaybeNullWhen(false)] out TValue value)
+        {
+            var node = FindPrefixNode(sequence);
             if (node is { IsEnd: true }) {
                 value = node.GetValueOrDefault()!;
                 return true;
@@ -58,246 +57,91 @@ partial class PrefixTreeDictionary<TKey, TValue>
             }
         }
 
-        public bool TryGetNode<TEnumerable>(TEnumerable sequence, [MaybeNullWhen(false)] out Node node) where TEnumerable : IEnumerable<TAlternate>, allows ref struct
+        public bool TryGetNode(IEnumerable<TAlternate> prefixSequence, [MaybeNullWhen(false)] out Node node)
         {
-            node = FindPrefix(sequence);
+            node = FindPrefixNode(prefixSequence);
             return node is not null;
         }
 
-        public bool ContainsKey<TEnumerable>(TEnumerable sequence) where TEnumerable : IEnumerable<TAlternate>, allows ref struct
+        public bool ContainsKey(IEnumerable<TAlternate> sequence)
+            => FindPrefixNode(sequence) is { IsEnd: true };
+
+        public bool ContainsKeyPrefix(IEnumerable<TAlternate> prefixSequence)
+            => FindPrefixNode(prefixSequence) is not null;
+
+        private Node? FindPrefixNode(IEnumerable<TAlternate> prefix)
         {
-            var node = FindPrefix(sequence);
-            if (node is null)
-                return false;
-            return node.IsEnd;
-        }
-
-        public bool ContainsKeyPrefix<TEnumerable>(TEnumerable sequence) where TEnumerable : IEnumerable<TAlternate>, allows ref struct
-        {
-            var node = FindPrefix(sequence);
-            return node is not null;
-        }
-
-        public Node GetOrAdd<TEnumerable>(TEnumerable sequence, TValue value) where TEnumerable : IEnumerable<TAlternate>, allows ref struct
-            => GetOrAddInternal(sequence, value, out _);
-
-        public bool TryAdd<TEnumerable>(TEnumerable sequence, TValue value, [MaybeNullWhen(false)] out Node node) where TEnumerable : IEnumerable<TAlternate>, allows ref struct
-        {
-            var n = GetOrAddInternal(sequence, value, out var exists);
-            if (exists) {
-                node = default;
-                return false;
-            }
-            else {
-                node = n;
-                return true;
-            }
-        }
-
-        public bool Remove<TEnumerable>(TEnumerable sequence) where TEnumerable : IEnumerable<TAlternate>, allows ref struct
-        {
-            var node = FindPrefix(sequence);
-            if (node is null)
-                return false;
-            if (!node.IsEnd)
-                return false;
-
-            Tree.RemoveInternal(node);
-            return true;
-        }
-
-        private Node GetOrAddInternal<TEnumerable>(TEnumerable sequence, TValue value, out bool exists) where TEnumerable : IEnumerable<TAlternate>, allows ref struct
-        {
-            var node = Tree.GetEnsuredRoot();
-            foreach (var item in sequence) {
-                node = GetOrAddChild(node, item);
-            }
-
-            Tree._version++;
-            Tree._count++;
-
-            if (node.IsEnd) {
-                exists = true;
-            }
-            else {
-                exists = false;
-                node.SetIsEnd(value);
-            }
-            return node;
-        }
-
-        internal Node GetOrAddChild(Node parent, TAlternate value)
-        {
-            Debug.Assert(IsCompatibleAlternateKey<TAlternate>(Tree));
-
-            var child = parent._child;
-            var comparer = Comparer;
-            while (child is not null) {
-                if (comparer.Equals(value, child.Key!))
-                    return child;
-                child = child._nextSibling;
-            }
-
-            child = new Node(Tree, comparer.Create(value));
-            child._parent = parent;
-            child._nextSibling = parent._child;
-            parent._child = child;
-            Tree._nodeCount++;
-            return child;
-        }
-
-        internal Node? FindPrefix<TEnumerable>(TEnumerable prefix)
-            where TEnumerable : IEnumerable<TAlternate>, allows ref struct
-        {
-            Debug.Assert(IsCompatibleAlternateKey<TAlternate>(Tree));
-
-            if (Tree._root is null)
-                return null;
             var node = Tree._root;
+            if (node is null)
+                return null;
 
             var comparer = Comparer;
             foreach (var val in prefix) {
-                var child = node._child;
-                while (child is not null) {
+                var children = node.ChildrenSpan;
+                foreach (var child in children) {
                     if (comparer.Equals(val, child.Key!)) {
                         node = child;
                         goto ContinueFor;
                     }
-                    child = child._nextSibling;
                 }
                 return null;
 
             ContinueFor:
                 continue;
             }
-
             return node;
         }
-    }
 
-#endif
-}
-
-#if NET9_0_OR_GREATER
-
-public static partial class PrefixTreeExtensions
-{
-    public static bool TryGetValue<TKey, TValue, TAlternate>(this PrefixTreeDictionary<TKey, TValue>.AlternateLookup<TAlternate> lookup, ReadOnlySpan<TAlternate> sequence, [MaybeNullWhen(false)] out TValue value)
-         where TKey : notnull where TAlternate : notnull
-    {
-        var node = FindPrefix(lookup, sequence);
-        if (node is { IsEnd: true }) {
-            value = node.GetValueOrDefault()!;
-            return true;
-        }
-        else {
-            value = default;
-            return false;
-        }
-    }
-
-    public static bool TryGetNode<TKey, TValue, TAlternate>(this PrefixTreeDictionary<TKey, TValue>.AlternateLookup<TAlternate> lookup, ReadOnlySpan<TAlternate> sequence, [MaybeNullWhen(false)] out PrefixTreeDictionary<TKey, TValue>.Node node)
-        where TKey : notnull where TAlternate : notnull
-    {
-        node = FindPrefix(lookup, sequence);
-        return node is not null;
-    }
-
-    public static bool ContainsKey<TKey, TValue, TAlternate>(this PrefixTreeDictionary<TKey, TValue>.AlternateLookup<TAlternate> lookup, ReadOnlySpan<TAlternate> sequence)
-        where TKey : notnull where TAlternate : notnull
-    {
-        var node = FindPrefix(lookup, sequence);
-        if (node is null)
-            return false;
-        return node.IsEnd;
-    }
-
-    public static bool ContainsKeyPrefix<TKey, TValue, TAlternate>(this PrefixTreeDictionary<TKey, TValue>.AlternateLookup<TAlternate> lookup, ReadOnlySpan<TAlternate> sequence)
-        where TKey : notnull where TAlternate : notnull
-    {
-        var node = FindPrefix(lookup, sequence);
-        return node is not null;
-    }
-
-    public static PrefixTreeDictionary<TKey, TValue>.Node GetOrAdd<TKey, TValue, TAlternate>(this PrefixTreeDictionary<TKey, TValue>.AlternateLookup<TAlternate> lookup, ReadOnlySpan<TAlternate> sequence, TValue value)
-        where TKey : notnull where TAlternate : notnull
-        => lookup.GetOrAddInternal(sequence, value, out _);
-
-    public static bool TryAdd<TKey, TValue, TAlternate>(this PrefixTreeDictionary<TKey, TValue>.AlternateLookup<TAlternate> lookup, ReadOnlySpan<TAlternate> sequence, TValue value, [MaybeNullWhen(false)] out PrefixTreeDictionary<TKey, TValue>.Node node)
-        where TKey : notnull where TAlternate : notnull
-    {
-        var n = lookup.GetOrAddInternal(sequence, value, out var exists);
-        if (exists) {
-            node = default;
-            return false;
-        }
-        else {
-            node = n;
-            return true;
-        }
-    }
-
-    public static bool Remove<TKey, TValue, TAlternate>(this PrefixTreeDictionary<TKey, TValue>.AlternateLookup<TAlternate> lookup, ReadOnlySpan<TAlternate> sequence)
-        where TKey : notnull where TAlternate : notnull
-    {
-        var node = FindPrefix(lookup, sequence);
-        if (node is null)
-            return false;
-        if (!node.IsEnd)
-            return false;
-
-        lookup.Tree.RemoveInternal(node);
-        return true;
-    }
-
-    private static PrefixTreeDictionary<TKey, TValue>.Node GetOrAddInternal<TKey, TValue, TAlternate>(this PrefixTreeDictionary<TKey, TValue>.AlternateLookup<TAlternate> lookup, ReadOnlySpan<TAlternate> sequence, TValue value, out bool exists)
-        where TKey : notnull where TAlternate : notnull
-    {
-        var node = lookup.Tree.Root;
-        foreach (var item in sequence) {
-            node = lookup.GetOrAddChild(node, item);
+        public Node GetOrAdd(IEnumerable<TAlternate> sequence, TValue value)
+        {
+            TryAdd(sequence, value, out var node);
+            return node;
         }
 
-        lookup.Tree._version++;
-        lookup.Tree._count++;
-
-        if (node.IsEnd) {
-            exists = true;
-        }
-        else {
-            exists = false;
-            node.SetIsEnd(value);
-        }
-        return node;
-    }
-
-    private static PrefixTreeDictionary<TKey, TValue>.Node? FindPrefix<TKey, TValue, TAlternate>(this PrefixTreeDictionary<TKey, TValue>.AlternateLookup<TAlternate> lookup, ReadOnlySpan<TAlternate> prefix)
-        where TKey : notnull where TAlternate : notnull
-    {
-        Debug.Assert(PrefixTreeDictionary<TKey, TValue>.IsCompatibleAlternateKey<TAlternate>(lookup.Tree));
-
-        var tree = lookup.Tree;
-        if (tree._root is null)
-            return null;
-        var node = tree._root;
-
-        var comparer = lookup.Comparer;
-        foreach (var val in prefix) {
-            var child = node._child;
-            while (child is not null) {
-                if (comparer.Equals(val, child.Key!)) {
-                    node = child;
-                    goto ContinueFor;
-                }
-                child = child._nextSibling;
+        public bool TryAdd(IEnumerable<TAlternate> sequence, TValue value, out Node node)
+        {
+            node = Tree.Root;
+            foreach (var item in sequence) {
+                node = GetOrAddChild(node, item);
             }
-            return null;
 
-        ContinueFor:
-            continue;
+            if (node.IsEnd) {
+                return false;
+            }
+            Tree._version++;
+            Tree._count++;
+            node.SetIsEnd(value);
+            return true;
         }
 
-        return node;
+        internal Node GetOrAddChild(Node parent, TAlternate value)
+        {
+            var children = parent.ChildrenSpan;
+            var comparer = Comparer;
+            foreach (var child in children) {
+                if (comparer.Equals(value, child.Key!))
+                    return child;
+            }
+
+            var node = new Node(Tree, comparer.Create(value));
+            parent.AddChildAndSetParent(node);
+            Tree._nodeCount++;
+            return node;
+        }
+
+        public bool Remove(IEnumerable<TAlternate> sequence)
+        {
+            var node = FindPrefixNode(sequence);
+            if (node is not { IsEnd: true })
+                return false;
+
+            Tree.RemoveEndNode(node);
+            Tree._count--;
+            Tree._version++;
+            return true;
+        }
+
+        public void Clear() => Tree.Clear();
     }
 }
 

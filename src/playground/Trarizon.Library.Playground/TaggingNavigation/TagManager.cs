@@ -3,7 +3,7 @@
 namespace Trarizon.Library.Experimental.TaggingNavigation;
 internal class TagManager
 {
-    private PrefixTreeDictionary<string, Tag> _tags;
+    private PrefixTreeDictionary_old<string, Tag> _tags;
 
     public TagManager()
     {
@@ -15,7 +15,7 @@ internal class TagManager
         _tags.GetOrAdd(tag.GetPathSplits(), tag);
     }
 
-    public PrefixTreeDictionary<string, Tag>.Node? GetTagNode(string path)
+    public PrefixTreeDictionary_old<string, Tag>.Node? GetTagNode(string path)
     {
         if (_tags.TryGetNode(path.Split('/'), out var node)) {
             return node;

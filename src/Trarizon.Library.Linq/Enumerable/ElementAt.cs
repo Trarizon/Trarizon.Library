@@ -28,7 +28,7 @@ public static partial class TraEnumerable
         }
 
         using var enumerator = source.GetEnumerator();
-        if (enumerator.TryIterate(index, out _)) {
+        if (enumerator.TryIterate(index + 1, out _)) {
             element = enumerator.Current;
             return true;
         }

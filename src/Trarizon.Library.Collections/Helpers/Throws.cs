@@ -122,6 +122,10 @@ internal static partial class Throws
         => ThrowKeyNotFound($"The given key '{key}' is not present in {collectionName}.");
 
     [DoesNotReturn]
+    public static void KeyNotFound<T>(ReadOnlySpan<T> key, string collectionName) 
+        => ThrowKeyNotFound($"The given key '{key.ToString()}' is not present in {collectionName}.");
+
+    [DoesNotReturn]
     public static void KeyAlreadyExists(object key, string collectionName, [CallerArgumentExpression(nameof(key))] string paramName = "")
         => ThrowArgument($"Key '{key}' is already existing in collection.", paramName);
 
