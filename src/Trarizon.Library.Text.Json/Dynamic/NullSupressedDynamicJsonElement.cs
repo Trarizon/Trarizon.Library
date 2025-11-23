@@ -1,11 +1,15 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Dynamic;
+using System.Text;
 using System.Text.Json;
 
 namespace Trarizon.Library.Text.Json.Dynamic;
-internal sealed class DynamicJsonElement(JsonElement jsonElement) : DynamicObject, IEnumerable<object?>
+
+internal sealed class NullSupressedDynamicJsonElement(JsonElement element) : DynamicObject, IEnumerable<object?>
 {
-    private readonly JsonElement _element = jsonElement;
+    private readonly JsonElement _element = element;
     private IEnumerable<string>? _memeberNames;
 
     public override IEnumerable<string> GetDynamicMemberNames()
@@ -42,7 +46,8 @@ internal sealed class DynamicJsonElement(JsonElement jsonElement) : DynamicObjec
             return true;
         }
 
-        return base.TryGetMember(binder, out result);
+        result = null;
+        return true;
     }
 
     public override bool TryGetIndex(GetIndexBinder binder, object[] indexes, out object? result)
@@ -64,7 +69,8 @@ internal sealed class DynamicJsonElement(JsonElement jsonElement) : DynamicObjec
             }
         }
 
-        return base.TryGetIndex(binder, indexes, out result);
+            result = null;
+            return true;
     }
 
     public override bool TryConvert(ConvertBinder binder, out object? result)
@@ -344,14 +350,14 @@ internal sealed class DynamicJsonElement(JsonElement jsonElement) : DynamicObjec
     {
         return element.ValueKind switch
         {
-            JsonValueKind.Object => new DynamicJsonElement(element),
-            JsonValueKind.Array => new DynamicJsonElement(element),
+            JsonValueKind.Object => new NullSupressedDynamicJsonElement(element),
+            JsonValueKind.Array => new NullSupressedDynamicJsonElement(element),
             JsonValueKind.String => element.GetString(),
             JsonValueKind.Number => element.TryGetInt64(out var l) ? l : element.GetDouble(),
             JsonValueKind.True => true,
             JsonValueKind.False => false,
             JsonValueKind.Null => null,
-            _ => new DynamicJsonElement(element)
+            _ => new NullSupressedDynamicJsonElement(element)
         };
     }
 
@@ -370,4 +376,5 @@ internal sealed class DynamicJsonElement(JsonElement jsonElement) : DynamicObjec
             yield return GetObject(_element[i]);
         }
     }
+
 }
