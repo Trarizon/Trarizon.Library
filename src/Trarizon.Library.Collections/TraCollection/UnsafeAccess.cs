@@ -32,15 +32,41 @@ public static partial class TraCollection
 
         private class StackMarchalHelper
         {
-#pragma warning disable CS0649
 #nullable disable
             public T[] _array;
             public int _size;
             public int _version;
 #nullable restore
-#pragma warning restore CS0649
         }
 #endif
+
+        #endregion
+
+        #region Queue
+#if NET9_0_OR_GREATER
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_array")]
+        public static extern ref T[] GetArray(Queue<T> queue);
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_head")]
+        public static extern ref int GetHead(Queue<T> queue);
+#else
+        public static ref T[] GetArray(Queue<T> queue) 
+            => ref Unsafe.As<QueueMarchalHelper>(queue)._array;
+
+        public static ref int GetHead(Queue<T> queue) 
+            => ref Unsafe.As<QueueMarchalHelper>(queue)._head;
+#endif
+
+        private class QueueMarchalHelper
+        {
+#nullable disable
+            public T[] _array;
+            public int _head;
+            public int _tail;
+            public int _size;
+            public int _version;
+#nullable enable
+        }
 
         #endregion
     }
