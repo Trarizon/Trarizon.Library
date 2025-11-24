@@ -6,6 +6,12 @@ internal static class Extensions
 {
     public static T Var<T>(this T source, out T result) => result = source;
 
+    public static IEnumerable<T> Enumerate<T>(this IEnumerable<T> source)
+    {
+        foreach (var item in source)
+            yield return item;
+    }
+
     extension(Assert)
     {
         public static unsafe void RefEqual<T>(in T expected, in T actual)

@@ -6,7 +6,35 @@ namespace Trarizon.Test.UnitTests.Linq;
 
 public class TraversableTests
 {
-    private readonly TreeNode<int> _deepFirstTree = new TreeNode<int>(1)
+    [Theory]
+    [MemberData(nameof(BreadthFirstTree))]
+    public void TraverseBreadthFirst(TreeNode<int> tree)
+    {
+        tree.TraverseBreadthFirst(includeSelf: true).Select(x => x.Value)
+            .Should().Equal(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+        new TreeNodeWrap<int>(tree).TraverseBreadthFirst().Select(x => x.Value)
+            .Should().Equal(2, 3, 4, 5, 6, 7, 8, 9, 10);
+        tree.Children.TraverseDescendantsBreadthFirst(x => x.Children).Select(x => x.Value)
+            .Should().Equal(2, 3, 4, 5, 6, 7, 8, 9, 10);
+        TraTraversable.TraverseDescendantsBreadthFirst(tree, x => x.Children, includeSelf: true).Select(x => x.Value)
+            .Should().Equal(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+    }
+
+    [Theory]
+    [MemberData(nameof(DepthFirstTree))]
+    public void TraverseDepthFirst(TreeNode<int> tree)
+    {
+        tree.TraverseDepthFirst(includeSelf: true).Select(x => x.Value)
+            .Should().Equal(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+        new TreeNodeWrap<int>(tree).TraverseDepthFirst().Select(x => x.Value)
+            .Should().Equal(2, 3, 4, 5, 6, 7, 8, 9, 10);
+        tree.Children.TraverseDescendantsDepthFirst(x => x.Children).Select(x => x.Value)
+            .Should().Equal(2, 3, 4, 5, 6, 7, 8, 9, 10);
+        TraTraversable.TraverseDescendantsDepthFirst(tree, x => x.Children, includeSelf: true).Select(x => x.Value)
+            .Should().Equal(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+    }
+
+    public static TheoryData<TreeNode<int>> DepthFirstTree => new(new TreeNode<int>(1)
     {
         new TreeNode<int>(2)
         {
@@ -27,9 +55,9 @@ public class TraversableTests
             }
         },
         new TreeNode<int>(10)
-    };
+    });
 
-    private readonly TreeNode<int> _breadthFirstTree = new TreeNode<int>(1)
+    public static TheoryData<TreeNode<int>> BreadthFirstTree => new(new TreeNode<int>(1)
     {
         new TreeNode<int>(2)
         {
@@ -50,35 +78,24 @@ public class TraversableTests
             }
         },
         new TreeNode<int>(4)
-    };
-   
-    [Fact]
-    public void TraverseDeepFirst()
-    {
-        var tree = _deepFirstTree;
+    });
 
-        var result = TraTraversable.TraverseDeepFirst(tree, includeSelf: true);
-        result.Select(x => x.Value).Should().Equal([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
-    }
-
-    [Fact]
-    public void TraverseBreadthFirst()
-    {
-        var tree = _breadthFirstTree;
-
-        var result = TraTraversable.TraverseBreadthFirst(tree, includeSelf: true);
-        result.Select(x => x.Value).Should().Equal([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
-    }
-
-    private class TreeNode<T>(T value) : IChildrenTraversable<TreeNode<T>>, IEnumerable<TreeNode<T>>
+    public class TreeNode<T>(T value) : IChildrenTraversable<TreeNode<T>>, IEnumerable<TreeNode<T>>
     {
         private readonly List<TreeNode<T>> _list = new();
         public T Value { get; } = value;
+
+        public IEnumerable<TreeNode<T>> Children => _list;
 
         public void Add(TreeNode<T> node) => _list.Add(node);
 
         public IEnumerator<TreeNode<T>> GetChildrenEnumerator() => _list.GetEnumerator();
         public IEnumerator<TreeNode<T>> GetEnumerator() => _list.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
+    public class TreeNodeWrap<T>(TreeNode<T> node) : IChildrenTraversable<TreeNode<T>>
+    {
+        public IEnumerator<TreeNode<T>> GetChildrenEnumerator() => node.GetChildrenEnumerator();
     }
 }

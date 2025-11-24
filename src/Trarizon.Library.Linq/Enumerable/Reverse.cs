@@ -4,10 +4,10 @@ namespace Trarizon.Library.Linq;
 
 public static partial class TraEnumerable
 {
-    public static IEnumerable<T> LazyReverse<T>(this IEnumerable<T> source)
+    public static IEnumerable<T> ListReverse<T>(this IEnumerable<T> source)
     {
         if (source is IList<T> list) {
-            if (list.Count <= 1)
+            if (source is T[] { Length: <= 1 })
                 return source;
             if (source is ListLazyReverseIterator<T> iterator)
                 return iterator.Reverse();

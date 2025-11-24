@@ -13,13 +13,13 @@ public static partial class TraEnumerable
     {
         if (source.TryGetNonEnumeratedCount(out var count)) {
             if (count > 0) {
-                if (source is IList<T> list) {
-                    value = list[0];
-                    return true;
-                }
                 if (source is IteratorBase<T> iterator) {
                     value = iterator.TryGetFirst(out var exists);
                     return exists;
+                }
+                if (source is IList<T> list) {
+                    value = list[0];
+                    return true;
                 }
                 goto ByEnumerate;
             }
@@ -62,13 +62,13 @@ public static partial class TraEnumerable
     {
         if (source.TryGetNonEnumeratedCount(out var count)) {
             if (count > 0) {
-                if (source is IList<T> list) {
-                    value = list[^1];
-                    return true;
-                }
                 if (source is IteratorBase<T> iterator) {
                     value = iterator.TryGetLast(out var exists);
                     return exists;
+                }
+                if (source is IList<T> list) {
+                    value = list[^1];
+                    return true;
                 }
                 goto ByEnumerate;
             }

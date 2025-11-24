@@ -1,8 +1,17 @@
-﻿namespace Trarizon.Library.Linq;
+﻿using System.Runtime.CompilerServices;
+
+namespace Trarizon.Library.Linq;
+
+#if NETSTANDARD2_0
 
 internal static class Polyfills
 {
-#if NETSTANDARD2_0
+    extension(RuntimeHelpers)
+    {
+        public static bool IsReferenceOrContainsReferences<T>() 
+            => !typeof(T).IsPrimitive;
+    }
+
     public static bool TryPeek<T>(this Stack<T> stack, out T value)
     {
         if (stack.Count == 0) {
@@ -10,16 +19,6 @@ internal static class Polyfills
             return false;
         }
         value = stack.Peek();
-        return true;
-    }
-
-    public static bool TryPeek<T>(this Queue<T> queue, out T value)
-    {
-        if (queue.Count == 0) {
-            value = default!;
-            return false;
-        }
-        value = queue.Peek();
         return true;
     }
 
@@ -32,19 +31,6 @@ internal static class Polyfills
         value = queue.Dequeue();
         return true;
     }
-
-#endif
-}
-
-#if NETSTANDARD2_0
-
-internal static class PfRuntimeHelpers
-{
-    public static bool IsReferenceOrContainsReferences<T>()
-    {
-        return !typeof(T).IsPrimitive;
-    }
-
 }
 
 #endif

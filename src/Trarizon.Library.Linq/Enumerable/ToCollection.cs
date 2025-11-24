@@ -13,7 +13,7 @@ public static partial class TraEnumerable
             action.Invoke(item);
         }
     }
- 
+
     /// <summary>
     /// Returns the underlying array as <see cref="IEnumerable{T}"/>, to get a better performance with linq.
     /// Note that the result maybe <see langword="null"/> if <paramref name="array"/> is default.
@@ -21,24 +21,8 @@ public static partial class TraEnumerable
     /// <returns>
     /// A <see cref="IEnumerable{T}"/> representing the array, <see langword="null"/> if <paramref name="array"/> is default.
     /// </returns>
-    public static IEnumerable<T>? AsEnumerableOrNull<T>(this ImmutableArray<T> array)
-        => ImmutableCollectionsMarshal.AsArray(array)!;
-
-    /// <summary>
-    /// Returns the underlying array as <see cref="IEnumerable{T}"/>, to get a better performance with linq.
-    /// </summary>
-    /// <returns>
-    /// A <see cref="IEnumerable{T}"/> representing the array, if <paramref name="array"/> is default, returns empty array
-    /// </returns>
-    public static IEnumerable<T> AsEnumerable<T>(this ImmutableArray<T> array)
-        => array.IsDefault ? [] : array.AsEnumerableOrNull()!;
-
-    /// <summary>
-    /// If <paramref name="source"/> is <see langword="null"/>, this method returns an empty collection,
-    /// else return <paramref name="source"/> it self
-    /// </summary>
-    public static IEnumerable<T> EmptyIfNull<T>(this IEnumerable<T>? source)
-        => source ?? [];
+    public static IEnumerable<T>? AsEnumerable<T>(this ImmutableArray<T> array)
+        => ImmutableCollectionsMarshal.AsArray(array);
 
     public static T[] ToPooledArray<T>(this IEnumerable<T> source, ArrayPool<T> pool, out int length)
     {
@@ -57,7 +41,7 @@ public static partial class TraEnumerable
         }
     }
 
-    public static T[] ToPooledArray<T>(this IEnumerable<T> source,out int length)
+    public static T[] ToPooledArray<T>(this IEnumerable<T> source, out int length)
         => source.ToPooledArray(ArrayPool<T>.Shared, out length);
 
     internal static bool TryGetSpan<T>(this IEnumerable<T> source, out ReadOnlySpan<T> span)

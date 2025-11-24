@@ -6,7 +6,7 @@ public static partial class TraEnumerable
 {
     public static IEnumerable<T> OfTypeWhile<T>(this IEnumerable source)
     {
-        if (source is IEnumerable<T> typed) {
+        if (default(T) is not null && source is IEnumerable<T> typed) {
             return typed;
         }
         return Iterate(source);
@@ -21,17 +21,4 @@ public static partial class TraEnumerable
             }
         }
     }
-
-    //extension<T>(IEnumerable<T> source)
-    //{
-    //    public IEnumerable<T> OfTypeUntil<TExcept>()
-    //    {
-    //        foreach (var item in source) {
-    //            if (item is TExcept)
-    //                yield break;
-    //            else
-    //                yield return item;
-    //        }
-    //    }
-    //}
 }

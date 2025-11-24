@@ -4,7 +4,6 @@ More LinQ methods
 
 - Aggregation
     - `CountsMoreThan/LessThan/AtMost/AtLeast/EqualsTo/Between` : Judge size of collection
-    - `IsDistinct(By)` : Check if the collection doesn't contains duplicate element
     - `IsInOrder(By)` : Check if the elements in collection is in order
     - `MinMax(By)` : Get minimun value and maximun value in one iteration
 - Creation
@@ -17,7 +16,6 @@ More LinQ methods
     - `FirstNearToMax(By)(OrDefault)` : Find the first item has priority greater than given priority, if not found, return the first item with greatest priority
     - `TrySingle` : Returning tagged union version of `Single`
 - Filtering
-    - `Duplicates` : Return all elements that is not distinct in collection
     - `OfNotNull` : Filter out all `null` values
     - `TakeEvery` : Yield the values in specific interval
 - Joining
@@ -39,9 +37,7 @@ More LinQ methods
     - `PopFront` : Split the collection into 2 parts, the first parts is return by `out` paramter
     - `PopFirst` : Get the first element, and returns the rest elements.
 - Sorting
-    - `LazyReverse` : Reverse, no cache if source is `IList<T>`
+    - `ListReverse` : Reverse, no cache if source is `IList<T>`
     - `Rotate` : Split the collection into 2 parts and swap them
 - ToCollections
     - `ForEach`
-    - `EmptyIfNull` : Return empty collection if source collection is `null`
-    - `TryToNonEmptyList` : If collection is not empty, then collect items into `List<>`, in one iteration

@@ -1,12 +1,13 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Trarizon.Library.Linq.Internal;
 
 namespace Trarizon.Library.Linq;
 
 public static partial class TraTraversable
 {
-    public static IEnumerable<T> TraverseDeepFirst<T>(this IChildrenTraversable<T> source) where T : IChildrenTraversable<T>
+    public static IEnumerable<T> TraverseDepthFirst<T>(this IChildrenTraversable<T> source) where T : IChildrenTraversable<T>
     {
-        using var traverser = new DeepFirstTraverser<T>(source.GetChildrenEnumerator());
+        using var traverser = new DepthFirstTraverser<T, ChildrenTraversableEnumeratorProvider<T>>(source.GetChildrenEnumerator(), default);
         while (traverser.MoveNext(out var current)) {
             yield return current;
         }
@@ -14,18 +15,18 @@ public static partial class TraTraversable
 
     public static IEnumerable<T> TraverseBreadthFirst<T>(this IChildrenTraversable<T> source) where T : IChildrenTraversable<T>
     {
-        using var traverse = new BreadthFirstTraverser<T>(source.GetChildrenEnumerator());
-        while (traverse.MoveNext(out var current)) {
+        using var traverser = new BreadthFirstTraverser<T, ChildrenTraversableEnumeratorProvider<T>>(source.GetChildrenEnumerator(), default);
+        while (traverser.MoveNext(out var current)) {
             yield return current;
         }
     }
 
-    public static IEnumerable<T> TraverseDeepFirst<T>(this T source, bool includeSelf = false) where T : IChildrenTraversable<T>
+    public static IEnumerable<T> TraverseDepthFirst<T>(this T source, bool includeSelf = false) where T : IChildrenTraversable<T>
     {
         if (includeSelf)
             yield return source;
 
-        using var traverser = new DeepFirstTraverser<T>(source.GetChildrenEnumerator());
+        using var traverser = new DepthFirstTraverser<T, ChildrenTraversableEnumeratorProvider<T>>(source.GetChildrenEnumerator(), default);
         while (traverser.MoveNext(out var current)) {
             yield return current;
         }
@@ -36,21 +37,23 @@ public static partial class TraTraversable
         if (includeSelf)
             yield return source;
 
-        using var traverse = new BreadthFirstTraverser<T>(source.GetChildrenEnumerator());
-        while (traverse.MoveNext(out var current)) {
+        using var traverser = new BreadthFirstTraverser<T, ChildrenTraversableEnumeratorProvider<T>>(source.GetChildrenEnumerator(), default);
+        while (traverser.MoveNext(out var current)) {
             yield return current;
         }
     }
 
-    private readonly struct DeepFirstTraverser<T> : IDisposable
-        where T : IChildrenTraversable<T>
+    private readonly struct DepthFirstTraverser<T, TChildrenEnumeratorProvider> : IDisposable
+        where TChildrenEnumeratorProvider : IChildrenEnumeratorProvider<T>
     {
         private readonly Stack<IEnumerator<T>> _stack;
+        private readonly TChildrenEnumeratorProvider _provider;
 
-        internal DeepFirstTraverser(IEnumerator<T> root)
+        internal DepthFirstTraverser(IEnumerator<T> root, TChildrenEnumeratorProvider provider)
         {
             _stack = new();
             _stack.Push(root);
+            _provider = provider;
         }
 
         public bool MoveNext([MaybeNullWhen(false)] out T current)
@@ -58,7 +61,7 @@ public static partial class TraTraversable
             while (_stack.TryPeek(out var enumerator)) {
                 if (enumerator.MoveNext()) {
                     current = enumerator.Current;
-                    _stack.Push(current.GetChildrenEnumerator());
+                    _stack.Push(_provider.GetChildrenEnumerator(current));
                     return true;
                 }
                 else {
@@ -78,16 +81,18 @@ public static partial class TraTraversable
         }
     }
 
-    private struct BreadthFirstTraverser<T> : IDisposable
-        where T : IChildrenTraversable<T>
+    private struct BreadthFirstTraverser<T, TChildrenEnumeratorProvider> : IDisposable
+        where TChildrenEnumeratorProvider : IChildrenEnumeratorProvider<T>
     {
         private readonly Queue<IEnumerator<T>> _queue;
         private IEnumerator<T> _enumerator;
+        private readonly TChildrenEnumeratorProvider _provider;
 
-        internal BreadthFirstTraverser(IEnumerator<T> root)
+        internal BreadthFirstTraverser(IEnumerator<T> root, TChildrenEnumeratorProvider provider)
         {
             _queue = new();
             _enumerator = root;
+            _provider = provider;
         }
 
         public bool MoveNext([MaybeNullWhen(false)] out T current)
@@ -95,7 +100,7 @@ public static partial class TraTraversable
         Begin:
             if (_enumerator.MoveNext()) {
                 current = _enumerator.Current;
-                _queue.Enqueue(current.GetChildrenEnumerator());
+                _queue.Enqueue(_provider.GetChildrenEnumerator(current));
                 return true;
             }
 
@@ -109,7 +114,6 @@ public static partial class TraTraversable
             current = default;
             return false;
         }
-
         public void Dispose()
         {
             _enumerator.Dispose();
@@ -117,5 +121,11 @@ public static partial class TraTraversable
                 item.Dispose();
             }
         }
+    }
+
+    private readonly struct ChildrenTraversableEnumeratorProvider<T> : IChildrenEnumeratorProvider<T>
+        where T : IChildrenTraversable<T>
+    {
+        public IEnumerator<T> GetChildrenEnumerator(T source) => source.GetChildrenEnumerator();
     }
 }

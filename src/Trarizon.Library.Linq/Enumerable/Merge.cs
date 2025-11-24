@@ -2,7 +2,7 @@
 
 public static partial class TraEnumerable
 {
-    public static IEnumerable<T> Merge<T, TComparer>(this IEnumerable<T> first, IEnumerable<T> second, TComparer comparer) where TComparer : IComparer<T>
+    public static IEnumerable<T> Merge<T>(this IEnumerable<T> first, IEnumerable<T> second, IComparer<T> comparer)
     {
         if (first is T[] { Length: 0 })
             return second;
@@ -11,7 +11,7 @@ public static partial class TraEnumerable
         else
             return Iterate(first, second, comparer);
 
-        static IEnumerable<T> Iterate(IEnumerable<T> first, IEnumerable<T> second, TComparer comparer)
+        static IEnumerable<T> Iterate(IEnumerable<T> first, IEnumerable<T> second, IComparer<T> comparer)
         {
             using var enumerator = first.GetEnumerator();
             using var enumerator2 = second.GetEnumerator();

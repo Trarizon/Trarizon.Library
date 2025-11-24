@@ -4,22 +4,18 @@ namespace Trarizon.Library.Linq;
 
 public static partial class TraEnumerable
 {
-    public static IEnumerable<T> Interleave<T>(this IEnumerable<T> source, IEnumerable<T> other, bool truncateToShorter = false)
+    public static IEnumerable<T> Interleave<T>(this IEnumerable<T> source, IEnumerable<T> other, bool truncateRest = false)
     {
-        if (source.TryGetNonEnumeratedCount(out var count)) {
-            if (count == 0)
-                return truncateToShorter ? [] : other;
-            if (count == 1)
-                return other.Prepend(source.First());
-            if (other.TryGetNonEnumeratedCount(out var count2) && count2 == 0)
-                return truncateToShorter ? [] : source;
-            if (source is IList<T> listl && other is IList<T> listr)
-                return new ListInterleaveIterator<T>(listl, listr, truncateToShorter);
-        }
-        else if (other.TryGetNonEnumeratedCount(out var count2) && count2 == 0)
-            return truncateToShorter ? [] : source;
-
-        return Iterate(source, other, truncateToShorter);
+        return (source, other) switch
+        {
+            (T[] { Length: 0 }, _) => truncateRest ? [] : other,
+            (T[] { Length: 1 } arr, _) => other.Prepend(arr[0]),
+            (_, T[] { Length: 0 }) => truncateRest ? [] : source,
+            (IList<T> llist, IList<T> rlist) => truncateRest
+                ? new ListInterleaveTruncateIterator<T>(llist, rlist)
+                : new ListInterleaveNoTruncateIterator<T>(llist, rlist),
+            _ => Iterate(source, other, truncateRest),
+        };
 
         static IEnumerable<T> Iterate(IEnumerable<T> source, IEnumerable<T> other, bool truncateToShorter)
         {
@@ -48,9 +44,88 @@ public static partial class TraEnumerable
         }
     }
 
-    private sealed class ListInterleaveIterator<T>(IList<T> list, IList<T> other, bool truncateToShorter) : ListIteratorBase<T>
+    private sealed class ListInterleaveTruncateIterator<T>(IList<T> list, IList<T> other) : ListIteratorBase<T>
     {
         private T? _current;
+
+        public override T this[int index]
+        {
+            get {
+                if (index >= Count) {
+                    Throws.ThrowArgumentOutOfRange(nameof(index), index, "Index out of range");
+                }
+                if (index % 2 == 0)
+                    return list[index / 2];
+                else
+                    return other[index / 2];
+            }
+        }
+
+        public override int Count => Math.Min(list.Count, other.Count) * 2;
+
+        public override T Current => _current!;
+
+        public override bool MoveNext()
+        {
+            const int End = MinPreservedState - 1;
+
+            switch (_state) {
+                case InitState:
+                    _state = 0;
+                    goto default;
+                case End:
+                    return false;
+                default:
+                    var index = _state / 2;
+                    if (_state % 2 == 0) {
+                        if (index < list.Count && index < other.Count) {
+                            _current = list[index];
+                            _state++;
+                            return true;
+                        }
+                        _state = End;
+                        _current = default;
+                        return false;
+                    }
+                    else {
+                        Debug.Assert(index < list.Count && index < other.Count);
+                        _current = other[index];
+                        _state++;
+                        return true;
+                    }
+            }
+        }
+
+        protected override IteratorBase<T> Clone() => new ListInterleaveTruncateIterator<T>(list, other);
+
+        internal override T TryGetFirst(out bool exists)
+        {
+            if (list.Count > 0 && other.Count > 0) {
+                exists = true;
+                return list[0];
+            }
+            exists = false;
+            return default!;
+        }
+
+        internal override T TryGetLast(out bool exists)
+        {
+            var listCount = list.Count;
+            var otherCount = other.Count;
+
+            if (listCount > 0 && otherCount > 0) {
+                exists = true;
+                return other[Math.Min(listCount, otherCount) - 1];
+            }
+            exists = false;
+            return default!;
+        }
+    }
+
+    private sealed class ListInterleaveNoTruncateIterator<T>(IList<T> list, IList<T> other) : ListIteratorBase<T>
+    {
+        private T? _current;
+        private bool _rest;
 
         public override T this[int index]
         {
@@ -62,10 +137,6 @@ public static partial class TraEnumerable
                     else
                         return other[index / 2];
                 }
-                else if (truncateToShorter) {
-                    Throws.ThrowArgumentOutOfRange(nameof(index), index, "Index out of range");
-                    return default!;
-                }
                 else {
                     if (list.Count > other.Count)
                         return list[index - shortCount];
@@ -75,16 +146,13 @@ public static partial class TraEnumerable
             }
         }
 
-        public override int Count => truncateToShorter ? Math.Min(list.Count, other.Count) * 2 : list.Count + other.Count;
+        public override int Count => list.Count + other.Count;
 
         public override T Current => _current!;
 
         public override bool MoveNext()
         {
             const int End = MinPreservedState - 1;
-            const int SrcRest = End - 1;
-            const int OtherRest = SrcRest - 1;
-            const int OtherStart = OtherRest - 1;
 
             switch (_state) {
                 case InitState:
@@ -92,63 +160,79 @@ public static partial class TraEnumerable
                     goto default;
                 case End:
                     return false;
-                case SrcRest:
-                case OtherRest:
-                    if (_state < other.Count) {
-                        _current = other[_state];
-                        _state++;
-                        return true;
-                    }
-                    else {
-                        _current = default;
-                        _state = End;
-                        return false;
-                    }
-                case <= OtherStart:
-                    var idx = OtherStart - _state;
-                    if (idx < other.Count) {
-                        var nxtSrcIdx = idx + 1;
-                        _current = other[idx];
-                        if (nxtSrcIdx >= list.Count)
-                            _state--;
-                        else
-                            _state = nxtSrcIdx;
-                        return true;
-                    }
-                    else {
-                        Debug.Assert(other.Count >= list.Count);
-                        _current = default;
-                        _state = End;
-                        return false;
-                    }
-                default:
-                    Debug.Assert(_state >= 0);
-                    if (_state < list.Count) {
-                        if (_state < other.Count) {
-                            _current = list[_state];
-                            _state = OtherStart - _state;
+                default: {
+                    var index = _state >>> 1;
+                    if (_state % 2 == 0) {
+                        if (index < list.Count) {
+                            _current = list[index];
+                            unchecked { _state += _rest ? 2 : 1; }
                             return true;
                         }
-                        else if (truncateToShorter) {
-                            _current = default;
-                            _state = End;
-                            return false;
-                        }
-                        else {
-                            _current = list[_state];
-                            _state++;
+                        // even state, but list has no more value, means we start iterate rest of other
+                        _rest = true;
+                        if (index < other.Count) {
+                            _current = other[index];
+                            unchecked { _state += 3; }
                             return true;
                         }
-                    }
-                    else {
-                        Debug.Assert(list.Count > other.Count);
-                        _current = default;
                         _state = End;
                         return false;
                     }
+                    else {
+                        if (index < other.Count) {
+                            _current = other[index];
+                            unchecked { _state += _rest ? 2 : 1; }
+                            return true;
+                        }
+                        _rest = true;
+                        index++;
+                        if (index < list.Count) {
+                            _current = list[index];
+                            unchecked { _state += 3; }
+                            return true;
+                        }
+                        _state = End;
+                        return false;
+                    }
+                }
             }
         }
 
-        protected override IteratorBase<T> Clone() => new ListInterleaveIterator<T>(list, other, truncateToShorter);
+        protected override IteratorBase<T> Clone() => new ListInterleaveNoTruncateIterator<T>(list, other);
+
+        internal override T TryGetFirst(out bool exists)
+        {
+            if (list.Count > 0) {
+                exists = true;
+                return list[0];
+            }
+            if (other.Count > 0) {
+                exists = true;
+                return other[0];
+            }
+            exists = false;
+            return default!;
+        }
+
+        internal override T TryGetLast(out bool exists)
+        {
+            var listCount = list.Count;
+            var otherCount = other.Count;
+
+            if (listCount <= otherCount) {
+                if (otherCount > 0) {
+                    exists = true;
+                    return other[otherCount - 1];
+                }
+            }
+            else {
+                if (listCount > 0) {
+                    exists = true;
+                    return list[listCount - 1];
+                }
+            }
+            exists = false;
+            return default!;
+        }
     }
 }

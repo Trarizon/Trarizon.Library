@@ -1,8 +1,5 @@
 ﻿using System.Buffers;
 using System.Runtime.CompilerServices;
-#if NETSTANDARD2_0
-using RuntimeHelpers = Trarizon.Library.Linq.PfRuntimeHelpers;
-#endif
 
 namespace Trarizon.Library.Linq;
 

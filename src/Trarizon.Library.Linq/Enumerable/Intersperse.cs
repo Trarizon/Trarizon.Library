@@ -9,12 +9,11 @@ public static partial class TraEnumerable
     /// </summary>
     public static IEnumerable<T> Intersperse<T>(this IEnumerable<T> source, T seperator)
     {
-        if (source.TryGetNonEnumeratedCount(out var count) && count <= 1) {
-            return source;
-        }
-
-        if (source is T[] arr)
+        if (source is T[] arr) {
+            if (arr.Length <= 1)
+                return source;
             return new ArrayIntersperseIterator<T>(arr, seperator);
+        }
 
         return Iterate(source, seperator);
 
@@ -40,11 +39,12 @@ public static partial class TraEnumerable
         public override T this[int index]
         {
             get {
-                Throws.ThrowIfIndexGreaterThanOrEqual(index, Count);
+                var idx = index / 2;
                 if (index % 2 == 0)
-                    return list[index / 2];
-                else
-                    return seperator;
+                    return list[idx];
+
+                Throws.ThrowIfIndexGreaterThanOrEqual(idx, list.Length - 1, nameof(index));
+                return seperator;
             }
         }
 

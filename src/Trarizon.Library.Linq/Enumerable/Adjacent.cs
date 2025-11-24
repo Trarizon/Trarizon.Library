@@ -7,11 +7,13 @@ partial class TraEnumerable
     public static IEnumerable<(T, T)> Adjacent<T>(this IEnumerable<T> source)
     {
         if (source is T[] array) {
-            if (array.Length <= 1)
+            if (array.Length < 2)
                 return [];
             else
                 return new ArrayAdjacentIterator<T>(array);
         }
+        if (source is IList<T> list)
+            return new ListAdjacentIterator<T>(list);
 
         return Iterate(source);
 
@@ -46,15 +48,18 @@ partial class TraEnumerable
 
             switch (_state) {
                 case InitState:
-                    _state = 0;
-                    goto default;
+                    Debug.Assert(source.Length >= 2);
+                    _current = (source[0], source[1]);
+                    _state = 2;
+                    return true;
                 case End:
                     return false;
                 default:
-                    Debug.Assert(_state >= 0);
-                    var index2 = _state + 1;
+                    Debug.Assert(_state >= 2);
+                    var index2 = _state;
                     if (index2 < source.Length) {
-                        _current = (_current.Item2, source[_state + 1]);
+                        _current = (_current.Item2, source[_state]);
+                        _state++;
                         return true;
                     }
                     _state = End;
@@ -71,5 +76,57 @@ partial class TraEnumerable
                 return false;
             return EqualityComparer<T>.Default.Equals(source[idx + 1], value.Item2);
         }
+    }
+
+    private sealed class ListAdjacentIterator<T>(IList<T> source) : ListIteratorBase<(T, T)>
+    {
+        private (T, T) _current;
+        private IEnumerator<T>? _enumerator;
+
+        public override (T, T) this[int index]
+        {
+            get {
+                var lat = source[index + 1]; // If out of range, fail early
+                return (source[index], lat);
+            }
+        }
+
+        public override (T, T) Current => _current;
+
+        public override int Count => Math.Max(0, source.Count - 1);
+
+        public override bool MoveNext()
+        {
+            const int End = MinPreservedState - 1;
+
+            switch (_state) {
+                case InitState:
+                    _enumerator = source.GetEnumerator();
+                    if (_enumerator.MoveNext()) {
+                        _current.Item1 = _enumerator.Current;
+                        if (_enumerator.MoveNext()) {
+                            _current.Item2 = _enumerator.Current;
+                            _state = 0;
+                            return true;
+                        }
+                    }
+                    _state = End;
+                    return false;
+                case End:
+                    return false;
+                default:
+                    Debug.Assert(_enumerator is not null);
+                    if (_enumerator!.MoveNext()) {
+                        _current = (_current.Item2, _enumerator.Current);
+                        return true;
+                    }
+                    _state = End;
+                    return false;
+            }
+        }
+
+        protected override IteratorBase<(T, T)> Clone() => new ListAdjacentIterator<T>(source);
+
+        protected override void DisposeInternal() => _enumerator?.Dispose();
     }
 }

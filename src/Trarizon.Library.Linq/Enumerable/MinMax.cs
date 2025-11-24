@@ -5,14 +5,14 @@ namespace Trarizon.Library.Linq;
 public static partial class TraEnumerable
 {
     [return: NotNullIfNotNull(nameof(defaultValue))]
-    public static T? MinOrDefault<T, TComparer>(this IEnumerable<T> source, TComparer comparer, T? defaultValue = default) where TComparer : IComparer<T>
+    public static T? MinOrDefault<T>(this IEnumerable<T> source, IComparer<T> comparer, T? defaultValue = default)
     {
         var val = TryMinOrMax(source, new MinCalculator<T>(comparer), out var success);
         return success ? val : defaultValue;
     }
 
     [return: NotNullIfNotNull(nameof(defaultValue))]
-    public static T? MaxOrDefault<T, TComparer>(this IEnumerable<T> source, TComparer comparer, T? defaultValue = default) where TComparer : IComparer<T>
+    public static T? MaxOrDefault<T>(this IEnumerable<T> source, IComparer<T> comparer, T? defaultValue = default)
     {
         var val = TryMinOrMax(source, new MaxCalculator<T>(comparer), out var success);
         return success ? val : defaultValue;
