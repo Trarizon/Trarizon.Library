@@ -1,7 +1,4 @@
-﻿//#define MONAD
-//#define OPTIONAL
-//#define EITHER
-//#define EXT_ENUMERABLE
+﻿#if RESULT
 
 using System.ComponentModel;
 using System.Diagnostics;
@@ -10,21 +7,22 @@ using System.Runtime.CompilerServices;
 using Trarizon.Library.Functional.Internal;
 
 namespace Trarizon.Library.Functional;
+
 public static partial class Result
 {
     public static Result<T, TError> Success<T, TError>(T value)
         => new(value);
 
-    public static ResultSuccessBuilder<T> Success<T>(T value)
+    public static SuccessBuilder<T> Success<T>(T value)
         => new(value);
 
     public static Result<T, TError> Failure<T, TError>(TError error)
         => new(error);
 
-    public static ResultFailedBuilder<TError> Failure<TError>(TError error)
+    public static FailureBuilder<TError> Failure<TError>(TError error)
         => new(error);
 
-    public static Result<T, TError> Create<T, TError>(bool isSuccess, T value, TError error) 
+    public static Result<T, TError> Create<T, TError>(bool isSuccess, T value, TError error)
         => isSuccess ? new(value) : new(error);
 
     public static T GetValueOrThrowError<T, TException>(this in Result<T, TException> result) where TException : Exception
@@ -41,65 +39,48 @@ public static partial class Result
     public static ref readonly T? GetValueRefOrDefaultRef<T, TError>(this ref readonly Result<T, TError> result)
         => ref result._value;
 
-#if OPTIONAL
+    public static ref readonly TError? GetErrorRefOrDefaultRef<T, TError>(this ref readonly Result<T, TError> result)
+        => ref BoxHelpers.UnboxRef<TError>(in result._error);
 
-    public static Optional<T> ToOptional<T, TError>(this in Result<T, TError> result)
-        => result.IsSuccess ? Optional.Of(result._value) : default;
-
-    public static Optional<TError> ToOptionalError<T, TError>(this in Result<T, TError> result)
-        => result.IsFailure ? Optional.Of(result.Error) : default;
-
-    public static Optional<Result<T, TError>> Transpose<T, TError>(this in Result<Optional<T>, TError> result)
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public readonly struct SuccessBuilder<T>
     {
-        if (result.IsSuccess) {
-            ref readonly var optional = ref result._value;
-            return optional.HasValue ? Optional.Of(Result.Success<T, TError>(optional._value)) : Optional.None;
-        }
-        else {
-            return Optional.Of(Result.Failure<T, TError>(result.Error));
-        }
+        internal readonly T _value;
+        internal SuccessBuilder(T value) => _value = value;
+        public Result<T, TError> Build<TError>() => _value;
+
+        public bool IsSuccess => true;
+        public bool IsFailure => false;
+        public T Value => _value;
+        public FailureBuilder<T> Swap() => new(_value);
+        public SuccessBuilder<TResult> Cast<TResult>() => new((TResult)(object)_value!);
+        public SuccessBuilder<TResult> Select<TResult>(Func<T, TResult> selector) => new(selector(_value));
+        public string ToString(bool includeVariantInfo) => Build<object>().ToString(includeVariantInfo);
+        public override string ToString() => Build<object>().ToString();
     }
 
-#endif
-
-#if EITHER
-
-    public static Either<T, TError> AsEitherLeft<T, TError>(this in Result<T, TError> result)
-        => result.IsSuccess ? new(result._value) : new(result.Error);
-
-    public static Either<TError, T> AsEitherRight<T, TError>(this in Result<T, TError> result)
-        => result.IsSuccess ? new(result._value) : new(result.Error);
-
-#endif
-
-#if EXT_ENUMERABLE
-
-    public static IEnumerable<T> WhereIsSuccess<T, TError>(this IEnumerable<Result<T, TError>> source)
-        => source.Where(x => x.IsSuccess).Select(x => x.Value);
-
-    public static IEnumerable<TError> WhereIsFailure<T, TError>(this IEnumerable<Result<T, TError>> source)
-        => source.Where(x => x.IsFailure).Select(x => x.Error!);
-
-#endif
-
-    [DoesNotReturn]
-    internal static void ThrowResultIsError<TError>(TError error) => throw new ResultErrorException<TError>(error);
-
-    internal static class ErrorHelper
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public readonly struct FailureBuilder<TError>
     {
-        public static string ToStringIncludeVariantInfo<T>(ValueTypeBox<T> value)
-        {
-            if (value.Value is IMonad monad)
-                return monad.ToString(true);
-            return value.ToString() ?? "";
-        }
+        internal readonly TError _error;
+        internal FailureBuilder(TError error) => _error = error;
+        public Result<T, TError> Build<T>() => _error;
+
+        public bool IsSuccess => false;
+        public bool IsFailure => true;
+        public TError Error => _error;
+        public SuccessBuilder<TError> Swap() => new(_error);
+        public FailureBuilder<TNewError> CastError<TNewError>() => new((TNewError)(object)_error!);
+        public FailureBuilder<TNewError> SelectError<TNewError>(Func<TError, TNewError> selector) => new(selector(_error));
+        public string ToString(bool includeVariantInfo) => Build<object>().ToString(includeVariantInfo);
+        public override string ToString() => Build<object>().ToString();
     }
 }
 
 /// <summary>
 /// Monad Result, Note that if TError is struct, the error value will be boxed, some boxes will be cached
 /// </summary>
-public readonly struct Result<T, TError>
+public readonly partial struct Result<T, TError>
 #if MONAD
     : IMonad
 #endif
@@ -125,12 +106,12 @@ public readonly struct Result<T, TError>
     /// </summary>
     public T Value => _value!;
 
-    public TError? Error => ValueTypeBox.GetValueOrDefault<TError>(_error);
+    public TError? Error => BoxHelpers.Unbox<TError>(_error);
 
     public T GetValueOrThrow()
     {
         if (!IsSuccess)
-            Result.ThrowResultIsError(Error);
+            ResultErrorException.Throw<T, TError>(Error);
         return _value;
     }
 
@@ -169,14 +150,14 @@ public readonly struct Result<T, TError>
     private Result(T? value, object? error)
     {
         _value = value;
-        Debug.Assert(ValueTypeBox.IsValueTypeBoxOrReferenceObject<TError>(error));
+        Debug.Assert(BoxHelpers.IsValidBox<TError>(error));
         _error = error;
     }
 
     private Result(T? value, TError? error)
     {
         _value = value;
-        _error = ValueTypeBox.BoxIfValueType(error);
+        _error = BoxHelpers.Box(error);
     }
 
     public Result(T value) : this(value, default(object)) { }
@@ -185,15 +166,14 @@ public readonly struct Result<T, TError>
 
     public static implicit operator Result<T, TError>(T value) => new(value);
     public static implicit operator Result<T, TError>(TError error) => new(error);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Result<T, TError>(ResultSuccessBuilder<T> builder) => new(builder._value);
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Result<T, TError>(ResultFailedBuilder<TError> builder) => new(builder._error);
+    public static implicit operator Result<T, TError>(Result.SuccessBuilder<T> builder) => new(builder._value);
+    public static implicit operator Result<T, TError>(Result.FailureBuilder<TError> builder) => new(builder._error);
 
     #endregion
 
     #region Convertor
+
+    public Result<TError, T> Swap() => new(Error, _value);
 
     public Result<TResult, TError> Cast<TResult>() => IsSuccess ? new((TResult)(object)_value) : new(default!, _error);
 
@@ -234,89 +214,52 @@ public readonly struct Result<T, TError>
     public Result<TResult, TError> Bind<TResult>(Func<T, Result<TResult, TError>> selector)
         => IsSuccess ? selector(_value) : new(default!, _error);
 
+    public Result<T, TNewError> BindError<TNewError>(Func<TError, Result<T, TNewError>> selector)
+        => IsSuccess ? new(_value) : selector(Error);
+
     #endregion
 
-    public override string ToString() => ToString(includeVariantInfo: false);
+    public override string ToString() => (IsSuccess ? _value.ToString() : Error.ToString()) ?? "";
 
     public string ToString(bool includeVariantInfo)
     {
-        if (includeVariantInfo) {
-            if (IsSuccess) {
-                string? str;
-                if (_value is IMonad monad)
-                    str = monad.ToString(true);
-                else
-                    str = _value.ToString();
-                return str is null ? "Result Success" : $"Success({str})";
-            }
-            else {
-                string? str;
-                if (typeof(TError).IsValueType)
-                    str = Result.ErrorHelper.ToStringIncludeVariantInfo(Unsafe.As<ValueTypeBox<TError>>(_error));
-                else if (Error is IMonad monad)
-                    str = monad.ToString(true);
-                else
-                    str = Error.ToString();
-                return str is null ? "Result Error" : $"Error({str})";
-            }
+        if (!includeVariantInfo) {
+            return ToString();
+        }
+
+        if (IsSuccess) {
+            string? str;
+            if (_value is IMonad monad)
+                str = monad.ToString(true);
+            else
+                str = _value.ToString();
+            return str is null ? "Result Success" : $"Success({str})";
         }
         else {
-            if (IsSuccess) {
-                return _value.ToString() ?? "";
+            string? str;
+            if (typeof(TError).IsValueType) {
+                var box = Unsafe.As<ValueBox<TError>>(_error);
+                str = box.Value is IMonad monad ? monad.ToString(true) : box.ToString() ?? "";
             }
-            else {
-                return Error.ToString() ?? "";
-            }
+            else if (Error is IMonad monad)
+                str = monad.ToString(true);
+            else
+                str = Error.ToString();
+            return str is null ? "Result Error" : $"Error({str})";
         }
     }
 }
 
-#pragma warning disable CS0649
-
-[EditorBrowsable(EditorBrowsableState.Never)]
-public readonly struct ResultSuccessBuilder<T>
+public sealed class ResultErrorException : InvalidOperationException
 {
-    internal readonly T _value;
+    public object Error { get; }
 
-    internal ResultSuccessBuilder(T value) => _value = value;
+    private ResultErrorException(Type valueType, Type errorType, object error)
+        : base($"Result<{valueType.Name}, {errorType.Name}> is Error({error})")
+        => Error = error;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Result<T, TError> Build<TError>() => _value;
-
-    public bool IsSuccess => true;
-    public bool IsFailure => false;
-    public T Value => _value;
-    public ResultSuccessBuilder<TResult> Cast<TResult>() => new((TResult)(object)_value!);
-    public void MatchValue(Action<T> selector) => selector(_value);
-    public ResultSuccessBuilder<TResult> Select<TResult>(Func<T, TResult> selector) => new(selector(_value));
-    public string ToString(bool includeVariantInfo) => Build<object>().ToString(includeVariantInfo);
-    public override string ToString() => ToString(includeVariantInfo: false);
+    [DoesNotReturn]
+    public static void Throw<T, TError>(TError error) => throw new ResultErrorException(typeof(T), typeof(TError), error!);
 }
 
-[EditorBrowsable(EditorBrowsableState.Never)]
-public readonly struct ResultFailedBuilder<TError>
-{
-    internal readonly TError _error;
-
-    internal ResultFailedBuilder(TError error) => _error = error;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Result<T, TError> Build<T>() => _error;
-
-    public bool IsSuccess => false;
-    public bool IsFailure => true;
-    public TError Error => _error;
-    public ResultFailedBuilder<TNewError> CastError<TNewError>() => new((TNewError)(object)_error!);
-    public void MatchError(Action<TError> selector) => selector(_error);
-    public ResultFailedBuilder<TNewError> SelectError<TNewError>(Func<TError, TNewError> selector) => new(selector(_error));
-    public string ToString(bool includeVariantInfo) => Build<object>().ToString(includeVariantInfo);
-    public override string ToString() => ToString(includeVariantInfo: false);
-}
-
-#nullable restore
-
-public sealed class ResultErrorException<TError>(TError error)
-    : InvalidOperationException($"Result<,> is Error{(error is null ? "" : $"({error})")}")
-{
-    public TError Error => error;
-}
+#endif

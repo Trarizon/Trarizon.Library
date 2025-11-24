@@ -1,62 +1,66 @@
-﻿//#define OPTIONAL
-//#define RESULT
+﻿#if EITHER
 
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 
 namespace Trarizon.Library.Functional;
-public static partial class Either
+
+public static class Either
 {
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Either<TLeft, TRight> Left<TLeft, TRight>(TLeft leftValue)
         => new(leftValue);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static LeftBuilder<TLeft> Left<TLeft>(TLeft leftValue)
+        => new(leftValue);
+
     public static Either<TLeft, TRight> Right<TLeft, TRight>(TRight rightValue)
         => new(rightValue);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static RightBuilder<TRight> Right<TRight>(TRight rightValue)
+        => new(rightValue);
+
+    public static Either<TLeft, TRight> Create<TLeft, TRight>(bool isLeft, TLeft left, TRight right)
+        => isLeft ? new(left) : new(right);
+
     public static ref readonly TLeft? GetLeftRefOrDefaultRef<TLeft, TRight>(this ref readonly Either<TLeft, TRight> either)
         => ref either._left;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ref readonly TRight? GetRightRefOrDefaultRef<TLeft, TRight>(this ref readonly Either<TLeft, TRight> either)
         => ref either._right;
 
-#if OPTIONAL
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public readonly struct LeftBuilder<T>
+    {
+        internal readonly T _value;
+        internal LeftBuilder(T value) => _value = value;
+        public Either<T, TRight> Build<TRight>() => _value;
 
-    public static Optional<TLeft> ToOptionalLeft<TLeft, TRight>(this in Either<TLeft, TRight> either)
-        => either.IsLeft ? Optional.Of(either._left) : default;
+        public bool IsLeft => true;
+        public bool IsRight => false;
+        public T LeftValue => _value;
+        public RightBuilder<T> Swap() => new(_value);
+        public LeftBuilder<TResult> CastLeft<TResult>() => new((TResult)(object)_value!);
+        public LeftBuilder<TResult> SelectLeft<TResult>(Func<T, TResult> selector) => new(selector(_value));
+        public string ToString(bool includeVariantInfo) => Build<object>().ToString(includeVariantInfo);
+        public override string ToString() => Build<object>().ToString();
+    }
 
-    public static Optional<TRight> ToOptionalRight<TLeft, TRight>(this in Either<TLeft, TRight> either)
-        => either.IsRight ? Optional.Of(either._right) : default;
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public readonly struct RightBuilder<T>
+    {
+        internal readonly T _value;
+        internal RightBuilder(T value) => _value = value;
+        public Either<TLeft, T> Build<TLeft>() => _value;
 
-#endif
-
-#if RESULT
-
-    public static Result<TLeft, TError> ToResultLeft<TLeft, TRight, TError>(this in Either<TLeft, TRight> either, TError error)
-        => either.IsLeft ? new(either._left) : new(error);
-
-    public static Result<TLeft, TError> ToResultLeft<TLeft, TRight, TError>(this in Either<TLeft, TRight> either, Func<TRight, TError> errorSelector)
-        => either.IsLeft ? new(either._left) : new(errorSelector(either._right));
-
-    public static Result<TRight, TError> ToResultRight<TLeft, TRight, TError>(this in Either<TLeft, TRight> either, TError error)
-        => either.IsRight ? new(either._right) : new(error);
-
-    public static Result<TRight, TError> ToResultRight<TLeft, TRight, TError>(this in Either<TLeft, TRight> either, Func<TLeft, TError> errorSelector)
-        => either.IsRight ? new(either._right) : new(errorSelector(either._left));
-
-    public static Result<TLeft, TRight> AsResultLeft<TLeft, TRight>(this in Either<TLeft, TRight> either) where TRight : class
-        => either.IsLeft ? new(either._left) : new(either._right);
-
-    public static Result<TRight, TLeft> AsResultRight<TLeft, TRight>(this in Either<TLeft, TRight> either) where TLeft : class
-        => either.IsRight ? new(either._right) : new(either._left);
-
-#endif
-
-    [DoesNotReturn]
-    internal static void EitherHasNoValue(bool left) => throw new InvalidOperationException($"Either<,> has no {(left ? "left" : "right")} value");
+        public bool IsLeft => false;
+        public bool IsRight => true;
+        public T RightValue => _value;
+        public LeftBuilder<T> Swap() => new(_value);
+        public RightBuilder<TResult> CastRight<TResult>() => new((TResult)(object)_value!);
+        public LeftBuilder<TResult> SelectRight<TResult>(Func<T, TResult> selector) => new(selector(_value));
+        public string ToString(bool includeVariantInfo) => Build<object>().ToString(includeVariantInfo);
+        public override string ToString() => Build<object>().ToString();
+    }
 }
 
 public readonly struct Either<TLeft, TRight>
@@ -81,13 +85,13 @@ public readonly struct Either<TLeft, TRight>
     public TLeft GetValidLeftValue()
     {
         if (IsRight)
-            Either.EitherHasNoValue(left: true);
+            EitherNoValueException.Throw<TLeft, TRight>(left: true);
         return _left;
     }
     public TRight GetValidRightValue()
     {
         if (IsLeft)
-            Either.EitherHasNoValue(left: true);
+            EitherNoValueException.Throw<TLeft, TRight>(left: false);
         return _right;
     }
 
@@ -137,6 +141,8 @@ public readonly struct Either<TLeft, TRight>
 
     public static implicit operator Either<TLeft, TRight>(TLeft left) => new(left);
     public static implicit operator Either<TLeft, TRight>(TRight right) => new(right);
+    public static implicit operator Either<TLeft, TRight>(Either.LeftBuilder<TLeft> left) => new(left._value);
+    public static implicit operator Either<TLeft, TRight>(Either.RightBuilder<TRight> right) => new(right._value);
 
     #endregion
 
@@ -144,6 +150,12 @@ public readonly struct Either<TLeft, TRight>
 
     public Either<TRight, TLeft> Swap()
         => new(!_isLeft, _right, _left);
+
+    public Either<TNewLeft, TRight> CastLeft<TNewLeft>() => IsLeft ? new((TNewLeft)(object)_left) : new(_right);
+
+    public Either<TLeft, TNewRight> CastRight<TNewRight>() => IsRight ? new((TNewRight)(object)_right) : new(_left);
+
+    public Either<TNewLeft, TNewRight> Cast<TNewLeft, TNewRight>() => IsLeft ? new((TNewLeft)(object)_left) : new((TNewRight)(object)_right);
 
     public TResult Match<TResult>(Func<TLeft, TResult> leftSelector, Func<TRight, TResult> rightSelector)
         => IsLeft ? leftSelector(_left) : rightSelector(_right);
@@ -154,6 +166,16 @@ public readonly struct Either<TLeft, TRight>
             leftSelector?.Invoke(_left);
         else
             rightSelector?.Invoke(_right);
+    }
+
+    public void MatchLeft(Action<TLeft> leftSelector)
+    {
+        if (IsLeft) leftSelector(_left);
+    }
+
+    public void MatchRight(Action<TRight> rightSelector)
+    {
+        if (IsRight) rightSelector(_right);
     }
 
     public Either<TNewLeft, TRight> SelectLeft<TNewLeft>(Func<TLeft, TNewLeft> selector)
@@ -171,10 +193,43 @@ public readonly struct Either<TLeft, TRight>
     public Either<TLeft, TNewRight> BindRight<TNewRight>(Func<TRight, Either<TLeft, TNewRight>> selector)
         => IsRight ? selector(_right) : new(_left);
 
-    public Either<TNewLeft, TNewRight> Bind<TNewLeft, TNewRight>(Func<TLeft, Either<TNewLeft, TNewRight>> leftSelector, Func<TRight, Either<TNewLeft, TNewRight>> rightSelector)
-        => IsLeft ? leftSelector(_left) : rightSelector(_right);
-
     #endregion
 
     public override string ToString() => (IsLeft ? _left.ToString() : _right.ToString()) ?? string.Empty;
+
+    public string ToString(bool includeVariantInfo)
+    {
+        if (!includeVariantInfo) {
+            return ToString();
+        }
+
+        if (IsLeft) {
+            string? str;
+            if (_left is IMonad monad)
+                str = monad.ToString(true);
+            else
+                str = _left.ToString();
+            return str is null ? "Either Left" : $"Left({str})";
+        }
+        else {
+            string? str;
+            if (_right is IMonad monad)
+                str = monad.ToString(true);
+            else
+                str = _right.ToString();
+            return str is null ? "Either Right" : $"Right({str})";
+        }
+    }
 }
+
+public sealed class EitherNoValueException : InvalidOperationException
+{
+    private EitherNoValueException(Type leftType, Type rightType, bool left)
+        : base($"Either<{leftType.Name}, {rightType.Name}> has no {(left ? "left" : "right")} value")
+    { }
+
+    [DoesNotReturn]
+    public static void Throw<TLeft, TRight>(bool left) => throw new EitherNoValueException(typeof(TLeft), typeof(TRight), left);
+}
+
+#endif
