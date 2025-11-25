@@ -56,5 +56,3 @@ this works better on `Result<T, TError>`, as you can use `Result.Success(1)` to 
 Also, all types are designed in value type, so I should avoid boxing and cannot use inheritance
 
 ### Result
-
-### Either

@@ -2,14 +2,14 @@
 
 public static class FunctorExtensions
 {
+    #region Convertions
+
 #if OPTIONAL
 
     public static T? ToNullable<T>(this in Optional<T> optional) where T : struct
         => optional.HasValue ? optional.Value : null;
 
 #endif
-
-    #region Convertions
 
 #if OPTIONAL && RESULT
 
@@ -44,38 +44,6 @@ public static class FunctorExtensions
             return Optional.Of(Result.Failure<T, TError>(result.Error));
         }
     }
-
-#endif
-
-#if OPTIONAL && EITHER
-
-    public static Either<T, TRight> ToEitherRight<T, TRight>(this in Optional<T> optional, TRight right)
-        => optional.HasValue ? Either.Left(optional.Value) : Either.Right(right);
-
-    public static Either<T, TRight> ToEitherRight<T, TRight>(this in Optional<T> optional, Func<TRight> rightSelector)
-        => optional.HasValue ? Either.Left(optional.Value) : Either.Right(rightSelector());
-
-    public static Either<TLeft, T> ToEitherLeft<T, TLeft>(this in Optional<T> optional, TLeft left)
-        => optional.HasValue ? Either.Right(optional.Value) : Either.Left(left);
-
-    public static Either<TLeft, T> ToEitherLeft<T, TLeft>(this in Optional<T> optional, Func<TLeft> leftSelector)
-        => optional.HasValue ? Either.Right(optional.Value) : Either.Left(leftSelector());
-
-    public static Optional<TLeft> ToOptionalLeft<TLeft, TRight>(this in Either<TLeft, TRight> either)
-        => either.IsLeft ? Optional.Of(either._left) : default;
-
-    public static Optional<TRight> ToOptionalRight<TLeft, TRight>(this in Either<TLeft, TRight> either)
-        => either.IsRight ? Optional.Of(either._right) : default;
-
-#endif
-
-#if RESULT && EITHER
-
-    public static Either<T, TError> ToEither<T, TError>(this in Result<T, TError> result)
-        => result.IsSuccess ? Either.Left(result._value) : Either.Right(result.Error);
-
-    public static Result<TLeft, TRight> ToResult<TLeft, TRight>(this in Either<TLeft, TRight> either)
-        => either.IsLeft ? Result.Success(either._left) : Result.Failure(either._right);
 
 #endif
 
@@ -135,16 +103,6 @@ public static class FunctorExtensions
 
     public static IEnumerable<TError> WhereIsFailure<T, TError>(this IEnumerable<Result<T, TError>> source)
         => source.Where(x => x.IsFailure).Select(x => x.Error!);
-
-#endif
-
-#if EITHER
-
-    public static IEnumerable<TLeft> WhereIsLeft<TLeft, TRight>(this IEnumerable<Either<TLeft, TRight>> source)
-        => source.Where(x => x.IsLeft).Select(x => x.LeftValue);
-
-    public static IEnumerable<TRight> WhereIsRight<TLeft, TRight>(this IEnumerable<Either<TLeft, TRight>> source)
-        => source.Where(x => x.IsRight).Select(x => x.RightValue);
 
 #endif
 

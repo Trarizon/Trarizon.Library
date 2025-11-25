@@ -1,9 +1,9 @@
-﻿#if OPTIONAL && NET9_0_OR_GREATER
-
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Trarizon.Library.Functional;
+
+#if OPTIONAL && NET9_0_OR_GREATER
 
 public static partial class RefOptional
 {

@@ -1,10 +1,7 @@
 ﻿#if RESULT
 
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
-using Trarizon.Library.Functional.Internal;
 
 namespace Trarizon.Library.Functional;
 
@@ -25,10 +22,27 @@ public static partial class Result
     public static Result<T, TError> Create<T, TError>(bool isSuccess, T value, TError error)
         => isSuccess ? new(value) : new(error);
 
+    public static Result<T, Exception> TryCatch<T>(Func<T> func)
+    {
+        try { return func(); }
+        catch (Exception ex) { return ex; }
+    }
+
+    public static Result<T, TException> TryCatch<T, TException>(Func<T> func)
+        where TException : Exception
+    {
+        try {
+            return func();
+        }
+        catch (TException ex) {
+            return ex;
+        }
+    }
+
     public static T GetValueOrThrowError<T, TException>(this in Result<T, TException> result) where TException : Exception
     {
         if (!result.IsSuccess)
-            ThrowException(result.Error);
+            ThrowException(result._error);
         return result._value;
 
         [DoesNotReturn]
@@ -40,7 +54,7 @@ public static partial class Result
         => ref result._value;
 
     public static ref readonly TError? GetErrorRefOrDefaultRef<T, TError>(this ref readonly Result<T, TError> result)
-        => ref BoxHelpers.UnboxRef<TError>(in result._error);
+        => ref result._error;
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public readonly struct SuccessBuilder<T>
@@ -55,6 +69,7 @@ public static partial class Result
         public FailureBuilder<T> Swap() => new(_value);
         public SuccessBuilder<TResult> Cast<TResult>() => new((TResult)(object)_value!);
         public SuccessBuilder<TResult> Select<TResult>(Func<T, TResult> selector) => new(selector(_value));
+        public Result<TResult, TError> Bind<TResult, TError>(Func<T, Result<TResult, TError>> selector) => selector(_value);
         public string ToString(bool includeVariantInfo) => Build<object>().ToString(includeVariantInfo);
         public override string ToString() => Build<object>().ToString();
     }
@@ -72,6 +87,7 @@ public static partial class Result
         public SuccessBuilder<TError> Swap() => new(_error);
         public FailureBuilder<TNewError> CastError<TNewError>() => new((TNewError)(object)_error!);
         public FailureBuilder<TNewError> SelectError<TNewError>(Func<TError, TNewError> selector) => new(selector(_error));
+        public Result<TResult, TResultError> BindError<TResult, TResultError>(Func<TError, Result<TResult, TResultError>> selector) => selector(_error);
         public string ToString(bool includeVariantInfo) => Build<object>().ToString(includeVariantInfo);
         public override string ToString() => Build<object>().ToString();
     }
@@ -85,20 +101,17 @@ public readonly partial struct Result<T, TError>
     : IMonad
 #endif
 {
+    private readonly bool _success;
     internal readonly T? _value;
-    // For reference type, we store the TError
-    // For value type, we box it into Result.ValueTypeBox<T>
-    internal readonly object? _error;
-
-    #region Accessor
+    internal readonly TError? _error;
 
     [MemberNotNullWhen(true, nameof(_value))]
-    [MemberNotNullWhen(false, nameof(_error), nameof(Error))]
-    public bool IsSuccess => _error is null;
+    [MemberNotNullWhen(false, nameof(_error))]
+    public bool IsSuccess => _success;
 
     [MemberNotNullWhen(false, nameof(_value))]
-    [MemberNotNullWhen(true, nameof(_error), nameof(Error))]
-    public bool IsFailure => _error is not null;
+    [MemberNotNullWhen(true, nameof(_error))]
+    public bool IsFailure => !_success;
 
     /// <summary>
     /// Unlike <see cref="Nullable{T}.Value"/>, this property won't throw
@@ -106,90 +119,102 @@ public readonly partial struct Result<T, TError>
     /// </summary>
     public T Value => _value!;
 
-    public TError? Error => BoxHelpers.Unbox<TError>(_error);
+    public TError Error => _error!;
 
     public T GetValueOrThrow()
     {
         if (!IsSuccess)
-            ResultErrorException.Throw<T, TError>(Error);
+            ResultException.Throw<T, TError>(_error);
         return _value;
     }
 
+    public TError GetErrorOrThrow()
+    {
+        if (IsSuccess)
+            ResultException.Throw<T, TError>(_value);
+        return _error;
+    }
+
     public T? GetValueOrDefault() => _value;
+
+    public TError? GetErrorOrDefault() => _error;
 
     [return: NotNullIfNotNull(nameof(defaultValue))]
     public T? GetValueOrDefault(T? defaultValue)
         => IsSuccess ? _value : defaultValue;
 
-    [MemberNotNullWhen(true, nameof(_value)), MemberNotNullWhen(false, nameof(_error), nameof(Error))]
+    [return: NotNullIfNotNull(nameof(defaultValue))]
+    public TError? GetErrorOrDefault(TError? defaultValue)
+        => IsFailure ? _error : defaultValue;
+
+    [MemberNotNullWhen(true, nameof(_value)), MemberNotNullWhen(false, nameof(_error))]
     public bool TryGetValue([MaybeNullWhen(false)] out T value, [MaybeNullWhen(true)] out TError error)
     {
         value = _value;
-        error = Error;
+        error = _error;
         return IsSuccess;
     }
 
-    [MemberNotNullWhen(true, nameof(_value)), MemberNotNullWhen(false, nameof(_error), nameof(Error))]
+    [MemberNotNullWhen(true, nameof(_value)), MemberNotNullWhen(false, nameof(_error))]
     public bool TryGetValue([MaybeNullWhen(false)] out T value)
     {
         value = _value;
         return IsSuccess;
     }
 
-    [MemberNotNullWhen(false, nameof(_value)), MemberNotNullWhen(true, nameof(_error), nameof(Error))]
+    [MemberNotNullWhen(false, nameof(_value)), MemberNotNullWhen(true, nameof(_error))]
     public bool TryGetError([MaybeNullWhen(false)] out TError error)
     {
-        error = Error;
+        error = _error;
         return IsFailure;
     }
 
-    #endregion
 
-    #region Creator
-
-    private Result(T? value, object? error)
+    private Result(bool success, T? value, TError? error)
     {
+        _success = success;
         _value = value;
-        Debug.Assert(BoxHelpers.IsValidBox<TError>(error));
         _error = error;
     }
 
-    private Result(T? value, TError? error)
+    public Result(T value)
     {
+        _success = true;
         _value = value;
-        _error = BoxHelpers.Box(error);
     }
 
-    public Result(T value) : this(value, default(object)) { }
-
-    public Result(TError error) : this(default, error) { }
+    public Result(TError error)
+    {
+        _success = false;
+        _error = error;
+    }
 
     public static implicit operator Result<T, TError>(T value) => new(value);
     public static implicit operator Result<T, TError>(TError error) => new(error);
     public static implicit operator Result<T, TError>(Result.SuccessBuilder<T> builder) => new(builder._value);
     public static implicit operator Result<T, TError>(Result.FailureBuilder<TError> builder) => new(builder._error);
 
-    #endregion
 
-    #region Convertor
+    public Result<TError, T> Swap() => new(!_success, _error, _value);
 
-    public Result<TError, T> Swap() => new(Error, _value);
+    public Result<TResult, TError> Cast<TResult>() => IsSuccess ? new((TResult)(object)_value) : new(_error);
 
-    public Result<TResult, TError> Cast<TResult>() => IsSuccess ? new((TResult)(object)_value) : new(default!, _error);
+    public Result<T, TNewError> CastError<TNewError>() => IsFailure ? new((TNewError)(object)_error) : new(_value);
 
-    public Result<T, TNewError> CastError<TNewError>() => IsFailure ? new(default!, (TNewError)(object)Error) : new(_value);
-
-    public Result<TResult, TNewError> Cast<TResult, TNewError>() => IsSuccess ? new((TResult)(object)_value) : new(default!, (TNewError)(object)Error);
+    public Result<TResult, TNewError> Cast<TResult, TNewError>() => IsSuccess ? new((TResult)(object)_value) : new((TNewError)(object)_error);
 
     public TResult Match<TResult>(Func<T, TResult> successSelector, Func<TError, TResult> errorSelector)
-        => IsSuccess ? successSelector(_value) : errorSelector(Error);
+#if NET9_0_OR_GREATER
+        where TResult : allows ref struct
+#endif
+        => IsSuccess ? successSelector(_value) : errorSelector(_error);
 
-    public void Match(Action<T>? successSelector, Action<TError>? errorSelector)
+    public void Match(Action<T>? valueSelector, Action<TError>? errorSelector)
     {
         if (IsSuccess)
-            successSelector?.Invoke(_value);
+            valueSelector?.Invoke(_value);
         else
-            errorSelector?.Invoke(Error);
+            errorSelector?.Invoke(_error);
     }
 
     public void MatchValue(Action<T> selector)
@@ -199,27 +224,25 @@ public readonly partial struct Result<T, TError>
 
     public void MatchError(Action<TError> selector)
     {
-        if (IsFailure) selector(Error);
+        if (IsFailure) selector(_error);
     }
 
     public Result<TResult, TError> Select<TResult>(Func<T, TResult> selector)
-        => IsSuccess ? new(selector(_value)) : new(default!, _error);
+        => IsSuccess ? new(selector(_value)) : new(_error);
 
     public Result<T, TResult> SelectError<TResult>(Func<TError, TResult> selector)
-        => IsSuccess ? new(_value) : new(selector(Error));
+        => IsSuccess ? new(_value) : new(selector(_error));
 
     public Result<TResult, TResultError> Select<TResult, TResultError>(Func<T, TResult> valueSelector, Func<TError, TResultError> errorSelector)
-        => IsSuccess ? new(valueSelector(_value)) : new(errorSelector(Error));
+        => IsSuccess ? new(valueSelector(_value)) : new(errorSelector(_error));
 
     public Result<TResult, TError> Bind<TResult>(Func<T, Result<TResult, TError>> selector)
-        => IsSuccess ? selector(_value) : new(default!, _error);
+        => IsSuccess ? selector(_value) : new(_error);
 
     public Result<T, TNewError> BindError<TNewError>(Func<TError, Result<T, TNewError>> selector)
-        => IsSuccess ? new(_value) : selector(Error);
+        => IsSuccess ? new(_value) : selector(_error);
 
-    #endregion
-
-    public override string ToString() => (IsSuccess ? _value.ToString() : Error.ToString()) ?? "";
+    public override string ToString() => (IsSuccess ? _value.ToString() : _error.ToString()) ?? "";
 
     public string ToString(bool includeVariantInfo)
     {
@@ -237,29 +260,34 @@ public readonly partial struct Result<T, TError>
         }
         else {
             string? str;
-            if (typeof(TError).IsValueType) {
-                var box = Unsafe.As<ValueBox<TError>>(_error);
-                str = box.Value is IMonad monad ? monad.ToString(true) : box.ToString() ?? "";
-            }
-            else if (Error is IMonad monad)
+            if (_error is IMonad monad)
                 str = monad.ToString(true);
             else
-                str = Error.ToString();
+                str = _error.ToString();
             return str is null ? "Result Error" : $"Error({str})";
         }
     }
 }
 
-public sealed class ResultErrorException : InvalidOperationException
+public sealed class ResultException : InvalidOperationException
 {
-    public object Error { get; }
-
-    private ResultErrorException(Type valueType, Type errorType, object error)
-        : base($"Result<{valueType.Name}, {errorType.Name}> is Error({error})")
-        => Error = error;
+    private ResultException(Type valueType, Type errorType, bool success)
+        : base($"Result<{valueType.Name}, {errorType.Name}> is {(success ? "Success" : "Failure")}")
+    { }
 
     [DoesNotReturn]
-    public static void Throw<T, TError>(TError error) => throw new ResultErrorException(typeof(T), typeof(TError), error!);
+    public static void Throw<T, TError>(TError error)
+#if NET9_0_OR_GREATER
+        where T : allows ref struct where TError : allows ref struct
+#endif
+        => throw new ResultException(typeof(T), typeof(TError), false);
+
+    [DoesNotReturn]
+    public static void Throw<T, TError>(T value)
+#if NET9_0_OR_GREATER
+        where T : allows ref struct where TError : allows ref struct
+#endif
+        => throw new ResultException(typeof(T), typeof(TError), true);
 }
 
 #endif

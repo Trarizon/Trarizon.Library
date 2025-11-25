@@ -28,7 +28,6 @@ public static class Optional
     public readonly struct NoneBuilder
     {
         public Optional<T> Build<T>() => default;
-        public Result<Optional<T>, TError> Build<T, TError>() => Result.Success(Optional<T>.None);
 
         public bool HasValue => false;
         public static bool operator true(NoneBuilder _) => false;
@@ -95,6 +94,9 @@ public readonly partial struct Optional<T>
     public Optional<TResult> Cast<TResult>() => HasValue ? new((TResult)(object)_value) : default;
 
     public TResult Match<TResult>(Func<T, TResult> selector, Func<TResult> noValueSelector)
+#if NET9_0_OR_GREATER
+        where TResult : allows ref struct
+#endif
         => HasValue ? selector(_value) : noValueSelector();
 
     public void Match(Action<T>? selector, Action? noValueSelector)
