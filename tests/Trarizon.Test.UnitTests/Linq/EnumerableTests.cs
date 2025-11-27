@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using Trarizon.Library.Collections;
 using Trarizon.Library.Linq;
 
 namespace Trarizon.Test.UnitTests.Linq;
@@ -37,6 +38,16 @@ public class EnumerableTests
     public void IntersperseTest(IEnumerable<int> source)
     {
         source.Intersperse(-1).Should().Equal(0, -1, 1, -1, 2, -1, 3, -1, 4, -1, 5, -1, 6, -1, 7);
+    }
+
+    [Theory]
+    [MemberData(nameof(IntDatas))]
+    public void MinMaxTest(IEnumerable<int> source)
+    {
+        source.MinMax().Should().Be((0, 7));
+        source.MinMax(descending: true).Should().Be((7, 0));
+        source.MinMax(Comparer<int>.Default).Should().Be((0, 7));
+        source.MinMax(Comparer<int>.Default.Reverse()).Should().Be((7, 0));
     }
 
     [Theory]

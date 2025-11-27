@@ -29,11 +29,14 @@
 		<None Include="..\..\LICENSE" Pack="True" PackagePath="" />
 	</ItemGroup>
 
-	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' Or '$(TargetFramework)' == 'netstandard2.1'">
+    <ItemGroup>
 		<PackageReference Include="PolySharp" Version="1.15.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+    </ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' Or '$(TargetFramework)' == 'netstandard2.1'">
 		<PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.2" />
 		<PackageReference Include="System.Collections.Immutable" Version="8.0.0" />
 	</ItemGroup>
@@ -45,14 +48,15 @@
 
 	<PropertyGroup Label="Polyfills">
 		<PolySharpIncludeGeneratedTypes>
-			System.Diagnostics.StackTraceHiddenAttribute;
+            System.Diagnostics.StackTraceHiddenAttribute;
 
-			System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute;
-			System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute;
-			System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute;
+            System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute;
+            System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute;
+            System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute;
 
-			System.Runtime.CompilerServices.CallerArgumentExpressionAttribute;
-			<!--
+            System.Runtime.CompilerServices.CallerArgumentExpressionAttribute;
+            System.Runtime.CompilerServices.OverloadResolutionPriorityAttribute;
+            <!--
 
 			System.Diagnostics.CodeAnalysis.DisallowNullAttribute;
 			System.Diagnostics.CodeAnalysis.MaybeNullAttribute;

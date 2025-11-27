@@ -1,79 +1,146 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Numerics;
+using System.Runtime.CompilerServices;
+using Trarizon.Library.Linq.Internal;
 
 namespace Trarizon.Library.Linq;
 
 public static partial class TraEnumerable
 {
+#if NET7_0_OR_GREATER
+
+    [OverloadResolutionPriority(1)]
     [return: NotNullIfNotNull(nameof(defaultValue))]
-    public static T? MinOrDefault<T>(this IEnumerable<T> source, IComparer<T> comparer, T? defaultValue = default)
+    public static T? MinOrDefault<T>(this IEnumerable<T> source, T? defaultValue = default) where T : IComparisonOperators<T, T, bool>
     {
-        var val = TryMinOrMax(source, new MinCalculator<T>(comparer), out var success);
+        var val = TryMin(source, new ComparisonOperatorsAscCalculator<T>(), out var success);
+        return success ? val : defaultValue;
+    }
+
+    [OverloadResolutionPriority(1)]
+    [return: NotNullIfNotNull(nameof(defaultValue))]
+    public static T? MaxOrDefault<T>(this IEnumerable<T> source, T? defaultValue = default) where T : IComparisonOperators<T, T, bool>
+    {
+        var val = TryMin(source, new ComparisonOperatorsDescCalculator<T>(), out var success);
+        return success ? val : defaultValue;
+    }
+
+#endif
+
+    [return: NotNullIfNotNull(nameof(defaultValue))]
+    public static T? MinOrDefault<T>(this IEnumerable<T> source, IComparer<T>? comparer = null, T? defaultValue = default)
+    {
+        var val = TryMin(source, new ComparerSorter<T>(comparer ?? Comparer<T>.Default), out var success);
         return success ? val : defaultValue;
     }
 
     [return: NotNullIfNotNull(nameof(defaultValue))]
-    public static T? MaxOrDefault<T>(this IEnumerable<T> source, IComparer<T> comparer, T? defaultValue = default)
+    public static T? MaxOrDefault<T>(this IEnumerable<T> source, IComparer<T>? comparer = null, T? defaultValue = default)
     {
-        var val = TryMinOrMax(source, new MaxCalculator<T>(comparer), out var success);
+        var val = TryMin(source, new ReversedComparerSorter<T>(comparer ?? Comparer<T>.Default), out var success);
         return success ? val : defaultValue;
     }
+
+#if NET7_0_OR_GREATER
+
+    [OverloadResolutionPriority(1)]
+    public static (T Min, T Max) MinMax<T>(this IEnumerable<T> source) where T : IComparisonOperators<T, T, bool>
+    {
+        var ret = TryMinMax(source, new ComparisonOperatorsAscCalculator<T>(), out var success);
+        if (!success)
+            Throws.CollectionIsEmpty();
+        return ret;
+    }
+
+    [OverloadResolutionPriority(1)]
+    public static (T Min, T Max) MinMaxOrDefault<T>(this IEnumerable<T> source, (T Min, T Max) defaultValue = default) where T : IComparisonOperators<T, T, bool>
+    {
+        var val = TryMinMax(source, new ComparisonOperatorsAscCalculator<T>(), out var success);
+        return success ? val : defaultValue;
+    }
+
+    [OverloadResolutionPriority(1)]
+    public static (TResult Min, TResult Max) MinMax<T, TResult>(this IEnumerable<T> source, Func<T, TResult> selector) where TResult : IComparisonOperators<TResult, TResult, bool>
+    {
+        var ret = TryMinMax(source, selector, new ComparisonOperatorsAscCalculator<TResult>(), out var success);
+        if (!success)
+            Throws.CollectionIsEmpty();
+        return ret;
+    }
+
+    [OverloadResolutionPriority(1)]
+    public static (TResult Min, TResult Max) MinMaxOrDefault<T, TResult>(this IEnumerable<T> source, Func<T, TResult> selector, (TResult Min, TResult Max) defaultValue = default) where TResult : IComparisonOperators<TResult, TResult, bool>
+    {
+        var val = TryMinMax(source, selector, new ComparisonOperatorsAscCalculator<TResult>(), out var success);
+        return success ? val : defaultValue;
+    }
+
+    [OverloadResolutionPriority(1)]
+    public static (T Min, T Max) MinMaxBy<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector) where TKey : IComparisonOperators<TKey, TKey, bool>
+    {
+        var ret = TryMinMaxBy(source, keySelector, new ComparisonOperatorsAscCalculator<TKey>(), out var success);
+        if (!success)
+            Throws.CollectionIsEmpty();
+        return ret;
+    }
+
+    [OverloadResolutionPriority(1)]
+    public static (T Min, T Max) MinMaxByOrDefault<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector, (T Min, T Max) defaultValue = default) where TKey : IComparisonOperators<TKey, TKey, bool>
+    {
+        var val = TryMinMaxBy(source, keySelector, new ComparisonOperatorsAscCalculator<TKey>(), out var success);
+        return success ? val : defaultValue;
+    }
+
+#endif
 
     /// <summary>
     /// Get the min value and max value in sequence
     /// </summary>
     public static (T Min, T Max) MinMax<T>(this IEnumerable<T> source, IComparer<T>? comparer = null)
     {
-        var ret = TryMinMax(source, comparer ?? Comparer<T>.Default, out var success);
+        var ret = TryMinMax(source, new ComparerSorter<T>(comparer ?? Comparer<T>.Default), out var success);
         if (!success)
             Throws.CollectionIsEmpty();
         return ret;
     }
 
-    public static (T Min, T Max) MinMaxOrDefault<T>(this IEnumerable<T> source, IComparer<T>? comparer, (T Min, T Max) defaultValue = default)
+    public static (T Min, T Max) MinMaxOrDefault<T>(this IEnumerable<T> source, IComparer<T>? comparer = null, (T Min, T Max) defaultValue = default)
     {
-        var val = TryMinMax(source, comparer ?? Comparer<T>.Default, out var success);
+        var val = TryMinMax(source, new ComparerSorter<T>(comparer ?? Comparer<T>.Default), out var success);
         return success ? val : defaultValue;
     }
-
-    public static (T Min, T Max) MinMaxOrDefault<T>(this IEnumerable<T> source, (T Min, T Max) defaultValue = default)
-        => MinMaxOrDefault(source, (IComparer<T>?)null, defaultValue);
 
     public static (TResult Min, TResult Max) MinMax<T, TResult>(this IEnumerable<T> source, Func<T, TResult> selector, IComparer<TResult>? comparer = null)
     {
-        var ret = TryMinMax(source, selector, comparer ?? Comparer<TResult>.Default, out var success);
+        var ret = TryMinMax(source, selector, new ComparerSorter<TResult>(comparer ?? Comparer<TResult>.Default), out var success);
         if (!success)
             Throws.CollectionIsEmpty();
         return ret;
     }
 
-    public static (TResult Min, TResult Max) MinMaxOrDefault<T, TResult>(this IEnumerable<T> source, Func<T, TResult> selector, IComparer<TResult>? comparer, (TResult Min, TResult Max) defaultValue = default)
+    public static (TResult Min, TResult Max) MinMaxOrDefault<T, TResult>(this IEnumerable<T> source, Func<T, TResult> selector, IComparer<TResult>? comparer = null, (TResult Min, TResult Max) defaultValue = default)
     {
-        var val = TryMinMax(source, selector, comparer ?? Comparer<TResult>.Default, out var success);
+        var val = TryMinMax(source, selector, new ComparerSorter<TResult>(comparer ?? Comparer<TResult>.Default), out var success);
         return success ? val : defaultValue;
     }
-
-    public static (TResult Min, TResult Max) MinMaxOrDefault<T, TResult>(this IEnumerable<T> source, Func<T, TResult> selector, (TResult Min, TResult Max) defaultValue = default)
-        => MinMaxOrDefault(source, selector, null, defaultValue);
 
     /// <inheritdoc cref="MinMax{T}(IEnumerable{T}, IComparer{T})"/>
     public static (T Min, T Max) MinMaxBy<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector, IComparer<TKey>? comparer = null)
     {
-        var ret = TryMinMaxBy(source, keySelector, comparer ?? Comparer<TKey>.Default, out var success);
+        var ret = TryMinMaxBy(source, keySelector, new ComparerSorter<TKey>(comparer ?? Comparer<TKey>.Default), out var success);
         if (!success)
             Throws.CollectionIsEmpty();
         return ret;
     }
 
-    public static (T Min, T Max) MinMaxByOrDefault<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector, IComparer<TKey>? comparer, (T Min, T Max) defaultValue = default)
+    public static (T Min, T Max) MinMaxByOrDefault<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector, IComparer<TKey>? comparer = null, (T Min, T Max) defaultValue = default)
     {
-        var val = TryMinMaxBy(source, keySelector, comparer ?? Comparer<TKey>.Default, out var success);
+        var val = TryMinMaxBy(source, keySelector, new ComparerSorter<TKey>(comparer ?? Comparer<TKey>.Default), out var success);
         return success ? val : defaultValue;
     }
 
-    public static (T Min, T Max) MinMaxByOrDefault<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector, (T Min, T Max) defaultValue = default)
-        => MinMaxByOrDefault(source, keySelector, null, defaultValue);
 
-    private static (T Min, T Max) TryMinMax<T>(IEnumerable<T> source, IComparer<T> comparer, out bool success)
+    private static (T Min, T Max) TryMinMax<T, TSorter>(IEnumerable<T> source, TSorter sorter, out bool success) where TSorter : IOrderComparer<T>
     {
         T min, max;
         if (source.TryGetSpan(out var span)) {
@@ -84,9 +151,9 @@ public static partial class TraEnumerable
             min = max = span[0];
             for (var i = 1; i < span.Length; i++) {
                 var curr = span[i];
-                if (comparer.Compare(curr, min) < 0)
+                if (sorter.Less(curr, min))
                     min = curr;
-                if (comparer.Compare(curr, max) > 0)
+                if (sorter.Greater(curr, max))
                     max = curr;
             }
             success = true;
@@ -103,16 +170,17 @@ public static partial class TraEnumerable
 
         while (enumerator.MoveNext()) {
             var curr = enumerator.Current;
-            if (comparer.Compare(curr, min) < 0)
+            if (sorter.Less(curr, min))
                 min = curr;
-            if (comparer.Compare(curr, max) > 0)
+            if (sorter.Greater(curr, max))
                 max = curr;
         }
         success = true;
         return (min, max);
     }
 
-    private static (TResult Min, TResult Max) TryMinMax<T, TResult>(IEnumerable<T> source, Func<T, TResult> selector, IComparer<TResult> comparer, out bool success)
+    private static (TResult Min, TResult Max) TryMinMax<T, TResult, TSorter>(IEnumerable<T> source, Func<T, TResult> selector, TSorter sorter, out bool success)
+        where TSorter : IOrderComparer<TResult>
     {
         TResult min, max;
         using var enumerator = source.GetEnumerator();
@@ -125,16 +193,17 @@ public static partial class TraEnumerable
 
         while (enumerator.MoveNext()) {
             var curr = selector(enumerator.Current);
-            if (comparer.Compare(curr, min) < 0)
+            if (sorter.Less(curr, min))
                 min = curr;
-            if (comparer.Compare(curr, max) > 0)
+            if (sorter.Greater(curr, max))
                 max = curr;
         }
         success = true;
         return (min, max);
     }
 
-    private static (T min, T max) TryMinMaxBy<T, TKey>(IEnumerable<T> source, Func<T, TKey> keySelector, IComparer<TKey> comparer, out bool success)
+    private static (T min, T max) TryMinMaxBy<T, TKey, TSorter>(IEnumerable<T> source, Func<T, TKey> keySelector, TSorter sorter, out bool success)
+        where TSorter : IOrderComparer<TKey>
     {
         T min, max;
         TKey minKey, maxKey;
@@ -151,9 +220,9 @@ public static partial class TraEnumerable
         while (enumerator.MoveNext()) {
             var curr = enumerator.Current;
             var key = keySelector(curr);
-            if (comparer.Compare(key, minKey) < 0)
+            if (sorter.Less(key, minKey))
                 (min, minKey) = (curr, key);
-            if (comparer.Compare(key, maxKey) > 0)
+            if (sorter.Greater(key, maxKey))
                 (max, maxKey) = (curr, key);
         }
 
@@ -161,8 +230,8 @@ public static partial class TraEnumerable
         return (min, max);
     }
 
-    private static T TryMinOrMax<T, TCalculator>(IEnumerable<T> source, TCalculator calculator, out bool success)
-        where TCalculator : IMinMaxCalculator<T>
+    private static T TryMin<T, TSorter>(IEnumerable<T> source, TSorter sorter, out bool success)
+        where TSorter : IOrderComparer<T>
     {
         T val;
         if (source.TryGetSpan(out var span)) {
@@ -173,7 +242,7 @@ public static partial class TraEnumerable
             val = span[0];
             for (var i = 1; i < span.Length; i++) {
                 var curr = span[i];
-                if (calculator.Compare(curr, val))
+                if (sorter.Less(curr, val))
                     val = curr;
             }
             success = true;
@@ -189,27 +258,48 @@ public static partial class TraEnumerable
         val = enumerator.Current;
         while (enumerator.MoveNext()) {
             var curr = enumerator.Current;
-            if (calculator.Compare(curr, val))
+            if (sorter.Less(curr, val))
                 val = curr;
         }
         success = true;
         return val;
     }
 
-    private interface IMinMaxCalculator<T>
+    private readonly struct ComparerSorter<T>(IComparer<T> comparer) : IOrderComparer<T>
     {
-        bool Compare(T x, T y);
+        public bool Less(T x, T y) => comparer.Compare(x, y) < 0;
+        public bool LessOrEqual(T x, T y) => comparer.Compare(x, y) <= 0;
+        public bool Greater(T x, T y) => comparer.Compare(x, y) > 0;
+        public bool GreaterOrEqual(T x, T y) => comparer.Compare(x, y) >= 0;
     }
 
-    private readonly struct MinCalculator<T>(IComparer<T> comparer) : IMinMaxCalculator<T>
+    private readonly struct ReversedComparerSorter<T>(IComparer<T> comparer) : IOrderComparer<T>
     {
-        public bool Compare(T x, T y) => comparer.Compare(x, y) < 0;
+        public bool Less(T x, T y) => comparer.Compare(x, y) > 0;
+        public bool LessOrEqual(T x, T y) => comparer.Compare(x, y) >= 0;
+        public bool Greater(T x, T y) => comparer.Compare(x, y) < 0;
+        public bool GreaterOrEqual(T x, T y) => comparer.Compare(x, y) <= 0;
     }
 
-    private readonly struct MaxCalculator<T>(IComparer<T> comparer) : IMinMaxCalculator<T>
+#if NET7_0_OR_GREATER
+
+    private readonly struct ComparisonOperatorsAscCalculator<T> : IOrderComparer<T> where T : IComparisonOperators<T, T, bool>
     {
-        public bool Compare(T x, T y) => comparer.Compare(x, y) > 0;
+        public bool Less(T x, T y) => x < y;
+        public bool LessOrEqual(T x, T y) => x <= y;
+        public bool Greater(T x, T y) => x > y;
+        public bool GreaterOrEqual(T x, T y) => x >= y;
     }
+
+    private readonly struct ComparisonOperatorsDescCalculator<T> : IOrderComparer<T> where T : IComparisonOperators<T, T, bool>
+    {
+        public bool Less(T x, T y) => x > y;
+        public bool LessOrEqual(T x, T y) => x >= y;
+        public bool Greater(T x, T y) => x < y;
+        public bool GreaterOrEqual(T x, T y) => x <= y;
+    }
+
+#endif
 
     #region Polyfills
 
@@ -217,7 +307,7 @@ public static partial class TraEnumerable
 
     public static T Min<T>(this IEnumerable<T> source, IComparer<T> comparer)
     {
-        var val = TryMinOrMax(source, new MinCalculator<T>(comparer), out var success);
+        var val = TryMin(source, new ComparerSorter<T>(comparer), out var success);
         if (!success)
             Throws.CollectionIsEmpty();
         return val;
@@ -225,7 +315,7 @@ public static partial class TraEnumerable
 
     public static T Max<T>(this IEnumerable<T> source, IComparer<T> comparer)
     {
-        var val = TryMinOrMax(source, new MaxCalculator<T>(comparer), out var success);
+        var val = TryMin(source, new ReversedComparerSorter<T>(comparer), out var success);
         if (!success)
             Throws.CollectionIsEmpty();
         return val;

@@ -34,11 +34,14 @@
 
     <!-- Reference -->
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' Or '$(TargetFramework)' == 'netstandard2.1'">
+    <ItemGroup>
         <PackageReference Include="PolySharp" Version="1.15.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' Or '$(TargetFramework)' == 'netstandard2.1'">
         <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.2" />
         <PackageReference Include="System.Collections.Immutable" Version="8.0.0" />
     </ItemGroup>
@@ -54,9 +57,9 @@
     <!-- Polyfills -->
     
     <PropertyGroup Label="Polyfills">
-        <PolySharpIncludeGeneratedTypes>            
+        <PolySharpIncludeGeneratedTypes>
             System.Diagnostics.StackTraceHiddenAttribute;
-            
+
             System.Diagnostics.CodeAnalysis.DisallowNullAttribute;
             System.Diagnostics.CodeAnalysis.MaybeNullAttribute;
             System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute;
@@ -64,12 +67,13 @@
             System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute;
             System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute;
             System.Diagnostics.CodeAnalysis.NotNullWhenAttribute;
-            
+
             System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute;
             System.Diagnostics.CodeAnalysis.ExperimentalAttribute;
-            
+
             System.Runtime.CompilerServices.CollectionBuilderAttribute;
             System.Runtime.CompilerServices.CallerArgumentExpressionAttribute;
+            System.Runtime.CompilerServices.OverloadResolutionPriorityAttribute;
         </PolySharpIncludeGeneratedTypes>
     </PropertyGroup>
     

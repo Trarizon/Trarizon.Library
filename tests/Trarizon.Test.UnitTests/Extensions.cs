@@ -6,6 +6,12 @@ internal static class Extensions
 {
     public static T Var<T>(this T source, out T result) => result = source;
 
+    public static T Do<T>(this T source, Action<T> action)
+    {
+        action(source);
+        return source;
+    }
+
     public static IEnumerable<T> Enumerate<T>(this IEnumerable<T> source)
     {
         foreach (var item in source)
