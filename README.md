@@ -11,11 +11,12 @@ Personal library, supports .NET 8/9, .NET Standard 2.0/2.1
 Project|Summary
 :--|:--
 [Library](./src/Trarizon.Library)|Miscellaneous stuff. Breaking changes may be frequent (orz.
-[Library.Collections](./src/Trarizon.Library.Collections)|Collections types, extensions for BCL collection type, and more linqs
-[Library.Functional](./src/Trarizon.Library.Functional)|Monads `Optional` `Result` `Either`
+[Library.CodeAnalysis](./)|Attributes and stuffs with diagnostic analyzer and for source generation
+[Library.Collections](./src/Trarizon.Library.Collections)|Collections types, extensions for BCL collection type
+[Library.Functional](./src/Trarizon.Library.Functional)<br/><a href="https://www.nuget.org/packages/Trarizon.Library.Functional/"><img src="https://img.shields.io/nuget/v/Trarizon.Library.Functional"></a>|Monads `Optional` `Result`, struct-based and supports `ref struct`
+[Library.Linq](./src/Trarizon.Library.Linq)<br/><a href="https://www.nuget.org/packages/Trarizon.Library.Linq/"><img src="https://img.shields.io/nuget/v/Trarizon.Library.Linq"></a>|More linq methods
 [Library.Mathematics](./src/Trarizon.Library.Mathematics)|Functions for number and mathematics
 [Library.Roslyn](./src/compile-time/Trarizon.Library.Roslyn)|Toolkit for source generator
-[Library.CodeAnalysis](./src/compile-time/Trarizon.CodeAnalysis)|Attribute types for source generator and diagnostic analyzers
 
 ### Specialized
 
