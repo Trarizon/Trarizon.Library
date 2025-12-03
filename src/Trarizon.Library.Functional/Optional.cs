@@ -21,9 +21,6 @@ public static class Optional
     public static ref readonly T? GetValueRefOrDefaultRef<T>(this ref readonly Optional<T> optional)
         => ref optional._value;
 
-    [DoesNotReturn]
-    internal static void ThrowOptionalHasNoValue() => throw new InvalidOperationException("Optional<> has no value");
-
     [EditorBrowsable(EditorBrowsableState.Never)]
     public readonly struct NoneBuilder
     {
@@ -59,7 +56,7 @@ public readonly partial struct Optional<T>
     public T GetValueOrThrow()
     {
         if (!_hasValue)
-            Optional.ThrowOptionalHasNoValue();
+            OptionalNoValueException.Throw<T>();
         return _value!;
     }
 

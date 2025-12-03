@@ -68,10 +68,7 @@ public static class FunctorExtensions
         }
         return values;
     }
-
-    public static IEnumerable<TResult> WhereSelect<T, TResult>(this IEnumerable<T> source, Func<T, Optional<TResult>> selector)
-        => source.Select(selector).WhereHasValue();
-
+    
     /// <summary>
     /// Filters an sequence of optional values and returns a new sequence containing those that has value
     /// </summary>
