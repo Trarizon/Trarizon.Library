@@ -28,17 +28,6 @@ public static partial class Result
         catch (Exception ex) { return ex; }
     }
 
-    public static Result<T, TException> TryCatch<T, TException>(Func<T> func)
-        where TException : Exception
-    {
-        try {
-            return func();
-        }
-        catch (TException ex) {
-            return ex;
-        }
-    }
-
     public static T GetValueOrThrowError<T, TException>(this in Result<T, TException> result) where TException : Exception
     {
         if (!result.IsSuccess)
@@ -267,6 +256,20 @@ public readonly partial struct Result<T, TError>
             return str is null ? "Result Error" : $"Error({str})";
         }
     }
+
+    public static bool operator ==(Result<T, TError> left, Result<T, TError> right)
+    {
+        return (left.IsSuccess, right.IsSuccess) switch
+        {
+            (true, true) => EqualityComparer<T>.Default.Equals(left.Value, right.Value),
+            (false, false) => EqualityComparer<TError>.Default.Equals(left.Error, right.Error),
+            _ => false,
+        };
+    }
+    public static bool operator !=(Result<T, TError> left, Result<T, TError> right) => !(left == right);
+    public bool Equals(Result<T, TError> other) => this == other;
+    public override bool Equals(object? obj) => obj is Result<T, TError> other && this == other;
+    public override int GetHashCode() => IsSuccess ? _value.GetHashCode() : _error.GetHashCode();
 }
 
 public sealed class ResultException : InvalidOperationException

@@ -21,6 +21,12 @@ public static class Optional
     public static ref readonly T? GetValueRefOrDefaultRef<T>(this ref readonly Optional<T> optional)
         => ref optional._value;
 
+    public static Optional<T> OfNotNull<T>(this Optional<T?> value) where T : class
+        => value.HasValue && value._value is { } v ? new(v) : default;
+
+    public static Optional<T> OfNotNull<T>(this Optional<T?> value) where T : struct
+        => value.HasValue && value._value is { } v ? new(v) : default;
+
     [EditorBrowsable(EditorBrowsableState.Never)]
     public readonly struct NoneBuilder
     {
@@ -172,6 +178,20 @@ public readonly partial struct Optional<T>
             return "Optional None";
         }
     }
+
+    public static bool operator ==(Optional<T> left, Optional<T> right)
+    {
+        return (left.HasValue, right.HasValue) switch
+        {
+            (true, true) => EqualityComparer<T>.Default.Equals(left.Value, right.Value),
+            (false, false) => true,
+            _ => false,
+        };
+    }
+    public static bool operator !=(Optional<T> left, Optional<T> right) => !(left == right);
+    public bool Equals(Optional<T> other) => this == other;
+    public override bool Equals([NotNullWhen(true)] object? obj) => obj is Optional<T> other && this == other;
+    public override int GetHashCode() => HasValue ? _value.GetHashCode() : 0;
 }
 
 public sealed class OptionalNoValueException : Exception
