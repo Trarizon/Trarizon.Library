@@ -194,7 +194,7 @@ public readonly partial struct Optional<T>
     public override int GetHashCode() => HasValue ? _value.GetHashCode() : 0;
 }
 
-public sealed class OptionalNoValueException : Exception
+public sealed class OptionalNoValueException : InvalidOperationException
 {
     private OptionalNoValueException(Type type)
         : base($"Optional<{type.Name}> has no value")

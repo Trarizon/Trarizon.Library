@@ -68,7 +68,7 @@ public static class FunctorExtensions
         }
         return values;
     }
-    
+
     /// <summary>
     /// Filters an sequence of optional values and returns a new sequence containing those that has value
     /// </summary>
@@ -102,6 +102,17 @@ public static class FunctorExtensions
         => source.Where(x => x.IsFailure).Select(x => x.Error!);
 
 #endif
+
+    #endregion
+
+    #region Async
+
+    public static Task<Optional<T>> Transpose<T>(this Optional<Task<T>> self)
+    {
+        if (self.HasValue)
+            return self.Value.ContinueWith(x => Optional.Of(x.Result));
+        return Task.FromResult(Optional<T>.None);
+    }
 
     #endregion
 }
