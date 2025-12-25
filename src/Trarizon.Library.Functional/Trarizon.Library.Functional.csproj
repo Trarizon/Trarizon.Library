@@ -7,7 +7,7 @@
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
-        <DefineConstants>$(DefineConstants);MONAD;OPTIONAL;RESULT;EXT_ENUMERABLE</DefineConstants>
+        <DefineConstants>$(DefineConstants);UNIT;EXT_ENUMERABLE;EXT_TASK</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup>
@@ -39,11 +39,6 @@
 
     <ItemGroup Label="NugetItems">
         <None Include="..\..\LICENSE" Pack="True" PackagePath="" />
-        <None Include="Optional.tt.cs">
-          <DesignTime>True</DesignTime>
-          <AutoGen>True</AutoGen>
-          <DependentUpon>Optional.tt</DependentUpon>
-        </None>
         <None Include="README.md" Pack="True" PackagePath="" />
     </ItemGroup>
     
@@ -60,22 +55,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="Optional.tt">
-        <Generator>TextTemplatingFileGenerator</Generator>
-        <LastGenOutput>Optional.tt.cs</LastGenOutput>
-      </None>
-    </ItemGroup>
-
-    <ItemGroup>
       <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Compile Update="Optional.tt.cs">
-        <DesignTime>True</DesignTime>
-        <AutoGen>True</AutoGen>
-        <DependentUpon>Optional.tt</DependentUpon>
-      </Compile>
     </ItemGroup>
 
     <!--<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">

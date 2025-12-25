@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
+using Trarizon.Library.Functional.Abstraction;
 
 namespace Trarizon.Library.Functional;
 
@@ -21,12 +22,6 @@ public static class Optional
     public static ref readonly T? GetValueRefOrDefaultRef<T>(this ref readonly Optional<T> optional)
         => ref optional._value;
 
-    public static Optional<T> OfNotNull<T>(this Optional<T?> value) where T : class
-        => value.HasValue && value._value is { } v ? new(v) : default;
-
-    public static Optional<T> OfNotNull<T>(this Optional<T?> value) where T : struct
-        => value.HasValue && value._value is { } v ? new(v) : default;
-
     [EditorBrowsable(EditorBrowsableState.Never)]
     public readonly struct NoneBuilder
     {
@@ -35,15 +30,11 @@ public static class Optional
         public bool HasValue => false;
         public static bool operator true(NoneBuilder _) => false;
         public static bool operator false(NoneBuilder _) => true;
-        public Optional<T> Or<T>(Optional<T> other) => other;
-        public Optional<T> Or<T>(Func<Optional<T>> otherSelector) => otherSelector();
     }
 }
 
 public readonly partial struct Optional<T>
-#if MONAD
-    : IMonad
-#endif
+    : ITaggedUnion, IOptional<T>
 {
     internal readonly bool _hasValue;
     internal readonly T? _value;
@@ -96,66 +87,6 @@ public readonly partial struct Optional<T>
 
     public Optional<TResult> Cast<TResult>() => HasValue ? new((TResult)(object)_value) : default;
 
-    public TResult Match<TResult>(Func<T, TResult> selector, Func<TResult> noValueSelector)
-#if NET9_0_OR_GREATER
-        where TResult : allows ref struct
-#endif
-        => HasValue ? selector(_value) : noValueSelector();
-
-    public void Match(Action<T>? selector, Action? noValueSelector)
-    {
-        if (HasValue)
-            selector?.Invoke(_value);
-        else
-            noValueSelector?.Invoke();
-    }
-
-    public void MatchValue(Action<T> selector)
-    {
-        if (_hasValue) selector(_value!);
-    }
-
-    public void MatchNone(Action selector)
-    {
-        if (!_hasValue) selector();
-    }
-
-    public Optional<T> Or(Optional<T> other) => _hasValue ? this : other;
-
-    public Optional<T> Or(Func<Optional<T>> otherSelector) => _hasValue ? this : otherSelector();
-
-    public Optional<TResult> Select<TResult>(Func<T, TResult> selector)
-        => HasValue ? new(selector(_value)) : default;
-
-    public Optional<TResult> Bind<TResult>(Func<T, Optional<TResult>> selector)
-        => HasValue ? selector(_value) : default;
-
-    public Optional<TResult> Bind<TMid, TResult>(Func<T, Optional<TMid>> selector, Func<T, TMid, TResult> resultSelector)
-    {
-        if (HasValue) {
-            var mid = selector(_value);
-            if (mid.HasValue)
-                return resultSelector(_value, mid._value);
-        }
-        return default;
-    }
-
-    public Optional<TResult> Zip<T2, TResult>(Optional<T2> other, Func<T, T2, TResult> selector)
-        => HasValue && other.HasValue ? new(selector(_value, other._value)) : default;
-
-    public Optional<(T, T2)> Zip<T2>(Optional<T2> other)
-        => HasValue && other.HasValue ? new((_value, other._value)) : default;
-
-    public Optional<T> Where(Func<T, bool> predicate)
-        => HasValue && predicate(_value) ? new(_value) : default;
-
-    // The method is declared for linq expression
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public Optional<TResult> SelectMany<TResult>(Func<T, Optional<TResult>> selector) => Bind(selector);
-
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public Optional<TResult> SelectMany<TMid, TResult>(Func<T, Optional<TMid>> selector, Func<T, TMid, TResult> resultSelector) => Bind(selector, resultSelector);
-
     public override string ToString() => HasValue ? _value.ToString() ?? "" : "";
 
     public string ToString(bool includeVariantInfo)
@@ -167,11 +98,11 @@ public readonly partial struct Optional<T>
         if (HasValue) {
             string? str;
 #if MONAD
-            if (_value is IMonad monad)
+            if (_value is ITaggedUnion monad)
                 str = monad.ToString(true);
             else
 #endif
-                str = _value.ToString();
+            str = _value.ToString();
             return str is null ? "Optional Value" : $"Value({str})";
         }
         else {

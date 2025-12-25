@@ -1,7 +1,6 @@
-﻿#if RESULT
-
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
+using Trarizon.Library.Functional.Abstraction;
 
 namespace Trarizon.Library.Functional;
 
@@ -46,7 +45,7 @@ public static partial class Result
         => ref result._error;
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public readonly struct SuccessBuilder<T>
+    public readonly partial struct SuccessBuilder<T>
     {
         internal readonly T _value;
         internal SuccessBuilder(T value) => _value = value;
@@ -56,15 +55,12 @@ public static partial class Result
         public bool IsFailure => false;
         public T Value => _value;
         public FailureBuilder<T> Swap() => new(_value);
-        public SuccessBuilder<TResult> Cast<TResult>() => new((TResult)(object)_value!);
-        public SuccessBuilder<TResult> Select<TResult>(Func<T, TResult> selector) => new(selector(_value));
-        public Result<TResult, TError> Bind<TResult, TError>(Func<T, Result<TResult, TError>> selector) => selector(_value);
         public string ToString(bool includeVariantInfo) => Build<object>().ToString(includeVariantInfo);
         public override string ToString() => Build<object>().ToString();
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public readonly struct FailureBuilder<TError>
+    public readonly partial struct FailureBuilder<TError>
     {
         internal readonly TError _error;
         internal FailureBuilder(TError error) => _error = error;
@@ -74,9 +70,6 @@ public static partial class Result
         public bool IsFailure => true;
         public TError Error => _error;
         public SuccessBuilder<TError> Swap() => new(_error);
-        public FailureBuilder<TNewError> CastError<TNewError>() => new((TNewError)(object)_error!);
-        public FailureBuilder<TNewError> SelectError<TNewError>(Func<TError, TNewError> selector) => new(selector(_error));
-        public Result<TResult, TResultError> BindError<TResult, TResultError>(Func<TError, Result<TResult, TResultError>> selector) => selector(_error);
         public string ToString(bool includeVariantInfo) => Build<object>().ToString(includeVariantInfo);
         public override string ToString() => Build<object>().ToString();
     }
@@ -86,9 +79,7 @@ public static partial class Result
 /// Monad Result, Note that if TError is struct, the error value will be boxed, some boxes will be cached
 /// </summary>
 public readonly partial struct Result<T, TError>
-#if MONAD
-    : IMonad
-#endif
+    : ITaggedUnion
 {
     private readonly bool _success;
     internal readonly T? _value;
@@ -192,45 +183,6 @@ public readonly partial struct Result<T, TError>
 
     public Result<TResult, TNewError> Cast<TResult, TNewError>() => IsSuccess ? new((TResult)(object)_value) : new((TNewError)(object)_error);
 
-    public TResult Match<TResult>(Func<T, TResult> successSelector, Func<TError, TResult> errorSelector)
-#if NET9_0_OR_GREATER
-        where TResult : allows ref struct
-#endif
-        => IsSuccess ? successSelector(_value) : errorSelector(_error);
-
-    public void Match(Action<T>? valueSelector, Action<TError>? errorSelector)
-    {
-        if (IsSuccess)
-            valueSelector?.Invoke(_value);
-        else
-            errorSelector?.Invoke(_error);
-    }
-
-    public void MatchValue(Action<T> selector)
-    {
-        if (IsSuccess) selector(_value);
-    }
-
-    public void MatchError(Action<TError> selector)
-    {
-        if (IsFailure) selector(_error);
-    }
-
-    public Result<TResult, TError> Select<TResult>(Func<T, TResult> selector)
-        => IsSuccess ? new(selector(_value)) : new(_error);
-
-    public Result<T, TResult> SelectError<TResult>(Func<TError, TResult> selector)
-        => IsSuccess ? new(_value) : new(selector(_error));
-
-    public Result<TResult, TResultError> Select<TResult, TResultError>(Func<T, TResult> valueSelector, Func<TError, TResultError> errorSelector)
-        => IsSuccess ? new(valueSelector(_value)) : new(errorSelector(_error));
-
-    public Result<TResult, TError> Bind<TResult>(Func<T, Result<TResult, TError>> selector)
-        => IsSuccess ? selector(_value) : new(_error);
-
-    public Result<T, TNewError> BindError<TNewError>(Func<TError, Result<T, TNewError>> selector)
-        => IsSuccess ? new(_value) : selector(_error);
-
     public override string ToString() => (IsSuccess ? _value.ToString() : _error.ToString()) ?? "";
 
     public string ToString(bool includeVariantInfo)
@@ -241,7 +193,7 @@ public readonly partial struct Result<T, TError>
 
         if (IsSuccess) {
             string? str;
-            if (_value is IMonad monad)
+            if (_value is ITaggedUnion monad)
                 str = monad.ToString(true);
             else
                 str = _value.ToString();
@@ -249,7 +201,7 @@ public readonly partial struct Result<T, TError>
         }
         else {
             string? str;
-            if (_error is IMonad monad)
+            if (_error is ITaggedUnion monad)
                 str = monad.ToString(true);
             else
                 str = _error.ToString();
@@ -292,5 +244,3 @@ public sealed class ResultException : InvalidOperationException
 #endif
         => throw new ResultException(typeof(T), typeof(TError), true);
 }
-
-#endif

@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Trarizon.Library.Functional;
 
-#if RESULT && NET9_0_OR_GREATER
+#if NET9_0_OR_GREATER
 
 public static class RefResult
 {
@@ -36,42 +36,6 @@ public static class RefResult
     public static Result<T, TError> AsDeref<T, TError>(this RefResult<T, TError> self) => self;
     public static RefResult<T, TError> AsRef<T, TError>(this Result<T, TError> self) => self;
 
-    public static RefResult<TResult, TError> Select<T, TError, TResult>(this Result<T, TError> self, Func<T, TResult> selector)
-        where TResult : allows ref struct
-        => self.IsSuccess ? new(selector(self._value)) : new(self._error);
-
-    public static SuccessBuilder<TResult> Select<T, TResult>(this Result.SuccessBuilder<T> self, Func<T, TResult> selector)
-        where TResult : allows ref struct
-        => new(selector(self._value));
-
-    public static RefResult<T, TResult> SelectError<T, TError, TResult>(this Result<T, TError> self, Func<TError, TResult> selector)
-        where TResult : allows ref struct
-        => self.IsFailure ? new(selector(self._error)) : new(self._value);
-
-    public static FailureBuilder<TResult> SelectError<T, TResult>(this Result.FailureBuilder<T> self, Func<T, TResult> selector)
-        where TResult : allows ref struct
-        => new(selector(self._error));
-
-    public static RefResult<TResult, TResultError> Select<T, TError, TResult, TResultError>(this RefResult<T, TError> self, Func<T, TResult> valueSelector, Func<TError, TResultError> errorSelector)
-        where TResult : allows ref struct where TResultError : allows ref struct
-        => self.IsSuccess ? new(valueSelector(self._value)) : new(errorSelector(self._error));
-
-    public static RefResult<TResult, TError> Bind<T, TError, TResult>(this Result<T, TError> self, Func<T, RefResult<TResult, TError>> selector)
-        where TResult : allows ref struct
-        => self.IsSuccess ? selector(self._value) : new(self._error);
-
-    public static RefResult<TResult, TError> Bind<T, TResult, TError>(this Result.SuccessBuilder<T> self, Func<T, RefResult<TResult, TError>> selector)
-        where TResult : allows ref struct where TError : allows ref struct
-        => selector(self._value);
-
-    public static RefResult<T, TResultError> BindError<T, TError, TResultError>(this RefResult<T, TError> self, Func<TError, RefResult<T, TResultError>> selector)
-        where TResultError : allows ref struct
-        => self.IsSuccess ? new(self._value) : selector(self._error);
-
-    public static RefResult<TResult, TResultError> BindError<TError, TResult, TResultError>(this Result.FailureBuilder<TError> self, Func<TError, RefResult<TResult, TResultError>> selector)
-        where TResult : allows ref struct where TResultError : allows ref struct
-        => selector(self._error);
-
     [EditorBrowsable(EditorBrowsableState.Never)]
     public readonly ref struct SuccessBuilder<T> where T : allows ref struct
     {
@@ -83,8 +47,6 @@ public static class RefResult
         public bool IsFailure => false;
         public T Value => _value;
         public FailureBuilder<T> Swap() => new(_value);
-        public SuccessBuilder<TResult> Select<TResult>(Func<T, TResult> selector) where TResult : allows ref struct => new(selector(_value));
-        public RefResult<TResult, TError> Bind<TResult, TError>(Func<T, RefResult<TResult, TError>> selector) where TResult : allows ref struct where TError : allows ref struct => selector(_value);
 
 #pragma warning disable CS0809
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -104,14 +66,27 @@ public static class RefResult
         public bool IsFailure => true;
         public TError Error => _error;
         public SuccessBuilder<TError> Swap() => new(_error);
-        public FailureBuilder<TNewError> SelectError<TNewError>(Func<TError, TNewError> selector) where TNewError : allows ref struct => new(selector(_error));
-        public RefResult<TResult, TResultError> BindError<TResult, TResultError>(Func<TError, RefResult<TResult, TResultError>> selector) where TResult : allows ref struct where TResultError : allows ref struct => selector(_error);
 
 #pragma warning disable CS0809
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("Not supported for ref struct")]
         public override string ToString() => throw new NotSupportedException();
 #pragma warning restore CS0809
+    }
+}
+
+partial class Result
+{
+    partial struct SuccessBuilder<T>
+    {
+        public static implicit operator RefResult.SuccessBuilder<T>(SuccessBuilder<T> builder) => new(builder._value);
+        public static implicit operator SuccessBuilder<T>(RefResult.SuccessBuilder<T> builder) => new(builder._value);
+    }
+
+    partial struct FailureBuilder<TError>
+    {
+        public static implicit operator RefResult.FailureBuilder<TError>(FailureBuilder<TError> builder) => new(builder._error);
+        public static implicit operator FailureBuilder<TError>(RefResult.FailureBuilder<TError> builder) => new(builder._error);
     }
 }
 
@@ -211,48 +186,6 @@ public readonly ref struct RefResult<T, TError>
     public static implicit operator RefResult<T, TError>(RefResult.FailureBuilder<TError> builder) => new(builder._error);
 
     public RefResult<TError, T> Swap() => new(!_success, _error, _value);
-
-    public TResult Match<TResult>(Func<T, TResult> valueSelector, Func<TError, TResult> errorSelector)
-        where TResult : allows ref struct
-        => IsSuccess ? valueSelector(_value) : errorSelector(_error);
-
-    public void Match(Action<T>? valueSelector, Action<TError>? errorSelector)
-    {
-        if (IsSuccess)
-            valueSelector?.Invoke(_value);
-        else
-            errorSelector?.Invoke(_error);
-    }
-
-    public void MatchValue(Action<T> selector)
-    {
-        if (IsSuccess) selector(_value);
-    }
-
-    public void MatchError(Action<TError> selector)
-    {
-        if (IsFailure) selector(_error);
-    }
-
-    public RefResult<TResult, TError> Select<TResult>(Func<T, TResult> valueSelector)
-        where TResult : allows ref struct
-        => IsSuccess ? new(valueSelector(_value)) : new(_error);
-
-    public RefResult<T, TResult> SelectError<TResult>(Func<TError, TResult> errorSelector)
-        where TResult : allows ref struct
-        => IsSuccess ? new(_value) : new(errorSelector(_error));
-
-    public RefResult<TResult, TResultError> Select<TResult, TResultError>(Func<T, TResult> valueSelector, Func<TError, TResultError> errorSelector)
-        where TResult : allows ref struct where TResultError : allows ref struct
-        => IsSuccess ? new(valueSelector(_value)) : new(errorSelector(_error));
-
-    public RefResult<TResult, TError> Bind<TResult>(Func<T, RefResult<TResult, TError>> selector)
-        where TResult : allows ref struct
-        => IsSuccess ? selector(_value) : new(_error);
-
-    public RefResult<T, TResultError> BindError<TResultError>(Func<TError, RefResult<T, TResultError>> selector)
-        where TResultError : allows ref struct
-        => IsSuccess ? new(_value) : selector(_error);
 
 #pragma warning disable CS0809
 

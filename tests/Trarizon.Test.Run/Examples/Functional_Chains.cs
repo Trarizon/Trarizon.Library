@@ -25,6 +25,15 @@ internal class Functional_Chains
             .Bind(x => Optional.Of(x.ToString()), (x, y) => $"{x}{y}".AsSpan())    // ref - val - ref
             .Bind(x => Optional.Of(x[..1]), (x, y) => $"{x}{y}".ToString())        // ref - ref - val
             .Bind(x => Optional.Of(x.AsSpan()), (x, y) => $"{x}{y}".AsSpan());     // val - ref - ref
+
+        _ = Optional.Of("str".AsSpan()).Zip(Optional.Of("ing"), (x, y) => $"{x}{y}");    // ref + val = val
+        _ = Optional.Of("str").Zip(Optional.Of("ing".AsSpan()), (x, y) => $"{x}{y}");    // val + ref = val
+        _ = Optional.Of("str").Zip(Optional.Of("ing"), (x, y) => $"{x}{y}".AsSpan());    // val + val = ref
+        _ = Optional.Of("str".AsSpan()).Zip(Optional.Of("ing"), (x, y) => $"{x}{y}".AsSpan()); // ref + val = ref
+        _ = Optional.Of("str").Zip(Optional.Of("ing".AsSpan()), (x, y) => $"{x}{y}".AsSpan()); // val + ref = ref
+        _ = Optional.Of("str".AsSpan()).Zip(Optional.Of("ing".AsSpan()), (x, y) => $"{x}{y}"); // ref + ref = val
+        _ = Optional.Of("str".AsSpan()).Zip(Optional.Of("ing".AsSpan()), (x, y) => $"{x}{y}"); // ref + ref = ref
+
     }
 
     public void Results()
