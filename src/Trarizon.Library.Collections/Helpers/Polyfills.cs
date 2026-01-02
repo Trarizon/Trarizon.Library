@@ -18,20 +18,20 @@ internal static class Polyfills
     extension(MemoryMarshal)
     {
 #pragma warning disable CS8500
- 
+
         public static unsafe Span<T> CreateSpan<T>(scoped ref T reference, int length)
         {
             fixed (T* ptr = &reference) {
-                return new Span<T>(ptr, Unsafe.SizeOf<T>());
+                return new Span<T>(ptr, length);
             }
         }
 
-    public static unsafe ReadOnlySpan<T> CreateReadOnlySpan<T>(scoped ref readonly T reference, int length)
-    {
-        fixed (T* ptr = &reference) {
-            return new ReadOnlySpan<T>(ptr, Unsafe.SizeOf<T>());
+        public static unsafe ReadOnlySpan<T> CreateReadOnlySpan<T>(scoped ref readonly T reference, int length)
+        {
+            fixed (T* ptr = &reference) {
+                return new ReadOnlySpan<T>(ptr, length);
+            }
         }
-    }
 
 #pragma warning restore CS8500
     }
