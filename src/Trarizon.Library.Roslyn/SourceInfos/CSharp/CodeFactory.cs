@@ -5,14 +5,14 @@ using System.Collections.Generic;
 using System.Linq;
 using Trarizon.Library.Functional;
 
-namespace Trarizon.Library.Roslyn.SourceInfos;
-partial class CodeFactory
+namespace Trarizon.Library.Roslyn.SourceInfos.CSharp;
+public static partial class CodeFactory
 {
     public static string Literal(string value) => $"\"{value}\"";
     public static string LiteralUtf8(string value) => $"\"{value}\"u8";
     public static string Literal(bool value) => value ? "true" : "false";
 
-    public static string GetMethodNonbodyDeclaration(IMethodSymbol symbol, MethodDeclarationSyntax syntax, bool ensurePartialModifier = false)
+    public static string GetMethodDefinationText(IMethodSymbol symbol, MethodDeclarationSyntax syntax, bool ensurePartialModifier = false)
     {
         var syntaxModifiers = syntax.Modifiers;
         if (ensurePartialModifier) {
@@ -41,7 +41,7 @@ partial class CodeFactory
         var constraints = symbol.TypeParameters
             .Join(syntax.ConstraintClauses, sym => sym.Name, syn => syn.Name.Identifier.Text, static (symbol, syntax) =>
             {
-                List<string> constraints = new();
+                List<string> constraints = [];
                 if (symbol.HasReferenceTypeConstraint)
                     constraints.Add("class");
                 if (symbol.HasValueTypeConstraint)
@@ -83,10 +83,4 @@ partial class CodeFactory
     /// </summary>
     public static string PragmaWarningTrivia(bool restore, params string[] errorCodes)
         => $"#pragma warning {(restore ? "restore" : "disable")} {string.Join(", ", errorCodes)}";
-
-    public static string GeneratedCodeAttributeList(string tool, string version)
-        => $"[global::{KnownInfos.GeneratedCodeAttribute.TypeFullName}(\"{tool}\", \"{version}\")]";
-
-    public static string InterceptsLocationAttributeList(string filePath, int line, int character)
-        => $"[global::{KnownInfos.InterceptsLocationAttribute.TypeFullName}(\"{filePath}\", {line}, {character})]";
 }

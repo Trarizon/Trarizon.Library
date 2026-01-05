@@ -1,10 +1,14 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using Trarizon.Library.Linq;
 
 namespace Trarizon.Library.Roslyn.SourceInfos;
 /// <summary>
 /// Represents a type or namespace
 /// </summary>
-public record class TypeHierarchyInfo
+public sealed record class TypeHierarchyInfo
 {
     internal TypeHierarchyInfo(string? @namespace, string keyword, string name)
     {
@@ -12,8 +16,6 @@ public record class TypeHierarchyInfo
         Keywords = keyword;
         Name = name;
     }
-
-    internal static TypeHierarchyInfo FromNamespace(string @namespace) => new(@namespace, "namespace", @namespace);
 
     /// <summary>
     /// Namespace of current type, or equals to <see cref="Name"/> for namespace
@@ -35,6 +37,27 @@ public record class TypeHierarchyInfo
     /// </summary>
     public TypeHierarchyInfo? Parent { get; internal set; }
 
-    [MemberNotNullWhen(true, nameof(Namespace))]
-    public bool IsNamespace => Keywords == "namespace";
+    public static TypeHierarchyInfo Create(ITypeSymbol symbol, TypeDeclarationSyntax syntax)
+    {
+        var ns = symbol.ContainingNamespace;
+        var nsName = ns.IsGlobalNamespace ? null : ns.ToString();
+
+        var types = syntax
+            .AncestorsAndSelf()
+            .OfTypeWhile<TypeDeclarationSyntax>()
+            .Select(type =>
+            {
+                var keyword = type is RecordDeclarationSyntax rcd
+                    ? $"{rcd.Keyword} {rcd.ClassOrStructKeyword}"
+                    : type.Keyword.ToString();
+                return new TypeHierarchyInfo(nsName, keyword, $"{type.Identifier}{type.TypeParameterList}");
+            });
+
+        TypeHierarchyInfo res = default!;
+        foreach (var (l, r) in types.Adjacent()) {
+            l.Parent = r;
+            res ??= l;
+        }
+        return res;
+    }
 }

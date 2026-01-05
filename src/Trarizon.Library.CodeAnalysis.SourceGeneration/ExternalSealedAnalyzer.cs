@@ -1,7 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
-using Trarizon.Library.CodeAnalysis.SourceGeneration.Literals;
+using Trarizon.Library.CodeAnalysis.SourceGeneration.Internal;
 using Trarizon.Library.Collections;
 using Trarizon.Library.Roslyn.Extensions;
 

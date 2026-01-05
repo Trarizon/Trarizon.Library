@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Trarizon.Library.Roslyn.SourceInfos;
-public static class CodeValidation
+namespace Trarizon.Library.Roslyn.SourceInfos.CSharp;
+public static class CodeHelpers
 {
     public static bool IsValidIdentifier([NotNullWhen(true)] ReadOnlySpan<char> identifier, bool allowAtPrefix = false)
     {

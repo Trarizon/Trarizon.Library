@@ -1,25 +1,28 @@
 ﻿using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Trarizon.Library.Collections;
 using Trarizon.Library.Functional;
-using TypedConstant = Microsoft.CodeAnalysis.TypedConstant;
 using AttributeData = Microsoft.CodeAnalysis.AttributeData;
+using TypedConstant = Microsoft.CodeAnalysis.TypedConstant;
 
 namespace Trarizon.Library.Roslyn.Extensions;
+
 public static class AttributeDataExtensions
 {
     public static Optional<TypedConstant> GetConstructorArgument(this AttributeData attributeData, int index)
     {
-        if (attributeData.ConstructorArguments.TryAt(index, out var constant))
-            return constant;
+        var args = attributeData.ConstructorArguments;
+        if ((uint)index < (uint)args.Length)
+            return args[index];
         return default;
     }
 
     public static Optional<TypedConstant> GetNamedArgument(this AttributeData attributeData, string parameterName)
     {
-        if (attributeData.NamedArguments.TryFirst(kv => kv.Key == parameterName, out var first))
-            return first.Value;
+        foreach (var arg in attributeData.NamedArguments) {
+            if (arg.Key == parameterName)
+                return arg.Value;
+        }
         return default;
     }
 

@@ -1,9 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
 using Trarizon.Library.Roslyn.Collections.Comparisons;
-using Trarizon.Library.Roslyn.Diagnostics;
 
 namespace Trarizon.Library.Roslyn.Extensions;
 public static partial class ContextExtensions
@@ -15,7 +13,7 @@ public static partial class ContextExtensions
         => provider.WithComparer(ImmutableArraySequenceEqualityComparer<T>.Default);
 
     public static IncrementalValuesProvider<T> OfNotNull<T>(this IncrementalValuesProvider<T?> provider) where T : class
-    => provider.Where(x => x is not null)!;
+        => provider.Where(x => x is not null)!;
 
     public static IncrementalValuesProvider<T> OfNotNull<T>(this IncrementalValuesProvider<T?> provider) where T : struct
         => provider.Where(x => x is not null).Select((x, _) => x!.Value);

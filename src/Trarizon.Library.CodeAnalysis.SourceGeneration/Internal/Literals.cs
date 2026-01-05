@@ -1,9 +1,12 @@
 ﻿using System.Reflection;
-using Trarizon.Library.Roslyn.SourceInfos;
+using Trarizon.Library.Roslyn.SourceInfos.CSharp;
 
-namespace Trarizon.Library.CodeAnalysis.SourceGeneration.Literals;
+namespace Trarizon.Library.CodeAnalysis.SourceGeneration.Internal;
+
 internal static class Codes
 {
+    public const string NamespaceGenerated = "Trarizon.Library.CodeAnalysis.Generated";
+
     private static readonly string GeneratedCodeAttributeTool = Assembly.GetExecutingAssembly().GetName().Name;
     private static readonly string GeneratedCodeAttributeVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
     public static readonly string GeneratedCodeAttributeList = CodeFactory.GeneratedCodeAttributeList(GeneratedCodeAttributeTool, GeneratedCodeAttributeVersion);

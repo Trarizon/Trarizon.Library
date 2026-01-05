@@ -1,5 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
-using Trarizon.Library.CodeAnalysis.SourceGeneration.Literals;
+using Trarizon.Library.CodeAnalysis.SourceGeneration.Internal;
 
 namespace Trarizon.Library.CodeAnalysis.SourceGeneration;
 partial class FriendAccessAnalyzer

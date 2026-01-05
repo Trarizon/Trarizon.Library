@@ -3,22 +3,14 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Trarizon.Library.Collections;
+using Trarizon.Library.Linq;
 
 namespace Trarizon.Library.Roslyn.Extensions;
 public static partial class SymbolExtensions
 {
     #region Properties
 
-    private static IEqualityComparer<ISymbol?>? _originalDefinationSymbolEqualityComparer;
     private static SymbolDisplayFormat? _defaultWithGenericSymbolDisplayFormat;
-
-    extension(SymbolEqualityComparer)
-    {
-        public static IEqualityComparer<ISymbol?> OriginalDefination => _originalDefinationSymbolEqualityComparer ??= TraComparison.CreateEqualityComparer<ISymbol?>(
-            (x, y) => SymbolEqualityComparer.Default.Equals(x?.OriginalDefinition, y?.OriginalDefinition),
-            obj => SymbolEqualityComparer.Default.GetHashCode(obj?.OriginalDefinition));
-    }
 
     extension(SymbolDisplayFormat)
     {
@@ -77,32 +69,6 @@ public static partial class SymbolExtensions
 
     #endregion
 
-    #region Strings
-
-    public static bool MatchDisplayString([NotNullWhen(true)] this ISymbol? symbol, string displayString, SymbolDisplayFormat? symbolDisplayFormat = null)
-    {
-        if (symbol is null)
-            return false;
-        return symbol.ToDisplayString(symbolDisplayFormat) == displayString;
-    }
-
-    /// <summary>
-    /// A formatted string of the symbol that can be used as a file name
-    /// </summary>
-    public static string ToFileNameString(this ISymbol symbol, SymbolDisplayFormat? symbolDisplayFormat = null)
-    {
-        var display = symbol.ToDisplayString(symbolDisplayFormat);
-        var builder = (stackalloc char[display.Length]);
-        display.AsSpan().CopyTo(builder);
-        foreach (ref var c in builder) {
-            if (c is '<') c = '{';
-            if (c is '>') c = '}';
-        }
-        return builder.ToString();
-    }
-
-    #endregion
-
     #region Type
 
     public static bool IsImplements(this ITypeSymbol type, ITypeSymbol interfaceType)
@@ -113,15 +79,6 @@ public static partial class SymbolExtensions
         return type.AllInterfaces.Contains(interfaceType, SymbolEqualityComparer.Default);
     }
 
-    public static bool IsImplementsByTypeFullName(this ITypeSymbol type, string interfaceTypeFullName)
-    {
-        foreach (var itf in type.AllInterfaces) {
-            if (itf.MatchDisplayString(interfaceTypeFullName))
-                return true;
-        }
-        return false;
-    }
-
     public static bool IsInherits(this ITypeSymbol type, ITypeSymbol baseType)
     {
         if (baseType.TypeKind is not TypeKind.Class)
@@ -130,17 +87,6 @@ public static partial class SymbolExtensions
         var sym = type.BaseType;
         while (sym is not null) {
             if (SymbolEqualityComparer.Default.Equals(sym, baseType))
-                return true;
-            sym = sym.BaseType;
-        }
-        return false;
-    }
-
-    public static bool IsInherits(this ITypeSymbol type, string baseTypeFullName)
-    {
-        var sym = type.BaseType;
-        while (sym is not null) {
-            if (sym.MatchDisplayString(baseTypeFullName))
                 return true;
             sym = sym.BaseType;
         }

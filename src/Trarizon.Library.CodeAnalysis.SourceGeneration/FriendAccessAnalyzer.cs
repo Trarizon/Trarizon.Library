@@ -11,6 +11,7 @@ using Trarizon.Library.Collections;
 using Trarizon.Library.Roslyn.Extensions;
 
 namespace Trarizon.Library.CodeAnalysis.SourceGeneration;
+
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 internal sealed partial class FriendAccessAnalyzer : DiagnosticAnalyzer
 {
@@ -114,7 +115,7 @@ internal sealed partial class FriendAccessAnalyzer : DiagnosticAnalyzer
                     .Select(syntax => operation.SemanticModel.GetDeclaredSymbol(syntax))
                     .OfNotNull()
                     .CartesianProduct(friendTypes.Prepend(memberSymbol.ContainingType))
-                    .Any(tpl => SymbolEqualityComparer.OriginalDefination.Equals(tpl.Item1, tpl.Item2));
+                    .Any(tpl => SymbolEqualityComparer.Default.Equals(tpl.Item1.OriginalDefinition, tpl.Item2.OriginalDefinition));
 
                 if (isFriend)
                     return;

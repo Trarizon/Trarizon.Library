@@ -1,8 +1,8 @@
 ﻿using Microsoft.CodeAnalysis;
 using System.Diagnostics.CodeAnalysis;
-using Trarizon.Library.CodeAnalysis.SourceGeneration.Literals;
+using Trarizon.Library.CodeAnalysis.SourceGeneration.Internal;
 using Trarizon.Library.Roslyn.Extensions;
-using Trarizon.Library.Roslyn.SourceInfos;
+using Trarizon.Library.Roslyn.SourceInfos.CSharp;
 
 namespace Trarizon.Library.CodeAnalysis.SourceGeneration;
 partial class SingletonGenerator
@@ -16,7 +16,7 @@ partial class SingletonGenerator
                 return true;
             }
 
-            if (CodeValidation.IsValidIdentifier(identifier)) {
+            if (CodeHelpers.IsValidIdentifier(identifier)) {
                 actualIdentifier = identifier;
                 return true;
             }
@@ -32,7 +32,7 @@ partial class SingletonGenerator
                 return true;
             }
 
-            if (CodeValidation.IsValidIdentifier(identifier)) {
+            if (CodeHelpers.IsValidIdentifier(identifier)) {
                 actualIdentifier = identifier;
                 return true;
             }
