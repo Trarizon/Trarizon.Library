@@ -3,6 +3,10 @@
     "Debug (Run)": {
       "commandName": "DebugRoslynComponent",
       "targetProject": "..\\..\\tests\\Trarizon.Test.Run\\Trarizon.Test.Run.csproj"
+    },
+    "Debug (CodeAnalysis)": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "..\\..\\tests\\Trarizon.Test.CodeAnalysis\\Trarizon.Test.CodeAnalysis.csproj"
     }
   }
 }

@@ -15,6 +15,8 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\src\Trarizon.Library.CodeAnalysis.SourceGeneration\Trarizon.Library.CodeAnalysis.SourceGeneration.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 		<ProjectReference Include="..\..\src\Trarizon.Library.CodeAnalysis\Trarizon.Library.CodeAnalysis.csproj" />
+		<ProjectReference Include="..\..\src\Trarizon.Library.Functional.SourceGeneration\Trarizon.Library.Functional.SourceGeneration.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+		<ProjectReference Include="..\..\src\Trarizon.Library.Functional\Trarizon.Library.Functional.csproj" />
 		<ProjectReference Include="..\..\src\Trarizon.Library.Roslyn\Trarizon.Library.Roslyn.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 	</ItemGroup>
 

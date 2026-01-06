@@ -32,12 +32,14 @@ public readonly struct EmitterIndentScope : IDisposable
         if (_writer is null)
             return;
 
-        if (_suffixes is null)
+        if (_suffixes is null) {
             return;
+        }
 
         if (_suffixes is string str) {
             _writer.Indent--;
-            _writer.WriteLine(str);
+            if (str != "")
+                _writer.WriteLine(str);
             return;
         }
 

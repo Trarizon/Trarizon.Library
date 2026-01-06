@@ -51,12 +51,12 @@ public sealed record class TypeHierarchyInfo
                     ? $"{rcd.Keyword} {rcd.ClassOrStructKeyword}"
                     : type.Keyword.ToString();
                 return new TypeHierarchyInfo(nsName, keyword, $"{type.Identifier}{type.TypeParameterList}");
-            });
+            })
+            .ToArray();
 
-        TypeHierarchyInfo res = default!;
+        TypeHierarchyInfo res = types.First();
         foreach (var (l, r) in types.Adjacent()) {
             l.Parent = r;
-            res ??= l;
         }
         return res;
     }

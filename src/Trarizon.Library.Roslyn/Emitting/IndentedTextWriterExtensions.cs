@@ -26,7 +26,10 @@ public static class IndentedTextWriterExtensions
         if (beforeIndentText is not null)
             writer.WriteLine(beforeIndentText);
         writer.Indent++;
-        return new EmitterIndentScope(writer, afterDedentText ?? "");
+        if (afterDedentText is not null)
+            return new EmitterIndentScope(writer, afterDedentText);
+        else
+            return new EmitterIndentScope(writer);
     }
 
     public static EmitterIndentTrackingScope EnterIndentTrackingScope(this IndentedTextWriter writer)
