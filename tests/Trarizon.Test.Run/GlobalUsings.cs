@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using Trarizon.Library.Linq;
 
 namespace Trarizon.Test.Run;
+
 public static class GlobalUsings
 {
     public static void RunBenchmarks() => BenchmarkRunner.Run<Benchmarks>();
@@ -66,7 +67,13 @@ public static class GlobalUsings
         Console.WriteLine();
     }
 
-    public static void Print<T>(this ReadOnlySpan<T> values) => values.ToArray().Print();
+    public static void Print<T>(this ReadOnlySpan<T> values)
+    {
+        if (typeof(T) == typeof(char))
+            values.ToString().Print();
+        else
+            values.ToArray().Print();
+    }
 
     public static void PrintType<T>(this T value) => value?.GetType().Print();
 
