@@ -7,6 +7,7 @@
     <Project Path="src/Trarizon.Library.Functional/Trarizon.Library.Functional.csproj" />
     <Project Path="src/Trarizon.Library.Linq/Trarizon.Library.Linq.csproj" Id="ee0a98e9-d457-4830-a9e9-b20b158bad65" />
     <Project Path="src/Trarizon.Library.Mathematics/Trarizon.Library.Mathematics.csproj" />
+    <Project Path="src/Trarizon.Library.Net/Trarizon.Library.Net.csproj" Id="2dc1b86e-0aa3-48cb-8444-61125b76f3d6" />
     <Project Path="src/Trarizon.Library.Roslyn/Trarizon.Library.Roslyn.csproj" />
     <Project Path="src/Trarizon.Library.Text.Json/Trarizon.Library.Text.Json.csproj" Id="23211bd5-bc40-4a79-82ee-ef529854dc2e" />
     <Project Path="src/Trarizon.Library/Trarizon.Library.csproj" />
