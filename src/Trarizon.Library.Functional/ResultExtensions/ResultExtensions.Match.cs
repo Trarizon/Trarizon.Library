@@ -8,16 +8,6 @@ public static partial class ResultExtensions
 #endif
         => self.IsSuccess ? valueSelector(self.Value) : errorSelector(self.Error);
 
-#if UNIT
-
-    public static TResult Match<TError, TResult>(this Result<Unit, TError> self, Func<TResult> valueSelector, Func<TError, TResult> errorSelector)
-        => self.IsSuccess ? valueSelector() : errorSelector(self.Error);
-
-    public static TResult Match<T, TResult>(this Result<T, Unit> self, Func<T, TResult> valueSelector, Func<TResult> errorSelector)
-        => self.IsSuccess ? valueSelector(self.Value) : errorSelector();
-
-#endif
-
     public static void Match<T, TError>(this Result<T, TError> self, Action<T> valueSelector, Action<TError> errorSelector)
     {
         if (self.IsSuccess)
@@ -41,18 +31,6 @@ public static partial class ResultExtensions
     public static TResult Match<T, TError, TResult>(this RefResult<T, TError> self, Func<T, TResult> valueSelector, Func<TError, TResult> errorSelector)
         where TResult : allows ref struct
         => self.IsSuccess ? valueSelector(self.Value) : errorSelector(self.Error);
-
-#if UNIT
-
-    public static TResult Match<TError, TResult>(this RefResult<Unit, TError> self, Func<TResult> valueSelector, Func<TError, TResult> errorSelector)
-        where TResult : allows ref struct
-        => self.IsSuccess ? valueSelector() : errorSelector(self.Error);
-
-    public static TResult Match<T, TResult>(this RefResult<T, Unit> self, Func<T, TResult> valueSelector, Func<TResult> errorSelector)
-        where TResult : allows ref struct
-        => self.IsSuccess ? valueSelector(self.Value) : errorSelector();
-
-#endif
 
     public static void Match<T, TError>(this RefResult<T, TError> self, Action<T> valueSelector, Action<TError> errorSelector)
     {

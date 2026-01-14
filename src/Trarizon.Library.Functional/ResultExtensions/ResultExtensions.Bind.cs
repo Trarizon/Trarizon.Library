@@ -74,8 +74,8 @@ public static partial class ResultExtensions
         where TResultError : allows ref struct
         => selector(self.Error);
 
-    public static RefResult<TResult,TResultError> BindError<TError,TResult,TResultError>(this RefResult.FailureBuilder<TError> self, Func<TError, RefResult<TResult, TResultError>> selector)
-        where TResult : allows ref struct 
+    public static RefResult<TResult, TResultError> BindError<TError, TResult, TResultError>(this RefResult.FailureBuilder<TError> self, Func<TError, RefResult<TResult, TResultError>> selector)
+        where TResult : allows ref struct
         where TResultError : allows ref struct
         => selector(self.Error);
 

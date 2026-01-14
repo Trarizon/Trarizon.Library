@@ -5,7 +5,7 @@ namespace Trarizon.Library.Functional;
 
 #if NET9_0_OR_GREATER
 
-public static class RefResult
+public static partial class RefResult
 {
     extension(Result)
     {
@@ -23,6 +23,12 @@ public static class RefResult
 
         public static RefResult<T, TError> Create<T, TError>(bool isSuccess, T value, TError error) where T : allows ref struct where TError : allows ref struct
             => isSuccess ? new(value) : new(error);
+
+        public static RefResult<T, Exception> TryCatch<T>(Func<T> func) where T : allows ref struct
+        {
+            try { return func(); }
+            catch (Exception ex) { return ex; }
+        }
     }
 
     public static ref readonly T? GetValueRefOrDefaultRef<T, TError>(this ref readonly RefResult<T, TError> result)

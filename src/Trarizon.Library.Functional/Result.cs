@@ -27,17 +27,6 @@ public static partial class Result
         catch (Exception ex) { return ex; }
     }
 
-    public static T GetValueOrThrowError<T, TException>(this in Result<T, TException> result) where TException : Exception
-    {
-        if (!result.IsSuccess)
-            ThrowException(result._error);
-        return result._value;
-
-        [DoesNotReturn]
-        static void ThrowException(Exception exception)
-            => throw exception;
-    }
-
     public static ref readonly T? GetValueRefOrDefaultRef<T, TError>(this ref readonly Result<T, TError> result)
         => ref result._value;
 
@@ -150,7 +139,7 @@ public readonly partial struct Result<T, TError>
     }
 
 
-    private Result(bool success, T? value, TError? error)
+    internal Result(bool success, T? value, TError? error)
     {
         _success = success;
         _value = value;
@@ -224,7 +213,7 @@ public readonly partial struct Result<T, TError>
     public override int GetHashCode() => IsSuccess ? _value.GetHashCode() : _error.GetHashCode();
 }
 
-public sealed class ResultException : InvalidOperationException
+public sealed partial class ResultException : InvalidOperationException
 {
     private ResultException(Type valueType, Type errorType, bool success)
         : base($"Result<{valueType.Name}, {errorType.Name}> is {(success ? "Success" : "Failure")}")
