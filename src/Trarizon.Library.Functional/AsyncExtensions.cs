@@ -22,6 +22,22 @@ public static class AsyncExtensions
         static async Task<Optional<T>> Continue(Task<T> task) => Optional.Of(await task.ConfigureAwait(false));
     }
 
+    public static Task<Result<T, TError>> Transpose<T, TError>(this Result<Task<T>, TError> self)
+    {
+        if (self.IsSuccess) {
+            var task = self.Value;
+            if (task.IsCompletedSuccessfully) {
+                return Task.FromResult(Result.Success<T, TError>(task.Result));
+            }
+            else {
+                return Continue(task);
+            }
+        }
+        return Task.FromResult(Result.Failure<T, TError>(self.Error));
+
+        static async Task<Result<T, TError>> Continue(Task<T> task) => Result.Success<T, TError>(await task.ConfigureAwait(false));
+    }
+
 #if !NETSTANDARD2_0
 
     public static ValueTask<Optional<T>> Transpose<T>(this Optional<ValueTask<T>> self)
@@ -31,6 +47,15 @@ public static class AsyncExtensions
         return ValueTask.FromResult(Optional<T>.None);
 
         static async ValueTask<Optional<T>> Continue(ValueTask<T> task) => Optional.Of(await task.ConfigureAwait(false));
+    }
+
+    public static ValueTask<Result<T, TError>> Transpose<T, TError>(this Result<ValueTask<T>, TError> self)
+    {
+        if (self.IsSuccess)
+            return Continue(self.Value);
+        return ValueTask.FromResult(Result.Failure<T, TError>(self.Error));
+
+        static async ValueTask<Result<T, TError>> Continue(ValueTask<T> task) => Result.Success<T, TError>(await task.ConfigureAwait(false));
     }
 
 #endif

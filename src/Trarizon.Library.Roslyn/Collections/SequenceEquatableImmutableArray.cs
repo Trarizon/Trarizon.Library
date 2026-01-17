@@ -5,12 +5,15 @@ using System.Collections.Immutable;
 using System.Runtime.InteropServices;
 
 namespace Trarizon.Library.Roslyn.Collections;
+
 public readonly struct SequenceEquatableImmutableArray<T>(ImmutableArray<T> array)
     : IEquatable<SequenceEquatableImmutableArray<T>>
     , IReadOnlyCollection<T>
     , IReadOnlyList<T>
 {
-    public ImmutableArray<T> Array { get; } = array;
+    private readonly ImmutableArray<T> _array = array;
+
+    public ImmutableArray<T> Array => _array.IsDefault ? ImmutableArray<T>.Empty : _array;
 
     public int Length => Array.Length;
 
@@ -50,6 +53,6 @@ public readonly struct SequenceEquatableImmutableArray<T>(ImmutableArray<T> arra
     public ImmutableArray<T>.Enumerator GetEnumerator() => Array.GetEnumerator();
     IEnumerator<T> IEnumerable<T>.GetEnumerator() => ((IEnumerable<T>)Array).GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)Array).GetEnumerator();
-   
+
     int IReadOnlyCollection<T>.Count => Length;
 }

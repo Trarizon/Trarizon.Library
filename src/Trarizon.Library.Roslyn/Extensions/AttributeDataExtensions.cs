@@ -27,7 +27,7 @@ public static class AttributeDataExtensions
     }
 
     [return: NotNullIfNotNull(nameof(defaultValue))]
-    public static T? CastValue<T>(this in Optional<TypedConstant> typedConstant, T? defaultValue = default)
+    public static T? GetConstantValueOrDefault<T>(this in Optional<TypedConstant> typedConstant, T? defaultValue = default)
     {
         if (typedConstant.HasValue)
             return typedConstant.Value.CastValue<T>();

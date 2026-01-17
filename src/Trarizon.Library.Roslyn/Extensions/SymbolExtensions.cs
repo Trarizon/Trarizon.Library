@@ -11,6 +11,7 @@ public static partial class SymbolExtensions
     #region Properties
 
     private static SymbolDisplayFormat? _defaultWithGenericSymbolDisplayFormat;
+    private static SymbolDisplayFormat? _fullyQualifiedWithNullableAnnotationFormat;
 
     extension(SymbolDisplayFormat)
     {
@@ -19,6 +20,9 @@ public static partial class SymbolExtensions
         /// </remarks>
         public static SymbolDisplayFormat DefaultWithoutGenerics => _defaultWithGenericSymbolDisplayFormat ??=
              SymbolDisplayFormat.CSharpErrorMessageFormat.WithGenericsOptions(SymbolDisplayGenericsOptions.None);
+
+        public static SymbolDisplayFormat FullyQualifiedWithNullableAnnotation => _fullyQualifiedWithNullableAnnotationFormat ??=
+            SymbolDisplayFormat.FullyQualifiedFormat.AddMiscellaneousOptions(SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier);
     }
 
     #endregion

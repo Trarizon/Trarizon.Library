@@ -1,7 +1,6 @@
 ﻿using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
-using System.Text;
 using Trarizon.Library.Roslyn.Emitting;
 
 namespace Trarizon.Library.Roslyn.SourceInfos.Emitting;
@@ -9,8 +8,7 @@ namespace Trarizon.Library.Roslyn.SourceInfos.Emitting;
 public static class CSharpEmitExtensions
 {
     public static EmitterIndentScope EmitCSharpTypeHierarchy(this IndentedTextWriter writer, TypeHierarchyInfo? type, bool partial,
-        Action<IndentedTextWriter, TypeHierarchyInfo>? beforeDefinationLine = null,
-        Action<IndentedTextWriter, TypeHierarchyInfo>? afterDefinationLine = null)
+        Action<IndentedTextWriter, TypeHierarchyInfo>? customLeafTypeEmitter = null)
     {
         if (type is null)
             return default;
@@ -29,20 +27,16 @@ public static class CSharpEmitExtensions
             defer.Indent("}");
         }
 
+        string partialKeyword = partial ? "partial " : string.Empty;
         foreach (var t in stack) {
-            defer.Writer.Write("partial ");
-
-            defer.Writer.WriteLine($"{t.Keywords} {t.Name}");
+            defer.Writer.WriteLine($"{partialKeyword}{t.Keywords} {t.Name}");
             defer.WriteBracketAndIndent('{');
         }
 
-        beforeDefinationLine?.Invoke(defer.Writer, type);
-
-        if (partial)
-            defer.Writer.Write("partial ");
-        defer.Writer.WriteLine($"{type.Keywords} {type.Name}");
-
-        afterDefinationLine?.Invoke(defer.Writer, type);
+        if(customLeafTypeEmitter is not null)
+            customLeafTypeEmitter(defer.Writer, type);
+        else
+            defer.Writer.WriteLine($"{partialKeyword}{type.Keywords} {type.Name}");
 
         defer.WriteBracketAndIndent('{');
         return defer;

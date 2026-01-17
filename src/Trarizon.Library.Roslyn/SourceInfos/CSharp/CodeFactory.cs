@@ -6,6 +6,7 @@ using System.Linq;
 using Trarizon.Library.Functional;
 
 namespace Trarizon.Library.Roslyn.SourceInfos.CSharp;
+
 public static partial class CodeFactory
 {
     public static string Literal(string value) => $"\"{value}\"";
@@ -41,23 +42,7 @@ public static partial class CodeFactory
         var constraints = symbol.TypeParameters
             .Join(syntax.ConstraintClauses, sym => sym.Name, syn => syn.Name.Identifier.Text, static (symbol, syntax) =>
             {
-                List<string> constraints = [];
-                if (symbol.HasReferenceTypeConstraint)
-                    constraints.Add("class");
-                if (symbol.HasValueTypeConstraint)
-                    constraints.Add("struct");
-                if (symbol.HasNotNullConstraint)
-                    constraints.Add("notnull");
-                if (symbol.HasUnmanagedTypeConstraint)
-                    constraints.Add("unmanaged");
-                if (symbol.ConstraintTypes.Length > 0)
-                    constraints.AddRange(symbol.ConstraintTypes.Select(t => t.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)));
-                if (symbol.HasConstructorConstraint)
-                    constraints.Add("new()");
-                if (symbol.AllowsRefLikeType)
-                    constraints.Add("allows ref struct");
-
-                return $"where {symbol.Name} : {string.Join(", ", constraints)}";
+                return GetConstraintText(symbol);
             })
             .ToSequenceEquatableImmutableArray();
 
@@ -76,6 +61,71 @@ public static partial class CodeFactory
             $"{intf}{name}({string.Join(", ", prms)})",
             .. constraints
             ]);
+    }
+
+    public static string? GetConstraintText(ITypeParameterSymbol typeParameter)
+    {
+        List<string> constraints = [];
+        if (typeParameter.HasReferenceTypeConstraint) {
+            if (typeParameter.ReferenceTypeConstraintNullableAnnotation is NullableAnnotation.Annotated)
+                constraints.Add("class?");
+            else
+                constraints.Add("class");
+        }
+        if (typeParameter.HasValueTypeConstraint)
+            constraints.Add("struct");
+        if (typeParameter.HasNotNullConstraint)
+            constraints.Add("notnull");
+        if (typeParameter.HasUnmanagedTypeConstraint)
+            constraints.Add("unmanaged");
+        if (typeParameter.ConstraintTypes.Length > 0)
+            constraints.AddRange(typeParameter.ConstraintTypes.Select(t => t.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)));
+        if (typeParameter.HasConstructorConstraint)
+            constraints.Add("new()");
+        if (typeParameter.AllowsRefLikeType)
+            constraints.Add("allows ref struct");
+        if (constraints.Count == 0)
+            return null;
+        return $"where {typeParameter.Name} : {string.Join(", ", constraints)}";
+    }
+
+    public static string GetParameterRefKeywords(RefKind refKind, bool trailingWhitespace = false)
+    {
+        var res = refKind switch
+        {
+            RefKind.Ref => "ref",
+            RefKind.Out => "out",
+            RefKind.In => "in",
+            RefKind.RefReadOnlyParameter => "ref readonly",
+            _ => "in",
+        };
+        return trailingWhitespace && res != "" ? $"{res} " : res;
+    }
+
+    // M(ref a, in b, c)
+    //   ^this  ^this
+    public static string GetArgumentRefKeywords(RefKind refKind, bool trailingWhitespace = false)
+    {
+        var res = refKind switch
+        {
+            RefKind.Ref => "ref",
+            RefKind.Out => "out",
+            RefKind.In => "in",
+            RefKind.RefReadOnlyParameter => "in",
+            _ => "",
+        };
+        return trailingWhitespace && res != "" ? $"{res} " : res;
+    }
+
+    public static string GetReturnRefKeywords(RefKind refKind, bool trailingWhitespace = false)
+    {
+        var res = refKind switch
+        {
+            RefKind.Ref => "ref",
+            RefKind.RefReadOnly => "ref",
+            _ => "",
+        };
+        return trailingWhitespace && res != "" ? $"{res} " : res;
     }
 
     /// <summary>
