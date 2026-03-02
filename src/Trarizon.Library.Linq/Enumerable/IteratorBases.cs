@@ -5,11 +5,14 @@ namespace Trarizon.Library.Linq;
 
 partial class TraEnumerable
 {
-    internal abstract partial class IteratorBase<T> : IEnumerable<T>, IEnumerator<T>
+    internal abstract partial class IteratorBase
     {
         protected const int MinPreservedState = -2;
         protected const int InitState = -1;
+    }
 
+    internal abstract partial class IteratorBase<T> : IteratorBase, IEnumerable<T>, IEnumerator<T>
+    {
         protected int _state = -2;
         private readonly int _threadId = Environment.CurrentManagedThreadId;
 

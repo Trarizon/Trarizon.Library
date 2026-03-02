@@ -2,13 +2,17 @@
 
 partial class TraEnumerable
 {
-    partial class IteratorBase<T>
+    partial class IteratorBase
     {
         internal virtual int TryGetCheapCount(out bool exists)
         {
             exists = false;
             return default;
         }
+    }
+
+    partial class IteratorBase<T>
+    {
 
         internal virtual T TryCheapAt(int index, out bool exists)
         {

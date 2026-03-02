@@ -130,7 +130,7 @@ public static partial class TraEnumerable
         }
 #endif
 
-        if (source is IteratorBase<T> iterator) {
+        if (source is IteratorBase iterator) {
             count = iterator.TryGetCheapCount(out bool exists);
             return exists;
         }
