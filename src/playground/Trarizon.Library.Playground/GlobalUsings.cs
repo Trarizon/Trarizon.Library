@@ -4,9 +4,10 @@ using System.Collections;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Trarizon.Library.Collections;
+using Trarizon.Library.Linq;
 
 namespace Trarizon.Test.Run;
-public static class GlobalUsings
+internal static class GlobalUsings
 {
 
     #region Collections

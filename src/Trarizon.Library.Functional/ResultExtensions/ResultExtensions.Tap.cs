@@ -9,6 +9,13 @@ public static partial class ResultExtensions
         return self;
     }
 
+    public static Result<Unit, TError> Tap<TError>(this Result<Unit, TError> self, Action action)
+    {
+        if (self.IsSuccess)
+            action();
+        return self;
+    }
+
     public static Result<T, TError> TapError<T, TError>(this Result<T, TError> self, Action<TError> action)
     {
         if (self.IsFailure)
@@ -23,6 +30,14 @@ public static partial class ResultExtensions
     {
         if (self.IsSuccess)
             action(self.Value);
+        return self;
+    }
+
+    public static RefResult<Unit, TError> Tap<TError>(this RefResult<Unit, TError> self, Action action)
+        where TError : allows ref struct
+    {
+        if (self.IsSuccess)
+            action();
         return self;
     }
 

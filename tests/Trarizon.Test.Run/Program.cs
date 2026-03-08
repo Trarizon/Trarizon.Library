@@ -8,8 +8,22 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Trarizon.Library.Functional;
+using Trarizon.Library.Playground.Interpreting.TypeScript;
 
-LightVNTool.Program._Main(["-u", "D:\\Games\\Games\\Katanegai\\Data\\_"]);
+new TypeScriptInterpreter().Execute(TypeScriptInterpreter.ts);
+//LightVNTool.Program._Main(["-u", "D:\\Games\\Games\\Katanegai\\Data\\_"]);
+
+var r = Result.Success(1).Build<string>();
+var r2 = r;
+_ = from i in r
+    from j in r2
+    select i + j;
+
+r.AsRef()
+    .Select(x => Unit.Value)
+    .Select(() => ReadOnlySpan<char>.Empty);
+
 
 
 namespace LightVNTool

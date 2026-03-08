@@ -6,6 +6,9 @@
 // We use Func<> if returned type is not ref struct, otherwise we use RefFunc<>
 // If compiler could recognize which overload to use, we don't use this
 
+public delegate TResult RefFunc<out TResult>()
+    where TResult : allows ref struct;
+
 public delegate TResult RefFunc<in T, out TResult>(T arg)
     where T : allows ref struct
     where TResult : allows ref struct;

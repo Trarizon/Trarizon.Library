@@ -10,6 +10,9 @@ public static partial class ResultExtensions
     public static Result<TResult, TError> Select<T, TError, TResult>(this Result<T, TError> self, Func<T, TResult> selector)
         => self.IsSuccess ? Result.Success(selector(self.Value)) : Result.Failure(self.Error);
 
+    public static Result<TResult, TError> Select<TError, TResult>(this Result<Unit, TError> self, Func<TResult> selector)
+        => self.IsSuccess ? Result.Success(selector()) : Result.Failure(self.Error);
+
 #if NET9_0_OR_GREATER
 
     [OverloadResolutionPriority(-1)]
@@ -26,11 +29,21 @@ public static partial class ResultExtensions
         where TResult : allows ref struct
         => self.IsSuccess ? Result.Success(selector(self.Value)) : RefResult.Failure(self.Error);
 
+    [OverloadResolutionPriority(-1)]
+    public static RefResult<TResult, TError> Select<TError, TResult>(this RefResult<Unit, TError> self, RefFunc<TResult> selector)
+        where TResult : allows ref struct
+        => self.IsSuccess ? Result.Success(selector()) : RefResult.Failure(self.Error);
+
     public static RefResult<TResult, TError> Select<T, TError, TResult>(this RefResult<T, TError> self, Func<T, TResult> selector)
         where T : allows ref struct
         where TError : allows ref struct
         where TResult : allows ref struct
         => self.IsSuccess ? Result.Success(selector(self.Value)) : RefResult.Failure(self.Error);
+
+    public static RefResult<TResult, TError> Select<TError, TResult>(this RefResult<Unit, TError> self, Func<TResult> selector)
+        where TError : allows ref struct
+        where TResult : allows ref struct
+        => self.IsSuccess ? Result.Success(selector()) : RefResult.Failure(self.Error);
 
 #endif
 
@@ -70,7 +83,7 @@ public static partial class ResultExtensions
 
 #if NET9_0_OR_GREATER
 
-    public static RefResult<TResult,TResultError> Select<T,TError,TResult,TResultError>(this RefResult<T, TError> self, Func<T, TResult> valueSelector, Func<TError, TResultError> errorSelector)
+    public static RefResult<TResult, TResultError> Select<T, TError, TResult, TResultError>(this RefResult<T, TError> self, Func<T, TResult> valueSelector, Func<TError, TResultError> errorSelector)
         where T : allows ref struct
         where TError : allows ref struct
         where TResult : allows ref struct

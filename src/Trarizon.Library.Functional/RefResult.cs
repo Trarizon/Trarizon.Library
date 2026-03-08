@@ -52,7 +52,6 @@ public static partial class RefResult
         public bool IsSuccess => true;
         public bool IsFailure => false;
         public T Value => _value;
-        public FailureBuilder<T> Swap() => new(_value);
 
 #pragma warning disable CS0809
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -71,7 +70,6 @@ public static partial class RefResult
         public bool IsSuccess => false;
         public bool IsFailure => true;
         public TError Error => _error;
-        public SuccessBuilder<TError> Swap() => new(_error);
 
 #pragma warning disable CS0809
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -190,8 +188,6 @@ public readonly ref struct RefResult<T, TError>
     public static implicit operator RefResult<T, TError>(TError error) => new(error);
     public static implicit operator RefResult<T, TError>(RefResult.SuccessBuilder<T> builder) => new(builder._value);
     public static implicit operator RefResult<T, TError>(RefResult.FailureBuilder<TError> builder) => new(builder._error);
-
-    public RefResult<TError, T> Swap() => new(!_success, _error, _value);
 
 #pragma warning disable CS0809
 

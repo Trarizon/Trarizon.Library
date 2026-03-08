@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Trarizon.Library.Playground.Interpreting.TypeScript;
 
-public sealed class TypeScriptInterpreter:IDisposable
+public sealed class TypeScriptInterpreter : IDisposable
 {
     private V8ScriptEngine _engine;
 
@@ -22,22 +22,30 @@ public sealed class TypeScriptInterpreter:IDisposable
 
         var damage = (float)_engine.Script.ItemProcessor.CalculateDamage(1);
         Console.WriteLine(damage);
+
+        foreach (var item in _engine.Script.ItemProcessor.array) {
+            Console.WriteLine(item);
+        }
+        foreach(var item in _engine.Script.ItemProcessor) {
+            Console.WriteLine(item.Key + ": " + item.Value);
+        }
     }
 
     public void Dispose() => _engine.Dispose();
 
-    const string ts = """
+    public const string ts = """
         // ItemScript.ts
-        export const ItemProcessor = {
+        var ItemProcessor = {
             name: "Magic Sword",
             baseDamage: 50,
             // 这是一个你需要在 C# 中调用的方法
-            CalculateDamage: (level: number) => {
+            CalculateDamage: (level) => {
                 return 50 + (level * 1.5);
             },
-            GetPath: (category: string) => {
+            GetPath: (category) => {
                 return `assets/${category}/sword.png`;
-            }
+            },
+            array: [1, 2, 3]
         };
         """;
 }

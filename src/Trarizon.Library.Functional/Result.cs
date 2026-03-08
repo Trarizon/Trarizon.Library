@@ -27,6 +27,16 @@ public static partial class Result
         catch (Exception ex) { return ex; }
     }
 
+#if UNIT
+
+    public static Result<Unit, Exception> TryCatch(Action action)
+    {
+        try { action(); return Unit.Value; }
+        catch (Exception ex) { return ex; }
+    }
+
+#endif
+
     public static ref readonly T? GetValueRefOrDefaultRef<T, TError>(this ref readonly Result<T, TError> result)
         => ref result._value;
 
@@ -43,7 +53,6 @@ public static partial class Result
         public bool IsSuccess => true;
         public bool IsFailure => false;
         public T Value => _value;
-        public FailureBuilder<T> Swap() => new(_value);
         public string ToString(bool includeVariantInfo) => Build<object>().ToString(includeVariantInfo);
         public override string ToString() => Build<object>().ToString();
     }
@@ -58,7 +67,6 @@ public static partial class Result
         public bool IsSuccess => false;
         public bool IsFailure => true;
         public TError Error => _error;
-        public SuccessBuilder<TError> Swap() => new(_error);
         public string ToString(bool includeVariantInfo) => Build<object>().ToString(includeVariantInfo);
         public override string ToString() => Build<object>().ToString();
     }
@@ -163,8 +171,6 @@ public readonly partial struct Result<T, TError>
     public static implicit operator Result<T, TError>(Result.SuccessBuilder<T> builder) => new(builder._value);
     public static implicit operator Result<T, TError>(Result.FailureBuilder<TError> builder) => new(builder._error);
 
-
-    public Result<TError, T> Swap() => new(!_success, _error, _value);
 
     public Result<TResult, TError> Cast<TResult>() => IsSuccess ? new((TResult)(object)_value) : new(_error);
 

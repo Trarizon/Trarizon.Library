@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Text;
 using Trarizon.Library.Functional;
-using Trarizon.Library.Functional.Unions.Attributes;
 
 namespace Trarizon.Test.Run;
 
@@ -24,7 +23,7 @@ internal static class UnionSample
     }
 }
 
-[Union]
+//[Union]
 partial struct U
 {
 
