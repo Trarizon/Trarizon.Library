@@ -66,6 +66,16 @@ public static class AsyncExtensions
     public static OptionalTaskAwaiter<T> GetAwaiter<T>(this Optional<Task<T>> self)
         => self.HasValue ? new(self.Value.GetAwaiter()) : default;
 
+#if !NETSTANDARD2_0
+
+    public static OptionalValueTaskAwaiter GetAwaiter(this Optional<ValueTask> self)
+        => self.HasValue ? new(self.Value.GetAwaiter()) : default;
+
+    public static OptionalValueTaskAwaiter<T> GetAwaiter<T>(this Optional<ValueTask<T>> self)
+        => self.HasValue ? new(self.Value.GetAwaiter()) : default;
+
+#endif
+
     public readonly struct OptionalTaskAwaiter : ICriticalNotifyCompletion
     {
         private readonly Optional<TaskAwaiter> _awaiter;
@@ -137,6 +147,82 @@ public static class AsyncExtensions
             }
         }
     }
+
+#if !NETSTANDARD2_0
+
+    public readonly struct OptionalValueTaskAwaiter : ICriticalNotifyCompletion
+    {
+        private readonly Optional<ValueTaskAwaiter> _awaiter;
+
+        internal OptionalValueTaskAwaiter(ValueTaskAwaiter taskAwaiter)
+        {
+            _awaiter = taskAwaiter;
+        }
+
+        public bool IsCompleted => !_awaiter.HasValue || _awaiter.Value.IsCompleted;
+
+        public void GetResult()
+        {
+            if (_awaiter.HasValue)
+                _awaiter.Value.GetResult();
+        }
+
+        public void OnCompleted(Action continuation)
+        {
+            if (_awaiter.HasValue) {
+                _awaiter.Value.OnCompleted(continuation);
+            }
+            else {
+                continuation();
+            }
+        }
+
+        public void UnsafeOnCompleted(Action continuation)
+        {
+            if (_awaiter.HasValue) {
+                _awaiter.Value.UnsafeOnCompleted(continuation);
+            }
+            else {
+                continuation();
+            }
+        }
+    }
+
+    public readonly struct OptionalValueTaskAwaiter<T> : ICriticalNotifyCompletion
+    {
+        private readonly Optional<ValueTaskAwaiter<T>> _awaiter;
+
+        internal OptionalValueTaskAwaiter(ValueTaskAwaiter<T> awaiter)
+        {
+            _awaiter = awaiter;
+        }
+
+        public bool IsCompleted => !_awaiter.HasValue || _awaiter.Value.IsCompleted;
+
+        public Optional<T> GetResult() => _awaiter.HasValue ? Optional.Of(_awaiter.Value.GetResult()) : Optional<T>.None;
+
+        public void OnCompleted(Action continuation)
+        {
+            if (_awaiter.HasValue) {
+                _awaiter.Value.OnCompleted(continuation);
+            }
+            else {
+                continuation();
+            }
+        }
+
+        public void UnsafeOnCompleted(Action continuation)
+        {
+            if (_awaiter.HasValue) {
+                _awaiter.Value.UnsafeOnCompleted(continuation);
+            }
+            else {
+                continuation();
+            }
+        }
+    }
+
+#endif
 }
 
 #endif

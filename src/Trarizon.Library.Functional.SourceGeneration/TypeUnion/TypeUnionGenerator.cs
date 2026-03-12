@@ -412,7 +412,7 @@ internal sealed partial class TypeUnionGenerator : IIncrementalGenerator
                                     using (writer.EnterBracketIndentScope('{')) {
                                         foreach (var variant in data.Variants) {
                                             writer.WriteLine($"if (this.__flag == {variant.Id})");
-                                            writer.WriteLine($"    return {CodeFactory.GetReturnRefKeywords(m.ReturnRefKind, true)}{VariantToTExpr(variant, intf.FullQualifiedTypeName)}.{m.Name};");
+                                            writer.WriteLine($"    return {CodeFactory.GetReturnRefKeywords(m.ReturnRefKind, true)}{VariantToInterfaceExpr(variant, intf.FullQualifiedTypeName)}.{m.Name};");
                                         }
                                         writer.WriteLine($"return {CodeFactory.GetReturnRefKeywords(m.ReturnRefKind, true)}(({intf.FullQualifiedTypeName})null!).{m.Name};");
                                     }
@@ -422,7 +422,7 @@ internal sealed partial class TypeUnionGenerator : IIncrementalGenerator
                                     using (writer.EnterBracketIndentScope('{')) {
                                         foreach (var variant in data.Variants) {
                                             writer.WriteLine($"if (this.__flag == {variant.Id})");
-                                            writer.WriteLine($"    {VariantToTExpr(variant, intf.FullQualifiedTypeName)}.{m.Name} = value;");
+                                            writer.WriteLine($"    {VariantToInterfaceExpr(variant, intf.FullQualifiedTypeName)}.{m.Name} = value;");
                                         }
                                         writer.WriteLine($"(({intf.FullQualifiedTypeName})null!).{m.Name} = value;");
                                     }
@@ -442,7 +442,7 @@ internal sealed partial class TypeUnionGenerator : IIncrementalGenerator
                                     using (writer.EnterBracketIndentScope('{')) {
                                         foreach (var variant in data.Variants) {
                                             writer.WriteLine($"if (this.__flag == {variant.Id})");
-                                            writer.WriteLine($"    return {CodeFactory.GetReturnRefKeywords(m.ReturnRefKind, true)}{VariantToTExpr(variant, intf.FullQualifiedTypeName)}.{m.Name}[{arguments}];");
+                                            writer.WriteLine($"    return {CodeFactory.GetReturnRefKeywords(m.ReturnRefKind, true)}{VariantToInterfaceExpr(variant, intf.FullQualifiedTypeName)}.{m.Name}[{arguments}];");
                                         }
                                         writer.WriteLine($"return {CodeFactory.GetReturnRefKeywords(m.ReturnRefKind, true)}(({intf.FullQualifiedTypeName})null!).{m.Name}[{arguments}];");
                                     }
@@ -452,7 +452,7 @@ internal sealed partial class TypeUnionGenerator : IIncrementalGenerator
                                     using (writer.EnterBracketIndentScope('{')) {
                                         foreach (var variant in data.Variants) {
                                             writer.WriteLine($"if (this.__flag == {variant.Id})");
-                                            writer.WriteLine($"    {VariantToTExpr(variant, intf.FullQualifiedTypeName)}.{m.Name}[{arguments}] = value;");
+                                            writer.WriteLine($"    {VariantToInterfaceExpr(variant, intf.FullQualifiedTypeName)}.{m.Name}[{arguments}] = value;");
                                         }
                                         writer.WriteLine($"(({intf.FullQualifiedTypeName})null!).{m.Name}[{arguments}] = value;");
                                     }
@@ -471,7 +471,7 @@ internal sealed partial class TypeUnionGenerator : IIncrementalGenerator
                                         foreach (var variant in data.Variants) {
                                             writer.WriteLine($"if (this.__flag == {variant.Id})");
                                             using (writer.EnterBracketIndentScope('{')) {
-                                                writer.WriteLine($"{VariantToTExpr(variant, intf.FullQualifiedTypeName)}.{m.Name} += value;");
+                                                writer.WriteLine($"{VariantToInterfaceExpr(variant, intf.FullQualifiedTypeName)}.{m.Name} += value;");
                                                 writer.WriteLine($"return;");
                                             }
                                         }
@@ -484,7 +484,7 @@ internal sealed partial class TypeUnionGenerator : IIncrementalGenerator
                                         foreach (var variant in data.Variants) {
                                             writer.WriteLine($"if (this.__flag == {variant.Id})");
                                             using (writer.EnterBracketIndentScope('{')) {
-                                                writer.WriteLine($"{VariantToTExpr(variant, intf.FullQualifiedTypeName)}.{m.Name} -= value;");
+                                                writer.WriteLine($"{VariantToInterfaceExpr(variant, intf.FullQualifiedTypeName)}.{m.Name} -= value;");
                                                 writer.WriteLine($"return;");
                                             }
                                         }
@@ -505,11 +505,11 @@ internal sealed partial class TypeUnionGenerator : IIncrementalGenerator
                                     writer.WriteLine($"if (this.__flag == {variant.Id})");
                                     using (writer.EnterBracketIndentScope('{')) {
                                         if (m.ReturnsVoid) {
-                                            writer.WriteLine($"{VariantToTExpr(variant, intf.FullQualifiedTypeName)}.{m.Name}({arguments});");
+                                            writer.WriteLine($"{VariantToInterfaceExpr(variant, intf.FullQualifiedTypeName)}.{m.Name}({arguments});");
                                             writer.WriteLine($"return;");
                                         }
                                         else {
-                                            writer.WriteLine($"return {CodeFactory.GetReturnRefKeywords(m.ReturnRefKind, true)}{VariantToTExpr(variant, intf.FullQualifiedTypeName)}.{m.Name}({arguments});");
+                                            writer.WriteLine($"return {CodeFactory.GetReturnRefKeywords(m.ReturnRefKind, true)}{VariantToInterfaceExpr(variant, intf.FullQualifiedTypeName)}.{m.Name}({arguments});");
                                         }
                                     }
                                 }
@@ -562,5 +562,15 @@ internal sealed partial class TypeUnionGenerator : IIncrementalGenerator
             ? "object" : variant.FullyQualifiedTypeName;
         var convert = $"global::System.Runtime.CompilerServices.Unsafe.As<{fieldFullyQualifiedTypeName}, {targetType}>(ref global::System.Runtime.CompilerServices.Unsafe.AsRef<{fieldFullyQualifiedTypeName}>(in {VariantAccessExpr(variant)}))";
         return convert;
+    }
+
+    static string VariantToInterfaceExpr(VariantData variant, string targetType)
+    {
+        switch (variant.TypeKind) {
+            case VariantTypeKind.Reference:
+                return $"global::System.Runtime.CompilerServices.Unsafe.As<object, {targetType}>(ref global::System.Runtime.CompilerServices.Unsafe.AsRef<object>(in {VariantAccessExpr(variant)}))";
+            default:
+                return $"(({targetType}){VariantAccessExpr(variant)})";
+        }
     }
 }

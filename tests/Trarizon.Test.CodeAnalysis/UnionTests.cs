@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -46,7 +47,7 @@ namespace Trarizon.Test.CodeAnalysis
     {
     }
 
-    [TypeUnion(typeof(List<string>), typeof(Stack<string>),
+    [TypeUnion(typeof(List<string>), typeof(Stack<string>), typeof(ImmutableArray<string>),
         ShareInterface = UnionShareInterfaceOption.Enabled)]
     public readonly partial struct V
     {
