@@ -2,9 +2,6 @@
 
   <PropertyGroup>
     <TargetFrameworks>net8.0;netstandard2.1</TargetFrameworks>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-      <LangVersion>13</LangVersion>
   </PropertyGroup>
 
 </Project>

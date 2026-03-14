@@ -9,11 +9,11 @@ internal sealed class BehaviorTree
 {
     public static BehaviorTreeNode Selector(params IEnumerable<BehaviorTreeNode> nodes)
     {
-        return new SelectorBehaviorTreeNode(nodes);
+        return new SelectorBehaviorTreeNode(nodes.ToArray());
     }
 
     public static BehaviorTreeNode Sequence(params IEnumerable<BehaviorTreeNode> nodes)
     {
-        return new SequenceBehaviorTreeNode(nodes);
+        return new SequenceBehaviorTreeNode(nodes.ToArray());
     }
 }

@@ -1,50 +1,52 @@
 ﻿using System.Runtime.CompilerServices;
-using Vanara.PInvoke;
+using Windows.Win32;
+using Windows.Win32.UI.Input.KeyboardAndMouse;
 
 namespace Trarizon.Library.Windows.Device;
+
 public static class MouseEvents
 {
     // PInvoke: User32.dll
     public static void MoveTo(int x, int y, bool absolutePosition = false)
-        => User32.mouse_event(User32.MOUSEEVENTF.MOUSEEVENTF_MOVE.WithAbsolute(absolutePosition), x, y, 0, 0);
+        => PInvoke.mouse_event(MOUSE_EVENT_FLAGS.MOUSEEVENTF_MOVE.WithAbsolute(absolutePosition), x, y, 0, 0);
 
     public static void Click(Buttons buttons, int x = 0, int y = 0, bool absolutePosition = false)
-        => User32.mouse_event(buttons.WithAction(Action.Click).WithAbsolute(absolutePosition), x, y, 0, 0);
+        => PInvoke.mouse_event(buttons.WithAction(Action.Click).WithAbsolute(absolutePosition), x, y, 0, 0);
 
     public static void Click(XButtons xButtons, int x = 0, int y = 0, bool absolutePosition = false)
     {
-        User32.mouse_event(
-            User32.MOUSEEVENTF.MOUSEEVENTF_XDOWN.WithAbsolute(absolutePosition),
+        PInvoke.mouse_event(
+            MOUSE_EVENT_FLAGS.MOUSEEVENTF_XDOWN.WithAbsolute(absolutePosition),
             x, y, Unsafe.As<XButtons, int>(ref xButtons), 0);
     }
 
     public static void Down(Buttons buttons, int x = 0, int y = 0, bool absolutePosition = false)
-        => User32.mouse_event(buttons.WithAction(Action.Down).WithAbsolute(absolutePosition), x, y, 0, 0);
+        => PInvoke.mouse_event(buttons.WithAction(Action.Down).WithAbsolute(absolutePosition), x, y, 0, 0);
 
     public static void Up(Buttons buttons, int x = 0, int y = 0, bool absolutePosition = false)
-        => User32.mouse_event(buttons.WithAction(Action.Up).WithAbsolute(absolutePosition), x, y, 0, 0);
+        => PInvoke.mouse_event(buttons.WithAction(Action.Up).WithAbsolute(absolutePosition), x, y, 0, 0);
 
     public static void ClickLeftMouse()
-        => User32.mouse_event(User32.MOUSEEVENTF.MOUSEEVENTF_LEFTDOWN | User32.MOUSEEVENTF.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+        => PInvoke.mouse_event(MOUSE_EVENT_FLAGS.MOUSEEVENTF_LEFTDOWN | MOUSE_EVENT_FLAGS.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
 
     public static void ScrollWheel(int amount)
-        => User32.mouse_event(User32.MOUSEEVENTF.MOUSEEVENTF_WHEEL, 0, 0, amount, 0);
+        => PInvoke.mouse_event(MOUSE_EVENT_FLAGS.MOUSEEVENTF_WHEEL, 0, 0, amount, 0);
 
     public static void ScrollWheelByDelta(int multiple)
         => ScrollWheel(multiple * 120);
 
-    private static User32.MOUSEEVENTF WithAbsolute(this User32.MOUSEEVENTF ev, bool absolutePosition)
-        => absolutePosition ? ev | User32.MOUSEEVENTF.MOUSEEVENTF_ABSOLUTE : ev;
+    private static MOUSE_EVENT_FLAGS WithAbsolute(this MOUSE_EVENT_FLAGS ev, bool absolutePosition)
+        => absolutePosition ? ev | MOUSE_EVENT_FLAGS.MOUSEEVENTF_ABSOLUTE : ev;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static User32.MOUSEEVENTF WithAction(this Buttons buttons, Action actions)
-        => (User32.MOUSEEVENTF)(Unsafe.As<Buttons, int>(ref buttons) * Unsafe.As<Action, int>(ref actions));
+    private static MOUSE_EVENT_FLAGS WithAction(this Buttons buttons, Action actions)
+        => (MOUSE_EVENT_FLAGS)(Unsafe.As<Buttons, uint>(ref buttons) * Unsafe.As<Action, uint>(ref actions));
 
-    public enum Buttons
+    public enum Buttons : uint
     {
-        Left = User32.MOUSEEVENTF.MOUSEEVENTF_LEFTDOWN,
-        Right = User32.MOUSEEVENTF.MOUSEEVENTF_RIGHTDOWN,
-        Wheel = User32.MOUSEEVENTF.MOUSEEVENTF_WHEEL,
+        Left = MOUSE_EVENT_FLAGS.MOUSEEVENTF_LEFTDOWN,
+        Right = MOUSE_EVENT_FLAGS.MOUSEEVENTF_RIGHTDOWN,
+        Wheel = MOUSE_EVENT_FLAGS.MOUSEEVENTF_WHEEL,
     }
 
     public enum XButtons { X1 = 1, X2 = 2, }

@@ -16,14 +16,14 @@ internal static class BehaviorTreeTests
                 new GoToAction()),
             new PatrolAction());
 
-        dynamic builder = null!;
+        //dynamic builder = null!;
 
-        builder
-            .If(new EnemyInAttackRangeCondition(transform, target))
-            .Then(new AttackAction())
-            .ElseIf(new EnemyInViewRangeCondition(transform, target))
-            .Then(new GoToAction())
-            .Else(new PatrolAction());
+        //builder
+        //    .If(new EnemyInAttackRangeCondition(transform, target))
+        //    .Then(new AttackAction())
+        //    .ElseIf(new EnemyInViewRangeCondition(transform, target))
+        //    .Then(new GoToAction())
+        //    .Else(new PatrolAction());
 
     }
 

@@ -1,4 +1,15 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="Aot.props" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="LICENSE" />
+    <File Path="Nuget.props" />
+    <File Path="README.md" />
+    <File Path="SourceGenerator.props" />
+    <File Path="THIRD-PARTY-LICENSES.md" />
+    <File Path="UnitTest.props" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/Trarizon.Library.CodeAnalysis.SourceGeneration/Trarizon.Library.CodeAnalysis.SourceGeneration.csproj" Id="da8c0c3b-6451-4ae2-9560-1869b3f567df" />
     <Project Path="src/Trarizon.Library.CodeAnalysis/Trarizon.Library.CodeAnalysis.csproj" Id="65311f88-d657-41e5-8a47-aa6a9b945e5b" />
@@ -12,25 +23,21 @@
     <Project Path="src/Trarizon.Library.Text.Json/Trarizon.Library.Text.Json.csproj" Id="23211bd5-bc40-4a79-82ee-ef529854dc2e" />
     <Project Path="src/Trarizon.Library/Trarizon.Library.csproj" />
   </Folder> 
-  <Folder Name="/src/playground/">
-    <Project Path="src/playground/Trarizon.Library.Algorithms/Trarizon.Library.Algorithms.csproj" Id="e8d98184-a27e-4aeb-8b1a-cd1c364abd91" />
-    <Project Path="src/playground/Trarizon.Library.Game/Trarizon.Library.Game.csproj" />
-    <Project Path="src/playground/Trarizon.Library.Playground/Trarizon.Library.Playground.csproj" Id="83bdac29-35ba-40ec-b954-58a3d2819f74" />
+  <Folder Name="/playground/">
+    <File Path="playground/Directory.Packages.props" />
+    <Project Path="playground/Trarizon.Library.Algorithms/Trarizon.Library.Algorithms.csproj" Id="e8d98184-a27e-4aeb-8b1a-cd1c364abd91" />
+    <Project Path="playground/Trarizon.Library.Game/Trarizon.Library.Game.csproj" />
+    <Project Path="playground/Trarizon.Library.Playground/Trarizon.Library.Playground.csproj" Id="83bdac29-35ba-40ec-b954-58a3d2819f74" />
   </Folder>
   <Folder Name="/src/windows/">
     <Project Path="src/windows/Trarizon.Library.Windows/Trarizon.Library.Windows.csproj" />
     <Project Path="src/windows/Trarizon.Library.Wpf/Trarizon.Library.Wpf.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <File Path="tests/Directory.Packages.props" />
     <Project Path="tests/Trarizon.Test.CodeAnalysis/Trarizon.Test.CodeAnalysis.csproj" Id="7a4055e2-c95f-4afe-aa31-3e8affedf67a" />
     <Project Path="tests/Trarizon.Test.Nuget/Trarizon.Test.Nuget.csproj" />
     <Project Path="tests/Trarizon.Test.Run/Trarizon.Test.Run.csproj" />
     <Project Path="tests/Trarizon.Test.UnitTests/Trarizon.Test.UnitTests.csproj" />
-  </Folder>
-  <Folder Name="/SolutionItems/">
-    <File Path="LICENSE" />
-    <File Path="Nuget.props" />
-    <File Path="README.md" />
-    <File Path="THIRD-PARTY-LICENSES.md" />
   </Folder>
 </Solution>

@@ -60,11 +60,13 @@ public static partial class TraCollection
         private class QueueMarchalHelper
         {
 #nullable disable
+#pragma warning disable CS0649
             public T[] _array;
             public int _head;
             public int _tail;
             public int _size;
             public int _version;
+#pragma warning restore CS0649
 #nullable enable
         }
 

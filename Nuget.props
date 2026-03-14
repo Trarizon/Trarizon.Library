@@ -1,13 +1,36 @@
 ﻿<Project>
 
-	<PropertyGroup Label="NugetProperties">
-		<Authors>Trarizon</Authors>
+    <PropertyGroup Label="NugetProperties">
+        <PackageId>$(AssemblyName)</PackageId>
+        <Title>$(AssemblyName)</Title>
+        <!--<Version>1.0.0</Version>-->
+        <Authors>Trarizon</Authors>
+        <Company>$(Authors)</Company>
+
+        <!--<Description>Trarizon's personal library</Description>-->
+
         <Copyright>Copyright (c) Trarizon 2023</Copyright>
-		<RepositoryUrl>https://github.com/Trarizon/Trarizon.Library</RepositoryUrl>
-        <PackageProjectUrl>$(RepositoryUrl)</PackageProjectUrl>
-		<PackageLicenseFile>LICENSE</PackageLicenseFile>
-		<AssemblyVersion>$(Version)</AssemblyVersion>
-		<FileVersion>$(AssemblyVersion)</FileVersion>
-	</PropertyGroup>
+        <PackageReadmeFile Condition="Exists('$(MSBuildProjectDirectory)\README.md')">README.md</PackageReadmeFile>
+        <PackageProjectUrl>https://github.com/Trarizon/Trarizon.Library</PackageProjectUrl>
+        <RepositoryUrl>$(PackageProjectUrl)</RepositoryUrl>
+        <!--<PackageReadmeFile>README.md</PackageReadmeFile>-->
+        <AssemblyVersion>$(Version)</AssemblyVersion>
+        <FileVersion>$(AssemblyVersion)</FileVersion>
+
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>$(NoWarn);1591;1573</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="$(MSBuildThisFileDirectory)LICENSE" Pack="True" PackagePath="" />
+    </ItemGroup>
+
+    <ItemGroup Condition="Exists('$(MSBuildProjectDirectory)\README.md')">
+        <None Include="$(MSBuildProjectDirectory)\README.md" Pack="True" PackagePath="" />
+    </ItemGroup>
 
 </Project>

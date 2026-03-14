@@ -1,0 +1,11 @@
+<Project>
+    <Import Project="$([MSBuild]::GetPathOfFileAbove(Directory.Packages.props, $(MSBuildThisFileDirectory)..))" />
+    <PropertyGroup>
+        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageVersion Include="CommunityToolkit.Diagnostics" Version="8.4.0" />
+        <PackageVersion Include="Microsoft.ClearScript" Version="7.5.0" />
+        <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.14.0" />
+    </ItemGroup>
+</Project>

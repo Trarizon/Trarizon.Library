@@ -1,0 +1,10 @@
+<Project>
+
+    <PropertyGroup>
+        <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+        <EnableSingleFileAnalyzer>true</EnableSingleFileAnalyzer>
+        <EnableAotAnalyzer>true</EnableAotAnalyzer>
+        <IsTrimmable>true</IsTrimmable>
+    </PropertyGroup>
+
+</Project>

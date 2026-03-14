@@ -2,17 +2,11 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <LangVersion>preview</LangVersion>
-        <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <PropertyGroup>
-        <Title>Trarizon.Library.CodeAnalysis</Title>
-        <!--<PackageReadmeFile>README.md</PackageReadmeFile>-->
         <Version>0.0.0.2</Version>
         <!--<Description>Trarizon's personal library, for functional programming</Description>-->
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <NoWarn>$(NoWarn);1591</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>

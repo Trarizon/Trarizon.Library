@@ -3,14 +3,12 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
 	<InterceptorsPreviewNamespaces>$(InterceptorsPreviewNamespaces);Trarizon.Library.Generated</InterceptorsPreviewNamespaces>
 
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Trarizon.Library" Version="1.0.0" />
+    <PackageReference Include="Trarizon.Library" />
   </ItemGroup>
 
 </Project>

@@ -1,8 +1,9 @@
-﻿using System.Buffers;
-using System.Diagnostics.CodeAnalysis;
-using Vanara.PInvoke;
+﻿using System.Diagnostics.CodeAnalysis;
+using Windows.Win32;
+using Windows.Win32.UI.WindowsAndMessaging;
 
 namespace Trarizon.Library.Windows;
+
 internal static class TraWinFileSystem
 {
     // PInvoke: Shell32.dll
@@ -11,16 +12,11 @@ internal static class TraWinFileSystem
         if (!File.Exists(filePath))
             throw new FileNotFoundException("File not found.", filePath);
 
-        var arr = ArrayPool<HICON>.Shared.Rent(1);
-        try {
-            var count = Shell32.ExtractIconEx(filePath, 0, phiconLarge: arr, nIcons: 1);
-            if (count < 1)
-                return nint.Zero;
-            return arr[0].DangerousGetHandle();
-        }
-        finally {
-            ArrayPool<HICON>.Shared.Return(arr);
-        }
+        Span<HICON> buffer = stackalloc HICON[1];
+        var count = PInvoke.ExtractIconEx(filePath, 0, buffer);
+        if (count < 1)
+            return nint.Zero;
+        return buffer[0];
     }
 
     // COM: Windows Script Host Ojbect Model

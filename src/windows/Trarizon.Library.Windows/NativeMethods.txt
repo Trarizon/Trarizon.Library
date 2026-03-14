@@ -1,0 +1,3 @@
+CreateFile
+ExtractIconEx
+mouse_event

@@ -1,0 +1,9 @@
+<Project>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="Trarizon.Test.UnitTests" />
+        <!--<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+            <_Parameter1>Trarizon.Test.UnitTests</_Parameter1>
+        </AssemblyAttribute>-->
+    </ItemGroup>
+</Project>

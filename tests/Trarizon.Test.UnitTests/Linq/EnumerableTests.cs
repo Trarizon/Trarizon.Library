@@ -45,7 +45,6 @@ public class EnumerableTests
     public void MinMaxTest(IEnumerable<int> source)
     {
         source.MinMax().Should().Be((0, 7));
-        source.MinMax(descending: true).Should().Be((7, 0));
         source.MinMax(Comparer<int>.Default).Should().Be((0, 7));
         source.MinMax(Comparer<int>.Default.Reverse()).Should().Be((7, 0));
     }
