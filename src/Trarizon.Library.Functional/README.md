@@ -1,58 +1,134 @@
 ﻿# Trarizon.Library.Functional
 
-Provides utilities for functional programming (Monads)
+Provides monads-related utilities.
+
+Note that the library is not designed for pure functional programming.
 
 ## Monads
 
-`Optional<>`, `Result<,>`, `Either<,>` are available, a non-generic type with same name is provided as factory(eg: `Optional` for `Optional<T>`, etc.).
+### Built-in monads
 
-All monads are value type
+`Optional<T>`, `Result<T, TError>` are available.
 
-### `Optional` & `RefOptional`
+For each type, there exists some related types, for example:
 
-Use `Optional.Of` / `Optional.None` / `Optional<T>.None` to create a `Optional<T>` with or without value. 
-We provider `Optional.Create/OfNotNull/OfPredicate` to help you quickly create a `Optional<T>` according to some predicate
+|Type|Description|
+|---|---|
+|`Optional<T>`| The monad type, is a value type
+|`Optional`   | Static class providing factory methods to create a `Optional<T>`
+|`RefOptional<T>`| `ref struct` supported
+|`RefOptional`| Static class factory, Also provides extension for `Optional`(C#14+)
 
-With `allows ref struct` in .NET9, `RefOptional<T>` is provided as a `Optional<T>` for `ref struct` and has almost same functions with `Optional<T>`.
-You can use `RefOptional.Of` etc. to create `RefOptional<T>`, if your language version is C#14 or later, you can just use `Optional.Of`, and `RefOptional<T>` will be created if argument is `ref struct`.
+As all monads types are struct, with no inheritance, There're some tricks to simplify the use.
 
-`Optional<T>` and `RefOptional<T>` are implicitly convertable to each other, you can also use `AsRef()` and `AsDeref()` to convert between `Optional<T>` and `RefOptional<T>`
+#### Creation
 
-`Optional<T>` is implicited castable from a value
+`Optional.Of<T>()` and `Optional.None` are provided for creating instance.
 
-`Optional<T>` has following members to access data
-- `HasValue`
-- `Value` : This property won't throw if this is `None`
-- `GetValueOrThrow()`
-- `GetValueOrDefault()`, `GetValueOrDefault(T)`
-- `TryGetValue(out T)`
-- `GetValueRefOrDefaultRef()`
+`Optional.None` returns `Optional.NoneBuilder`, which implicit castable to any `Optional<T>` or `RefOptional<T>`, so we can do 
+``` C#
+Optional<string> a = Optional.None
+```
+rather than manually point out the type like `Optional.None<string>()`.
 
-`Optional<T>` has following members to chain
-- `operator |` or `operator ||`
-- `Or()`
-- `Cast<TResult>()` so you can cast it to its interfaces of base type
-- `Match()` return `TResult` or `void`
-    - `MatchValue()` and `MatchNone`
-- `Select()` map value
-- `Bind()` map value to `Optional<TResult>`
-    - `SelectManay()` is also provided, so you can use linq expression to do this
-- `Zip()`
-- `Where()` filter
-- `ToNullable()` convert to `Nullable<T>`
+If you want to specify the type of none, you can also use
+```
+var a = Optional<string>.None; // infer to Optional<string>
+var b = Optional.None.Build<string>() // infer to Optional<string>
+```
 
-`Optional<T>` has some methods related to `IEnumerable<T>`
-- `IEnumerable<Optional<T>>.Collect(): Optional<IEnumerable<T>>` returns the sequence if all optionals has value, else return `None`
-- `IEnumerable<T>.WhereSelect(Func<T, Optional<TResult>>) : IEnumerable<TRsult>` Linq `Where` and `Select`
-- `IEnumerable<Optional<T>>.WhereHasValue() : IEnumerable<T>` returns sequence contains values
+Similar apis in `Result<T, TError>`
 
+|Optional|Result|
+|---|---|
+|`Optional.Of<T>(T)`|`Result.Success<T, TError>(T)`<br/>`Result.Failure<T, TError>(TError)`
+|`Optional.None.Build<T>()`|`Result.Success<T>(T).Build<TError>()`<br/>`Result.Failure<TError>(TError).Build<T>()`
 
-You may notice that `Optional.None` returns a `Optional.NoneBuilder`, `Result.Success()` returns a `Result.SuccessBuilder<T>` etc.
-They can be implicitly converted to or use `Build()` to create a monad type.
+For `RefOptional<T>`, you can still use `Optional.Of()`, there is a extension overload for `ref struct`(C#14+), and if you want to specify to the `RefOptional<T>`, use `RefOptional.Of<T>()`
 
-I use this so that when I want to create a `Optional.None`, I don't have to specify the type of value like `Optional.None<T>()`,
-this works better on `Result<T, TError>`, as you can use `Result.Success(1)` to create a `Success` rather than `Result.Success<int, string>(1)`, C# force you to write all type arguments if compiler don't know.
+#### Translate
 
-Also, all types are designed in value type, so I should avoid boxing and cannot use inheritance
+> The library is not designed for pure functional programming
 
-### Result
+For this reason, we don't use the method name in funcitonal theories, but use the name in LinQ
+
+Each method has a bunch of overloads to support a fluent use experience with `ref struct`
+
+|Method|Description|
+|---|---|
+|`Select`| Map
+|`Where` | Filter
+|`Bind`  | Bind, `SelectMany` is hidden just for linq expression
+|`Match` | Match, can either return a value or `void`
+|`Or`    | `this` if have value, otherwise `other`
+|`Tap`   | Perform action and return self
+|`Zip`   | Linq `Zip`
+|`GetValueOrThrowError`| For `Result<T, TException>`, throw `TException` when error
+|`Swap`  | Swap
+
+Some of these methods are also implemented for `Optional.NoneBuilder`, `Result.SuccessBuilder`, etc.
+
+#### Extensions
+
+More methods use to interact with `Task<T>`, `IEnumerable<T>`, etc.
+
+##### Async
+
+All extension methods for `Task<T>` also available for `ValueTask<T>`
+
+`this` Type|Method|Description|
+|---|---|---|
+|`Optional<Task<T>>`<br/>`Result<Task<T>, TError>`|`Transpose`|
+|`Optional<Task>`<br/>`Optional<Task<T>>`|`GetAwaiter`|
+
+##### Enumerable
+
+methods for `IEnumerable<TMonad>`
+
+|Method|Description|
+|---|---|
+|`Collect`|Collect all values in `Optional<T>`/`Result<T, TError>`, return None/Error if one of item is None/Error
+|`WhereHasValue`<br/>`WhereIsSuccess`<br/>`WhereIsFailure`| `this.Where(x => x.HasValue).Select(x => x.Value)`
+
+##### Functor
+
+Convert between `Nullable<T>` and built-in monads
+
+|Method|Description|
+|---|---|
+|`ToNullable`<br/>`ToResult`<br/>`ToOptional`|
+|`Transpose`|
+
+### Unit
+
+As we all know that `Optional<void>` is invalid in C#
+
+Some specialized overloads are provided for `Unit`
+
+## Union
+
+### Type Union Generator
+
+`TypeUnionAttribute` is provided to generate a non-boxing type union. `ref struct` supported.
+
+```
+[TypeUnion(typeof(ReadOnlySpan<char>), typeof(string), typeof(List<string>))
+partial struct MyUnion;
+```
+
+In the generated type, all reference types are overlapped, all unmanaged types are overlapped. Some methods are generated:
+
+|Method|Description
+|:--|:--
+|ctor|Constructor
+|implicit operateor| implicit operator cast from type to union
+|`TryAs<T>`|Try get specific type instance
+|`As<T>`   |Get specific type instance or default
+|`Is<T>`   |Check if the instance is specific type
+
+#### Options
+
+- `ShareInterface`
+    - `Disabled`
+    - `Enabled` If all types in a union implements a same interface, the result union type will also implement it
+    - `Explicit` While implementing a interface, all members are explicitly implementd

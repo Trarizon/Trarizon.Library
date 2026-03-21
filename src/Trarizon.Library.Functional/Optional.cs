@@ -86,6 +86,7 @@ public readonly partial struct Optional<T>
     public static Optional<T> operator |(Optional<T> left, Optional<T> right) => left.HasValue ? left : right;
 
     public Optional<TResult> Cast<TResult>() => HasValue ? new((TResult)(object)_value) : default;
+    public Optional<TResult> OfType<TResult>() => HasValue && _value is TResult r ? new(r) : default;
 
     public override string ToString() => HasValue ? _value.ToString() ?? "" : "";
 
