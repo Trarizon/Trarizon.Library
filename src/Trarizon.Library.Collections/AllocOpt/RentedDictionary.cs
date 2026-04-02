@@ -57,7 +57,12 @@ public struct RentedDictionary<TKey, TValue> : IDisposable where TKey : notnull
         }
     }
 
-    public void Set(TKey key, TValue value)
+    /// <summary>
+    /// Set property of using variable is not allowed, so this is a workaround
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="value"></param>
+    public void SetValue(TKey key, TValue value)
         => this[key] = value;
 
     public void Add(TKey key, TValue value)

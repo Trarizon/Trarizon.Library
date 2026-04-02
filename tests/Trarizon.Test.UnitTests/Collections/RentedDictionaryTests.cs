@@ -9,21 +9,19 @@ public class RentedDictionaryTests
     public void BasicAddAndRetrieve_ShouldWork()
     {
         // Arrange
-        var dict = new RentedDictionary<string, int>(10);
+        using var dict = new RentedDictionary<string, int>(10);
 
         // Act
         dict.Add("Apple", 1);
         dict.TryAdd("Banana", 2).Should().BeTrue();
-        dict.Set("Cherry", 3);
+        dict.SetValue("Cherry", 3);
 
         // Assert
         dict.Count.Should().Be(3);
         dict["Apple"].Should().Be(1);
         dict["Banana"].Should().Be(2);
         dict["Cherry"].Should().Be(3);
-
-        dict.Dispose();
-        }
+    }
 
     [Fact]
     public void DuplicateKey_Add_ShouldThrow()
