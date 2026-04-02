@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using Trarizon.Library.Algorithms;
 using Trarizon.Library.Collections;
+using Trarizon.Library.Collections.Comparers;
 
 namespace Trarizon.Test.UnitTests.Playground.Algorithms;
 

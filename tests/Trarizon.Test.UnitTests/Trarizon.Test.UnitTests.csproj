@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\playground\Trarizon.Library.Algorithms\Trarizon.Library.Algorithms.csproj" />
+    <ProjectReference Include="..\..\src\Trarizon.Library.Collections.Specialized\Trarizon.Library.Collections.Specialized.csproj" />
     <ProjectReference Include="..\..\src\Trarizon.Library.Collections\Trarizon.Library.Collections.csproj" />
     <ProjectReference Include="..\..\src\Trarizon.Library.Functional\Trarizon.Library.Functional.csproj" />
     <ProjectReference Include="..\..\src\Trarizon.Library.Linq\Trarizon.Library.Linq.csproj" />

@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using Trarizon.Library.Collections;
+using Trarizon.Library.Collections.Comparers;
 using Trarizon.Library.Linq;
 
 namespace Trarizon.Test.UnitTests.Linq;

@@ -5,8 +5,9 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace Trarizon.Library.Collections;
-public static partial class TraComparison
+namespace Trarizon.Library.Collections.Comparers;
+
+public static partial class TraComparers
 {
     public static ReversedComparer<T, IComparer<T>> Reverse<T>(this IComparer<T> comparer) => new(comparer);
 

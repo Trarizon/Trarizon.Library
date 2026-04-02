@@ -142,7 +142,7 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
             return;
         }
 
-        using AllocOptList<T> buffer = new();
+        using RentedList<T> buffer = new();
         foreach (var item in collection) {
             buffer.Add(item);
         }

@@ -38,7 +38,7 @@ public static class TraIndex
         return (start, end);
     }
 
-    public static void ValidateSliceArgs(int start, int sliceLength, int count)
+    internal static void ValidateSliceArgs(int start, int sliceLength, int count)
     {
         Throws.ThrowIfNegative(start);
         Throws.ThrowIfNegative(sliceLength);

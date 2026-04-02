@@ -4,9 +4,9 @@ using Trarizon.Library.Collections.Generic;
 namespace Trarizon.Library.Collections;
 public static class CollectionBuilders
 {
-    public static AllocOptList<T> CreateAllocOptList<T>(ReadOnlySpan<T> values)
+    public static RentedList<T> CreateAllocOptList<T>(ReadOnlySpan<T> values)
     {
-        var list = new AllocOptList<T>(values.Length);
+        var list = new RentedList<T>(values.Length);
         list.AddRange(values);
         return list;
     }

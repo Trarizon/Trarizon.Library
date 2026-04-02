@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Trarizon.Library.Collections.Helpers;
 
-namespace Trarizon.Library.Collections.Generic;
+namespace Trarizon.Library.Collections.Specialized;
 
 #if NET9_0_OR_GREATER
 

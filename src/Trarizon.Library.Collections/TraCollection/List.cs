@@ -1,27 +1,14 @@
 ﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
+using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections;
 public static partial class TraCollection
 {
-    // This may conflict to CommunityToolkit.HighPerformance, so we don't public it
-    // But we public a non-extension method for .NET Standard
-    /// <remarks>
-    /// As CollectionsMarshal doesnt exists on .NET Standard 2.0, this use a very tricky way
-    /// to get the underlying array. Actually I'm not sure if this works correctly in all runtime...
-    /// (at least it works on Unity
-    /// </remarks>
-    internal static Span<T> AsListSpan<T>(this List<T> list)
-    {
-#if NETSTANDARD
-        return AsSpan(list);
-#else
-        return CollectionsMarshal.AsSpan(list);
-#endif
-    }
+
 
     public static ref T AtRef<T>(this List<T> list, int index)
-        => ref list.AsListSpan()[index];
+        => ref list.AsSpan()[index];
 
     public static T[] GetUnderlyingArray<T>(List<T> list)
         => UnsafeAccess<T>.GetItems(list);
@@ -42,7 +29,7 @@ public static partial class TraCollection
 #if NET8_0_OR_GREATER
         var oldCount = list.Count;
         CollectionsMarshal.SetCount(list, oldCount + span.Length);
-        span.CopyTo(list.AsListSpan().Slice(oldCount, span.Length));
+        span.CopyTo(list.AsSpan().Slice(oldCount, span.Length));
 #else
         list.EnsureCapacity(list.Count + span.Length);
         foreach (var item in span) {
@@ -62,7 +49,7 @@ public static partial class TraCollection
 
     public static void MoveTo<T>(this List<T> list, int fromIndex, int toIndex)
     {
-        list.AsListSpan().MoveTo(fromIndex, toIndex);
+        list.AsSpan().MoveTo(fromIndex, toIndex);
         IncrementVersion(list);
     }
 
@@ -74,7 +61,7 @@ public static partial class TraCollection
 
     public static void MoveTo<T>(this List<T> list, int fromIndex, int toIndex, int moveCount)
     {
-        list.AsListSpan().MoveTo(fromIndex, toIndex, moveCount);
+        list.AsSpan().MoveTo(fromIndex, toIndex, moveCount);
         IncrementVersion(list);
     }
 
@@ -96,7 +83,7 @@ public static partial class TraCollection
 #elif NETSTANDARD
         // If list is empty, and count no change, normally there's no operation requires updating version
         Debug.Assert(list.Count > 0);
-        list[0] = MemoryMarshal.GetReference(list.AsListSpan());
+        list[0] = MemoryMarshal.GetReference(list.AsSpan());
 #else
         CollectionsMarshal.SetCount(list, list.Count);
 #endif

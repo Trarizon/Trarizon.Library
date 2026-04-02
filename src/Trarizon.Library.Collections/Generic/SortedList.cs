@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Diagnostics;
+using Trarizon.Library.Collections.Comparers;
 using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections.Generic;
@@ -81,14 +82,14 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
     public int BinarySearch(T item) => _array.AsSpan(0, _count).BinarySearch(item, _comparer);
 
     public int BinarySearch(Range priorRange, T item)
-        => TraSpan.BinarySearchRangePriority(AsSpan(), priorRange, new TraComparison.ComparerComparable<T, IComparer<T>>(item, _comparer));
+        => TraSpan.BinarySearchRangePriority(AsSpan(), priorRange, new ComparerComparable<T, IComparer<T>>(item, _comparer));
 
     public int LinearSearch(T item) => _array.AsSpan(0, _count).LinearSearch(item, _comparer);
 
     public int LinearSearchFromEnd(T item) => _array.AsSpan(0, _count).LinearSearchFromEnd(item, _comparer);
 
     public int LinearSearch(Index nearIndex, T item)
-        => TraSpan.LinearSearchFromNear(AsSpan(), nearIndex.GetOffset(_count), new TraComparison.ComparerComparable<T, IComparer<T>>(item, _comparer));
+        => TraSpan.LinearSearchFromNear(AsSpan(), nearIndex.GetOffset(_count), new ComparerComparable<T, IComparer<T>>(item, _comparer));
 
     public bool Contains(T item) => BinarySearch(item) >= 0;
 

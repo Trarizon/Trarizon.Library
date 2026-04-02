@@ -33,9 +33,11 @@ public static partial class TraCollection
         private class StackMarchalHelper
         {
 #nullable disable
+#pragma warning disable CS0649
             public T[] _array;
             public int _size;
             public int _version;
+#pragma warning restore CS0649
 #nullable restore
         }
 #endif

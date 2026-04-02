@@ -1,7 +1,6 @@
 ﻿using System.Buffers;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using Trarizon.Library.Collections.Buffers;
 using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections.AllocOpt;
@@ -10,17 +9,17 @@ namespace Trarizon.Library.Collections.AllocOpt;
 /// </summary>
 /// <typeparam name="T"></typeparam>
 [CollectionBuilder(typeof(CollectionBuilders), nameof(CollectionBuilders.CreateAllocOptList))]
-public struct AllocOptList<T> : IDisposable
+public struct RentedList<T> : IDisposable
 {
     private T[] _array;
     private int _count;
 
-    public AllocOptList()
+    public RentedList()
     {
         _array = [];
     }
 
-    public AllocOptList(int minInitialCapacity)
+    public RentedList(int minInitialCapacity)
     {
         Throws.ThrowIfNegative(minInitialCapacity);
 
@@ -40,16 +39,13 @@ public struct AllocOptList<T> : IDisposable
     {
         get {
             Throws.ThrowIfIndexGreaterThanOrEqual(index, _count);
-            return Utility.GetReferenceAt(_array, index);
+            return _array[index];
         }
         set {
             Throws.ThrowIfIndexGreaterThanOrEqual(index, _count);
-            Utility.GetReferenceAt(_array, index) = value;
+            _array[index] = value;
         }
     }
-
-    public readonly IArrayAllocator<T>.AutoReleaseScope<IArrayAllocatorExt.ArrayPoolAllocator<T>> GetUnderlyingArray()
-        => new(new(ArrayPool<T>.Shared), _array, RuntimeHelpers.IsReferenceOrContainsReferences<T>());
 
     public readonly Span<T> AsSpan() => _array.AsSpan(0, _count);
 
@@ -260,11 +256,11 @@ public struct AllocOptList<T> : IDisposable
 
     public struct Enumerator
     {
-        private readonly AllocOptList<T> _list;
+        private readonly RentedList<T> _list;
         private int _index;
         private T _current;
 
-        internal Enumerator(AllocOptList<T> list)
+        internal Enumerator(RentedList<T> list)
         {
             _list = list;
             _index = 0;

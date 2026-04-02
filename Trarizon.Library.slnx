@@ -13,6 +13,7 @@
   <Folder Name="/src/">
     <Project Path="src/Trarizon.Library.CodeAnalysis.SourceGeneration/Trarizon.Library.CodeAnalysis.SourceGeneration.csproj" Id="da8c0c3b-6451-4ae2-9560-1869b3f567df" />
     <Project Path="src/Trarizon.Library.CodeAnalysis/Trarizon.Library.CodeAnalysis.csproj" Id="65311f88-d657-41e5-8a47-aa6a9b945e5b" />
+    <Project Path="src/Trarizon.Library.Collections.Specialized/Trarizon.Library.Collections.Specialized.csproj" Id="d313b774-bcad-48e7-89a6-e8d736add8ee" />
     <Project Path="src/Trarizon.Library.Collections/Trarizon.Library.Collections.csproj" />
     <Project Path="src/Trarizon.Library.Functional.SourceGeneration/Trarizon.Library.Functional.SourceGeneration.csproj" Id="30cfa818-c34c-4ccc-bef6-979b6b9aaff5" />
     <Project Path="src/Trarizon.Library.Functional/Trarizon.Library.Functional.csproj" />

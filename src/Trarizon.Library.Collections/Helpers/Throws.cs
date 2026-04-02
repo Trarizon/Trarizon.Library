@@ -136,4 +136,8 @@ internal static partial class Throws
     [DoesNotReturn]
     public static void IncompatibleAlternateComparer()
         => ThrowInvalidOperation("Incompatible alternate comparer");
+
+    [DoesNotReturn]
+    public static void ConcurrentOperationOccured()
+        => ThrowInvalidOperation("Concurrent operation is not support.");
 }

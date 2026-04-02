@@ -1,16 +1,17 @@
-﻿using Trarizon.Library.Collections.Helpers;
+﻿using Trarizon.Library.Collections.Comparers;
+using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections;
 public static partial class TraSpan
 {
     public static int LinearSearch<T, TComparer>(this ReadOnlySpan<T> span, T item, TComparer comparer) where TComparer : IComparer<T>
-        => LinearSearch(span, new TraComparison.ComparerComparable<T, TComparer>(item, comparer));
+        => LinearSearch(span, new ComparerComparable<T, TComparer>(item, comparer));
 
     public static int LinearSearch<T, TComparable>(this ReadOnlySpan<T> span, TComparable item) where TComparable : IComparable<T>
         => TraAlgorithm.LinearSearch(span, item);
 
     public static int LinearSearchFromEnd<T, TComparer>(this ReadOnlySpan<T> span, T item, TComparer comparer) where TComparer : IComparer<T>
-        => LinearSearchFromEnd(span, new TraComparison.ComparerComparable<T, TComparer>(item, comparer));
+        => LinearSearchFromEnd(span, new ComparerComparable<T, TComparer>(item, comparer));
 
     public static int LinearSearchFromEnd<T, TComparable>(this ReadOnlySpan<T> span, TComparable item) where TComparable : IComparable<T>
         => TraAlgorithm.LinearSearchFromEnd(span, item);

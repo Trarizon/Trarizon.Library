@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Trarizon.Library.Collections.Generic;
+namespace Trarizon.Library.Collections.Specialized;
 
 #if NET9_0_OR_GREATER
 

@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections;
 public static partial class TraCollection
@@ -52,7 +53,7 @@ public static partial class TraCollection
             if (Unsafe.IsNullRef(ref find)) {
                 return false;
             }
-            var index = _list.AsListSpan().OffsetOf(in item);
+            var index = _list.AsSpan().OffsetOf(in item);
             _list.RemoveAt(index);
             return true;
         }
@@ -83,7 +84,7 @@ public static partial class TraCollection
 
         private ref T FindFirstRef(T item)
         {
-            foreach (ref var v in _list.AsListSpan()) {
+            foreach (ref var v in _list.AsSpan()) {
                 if (_comparer.Equals(v, item))
                     return ref v;
             }
