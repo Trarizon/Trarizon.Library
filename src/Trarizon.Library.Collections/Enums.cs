@@ -1,3 +1,3 @@
-﻿namespace Trarizon.Library.Collections.Generic;
+﻿namespace Trarizon.Library.Collections;
 
 internal enum DictionaryKeyExistingBehaviour{ None, Overwrite, Throw, }
