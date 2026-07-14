@@ -33,7 +33,10 @@ internal partial class SingletonGenerator : IIncrementalGenerator
                 ctx.ReportDiagnostic(diag.ToDiagnostic());
             }
             else {
-                ctx.AddSource(emitter.GeneratedFileName, emitter.Emit());
+                using var sw = new StringWriter();
+                using var writer = new IndentedTextWriter(sw);
+                emitter.Emit(writer);
+                ctx.AddSource(emitter.GeneratedFileName, sw.ToString());
             }
         });
     }
@@ -108,7 +111,6 @@ internal partial class SingletonGenerator : IIncrementalGenerator
         bool EmitPrivateCtor,
         SingletonAccessibility InstancePropertyAccessbility,
         bool RequiresNewKeyword)
-        : ISourceEmitter
     {
         private const string ProviderInstanceFieldIdentifier = "Instance";
 
