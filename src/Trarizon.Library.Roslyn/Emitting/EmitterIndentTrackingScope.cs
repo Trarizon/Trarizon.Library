@@ -23,9 +23,12 @@ public readonly struct EmitterIndentTrackingScope(IndentedTextWriter writer) : I
         _suffixes.Push(suffix);
     }
 
-    public EmitterIndentScope ToDeferDedents() => new EmitterIndentScope(writer, _suffixes);
-
-    public static implicit operator EmitterIndentScope(EmitterIndentTrackingScope scope) => scope.ToDeferDedents();
+    public EmitterIndentScope ToDeferDedentsAndClear()
+    {
+        var suffixes = _suffixes.ToArray();
+        _suffixes.Clear();
+        return new EmitterIndentScope(writer, suffixes);
+    }
 
     public readonly void Dispose()
     {

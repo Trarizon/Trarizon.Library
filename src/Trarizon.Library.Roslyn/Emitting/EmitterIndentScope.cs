@@ -9,7 +9,7 @@ public readonly struct EmitterIndentScope : IDisposable
     private readonly IndentedTextWriter _writer;
     private readonly object? _suffixes;
 
-    internal EmitterIndentScope(IndentedTextWriter writer, IEnumerable<string?> suffixes)
+    internal EmitterIndentScope(IndentedTextWriter writer, string?[] suffixes)
     {
         _writer = writer;
         _suffixes = suffixes;
@@ -43,7 +43,7 @@ public readonly struct EmitterIndentScope : IDisposable
             return;
         }
 
-        foreach (var suf in (IEnumerable<string?>)_suffixes) {
+        foreach (var suf in (string?[])_suffixes) {
             _writer.Indent--;
             if (suf is not null)
                 _writer.WriteLine(suf);

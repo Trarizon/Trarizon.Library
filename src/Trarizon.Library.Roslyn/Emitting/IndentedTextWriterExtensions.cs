@@ -14,7 +14,7 @@ public static class IndentedTextWriterExtensions
         }
     }
 
-    public static EmitterIndentScope EnterBracketIndentScope(this IndentedTextWriter writer, char leftBracket, bool dedentNewLine = true)
+    public static EmitterIndentScope EnterBracketIndentScope(this IndentedTextWriter writer, char leftBracket)
     {
         writer.WriteLine(leftBracket);
         writer.Indent++;

@@ -82,8 +82,10 @@ public static partial class CodeFactory
             constraints.AddRange(typeParameter.ConstraintTypes.Select(t => t.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)));
         if (typeParameter.HasConstructorConstraint)
             constraints.Add("new()");
+#if DOTNET_ROSLYN
         if (typeParameter.AllowsRefLikeType)
             constraints.Add("allows ref struct");
+#endif
         if (constraints.Count == 0)
             return null;
         return $"where {typeParameter.Name} : {string.Join(", ", constraints)}";
@@ -96,7 +98,9 @@ public static partial class CodeFactory
             RefKind.Ref => "ref",
             RefKind.Out => "out",
             RefKind.In => "in",
+#if DOTNET_ROSLYN
             RefKind.RefReadOnlyParameter => "ref readonly",
+#endif
             _ => "in",
         };
         return trailingWhitespace && res != "" ? $"{res} " : res;
@@ -111,7 +115,9 @@ public static partial class CodeFactory
             RefKind.Ref => "ref",
             RefKind.Out => "out",
             RefKind.In => "in",
+#if DOTNET_ROSLYN
             RefKind.RefReadOnlyParameter => "in",
+#endif
             _ => "",
         };
         return trailingWhitespace && res != "" ? $"{res} " : res;

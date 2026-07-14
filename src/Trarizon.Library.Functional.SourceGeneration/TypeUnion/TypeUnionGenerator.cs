@@ -141,7 +141,7 @@ internal sealed partial class TypeUnionGenerator : IIncrementalGenerator
             datas.Add(data);
         }
 
-        var shareInterface = attr.GetNamedArgument("ShareInterface").GetConstantValueOrDefault<ShareInterfaceOption>();
+        var shareInterface = attr.GetNamedArgument("ShareInterface").CastValueOrDefault<ShareInterfaceOption>();
         IEnumerable<ITypeSymbol>? sharedInterfaces = null;
         if (shareInterface is not ShareInterfaceOption.Disabled) {
             sharedInterfaces = variantTypes

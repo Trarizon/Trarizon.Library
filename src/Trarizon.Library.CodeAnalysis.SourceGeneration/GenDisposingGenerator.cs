@@ -63,7 +63,7 @@ internal sealed class GenDisposingGenerator : IIncrementalGenerator
                     symbol.ToFileNameString(),
                     TypeHierarchyInfo.Create(symbol, syntax),
                     symbol.IsRefLikeType,
-                    attr.GetNamedArgument("Explicitly").GetConstantValueOrDefault<bool>(),
+                    attr.GetNamedArgument("Explicitly").CastValueOrDefault<bool>(),
                     useDisposeHelperMethod,
                     disposableFields.ToSequenceEquatableImmutableArray()
                     );
