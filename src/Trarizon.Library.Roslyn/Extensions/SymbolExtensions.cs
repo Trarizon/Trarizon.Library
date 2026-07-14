@@ -1,8 +1,10 @@
 ﻿using Microsoft.CodeAnalysis;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Trarizon.Library.Roslyn.Extensions;
+
 public static partial class SymbolExtensions
 {
     #region Properties
@@ -38,6 +40,17 @@ public static partial class SymbolExtensions
 
     #region Attribute
 
+    public static ImmutableArray<AttributeData> GetAttributeDatas(this ISymbol symbol, INamedTypeSymbol attributeType)
+    {
+        var builder = ImmutableArray.CreateBuilder<AttributeData>();
+        foreach (var attr in symbol.GetAttributes()) {
+            if (SymbolEqualityComparer.Default.Equals(attr.AttributeClass, attributeType)) {
+                builder.Add(attr);
+            }
+        }
+        return builder.MoveToImmutable();
+    }
+
     public static bool TryGetAttributeData(this ISymbol symbol, INamedTypeSymbol attributeType, [MaybeNullWhen(false)] out AttributeData attributeData)
     {
         foreach (var attr in symbol.GetAttributes()) {
@@ -53,7 +66,18 @@ public static partial class SymbolExtensions
     public static bool HasAttribute(this ISymbol symbol, INamedTypeSymbol attributeType)
         => symbol.TryGetAttributeData(attributeType, out _);
 
-    public static bool TryGetAttributeDataWithFullyQualifiedMetadataName(this ISymbol symbol, string fullyQualifiedMetadataName, [MaybeNullWhen(false)] out AttributeData attributeData)
+    public static ImmutableArray<AttributeData> GetAttributeDatasByFullyQualifiedMetadataName(this ISymbol symbol, string fullyQualifiedMetadataName)
+    {
+        var builder = ImmutableArray.CreateBuilder<AttributeData>();
+        foreach (var attr in symbol.GetAttributes()) {
+            if (attr.AttributeClass?.MatchMetadataName(fullyQualifiedMetadataName) is true) {
+                builder.Add(attr);
+            }
+        }
+        return builder.MoveToImmutable();
+    }
+
+    public static bool TryGetAttributeDataByFullyQualifiedMetadataName(this ISymbol symbol, string fullyQualifiedMetadataName, [MaybeNullWhen(false)] out AttributeData attributeData)
     {
         foreach (var attr in symbol.GetAttributes()) {
             if (attr.AttributeClass?.MatchMetadataName(fullyQualifiedMetadataName) == true) {
@@ -64,8 +88,9 @@ public static partial class SymbolExtensions
         attributeData = null;
         return false;
     }
-    public static bool HasAttributeWithFullyQualifiedMetadataName(this ISymbol symbol, string fullyQualifiedMetadataName)
-        => symbol.TryGetAttributeDataWithFullyQualifiedMetadataName(fullyQualifiedMetadataName, out _);
+
+    public static bool HasAttributeByFullyQualifiedMetadataName(this ISymbol symbol, string fullyQualifiedMetadataName)
+        => symbol.TryGetAttributeDataByFullyQualifiedMetadataName(fullyQualifiedMetadataName, out _);
 
     #endregion
 
