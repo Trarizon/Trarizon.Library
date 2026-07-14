@@ -1,9 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
-using System;
-using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using Trarizon.Library.Linq;
 
 namespace Trarizon.Library.Roslyn.Extensions;
 public static partial class SymbolExtensions
@@ -56,10 +53,10 @@ public static partial class SymbolExtensions
     public static bool HasAttribute(this ISymbol symbol, INamedTypeSymbol attributeType)
         => symbol.TryGetAttributeData(attributeType, out _);
 
-    public static bool TryGetAttributeData(this ISymbol symbol, string attributeTypeFullName, [NotNullWhen(true)] out AttributeData? attributeData)
+    public static bool TryGetAttributeDataWithFullyQualifiedMetadataName(this ISymbol symbol, string fullyQualifiedMetadataName, [MaybeNullWhen(false)] out AttributeData attributeData)
     {
         foreach (var attr in symbol.GetAttributes()) {
-            if (attr.AttributeClass?.ToDisplayString() == attributeTypeFullName) {
+            if (attr.AttributeClass?.MatchMetadataName(fullyQualifiedMetadataName) == true) {
                 attributeData = attr;
                 return true;
             }
@@ -67,9 +64,8 @@ public static partial class SymbolExtensions
         attributeData = null;
         return false;
     }
-
-    public static bool HasAttribute(this ISymbol symbol, string attributeTypeFullName)
-        => symbol.TryGetAttributeData(attributeTypeFullName, out _);
+    public static bool HasAttributeWithFullyQualifiedMetadataName(this ISymbol symbol, string fullyQualifiedMetadataName)
+        => symbol.TryGetAttributeDataWithFullyQualifiedMetadataName(fullyQualifiedMetadataName, out _);
 
     #endregion
 
@@ -130,6 +126,60 @@ public static partial class SymbolExtensions
             return ((INamedTypeSymbol)type).TypeArguments[0];
 
         return type.WithNullableAnnotation(NullableAnnotation.NotAnnotated);
+    }
+
+    #endregion
+
+    #region Name
+
+    public static bool MatchMetadataName(this ITypeSymbol symbol, string fullyQualifiedMetadataName)
+        => MatchMetadataName(symbol, fullyQualifiedMetadataName.AsSpan());
+
+    public static bool MatchMetadataName(this ITypeSymbol symbol, ReadOnlySpan<char> fullyQualifiedMetadataName)
+    {
+        return Core(symbol, fullyQualifiedMetadataName);
+
+        static bool Core(ISymbol symbol, ReadOnlySpan<char> fullyQualifiedMetadataName)
+        {
+            string name;
+            switch (symbol) {
+                // Nested namespace
+                case INamedTypeSymbol { ContainingNamespace.IsGlobalNamespace: false }:
+                    name = symbol.MetadataName;
+                    return CompareWithPrefix(name, fullyQualifiedMetadataName, '.')
+                        && Core(symbol.ContainingNamespace, fullyQualifiedMetadataName[..^name.Length]);
+
+                // Top namespace
+                case INamespaceSymbol { IsGlobalNamespace: false }:
+                    name = symbol.MetadataName;
+                    return name.SequenceEqual(fullyQualifiedMetadataName);
+
+                // Top type
+                case ITypeSymbol { ContainingSymbol: INamespaceSymbol { IsGlobalNamespace: true } }:
+                    name = symbol.MetadataName;
+                    return name.SequenceEqual(fullyQualifiedMetadataName);
+
+                // Top type in namespace
+                case ITypeSymbol { ContainingType: null }:
+                    name = symbol.MetadataName;
+                    return CompareWithPrefix(name, fullyQualifiedMetadataName, '.')
+                        && Core(symbol.ContainingNamespace, fullyQualifiedMetadataName[..^name.Length]);
+
+                // Nested type
+                case ITypeSymbol { ContainingType: { } }:
+                    name = symbol.MetadataName;
+                    return CompareWithPrefix(name, fullyQualifiedMetadataName, '+')
+                        && Core(symbol.ContainingType, fullyQualifiedMetadataName[..^name.Length]);
+            }
+            Debug.Fail("Unknown symbol type");
+            return false;
+
+            static bool CompareWithPrefix(string metadataName, ReadOnlySpan<char> fullyQualifiedMetadataName, char prefix)
+                => fullyQualifiedMetadataName.Length > metadataName.Length
+                && fullyQualifiedMetadataName[^metadataName.Length] == prefix
+                && metadataName.SequenceEqual(fullyQualifiedMetadataName[^metadataName.Length..]);
+        }
+
     }
 
     #endregion

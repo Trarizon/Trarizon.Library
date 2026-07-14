@@ -39,7 +39,7 @@ public static class CSharpEmitExtensions
             defer.Writer.WriteLine($"{partialKeyword}{type.Keywords} {type.Name}");
 
         defer.WriteBracketAndIndent('{');
-        return defer;
+        return defer.ToDeferDedentsAndClear();
     }
 
     public static PreprocessorConditionalScope EmitCSharpPreprocessorConditional(this IndentedTextWriter writer, string ifCondition)
