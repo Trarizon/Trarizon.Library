@@ -20,22 +20,22 @@ public sealed record DiagnosticData
     public Diagnostic ToDiagnostic() => Diagnostic.Create(Descriptor, Location, ImmutableCollectionsMarshal.AsArray(MessageArgs.Array));
 
     public DiagnosticData(DiagnosticDescriptor descriptor, Location? location, params object?[]? messageArgs) :
-        this(descriptor, location?.ToPiplineEquatableLocation(), messageArgs?.ToSequenceEquatableImmutableArray() ?? new(ImmutableArray<object?>.Empty))
+        this(descriptor, location?.ToPipelineEquatableLocation(), messageArgs?.ToSequenceEquatableImmutableArray() ?? new(ImmutableArray<object?>.Empty))
     { }
 
     public DiagnosticData(DiagnosticDescriptor descriptor, in SyntaxNode? syntax, params object?[]? messageArgs) :
-        this(descriptor, syntax?.GetLocation()?.ToPiplineEquatableLocation(), messageArgs)
+        this(descriptor, syntax?.GetLocation()?.ToPipelineEquatableLocation(), messageArgs)
     { }
 
     public DiagnosticData(DiagnosticDescriptor descriptor, in SyntaxToken syntax, params object?[]? messageArgs) :
-        this(descriptor, syntax.GetLocation()?.ToPiplineEquatableLocation(), messageArgs)
+        this(descriptor, syntax.GetLocation()?.ToPipelineEquatableLocation(), messageArgs)
     { }
 
     public DiagnosticData(DiagnosticDescriptor descriptor, in SyntaxToken? syntax, params object?[]? messageArgs) :
-        this(descriptor, syntax?.GetLocation()?.ToPiplineEquatableLocation(), messageArgs)
+        this(descriptor, syntax?.GetLocation()?.ToPipelineEquatableLocation(), messageArgs)
     { }
 
     public DiagnosticData(DiagnosticDescriptor descriptor, in SyntaxReference? syntax, params object?[]? messageArgs) :
-        this(descriptor, syntax?.GetSyntax()?.GetLocation()?.ToPiplineEquatableLocation(), messageArgs)
+        this(descriptor, syntax?.GetSyntax()?.GetLocation()?.ToPipelineEquatableLocation(), messageArgs)
     { }
 }

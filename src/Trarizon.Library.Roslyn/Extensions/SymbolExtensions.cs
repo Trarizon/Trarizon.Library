@@ -101,7 +101,20 @@ public static partial class SymbolExtensions
         if (interfaceType.TypeKind is not TypeKind.Interface)
             return false;
 
-        return type.AllInterfaces.Contains(interfaceType, SymbolEqualityComparer.Default);
+        foreach (var it in type.AllInterfaces) {
+            if (SymbolEqualityComparer.Default.Equals(it, interfaceType))
+                return true;
+        }
+        return false;
+    }
+
+    public static bool IsImplementsByFullyQualifiedMetadataName(this ITypeSymbol type, string fullyQualifiedMetadataName)
+    {
+        foreach (var it in type.AllInterfaces) {
+            if (it.MatchMetadataName(fullyQualifiedMetadataName))
+                return true;
+        }
+        return false;
     }
 
     public static bool IsInherits(this ITypeSymbol type, ITypeSymbol baseType)
@@ -112,6 +125,17 @@ public static partial class SymbolExtensions
         var sym = type.BaseType;
         while (sym is not null) {
             if (SymbolEqualityComparer.Default.Equals(sym, baseType))
+                return true;
+            sym = sym.BaseType;
+        }
+        return false;
+    }
+
+    public static bool IsInheritsByFullyQualifiedMetadataName(this ITypeSymbol type, string fullyQualifiedMetadataName)
+    {
+        var sym = type.BaseType;
+        while (sym is not null) {
+            if (sym.MatchMetadataName(fullyQualifiedMetadataName) == true)
                 return true;
             sym = sym.BaseType;
         }
