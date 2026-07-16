@@ -48,7 +48,7 @@ public static partial class SymbolExtensions
                 builder.Add(attr);
             }
         }
-        return builder.MoveToImmutable();
+        return builder.ToImmutableArray();
     }
 
     public static bool TryGetAttributeData(this ISymbol symbol, INamedTypeSymbol attributeType, [MaybeNullWhen(false)] out AttributeData attributeData)
@@ -74,7 +74,7 @@ public static partial class SymbolExtensions
                 builder.Add(attr);
             }
         }
-        return builder.MoveToImmutable();
+        return builder.ToImmutableArray();
     }
 
     public static bool TryGetAttributeDataByFullyQualifiedMetadataName(this ISymbol symbol, string fullyQualifiedMetadataName, [MaybeNullWhen(false)] out AttributeData attributeData)

@@ -11,7 +11,7 @@
 
     <Import Project="..\..\Nuget.props" />
     <PropertyGroup>
-        <Version>0.0.1-alpha.4</Version>
+        <Version>0.0.1-alpha.5</Version>
         <!--<Description>Trarizon's personal library, for functional programming</Description>-->
     </PropertyGroup>
 
