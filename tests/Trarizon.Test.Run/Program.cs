@@ -9,6 +9,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Trarizon.Library.Functional;
+using Trarizon.Library.Functional.Attributes;
 using Trarizon.Library.Playground.Interpreting.TypeScript;
 
 new TypeScriptInterpreter().Execute(TypeScriptInterpreter.ts);
@@ -24,7 +25,11 @@ r.AsRef()
     .Select(x => Unit.Value)
     .Select(() => ReadOnlySpan<char>.Empty);
 
-
+[TypeUnion<int, string>]
+partial struct A
+{
+    
+}
 
 namespace LightVNTool
 {

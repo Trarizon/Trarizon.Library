@@ -11,7 +11,7 @@ internal static class Polyfills
 
 #endif
 
-#if NETSTANDARD2_1
+#if EXT_VALUE_TASK && NETSTANDARD2_1
 
     extension(ValueTask)
     {

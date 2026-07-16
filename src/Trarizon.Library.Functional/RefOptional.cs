@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Trarizon.Library.Functional;
 
-#if NET9_0_OR_GREATER
+#if REF_MONAD
 
 public static partial class RefOptional
 {

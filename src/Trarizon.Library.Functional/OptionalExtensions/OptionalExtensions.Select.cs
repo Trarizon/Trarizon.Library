@@ -7,7 +7,7 @@ public static partial class OptionalExtensions
     public static Optional<TResult> Select<T, TResult>(this Optional<T> self, Func<T, TResult> selector)
         => self.HasValue ? Optional.Of(selector(self.Value)) : Optional.None;
 
-#if NET9_0_OR_GREATER
+#if REF_MONAD
 
     [OverloadResolutionPriority(-1)]
     public static RefOptional<TResult> Select<T, TResult>(this Optional<T> self, RefFunc<T, TResult> selector)

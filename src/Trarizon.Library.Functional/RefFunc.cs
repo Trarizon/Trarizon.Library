@@ -1,6 +1,6 @@
 ﻿namespace Trarizon.Library.Functional;
 
-#if NET9_0_OR_GREATER
+#if REF_MONAD
 
 // These delegates are used to make compiler know which overload to use
 // We use Func<> if returned type is not ref struct, otherwise we use RefFunc<>

@@ -14,7 +14,7 @@ public static partial class OptionalExtensions
     public static Optional<T> Or<T>(this Optional<T> self, Func<Optional<T>> otherSelector)
         => self.HasValue ? self : otherSelector();
 
-#if NET9_0_OR_GREATER
+#if REF_MONAD
 
     public static RefOptional<T> Or<T>(Optional.NoneBuilder self, RefOptional<T> other)
         where T : allows ref struct

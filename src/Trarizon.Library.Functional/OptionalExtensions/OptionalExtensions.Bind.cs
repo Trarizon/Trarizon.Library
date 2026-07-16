@@ -8,7 +8,7 @@ public static partial class OptionalExtensions
     public static Optional<TResult> Bind<T, TResult>(this Optional<T> self, Func<T, Optional<TResult>> selector)
         => self.HasValue ? selector(self.Value) : Optional.None;
 
-#if NET9_0_OR_GREATER
+#if REF_MONAD
 
     public static RefOptional<TResult> Bind<T, TResult>(this Optional<T> self, Func<T, RefOptional<TResult>> selector)
         where TResult : allows ref struct
@@ -30,7 +30,7 @@ public static partial class OptionalExtensions
     public static Optional<TResult> SelectMany<T, TResult>(this Optional<T> self, Func<T, Optional<TResult>> selector)
         => self.Bind(selector);
 
-#if NET9_0_OR_GREATER
+#if REF_MONAD
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static RefOptional<TResult> SelectMany<T, TResult>(this Optional<T> self, Func<T, RefOptional<TResult>> selector)
@@ -54,7 +54,7 @@ public static partial class OptionalExtensions
     public static Optional<TResult> Bind<T, TMid, TResult>(this Optional<T> self, Func<T, Optional<TMid>> selector, Func<T, TMid, TResult> resultSelector)
         => self.HasValue && selector(self.Value) is { HasValue: true } mid ? Optional.Of(resultSelector(self.Value, mid.Value)) : Optional.None;
 
-#if NET9_0_OR_GREATER
+#if REF_MONAD
 
     [OverloadResolutionPriority(-1)]
     public static RefOptional<TResult> Bind<T, TMid, TResult>(this Optional<T> self, Func<T, Optional<TMid>> selector, RefFunc<T, TMid, TResult> resultSelector)
@@ -96,7 +96,7 @@ public static partial class OptionalExtensions
     public static Optional<TResult> SelectMany<T, TMid, TResult>(this Optional<T> self, Func<T, Optional<TMid>> selector, Func<T, TMid, TResult> resultSelector)
         => self.Bind(selector, resultSelector);
 
-#if NET9_0_OR_GREATER
+#if REF_MONAD
 
     [OverloadResolutionPriority(-1)]
     [EditorBrowsable(EditorBrowsableState.Never)]

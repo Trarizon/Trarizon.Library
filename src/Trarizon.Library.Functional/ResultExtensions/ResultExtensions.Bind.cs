@@ -13,7 +13,7 @@ public static partial class ResultExtensions
     public static Result<TResult, TError> Bind<TError, TResult>(this Result<Unit, TError> self, Func<Result<TResult, TError>> selector)
         => self.IsSuccess ? selector() : Result.Failure(self.Error);
 
-#if NET9_0_OR_GREATER
+#if REF_MONAD
 
     public static RefResult<TResult, TError> Bind<T, TError, TResult>(this Result.SuccessBuilder<T> self, Func<T, RefResult<TResult, TError>> selector)
         where TError : allows ref struct
@@ -53,7 +53,7 @@ public static partial class ResultExtensions
     public static Result<TResult, TError> SelectMany<TError, TResult>(this Result<Unit, TError> self, Func<Result<TResult, TError>> selector)
         => self.Bind(selector);
 
-#if NET9_0_OR_GREATER
+#if REF_MONAD
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static RefResult<TResult, TError> SelectMany<T, TError, TResult>(this Result<T, TError> self, Func<T, RefResult<TResult, TError>> selector)
@@ -82,7 +82,7 @@ public static partial class ResultExtensions
     public static Result<TResult, TError> Bind<T, TError, TMid, TResult>(this Result<T, TError> self, Func<T, Result<TMid, TError>> selector, Func<T, TMid, TResult> resultSelector)
         => self.IsSuccess && selector(self.Value) is { IsSuccess: true } mid ? Result.Success(resultSelector(self.Value, mid.Value)) : Result.Failure(self.Error);
 
-#if NET9_0_OR_GREATER
+#if REF_MONAD
 
     public static Result<TResult, TError> Bind<T, TError, TMid, TResult>(this RefResult<T, TError> self, Func<T, RefResult<TMid, TError>> selector, Func<T, TMid, TResult> resultSelector)
         => self.IsSuccess && selector(self.Value) is { IsSuccess: true } mid ? Result.Success(resultSelector(self.Value, mid.Value)) : Result.Failure(self.Error);
@@ -95,7 +95,7 @@ public static partial class ResultExtensions
     public static Result<TResult, TError> SelectMany<T, TError, TMid, TResult>(this Result<T, TError> self, Func<T, Result<TMid, TError>> selector, Func<T, TMid, TResult> resultSelector)
         => self.IsSuccess && selector(self.Value) is { IsSuccess: true } mid ? Result.Success(resultSelector(self.Value, mid.Value)) : Result.Failure(self.Error);
 
-#if NET9_0_OR_GREATER
+#if REF_MONAD
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static Result<TResult, TError> SelectMany<T, TError, TMid, TResult>(this RefResult<T, TError> self, Func<T, RefResult<TMid, TError>> selector, Func<T, TMid, TResult> resultSelector)
@@ -111,7 +111,7 @@ public static partial class ResultExtensions
     public static Result<T, TResultError> BindError<T, TError, TResultError>(this Result<T, TError> self, Func<TError, Result<T, TResultError>> selector)
         => self.IsFailure ? selector(self.Error) : Result.Success(self.Value);
 
-#if NET9_0_OR_GREATER
+#if REF_MONAD
 
     public static RefResult<TResult, TResultError> BindError<TError, TResult, TResultError>(this Result.FailureBuilder<TError> self, Func<TError, RefResult<TResult, TResultError>> selector)
         where TResult : allows ref struct

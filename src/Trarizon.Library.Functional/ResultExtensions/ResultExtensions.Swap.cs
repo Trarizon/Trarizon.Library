@@ -11,7 +11,7 @@ public static partial class ResultExtensions
     public static Result<TError, T> Swap<T, TError>(this Result<T, TError> self)
         => Result.Create(self.IsFailure, self.GetErrorOrDefault()!, self.GetValueOrDefault()!);
 
-#if NET9_0_OR_GREATER
+#if REF_MONAD
 
     public static RefResult.FailureBuilder<T> Swap<T>(this RefResult.SuccessBuilder<T> self)
         => RefResult.Failure(self.Value);

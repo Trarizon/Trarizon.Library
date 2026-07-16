@@ -2,8 +2,6 @@
 
 namespace Trarizon.Library.Functional;
 
-#if EXT_TASK
-
 public static class AsyncExtensions
 {
     public static Task<Optional<T>> Transpose<T>(this Optional<Task<T>> self)
@@ -38,7 +36,7 @@ public static class AsyncExtensions
         static async Task<Result<T, TError>> Continue(Task<T> task) => Result.Success<T, TError>(await task.ConfigureAwait(false));
     }
 
-#if !NETSTANDARD2_0
+#if EXT_VALUE_TASK
 
     public static ValueTask<Optional<T>> Transpose<T>(this Optional<ValueTask<T>> self)
     {
@@ -66,7 +64,7 @@ public static class AsyncExtensions
     public static OptionalTaskAwaiter<T> GetAwaiter<T>(this Optional<Task<T>> self)
         => self.HasValue ? new(self.Value.GetAwaiter()) : default;
 
-#if !NETSTANDARD2_0
+#if EXT_VALUE_TASK
 
     public static OptionalValueTaskAwaiter GetAwaiter(this Optional<ValueTask> self)
         => self.HasValue ? new(self.Value.GetAwaiter()) : default;
@@ -148,7 +146,7 @@ public static class AsyncExtensions
         }
     }
 
-#if !NETSTANDARD2_0
+#if EXT_VALUE_TASK
 
     public readonly struct OptionalValueTaskAwaiter : ICriticalNotifyCompletion
     {
@@ -224,5 +222,3 @@ public static class AsyncExtensions
 
 #endif
 }
-
-#endif

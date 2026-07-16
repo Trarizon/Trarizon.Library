@@ -1,7 +1,5 @@
 ﻿namespace Trarizon.Library.Functional;
 
-#if EXT_ENUMERABLE
-
 public static class EnumerableExtensions
 {
     /// <summary>
@@ -68,5 +66,3 @@ public static class EnumerableExtensions
     public static IEnumerable<TError> WhereIsFailure<T, TError>(this IEnumerable<Result<T, TError>> source)
         => source.Where(x => x.IsFailure).Select(x => x.Error!);
 }
-
-#endif

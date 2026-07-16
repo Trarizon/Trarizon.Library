@@ -26,7 +26,7 @@ public static partial class ResultExtensions
         if (self.IsFailure) selector(self.Error);
     }
 
-#if NET9_0_OR_GREATER
+#if REF_MONAD
 
     public static TResult Match<T, TError, TResult>(this RefResult<T, TError> self, Func<T, TResult> valueSelector, Func<TError, TResult> errorSelector)
         where TResult : allows ref struct

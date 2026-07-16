@@ -11,7 +11,7 @@ public static partial class OptionalExtensions
     public static Optional<T> OfNotNull<T>(this Optional<T?> value) where T : struct
         => value.HasValue && value.Value is { } v ? new(v) : default;
 
-#if NET9_0_OR_GREATER
+#if REF_MONAD
 
     public static RefOptional<T> Where<T>(this RefOptional<T> self, Func<T, bool> predicate)
         where T : allows ref struct

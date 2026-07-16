@@ -81,10 +81,6 @@ public readonly partial struct Optional<T>
     public static implicit operator Optional<T>(Optional.NoneBuilder _) => default;
     public static implicit operator Optional<T>(T value) => new(value);
 
-    public static bool operator true(Optional<T> optional) => optional.HasValue;
-    public static bool operator false(Optional<T> optional) => !optional.HasValue;
-    public static Optional<T> operator |(Optional<T> left, Optional<T> right) => left.HasValue ? left : right;
-
     public Optional<TResult> Cast<TResult>() => HasValue ? new((TResult)(object)_value) : default;
     public Optional<TResult> OfType<TResult>() => HasValue && _value is TResult r ? new(r) : default;
 

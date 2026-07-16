@@ -10,7 +10,7 @@ public static partial class OptionalExtensions
     public static Optional<(T, T2)> Zip<T, T2>(this Optional<T> self, Optional<T2> other)
         => self.HasValue && other.HasValue ? Optional.Of((self.Value, other.Value)) : Optional.None;
 
-#if NET9_0_OR_GREATER
+#if REF_MONAD
 
     [OverloadResolutionPriority(-1)]
     public static RefOptional<TResult> Zip<T, T2, TResult>(this Optional<T> self, Optional<T2> other, RefFunc<T, T2, TResult> selector)

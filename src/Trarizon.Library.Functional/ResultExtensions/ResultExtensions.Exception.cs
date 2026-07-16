@@ -11,7 +11,7 @@ public static partial class ResultExtensions
         return self.Value;
     }
 
-#if NET9_0_OR_GREATER
+#if REF_MONAD
 
     public static T GetValueOrThrowError<T, TException>(this in RefResult<T, TException> self)
         where T : allows ref struct where TException : Exception

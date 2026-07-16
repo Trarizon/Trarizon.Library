@@ -23,7 +23,7 @@ public static partial class ResultExtensions
         return self;
     }
 
-#if NET9_0_OR_GREATER
+#if REF_MONAD
 
     public static RefResult<T, TError> Tap<T, TError>(this RefResult<T, TError> self, Action<T> action)
         where T : allows ref struct where TError : allows ref struct

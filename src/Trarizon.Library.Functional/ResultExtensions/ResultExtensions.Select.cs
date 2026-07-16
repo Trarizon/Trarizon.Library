@@ -13,7 +13,7 @@ public static partial class ResultExtensions
     public static Result<TResult, TError> Select<TError, TResult>(this Result<Unit, TError> self, Func<TResult> selector)
         => self.IsSuccess ? Result.Success(selector()) : Result.Failure(self.Error);
 
-#if NET9_0_OR_GREATER
+#if REF_MONAD
 
     [OverloadResolutionPriority(-1)]
     public static RefResult.SuccessBuilder<TResult> Select<T, TResult>(this Result.SuccessBuilder<T> self, RefFunc<T, TResult> selector)
@@ -53,7 +53,7 @@ public static partial class ResultExtensions
     public static Result<T, TResultError> SelectError<T, TError, TResultError>(this Result<T, TError> self, Func<TError, TResultError> selector)
         => self.IsFailure ? Result.Failure(selector(self.Error)) : Result.Success(self.Value);
 
-#if NET9_0_OR_GREATER
+#if REF_MONAD
 
     [OverloadResolutionPriority(-1)]
     public static RefResult.FailureBuilder<TResultError> SelectError<TError, TResultError>(this Result.FailureBuilder<TError> self, RefFunc<TError, TResultError> selector)
@@ -81,7 +81,7 @@ public static partial class ResultExtensions
     public static Result<TResult, TResultError> Select<T, TError, TResult, TResultError>(this Result<T, TError> self, Func<T, TResult> valueSelector, Func<TError, TResultError> errorSelector)
         => self.IsSuccess ? Result.Success(valueSelector(self.Value)) : Result.Failure(errorSelector(self.Error));
 
-#if NET9_0_OR_GREATER
+#if REF_MONAD
 
     public static RefResult<TResult, TResultError> Select<T, TError, TResult, TResultError>(this RefResult<T, TError> self, Func<T, TResult> valueSelector, Func<TError, TResultError> errorSelector)
         where T : allows ref struct

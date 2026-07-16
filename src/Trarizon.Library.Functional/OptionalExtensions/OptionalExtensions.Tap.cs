@@ -9,7 +9,7 @@ public static partial class OptionalExtensions
         return self;
     }
 
-#if NET9_0_OR_GREATER
+#if REF_MONAD
 
     public static RefOptional<T> Tap<T>(this RefOptional<T> self, Action<T> action) where T : allows ref struct
     {

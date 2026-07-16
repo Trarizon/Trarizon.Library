@@ -26,7 +26,7 @@ public static partial class OptionalExtensions
         if (!self.HasValue) selector();
     }
 
-#if NET9_0_OR_GREATER
+#if REF_MONAD
 
     public static TResult Match<T, TResult>(this RefOptional<T> self, Func<T, TResult> selector, Func<TResult> noValueSelector)
         where T : allows ref struct where TResult : allows ref struct
