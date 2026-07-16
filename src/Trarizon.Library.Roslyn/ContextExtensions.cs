@@ -1,7 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 
-namespace Trarizon.Library.Roslyn.Extensions;
+namespace Trarizon.Library.Roslyn;
 public static partial class ContextExtensions
 {
     #region Diagnostics

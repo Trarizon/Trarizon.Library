@@ -1,11 +1,9 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Collections.Generic;
-using System.Linq;
 using Trarizon.Library.Functional;
 
-namespace Trarizon.Library.Roslyn.SourceInfos.CSharp;
+namespace Trarizon.Library.Roslyn.CSharp;
 
 public static partial class CodeFactory
 {
@@ -37,14 +35,12 @@ public static partial class CodeFactory
                 var name = symbol.Name;
                 var defaultValue = Optional.Create<object?>(symbol.HasExplicitDefaultValue, symbol.ExplicitDefaultValue);
                 return (modifiers, type, name, defaultValue);
-            })
-            .ToSequenceEquatableImmutableArray();
+            });
         var constraints = symbol.TypeParameters
             .Join(syntax.ConstraintClauses, sym => sym.Name, syn => syn.Name.Identifier.Text, static (symbol, syntax) =>
             {
                 return GetConstraintText(symbol);
-            })
-            .ToSequenceEquatableImmutableArray();
+            });
 
         // Get String
         var prms = parameters.Select(p =>

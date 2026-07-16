@@ -1,13 +1,14 @@
-﻿using Microsoft.CodeAnalysis;
+﻿#if !DOTNET_ROSLYN
+
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Trarizon.Library.Functional;
-using Trarizon.Library.Roslyn.Extensions;
+using Trarizon.Library.Roslyn;
 
-namespace Trarizon.Library.Roslyn.Polyfills;
+namespace Microsoft.CodeAnalysis;
 
 public static class SyntaxValueProviderExtensions
 {
-#if !DOTNET_ROSLYN
 
     public static IncrementalValuesProvider<T> ForAttributeWithMetadataName<T>(this SyntaxValueProvider provider,
         string fullyQualifiedMetadataName,
@@ -28,5 +29,6 @@ public static class SyntaxValueProviderExtensions
         }).Where(x => x.HasValue).Select((x, c) => x.Value);
     }
 
-#endif
 }
+
+#endif

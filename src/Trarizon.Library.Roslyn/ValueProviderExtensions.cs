@@ -2,7 +2,7 @@
 using System.Collections.Immutable;
 using Trarizon.Library.Roslyn.Collections.Comparisons;
 
-namespace Trarizon.Library.Roslyn.Extensions;
+namespace Trarizon.Library.Roslyn;
 
 public static class ValueProviderExtensions
 {

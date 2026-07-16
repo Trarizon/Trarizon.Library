@@ -11,10 +11,8 @@ using System.Xml.Schema;
 using Trarizon.Library.Linq;
 using Trarizon.Library.Roslyn;
 using Trarizon.Library.Roslyn.Emitting;
-using Trarizon.Library.Roslyn.Extensions;
-using Trarizon.Library.Roslyn.SourceInfos;
-using Trarizon.Library.Roslyn.SourceInfos.CSharp;
-using Trarizon.Library.Roslyn.SourceInfos.Emitting;
+using Trarizon.Library.Roslyn.Pipeline;
+using Trarizon.Library.Roslyn.CSharp;
 
 namespace Trarizon.Library.Functional.SourceGeneration.TypeUnion;
 
@@ -238,7 +236,7 @@ internal sealed partial class TypeUnionGenerator : IIncrementalGenerator
         });
 
         return new UnionData(
-            EmittingHelpers.ToFileNameString(typeSymbol.ToDisplayString()),
+            CodeHelpers.ToFileNameString(typeSymbol.ToDisplayString()),
             TypeHierarchyInfo.Create(typeSymbol, syntax),
             typeSymbol.Name,
             typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),

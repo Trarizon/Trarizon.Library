@@ -1,10 +1,8 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using Trarizon.Library.Linq;
 
-namespace Trarizon.Library.Roslyn.SourceInfos;
+namespace Trarizon.Library.Roslyn.Pipeline;
 /// <summary>
 /// Represents a type or namespace
 /// </summary>

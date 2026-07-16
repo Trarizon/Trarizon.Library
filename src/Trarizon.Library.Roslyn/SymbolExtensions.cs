@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Trarizon.Library.Roslyn.Extensions;
+namespace Trarizon.Library.Roslyn;
 
 public static partial class SymbolExtensions
 {

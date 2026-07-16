@@ -2,10 +2,11 @@
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using Trarizon.Library.Roslyn.Emitting;
+using Trarizon.Library.Roslyn.Pipeline;
 
-namespace Trarizon.Library.Roslyn.SourceInfos.Emitting;
+namespace Trarizon.Library.Roslyn.CSharp;
 
-public static class CSharpEmitExtensions
+public static class EmitExtensions
 {
     public static EmitterIndentScope EmitCSharpTypeHierarchy(this IndentedTextWriter writer, TypeHierarchyInfo? type, bool partial,
         Action<IndentedTextWriter, TypeHierarchyInfo>? customLeafTypeEmitter = null)

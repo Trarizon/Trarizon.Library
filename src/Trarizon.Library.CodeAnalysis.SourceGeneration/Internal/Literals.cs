@@ -1,5 +1,5 @@
 ﻿using System.Reflection;
-using Trarizon.Library.Roslyn.SourceInfos.CSharp;
+using Trarizon.Library.Roslyn.CSharp;
 
 namespace Trarizon.Library.CodeAnalysis.SourceGeneration.Internal;
 

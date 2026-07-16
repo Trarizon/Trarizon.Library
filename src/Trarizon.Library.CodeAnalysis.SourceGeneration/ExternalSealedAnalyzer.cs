@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
 using Trarizon.Library.CodeAnalysis.SourceGeneration.Internal;
 using Trarizon.Library.Collections;
-using Trarizon.Library.Roslyn.Extensions;
+using Trarizon.Library.Roslyn;
 
 namespace Trarizon.Library.CodeAnalysis.SourceGeneration;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]

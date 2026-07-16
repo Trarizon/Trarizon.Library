@@ -1,4 +1,4 @@
-﻿namespace Trarizon.Library.Roslyn.SourceInfos.CSharp;
+﻿namespace Trarizon.Library.Roslyn.CSharp;
 
 partial class CodeFactory
 {

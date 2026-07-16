@@ -2,8 +2,9 @@
 using System.Collections.Immutable;
 using System.Runtime.InteropServices;
 using Trarizon.Library.Roslyn.Collections;
+using Trarizon.Library.Roslyn.Pipeline;
 
-namespace Trarizon.Library.Roslyn.Diagnostics;
+namespace Trarizon.Library.Roslyn;
 public sealed record DiagnosticData
 {
     public DiagnosticDescriptor Descriptor { get; private init; }

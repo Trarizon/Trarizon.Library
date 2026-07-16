@@ -8,11 +8,11 @@ using System.Threading;
 using Trarizon.Library.CodeAnalysis.SourceGeneration.Internal;
 using Trarizon.Library.Collections;
 using Trarizon.Library.Functional;
-using Trarizon.Library.Roslyn.Diagnostics;
+using Trarizon.Library.Roslyn;
 using Trarizon.Library.Roslyn.Emitting;
-using Trarizon.Library.Roslyn.Extensions;
-using Trarizon.Library.Roslyn.SourceInfos;
-using Trarizon.Library.Roslyn.SourceInfos.Emitting;
+using Trarizon.Library.Roslyn;
+using Trarizon.Library.Roslyn.Pipeline;
+using Trarizon.Library.Roslyn.CSharp;
 
 namespace Trarizon.Library.CodeAnalysis.SourceGeneration;
 

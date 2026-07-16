@@ -1,7 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Trarizon.Library.Roslyn.Extensions;
+namespace Trarizon.Library.Roslyn;
 
 public static class CompilationExtensions
 {

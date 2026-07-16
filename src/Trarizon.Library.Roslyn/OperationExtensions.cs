@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
 using System.Collections.Generic;
 
-namespace Trarizon.Library.Roslyn.Extensions;
+namespace Trarizon.Library.Roslyn;
 public static class OperationExtensions
 {
     public static IEnumerable<IOperation> Ancestors(this IOperation operation, bool includeSelf = false)

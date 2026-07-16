@@ -5,7 +5,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Trarizon.Library.Collections;
 using Trarizon.Library.Functional;
-using Trarizon.Library.Roslyn.Extensions;
+using Trarizon.Library.Roslyn;
 using static Trarizon.Library.CodeAnalysis.SourceGeneration.SingletonGenerator;
 
 namespace Trarizon.Library.CodeAnalysis.SourceGeneration;

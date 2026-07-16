@@ -5,7 +5,7 @@ using Trarizon.Library.Functional;
 using AttributeData = Microsoft.CodeAnalysis.AttributeData;
 using TypedConstant = Microsoft.CodeAnalysis.TypedConstant;
 
-namespace Trarizon.Library.Roslyn.Extensions;
+namespace Trarizon.Library.Roslyn;
 
 public static class AttributeDataExtensions
 {

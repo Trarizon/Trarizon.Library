@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Trarizon.Library.Roslyn.SourceInfos.CSharp;
+namespace Trarizon.Library.Roslyn.CSharp;
 public static class CodeHelpers
 {
     public static bool IsValidIdentifier([NotNullWhen(true)] ReadOnlySpan<char> identifier, bool allowAtPrefix = false)
@@ -22,5 +22,26 @@ public static class CodeHelpers
         }
 
         return true;
+    }
+
+    /// <summary>
+    /// Change path-invalid chars in csharpMemberName
+    /// </summary>
+    public static string ToFileNameString(string csharpMemberName)
+    {
+        bool changed = false;
+        var builder = (stackalloc char[csharpMemberName.Length]);
+        csharpMemberName.AsSpan().CopyTo(builder);
+        foreach (ref var c in builder) {
+            if (c is '<') {
+                c = '{';
+                changed = true;
+            }
+            else if (c is '>') {
+                c = '}';
+                changed = true;
+            }
+        }
+        return changed ? builder.ToString() : csharpMemberName;
     }
 }

@@ -1,5 +1,5 @@
 ﻿using System.CodeDom.Compiler;
-using Trarizon.Library.Roslyn.SourceInfos.CSharp;
+using Trarizon.Library.Roslyn.CSharp;
 
 namespace Trarizon.Library.Functional.SourceGeneration;
 

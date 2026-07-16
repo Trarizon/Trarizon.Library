@@ -1,7 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 using Monads = Trarizon.Library.Functional;
 
-namespace Trarizon.Library.Roslyn.Extensions;
+namespace Trarizon.Library.Roslyn;
 public static class FunctionalExtensions
 {
     public static Monads.Optional<T> ToTraOptional<T>(this Optional<T> optional)

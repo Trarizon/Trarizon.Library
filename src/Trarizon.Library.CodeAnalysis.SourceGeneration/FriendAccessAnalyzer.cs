@@ -8,7 +8,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Trarizon.Library.Collections;
-using Trarizon.Library.Roslyn.Extensions;
+using Trarizon.Library.Roslyn;
 
 namespace Trarizon.Library.CodeAnalysis.SourceGeneration;
 

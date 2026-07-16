@@ -1,8 +1,8 @@
 ﻿using Microsoft.CodeAnalysis;
 using System.Diagnostics.CodeAnalysis;
 using Trarizon.Library.CodeAnalysis.SourceGeneration.Internal;
-using Trarizon.Library.Roslyn.Extensions;
-using Trarizon.Library.Roslyn.SourceInfos.CSharp;
+using Trarizon.Library.Roslyn;
+using Trarizon.Library.Roslyn.CSharp;
 
 namespace Trarizon.Library.CodeAnalysis.SourceGeneration;
 partial class SingletonGenerator

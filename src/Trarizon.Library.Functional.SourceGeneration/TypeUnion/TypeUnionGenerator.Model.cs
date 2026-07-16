@@ -2,7 +2,7 @@
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Collections.Immutable;
 using Trarizon.Library.Roslyn.Collections;
-using Trarizon.Library.Roslyn.SourceInfos;
+using Trarizon.Library.Roslyn.Pipeline;
 
 namespace Trarizon.Library.Functional.SourceGeneration.TypeUnion;
 
