@@ -94,7 +94,7 @@ public static partial class SymbolExtensions
 
     #endregion
 
-    #region Type
+    #region IsImplements
 
     public static bool IsImplements(this ITypeSymbol type, ITypeSymbol interfaceType)
     {
@@ -109,13 +109,23 @@ public static partial class SymbolExtensions
     }
 
     public static bool IsImplementsByFullyQualifiedMetadataName(this ITypeSymbol type, string fullyQualifiedMetadataName)
+        => type.IsImplementsByFullyQualifiedMetadataName(fullyQualifiedMetadataName, out _);
+
+    public static bool IsImplementsByFullyQualifiedMetadataName(this ITypeSymbol type, string fullyQualifiedMetadataName, [MaybeNullWhen(false)] out INamedTypeSymbol implementedInterfaceType)
     {
         foreach (var it in type.AllInterfaces) {
-            if (it.MatchMetadataName(fullyQualifiedMetadataName))
+            if (it.MatchMetadataName(fullyQualifiedMetadataName)) {
+                implementedInterfaceType = it;
                 return true;
+            }
         }
+        implementedInterfaceType = null;
         return false;
     }
+
+    #endregion
+
+    #region IsInherits
 
     public static bool IsInherits(this ITypeSymbol type, ITypeSymbol baseType)
     {
@@ -132,13 +142,19 @@ public static partial class SymbolExtensions
     }
 
     public static bool IsInheritsByFullyQualifiedMetadataName(this ITypeSymbol type, string fullyQualifiedMetadataName)
+        => type.IsInheritsByFullyQualifiedMetadataName(fullyQualifiedMetadataName, out _);
+
+    public static bool IsInheritsByFullyQualifiedMetadataName(this ITypeSymbol type, string fullyQualifiedMetadataName, [MaybeNullWhen(false)] out INamedTypeSymbol baseTypeSymbol)
     {
         var sym = type.BaseType;
         while (sym is not null) {
-            if (sym.MatchMetadataName(fullyQualifiedMetadataName) == true)
+            if (sym.MatchMetadataName(fullyQualifiedMetadataName)) {
+                baseTypeSymbol = sym;
                 return true;
+            }
             sym = sym.BaseType;
         }
+        baseTypeSymbol = null;
         return false;
     }
 
@@ -164,6 +180,8 @@ public static partial class SymbolExtensions
         return false;
     }
 
+    #endregion 
+
     public static ITypeSymbol RemoveNullableAnnotation(this ITypeSymbol type)
     {
         if (type.NullableAnnotation is not NullableAnnotation.Annotated)
@@ -177,9 +195,7 @@ public static partial class SymbolExtensions
         return type.WithNullableAnnotation(NullableAnnotation.NotAnnotated);
     }
 
-    #endregion
-
-    #region Name
+    #region MetadataName
 
     public static bool MatchMetadataName(this ITypeSymbol symbol, string fullyQualifiedMetadataName)
         => MatchMetadataName(symbol, fullyQualifiedMetadataName.AsSpan());

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Runtime.InteropServices;
 
-namespace Trarizon.Library.Roslyn.Collections;
+namespace Trarizon.Library.Roslyn.Pipeline.Collections;
 
 public readonly struct SequenceEquatableImmutableArray<T>(ImmutableArray<T> array)
     : IEquatable<SequenceEquatableImmutableArray<T>>

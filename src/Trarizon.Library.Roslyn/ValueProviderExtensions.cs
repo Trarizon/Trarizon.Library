@@ -1,6 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using System.Collections.Immutable;
-using Trarizon.Library.Roslyn.Collections.Comparisons;
+using Trarizon.Library.Roslyn.Pipeline.Collections;
 
 namespace Trarizon.Library.Roslyn;
 

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
-namespace Trarizon.Library.Roslyn.Collections.Comparisons;
+namespace Trarizon.Library.Roslyn.Pipeline.Collections;
 public sealed class ImmutableArraySequenceEqualityComparer<T> : IEqualityComparer<ImmutableArray<T>>
 {
     private ImmutableArraySequenceEqualityComparer() { }

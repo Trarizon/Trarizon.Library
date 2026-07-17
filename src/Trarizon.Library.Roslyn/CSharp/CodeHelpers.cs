@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace Trarizon.Library.Roslyn.CSharp;
 public static class CodeHelpers
 {
-    public static bool IsValidIdentifier([NotNullWhen(true)] ReadOnlySpan<char> identifier, bool allowAtPrefix = false)
+    public static bool IsValidIdentifier(ReadOnlySpan<char> identifier, bool allowAtPrefix = false)
     {
         if (identifier.IsEmpty)
             return false;

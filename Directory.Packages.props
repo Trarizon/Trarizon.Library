@@ -14,7 +14,7 @@
     <PackageVersion Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.2" />
     <PackageVersion Include="System.Text.Json" Version="9.0.9" />
     <PackageVersion Include="System.Threading.Tasks.Extensions" Version="4.6.3" />
-    <PackageVersion Include="Trarizon.Library.Functional" Version="1.0.3" PrivateAssets="all" GeneratePathProperty="true" />
+    <PackageVersion Include="Trarizon.Library.Functional" Version="1.0.4" PrivateAssets="all" GeneratePathProperty="true" />
     <PackageVersion Include="Trarizon.Library.Collections" Version="1.0.1" PrivateAssets="all" GeneratePathProperty="true" />
     <PackageVersion Include="Trarizon.Library.Linq" Version="1.0.2" PrivateAssets="all" GeneratePathProperty="true" />
   </ItemGroup>

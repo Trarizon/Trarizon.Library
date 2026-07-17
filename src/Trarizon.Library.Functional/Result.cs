@@ -73,7 +73,7 @@ public static partial class Result
 }
 
 /// <summary>
-/// Monad Result, Note that if TError is struct, the error value will be boxed, some boxes will be cached
+/// Monad Result
 /// </summary>
 public readonly partial struct Result<T, TError>
     : ITaggedUnion

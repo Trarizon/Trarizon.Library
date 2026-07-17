@@ -1,8 +1,8 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Collections.Immutable;
-using Trarizon.Library.Roslyn.Collections;
 using Trarizon.Library.Roslyn.Pipeline;
+using Trarizon.Library.Roslyn.Pipeline.Collections;
 
 namespace Trarizon.Library.Functional.SourceGeneration.TypeUnion;
 

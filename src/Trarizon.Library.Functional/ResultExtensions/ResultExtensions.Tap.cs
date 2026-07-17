@@ -9,12 +9,16 @@ public static partial class ResultExtensions
         return self;
     }
 
+#if REF_MONAD && UNIT
+
     public static Result<Unit, TError> Tap<TError>(this Result<Unit, TError> self, Action action)
     {
         if (self.IsSuccess)
             action();
         return self;
     }
+
+#endif
 
     public static Result<T, TError> TapError<T, TError>(this Result<T, TError> self, Action<TError> action)
     {
@@ -33,19 +37,23 @@ public static partial class ResultExtensions
         return self;
     }
 
-    public static RefResult<Unit, TError> Tap<TError>(this RefResult<Unit, TError> self, Action action)
-        where TError : allows ref struct
-    {
-        if (self.IsSuccess)
-            action();
-        return self;
-    }
-
     public static RefResult<T, TError> TapError<T, TError>(this RefResult<T, TError> self, Action<TError> action)
         where T : allows ref struct where TError : allows ref struct
     {
         if (self.IsFailure)
             action(self.Error);
+        return self;
+    }
+
+#endif
+
+#if REF_MONAD && UNIT
+
+    public static RefResult<Unit, TError> Tap<TError>(this RefResult<Unit, TError> self, Action action)
+        where TError : allows ref struct
+    {
+        if (self.IsSuccess)
+            action();
         return self;
     }
 

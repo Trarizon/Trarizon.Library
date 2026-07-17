@@ -8,8 +8,7 @@ namespace Trarizon.Library.Roslyn.CSharp;
 
 public static class EmitExtensions
 {
-    public static EmitterIndentScope EmitCSharpTypeHierarchy(this IndentedTextWriter writer, TypeHierarchyInfo? type, bool partial,
-        Action<IndentedTextWriter, TypeHierarchyInfo>? customLeafTypeEmitter = null)
+    public static EmitterIndentScope EmitCSharpTypeHierarchy(this IndentedTextWriter writer, TypeHierarchyInfo? type, bool partial)
     {
         if (type is null)
             return default;
@@ -24,8 +23,7 @@ public static class EmitExtensions
 
         if (type.Namespace is not null) {
             defer.Writer.WriteLine($"namespace {type.Namespace}");
-            defer.Writer.WriteLine("{");
-            defer.Indent("}");
+            defer.WriteBracketAndIndent('{');
         }
 
         string partialKeyword = partial ? "partial " : string.Empty;
@@ -33,11 +31,6 @@ public static class EmitExtensions
             defer.Writer.WriteLine($"{partialKeyword}{t.Keywords} {t.Name}");
             defer.WriteBracketAndIndent('{');
         }
-
-        if(customLeafTypeEmitter is not null)
-            customLeafTypeEmitter(defer.Writer, type);
-        else
-            defer.Writer.WriteLine($"{partialKeyword}{type.Keywords} {type.Name}");
 
         defer.WriteBracketAndIndent('{');
         return defer.ToDeferDedentsAndClear();

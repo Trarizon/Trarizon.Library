@@ -2,11 +2,11 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <DefineConstants>$(DefineConstants);DOTNET_ROSLYN</DefineConstants>
+        <DefineConstants>$(DefineConstants);LATEST_ROSLYN</DefineConstants>
     </PropertyGroup>
 
-    <PropertyGroup Condition="!$(DefineConstants.Contains(DOTNET_ROSLYN))">
-        <AssemblyName>Trarizon.Library.Roslyn.Unity</AssemblyName>
+    <PropertyGroup Condition="!$(DefineConstants.Contains(LATEST_ROSLYN))">
+        <AssemblyName>Trarizon.Library.Roslyn410</AssemblyName>
     </PropertyGroup>
 
     <Import Project="..\..\Nuget.props" />
@@ -17,10 +17,10 @@
 
     <!-- References -->
 
-    <ItemGroup Condition="$(DefineConstants.Contains(DOTNET_ROSLYN))">
+    <ItemGroup Condition="$(DefineConstants.Contains(LATEST_ROSLYN))">
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
     </ItemGroup>
-    <ItemGroup Condition="!$(DefineConstants.Contains(DOTNET_ROSLYN))">
+    <ItemGroup Condition="!$(DefineConstants.Contains(LATEST_ROSLYN))">
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" VersionOverride="4.1.0" />
     </ItemGroup>
 

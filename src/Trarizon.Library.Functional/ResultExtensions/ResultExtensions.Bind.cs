@@ -10,8 +10,12 @@ public static partial class ResultExtensions
     public static Result<TResult, TError> Bind<T, TError, TResult>(this Result<T, TError> self, Func<T, Result<TResult, TError>> selector)
         => self.IsSuccess ? selector(self.Value) : Result.Failure(self.Error);
 
+#if UNIT
+
     public static Result<TResult, TError> Bind<TError, TResult>(this Result<Unit, TError> self, Func<Result<TResult, TError>> selector)
         => self.IsSuccess ? selector() : Result.Failure(self.Error);
+
+#endif
 
 #if REF_MONAD
 
@@ -29,13 +33,17 @@ public static partial class ResultExtensions
         where TResult : allows ref struct
         => self.IsSuccess ? selector(self.Value) : new(self.Error);
 
-    public static RefResult<TResult, TError> Bind<TError, TResult>(this Result<Unit, TError> self, Func<RefResult<TResult, TError>> selector)
-        where TResult : allows ref struct
-        => self.IsSuccess ? selector() : new(self.Error);
-
     public static RefResult<TResult, TError> Bind<T, TError, TResult>(this RefResult<T, TError> self, Func<T, RefResult<TResult, TError>> selector)
         where TResult : allows ref struct
         => self.IsSuccess ? selector(self.Value) : new(self.Error);
+
+#endif
+
+#if REF_MONAD && UNIT
+
+    public static RefResult<TResult, TError> Bind<TError, TResult>(this Result<Unit, TError> self, Func<RefResult<TResult, TError>> selector)
+        where TResult : allows ref struct
+        => self.IsSuccess ? selector() : new(self.Error);
 
     public static RefResult<TResult, TError> Bind<TError, TResult>(this RefResult<Unit, TError> self, Func<RefResult<TResult, TError>> selector)
         where TResult : allows ref struct
@@ -49,9 +57,13 @@ public static partial class ResultExtensions
     public static Result<TResult, TError> SelectMany<T, TError, TResult>(this Result<T, TError> self, Func<T, Result<TResult, TError>> selector)
         => self.Bind(selector);
 
+#if UNIT
+
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static Result<TResult, TError> SelectMany<TError, TResult>(this Result<Unit, TError> self, Func<Result<TResult, TError>> selector)
         => self.Bind(selector);
+
+#endif
 
 #if REF_MONAD
 
@@ -61,12 +73,16 @@ public static partial class ResultExtensions
         => self.Bind(selector);
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static RefResult<TResult, TError> SelectMany<TError, TResult>(this Result<Unit, TError> self, Func<RefResult<TResult, TError>> selector)
+    public static RefResult<TResult, TError> SelectMany<T, TError, TResult>(this RefResult<T, TError> self, Func<T, RefResult<TResult, TError>> selector)
         where TResult : allows ref struct
         => self.Bind(selector);
 
+#endif
+
+#if REF_MONAD && UNIT
+
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static RefResult<TResult, TError> SelectMany<T, TError, TResult>(this RefResult<T, TError> self, Func<T, RefResult<TResult, TError>> selector)
+    public static RefResult<TResult, TError> SelectMany<TError, TResult>(this Result<Unit, TError> self, Func<RefResult<TResult, TError>> selector)
         where TResult : allows ref struct
         => self.Bind(selector);
 

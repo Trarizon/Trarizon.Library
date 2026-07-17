@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Trarizon.Library.Roslyn.Collections;
+namespace Trarizon.Library.Roslyn.Pipeline.Collections;
 public readonly struct SequenceEquatableCollection<TCollection, T>(TCollection collection)
     : IEquatable<SequenceEquatableCollection<TCollection, T>>
     , IEnumerable<T>

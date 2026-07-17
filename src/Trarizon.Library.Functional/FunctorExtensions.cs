@@ -14,8 +14,14 @@ public static class FunctorExtensions
     public static Optional<T> ToOptional<T, TError>(this in Result<T, TError> result)
         => result.IsSuccess ? Optional.Of(result._value) : Optional.None;
 
+    public static Optional<T> ToOptional<T>(this in Result.SuccessBuilder<T> result)
+        => Optional.Of(result.Value);
+
     public static Optional<TError> ToOptionalError<T, TError>(this in Result<T, TError> result)
         => result.IsFailure ? Optional.Of(result.Error) : Optional.None;
+
+    public static Optional<TError> ToOptionalError<TError>(this in Result.FailureBuilder<TError> result)
+        => Optional.Of(result.Error);
 
     public static Result<Optional<T>, TError> Transpose<T, TError>(this in Optional<Result<T, TError>> optional)
     {

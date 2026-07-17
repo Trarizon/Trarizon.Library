@@ -7,11 +7,18 @@ namespace Trarizon.Library.Roslyn.CSharp;
 
 public static partial class CodeFactory
 {
+    public static string Literal(object value) => value switch
+    {
+        string s => Literal(s),
+        bool b => Literal(b),
+        _ => value.ToString(),
+    };
+
     public static string Literal(string value) => $"\"{value}\"";
     public static string LiteralUtf8(string value) => $"\"{value}\"u8";
     public static string Literal(bool value) => value ? "true" : "false";
 
-    public static string GetMethodDefinationText(IMethodSymbol symbol, MethodDeclarationSyntax syntax, bool ensurePartialModifier = false)
+    public static string GetMethodDefinitionText(IMethodSymbol symbol, MethodDeclarationSyntax syntax, bool ensurePartialModifier = false)
     {
         var syntaxModifiers = syntax.Modifiers;
         if (ensurePartialModifier) {
@@ -47,7 +54,7 @@ public static partial class CodeFactory
         {
             var (modifiers, type, name, defaultValue) = p;
             var mod = string.IsNullOrEmpty(modifiers) ? null : $"{modifiers} ";
-            var def = defaultValue.HasValue ? $" = {defaultValue.Value}" : null;
+            var def = defaultValue.Select(x => $" = {(x is null ? "default" : Literal(x))}").GetValueOrDefault();
             return $"{mod}{type} {name}{def}";
         });
         var intf = explicitInterface is not null ? $"{explicitInterface}." : null;
@@ -59,6 +66,7 @@ public static partial class CodeFactory
             ]);
     }
 
+    /// <returns><c>where T : class</c></returns>
     public static string? GetConstraintText(ITypeParameterSymbol typeParameter)
     {
         List<string> constraints = [];
@@ -78,7 +86,7 @@ public static partial class CodeFactory
             constraints.AddRange(typeParameter.ConstraintTypes.Select(t => t.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)));
         if (typeParameter.HasConstructorConstraint)
             constraints.Add("new()");
-#if DOTNET_ROSLYN
+#if LATEST_ROSLYN
         if (typeParameter.AllowsRefLikeType)
             constraints.Add("allows ref struct");
 #endif
@@ -94,7 +102,7 @@ public static partial class CodeFactory
             RefKind.Ref => "ref",
             RefKind.Out => "out",
             RefKind.In => "in",
-#if DOTNET_ROSLYN
+#if LATEST_ROSLYN
             RefKind.RefReadOnlyParameter => "ref readonly",
 #endif
             _ => "in",
@@ -111,7 +119,7 @@ public static partial class CodeFactory
             RefKind.Ref => "ref",
             RefKind.Out => "out",
             RefKind.In => "in",
-#if DOTNET_ROSLYN
+#if LATEST_ROSLYN
             RefKind.RefReadOnlyParameter => "in",
 #endif
             _ => "",

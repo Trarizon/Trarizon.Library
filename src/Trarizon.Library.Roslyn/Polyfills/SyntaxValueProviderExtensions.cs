@@ -1,4 +1,4 @@
-﻿#if !DOTNET_ROSLYN
+﻿#if !LATEST_ROSLYN
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;

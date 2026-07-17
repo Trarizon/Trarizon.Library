@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
+using System.Runtime.InteropServices;
 using Trarizon.Library.Functional;
 using AttributeData = Microsoft.CodeAnalysis.AttributeData;
 using TypedConstant = Microsoft.CodeAnalysis.TypedConstant;
@@ -55,6 +55,11 @@ public static class AttributeDataExtensions
         var arr = constant.Values;
         if (arr is [])
             return [];
-        return [.. arr.Select(CastValue<T>)];
+
+        var values = new T[arr.Length];
+        for (int i = 0; i < arr.Length; i++) {
+            values[i] = arr[i].CastValue<T>();
+        }
+        return ImmutableCollectionsMarshal.AsImmutableArray(values);
     }
 }
