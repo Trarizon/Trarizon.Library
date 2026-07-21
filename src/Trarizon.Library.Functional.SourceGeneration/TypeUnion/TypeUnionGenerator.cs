@@ -59,7 +59,8 @@ internal sealed partial class TypeUnionGenerator : IIncrementalGenerator
         });
 
         // Generic ver.
-        for (int i = 2; i < 3; i++) {
+        for (int i = 2; i < 3; i++)
+        {
             var sourceg = context.SyntaxProvider.ForAttributeWithMetadataName(
                 $"{AttributeTypeName}`{i}",
                 (node, token) => node is StructDeclarationSyntax,
@@ -102,19 +103,23 @@ internal sealed partial class TypeUnionGenerator : IIncrementalGenerator
         int managedIdx = 0;
         var managedMap = new Dictionary<ITypeSymbol, int>(SymbolEqualityComparer.Default);
 
-        foreach (var (typeIndex, type) in variantTypes.Index()) {
+        foreach (var (typeIndex, type) in variantTypes.Index())
+        {
             var id = typeIndex + 1;
             var fqname = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
             VariantData data;
-            if (type.IsReferenceType) {
+            if (type.IsReferenceType)
+            {
                 data = new VariantData(id, fqname, VariantTypeKind.Reference)
                 {
                     IsInterface = type.TypeKind is TypeKind.Interface
                 };
             }
-            else if (type.IsUnmanagedType) {
-                if (!unmanagedMap.TryGetValue(type, out var idx)) {
+            else if (type.IsUnmanagedType)
+            {
+                if (!unmanagedMap.TryGetValue(type, out var idx))
+                {
                     idx = unmanagedIdx++;
                     unmanagedMap.Add(type, idx);
                 }
@@ -124,8 +129,10 @@ internal sealed partial class TypeUnionGenerator : IIncrementalGenerator
                     IsRefLikeType = type.IsRefLikeType
                 };
             }
-            else {
-                if (!managedMap.TryGetValue(type, out var idx)) {
+            else
+            {
+                if (!managedMap.TryGetValue(type, out var idx))
+                {
                     idx = managedIdx++;
                     managedMap.Add(type, idx);
                 }
@@ -141,7 +148,8 @@ internal sealed partial class TypeUnionGenerator : IIncrementalGenerator
 
         var shareInterface = attr.GetNamedArgument("ShareInterface").CastValueOrDefault<ShareInterfaceOption>();
         IEnumerable<ITypeSymbol>? sharedInterfaces = null;
-        if (shareInterface is not ShareInterfaceOption.Disabled) {
+        if (shareInterface is not ShareInterfaceOption.Disabled)
+        {
             sharedInterfaces = variantTypes
                 .Select(x => x.AllInterfaces.AsEnumerable().Prepend(x)!)
                 .Aggregate((l, r) => l.Intersect(r, (IEqualityComparer<ITypeSymbol>)SymbolEqualityComparer.Default));
@@ -161,8 +169,10 @@ internal sealed partial class TypeUnionGenerator : IIncrementalGenerator
                 })
                 .Select(x =>
                 {
-                    if (x is IPropertySymbol prop) {
-                        if (prop.IsIndexer) {
+                    if (x is IPropertySymbol prop)
+                    {
+                        if (prop.IsIndexer)
+                        {
                             return new InterfaceMemberInfo(
                                 InterfaceMemberKind.Indexer,
                                 prop.IsStatic,
@@ -175,7 +185,8 @@ internal sealed partial class TypeUnionGenerator : IIncrementalGenerator
                                 ReturnRefKind = prop.ReturnsByRefReadonly ? RefKind.RefReadOnly : prop.ReturnsByRef ? RefKind.Ref : RefKind.None,
                             };
                         }
-                        else {
+                        else
+                        {
                             return new InterfaceMemberInfo(
                                 InterfaceMemberKind.Property,
                                 prop.IsStatic,
@@ -188,7 +199,8 @@ internal sealed partial class TypeUnionGenerator : IIncrementalGenerator
                             };
                         }
                     }
-                    if (x is IEventSymbol ev) {
+                    if (x is IEventSymbol ev)
+                    {
                         return new InterfaceMemberInfo(
                             InterfaceMemberKind.Event,
                             ev.IsStatic,
@@ -199,7 +211,8 @@ internal sealed partial class TypeUnionGenerator : IIncrementalGenerator
                             HasSetOrRemoveAccessor = ev.RemoveMethod is not null
                         };
                     }
-                    if (x is IMethodSymbol m) {
+                    if (x is IMethodSymbol m)
+                    {
                         return new InterfaceMemberInfo(
                             InterfaceMemberKind.Method,
                             m.IsStatic,
@@ -254,35 +267,40 @@ internal sealed partial class TypeUnionGenerator : IIncrementalGenerator
             writer.EmitTopTrivias(true, true);
             writer.WriteLine(CodeFactory.PragmaWarningTrivia(false, "CS8618"));
 
-            using (writer.EmitCSharpTypeHierarchy(data.TypeHierarchy, partial: true,
-                (writer, info) =>
+            using (writer.EmitCSharpTypeHierarchy(data.TypeHierarchy.Parent, partial: true))
+            {
+                writer.WriteLine(Codes.GeneratedCodeAttributeList);
+                writer.WriteLine($"{refLike}partial {data.TypeHierarchy.Keywords} {data.TypeHierarchy.Name}");
+                if (data.Interfaces.Any())
                 {
-                    writer.WriteLine(Codes.GeneratedCodeAttributeList);
-                    writer.WriteLine($"{refLike}partial {info.Keywords} {info.Name}");
-                    if (data.Interfaces.Any()) {
-                        writer.WriteLine($"    : {string.Join(", ", data.Interfaces.Select(x => x.FullQualifiedTypeName))}");
-                    }
-                })) {
-                EmitFields();
-                writer.WriteLine();
-                EmitConstructors();
-                writer.WriteLine();
-                EmitImplicitCastOperators();
-                writer.WriteLine();
-                EmitIsNullProperty();
-                writer.WriteLine();
-                EmitTryAsMethod();
-                writer.WriteLine();
-                EmitAsMethod();
-                writer.WriteLine();
-                EmitIsMethod();
-                if (data.Interfaces.Any()) {
-                    writer.WriteLine();
-                    EmitSharedInterfaceMethods();
+                    writer.WriteLine($"    : {string.Join(", ", data.Interfaces.Select(x => x.FullQualifiedTypeName))}");
                 }
-                if (data.Variants.Any(x => x.TypeKind is VariantTypeKind.Unmanaged)) {
+                
+                using (writer.EnterBracketIndentScope('{'))
+                {
+                    EmitFields();
                     writer.WriteLine();
-                    EmitUnmanagedUnionStruct();
+                    EmitConstructors();
+                    writer.WriteLine();
+                    EmitImplicitCastOperators();
+                    writer.WriteLine();
+                    EmitIsNullProperty();
+                    writer.WriteLine();
+                    EmitTryAsMethod();
+                    writer.WriteLine();
+                    EmitAsMethod();
+                    writer.WriteLine();
+                    EmitIsMethod();
+                    if (data.Interfaces.Any())
+                    {
+                        writer.WriteLine();
+                        EmitSharedInterfaceMethods();
+                    }
+                    if (data.Variants.Any(x => x.TypeKind is VariantTypeKind.Unmanaged))
+                    {
+                        writer.WriteLine();
+                        EmitUnmanagedUnionStruct();
+                    }
                 }
             }
         }
@@ -291,20 +309,24 @@ internal sealed partial class TypeUnionGenerator : IIncrementalGenerator
         {
             writer.WriteLine($"private readonly int __flag;");
             bool hasReference = data.Variants.Any(x => x.TypeKind is VariantTypeKind.Reference);
-            if (hasReference) {
+            if (hasReference)
+            {
                 writer.WriteLine($"private readonly object __obj;");
             }
-            foreach (var type in data.Variants.Where(x => x.TypeKind is VariantTypeKind.Managed)) {
+            foreach (var type in data.Variants.Where(x => x.TypeKind is VariantTypeKind.Managed))
+            {
                 writer.WriteLine($"private readonly {type.FullyQualifiedTypeName} __managed{type.FieldId};");
             }
-            if (data.Variants.Any(x => x.TypeKind is VariantTypeKind.Unmanaged)) {
+            if (data.Variants.Any(x => x.TypeKind is VariantTypeKind.Unmanaged))
+            {
                 writer.WriteLine($"private readonly __UnmanagedUnionStruct __unmanageds;");
             }
         }
 
         private void EmitConstructors()
         {
-            foreach (var variant in data.Variants.JoinWriteEmptyLine(writer)) {
+            foreach (var variant in data.Variants.JoinWriteEmptyLine(writer))
+            {
                 writer.WriteLine(Codes.GeneratedCodeAttributeList);
                 writer.WriteMultipleLines($$"""
                     public {{data.TypeName}}({{variant.FullyQualifiedTypeName}} value)
@@ -318,7 +340,8 @@ internal sealed partial class TypeUnionGenerator : IIncrementalGenerator
 
         private void EmitImplicitCastOperators()
         {
-            foreach (var variant in data.Variants.JoinWriteEmptyLine(writer)) {
+            foreach (var variant in data.Variants.JoinWriteEmptyLine(writer))
+            {
                 if (variant.IsInterface)
                     continue;
 
@@ -345,8 +368,10 @@ internal sealed partial class TypeUnionGenerator : IIncrementalGenerator
             writer.WriteLine(Codes.GeneratedCodeAttributeList);
 
             writer.WriteLine($"public bool TryAs<T>({maybeNull}out T value)");
-            using (writer.EnterBracketIndentScope('{')) {
-                foreach (var variant in data.Variants) {
+            using (writer.EnterBracketIndentScope('{'))
+            {
+                foreach (var variant in data.Variants)
+                {
                     writer.WriteMultipleLines($$"""
                         if (typeof(T) == typeof({{variant.FullyQualifiedTypeName}}))
                         {
@@ -367,8 +392,10 @@ internal sealed partial class TypeUnionGenerator : IIncrementalGenerator
         {
             writer.WriteLine(Codes.GeneratedCodeAttributeList);
             writer.WriteLine($"public T? As<T>()");
-            using (writer.EnterBracketIndentScope('{')) {
-                foreach (var variant in data.Variants) {
+            using (writer.EnterBracketIndentScope('{'))
+            {
+                foreach (var variant in data.Variants)
+                {
                     writer.WriteMultipleLines($$"""
                         if (typeof(T) == typeof({{variant.FullyQualifiedTypeName}}))
                         {
@@ -385,8 +412,10 @@ internal sealed partial class TypeUnionGenerator : IIncrementalGenerator
         {
             writer.WriteLine(Codes.GeneratedCodeAttributeList);
             writer.WriteLine($"public bool Is<T>()");
-            using (writer.EnterBracketIndentScope('{')) {
-                foreach (var variant in data.Variants) {
+            using (writer.EnterBracketIndentScope('{'))
+            {
+                foreach (var variant in data.Variants)
+                {
                     writer.WriteLine($"if (typeof(T) == typeof({variant.FullyQualifiedTypeName}))");
                     writer.WriteLine($"    return this.__flag == {variant.Id};");
                 }
@@ -396,132 +425,169 @@ internal sealed partial class TypeUnionGenerator : IIncrementalGenerator
 
         private void EmitSharedInterfaceMethods()
         {
-            foreach (var intf in data.Interfaces.JoinWriteEmptyLine(writer)) {
-                foreach (var m in intf.Methods.JoinWriteEmptyLine(writer)) {
+            foreach (var intf in data.Interfaces.JoinWriteEmptyLine(writer))
+            {
+                foreach (var m in intf.Methods.JoinWriteEmptyLine(writer))
+                {
                     writer.WriteLine(Codes.GeneratedCodeAttributeList);
-                    switch (m.Kind) {
-                        case InterfaceMemberKind.Property: {
-                            writer.WriteLine(data.ShareInterface is ShareInterfaceOption.Explicit
-                                ? $"{Optional.Create(m.IsStatic, "static ")}{m.ReturnTypeWithModifiers} {intf.FullQualifiedTypeName}.{m.Name}"
-                                : $"public {Optional.Create(m.IsStatic, "static ")}{m.ReturnTypeWithModifiers} {m.Name}");
-                            using (writer.EnterBracketIndentScope('{')) {
-                                if (m.HasGetOrAddAccessor) {
-                                    writer.WriteLine("get");
-                                    using (writer.EnterBracketIndentScope('{')) {
-                                        foreach (var variant in data.Variants) {
-                                            writer.WriteLine($"if (this.__flag == {variant.Id})");
-                                            writer.WriteLine($"    return {CodeFactory.GetReturnRefKeywords(m.ReturnRefKind, true)}{VariantToInterfaceExpr(variant, intf.FullQualifiedTypeName)}.{m.Name};");
+                    switch (m.Kind)
+                    {
+                        case InterfaceMemberKind.Property:
+                            {
+                                writer.WriteLine(data.ShareInterface is ShareInterfaceOption.Explicit
+                                    ? $"{Optional.Create(m.IsStatic, "static ")}{m.ReturnTypeWithModifiers} {intf.FullQualifiedTypeName}.{m.Name}"
+                                    : $"public {Optional.Create(m.IsStatic, "static ")}{m.ReturnTypeWithModifiers} {m.Name}");
+                                using (writer.EnterBracketIndentScope('{'))
+                                {
+                                    if (m.HasGetOrAddAccessor)
+                                    {
+                                        writer.WriteLine("get");
+                                        using (writer.EnterBracketIndentScope('{'))
+                                        {
+                                            foreach (var variant in data.Variants)
+                                            {
+                                                writer.WriteLine($"if (this.__flag == {variant.Id})");
+                                                writer.WriteLine($"    return {CodeFactory.GetReturnRefKeywords(m.ReturnRefKind, true)}{VariantToInterfaceExpr(variant, intf.FullQualifiedTypeName)}.{m.Name};");
+                                            }
+                                            writer.WriteLine($"return {CodeFactory.GetReturnRefKeywords(m.ReturnRefKind, true)}(({intf.FullQualifiedTypeName})null!).{m.Name};");
                                         }
-                                        writer.WriteLine($"return {CodeFactory.GetReturnRefKeywords(m.ReturnRefKind, true)}(({intf.FullQualifiedTypeName})null!).{m.Name};");
+                                    }
+                                    if (m.HasSetOrRemoveAccessor)
+                                    {
+                                        writer.WriteLine("set");
+                                        using (writer.EnterBracketIndentScope('{'))
+                                        {
+                                            foreach (var variant in data.Variants)
+                                            {
+                                                writer.WriteLine($"if (this.__flag == {variant.Id})");
+                                                writer.WriteLine($"    {VariantToInterfaceExpr(variant, intf.FullQualifiedTypeName)}.{m.Name} = value;");
+                                            }
+                                            writer.WriteLine($"(({intf.FullQualifiedTypeName})null!).{m.Name} = value;");
+                                        }
                                     }
                                 }
-                                if (m.HasSetOrRemoveAccessor) {
-                                    writer.WriteLine("set");
-                                    using (writer.EnterBracketIndentScope('{')) {
-                                        foreach (var variant in data.Variants) {
-                                            writer.WriteLine($"if (this.__flag == {variant.Id})");
-                                            writer.WriteLine($"    {VariantToInterfaceExpr(variant, intf.FullQualifiedTypeName)}.{m.Name} = value;");
-                                        }
-                                        writer.WriteLine($"(({intf.FullQualifiedTypeName})null!).{m.Name} = value;");
-                                    }
-                                }
+                                break;
                             }
-                            break;
-                        }
-                        case InterfaceMemberKind.Indexer: {
-                            var parameters = string.Join(", ", m.Parameters.Select(x => $"{x.FullyQualifiedTypeNameWithModifiers} {x.Name}"));
-                            var arguments = string.Join(", ", m.Parameters.Select(x => $"{CodeFactory.GetArgumentRefKeywords(x.RefKind, true)}{x.Name}"));
-                            writer.WriteLine(data.ShareInterface is ShareInterfaceOption.Explicit
-                                ? $"{Optional.Create(m.IsStatic, "static ")}{m.ReturnTypeWithModifiers} {intf.FullQualifiedTypeName}.{m.Name}[{parameters}]"
-                                : $"public {Optional.Create(m.IsStatic, "static ")}{m.ReturnTypeWithModifiers} {m.Name}{parameters}");
-                            using (writer.EnterBracketIndentScope('{')) {
-                                if (m.HasGetOrAddAccessor) {
-                                    writer.WriteLine("get");
-                                    using (writer.EnterBracketIndentScope('{')) {
-                                        foreach (var variant in data.Variants) {
-                                            writer.WriteLine($"if (this.__flag == {variant.Id})");
-                                            writer.WriteLine($"    return {CodeFactory.GetReturnRefKeywords(m.ReturnRefKind, true)}{VariantToInterfaceExpr(variant, intf.FullQualifiedTypeName)}.{m.Name}[{arguments}];");
+                        case InterfaceMemberKind.Indexer:
+                            {
+                                var parameters = string.Join(", ", m.Parameters.Select(x => $"{x.FullyQualifiedTypeNameWithModifiers} {x.Name}"));
+                                var arguments = string.Join(", ", m.Parameters.Select(x => $"{CodeFactory.GetArgumentRefKeywords(x.RefKind, true)}{x.Name}"));
+                                writer.WriteLine(data.ShareInterface is ShareInterfaceOption.Explicit
+                                    ? $"{Optional.Create(m.IsStatic, "static ")}{m.ReturnTypeWithModifiers} {intf.FullQualifiedTypeName}.{m.Name}[{parameters}]"
+                                    : $"public {Optional.Create(m.IsStatic, "static ")}{m.ReturnTypeWithModifiers} {m.Name}{parameters}");
+                                using (writer.EnterBracketIndentScope('{'))
+                                {
+                                    if (m.HasGetOrAddAccessor)
+                                    {
+                                        writer.WriteLine("get");
+                                        using (writer.EnterBracketIndentScope('{'))
+                                        {
+                                            foreach (var variant in data.Variants)
+                                            {
+                                                writer.WriteLine($"if (this.__flag == {variant.Id})");
+                                                writer.WriteLine($"    return {CodeFactory.GetReturnRefKeywords(m.ReturnRefKind, true)}{VariantToInterfaceExpr(variant, intf.FullQualifiedTypeName)}.{m.Name}[{arguments}];");
+                                            }
+                                            writer.WriteLine($"return {CodeFactory.GetReturnRefKeywords(m.ReturnRefKind, true)}(({intf.FullQualifiedTypeName})null!).{m.Name}[{arguments}];");
                                         }
-                                        writer.WriteLine($"return {CodeFactory.GetReturnRefKeywords(m.ReturnRefKind, true)}(({intf.FullQualifiedTypeName})null!).{m.Name}[{arguments}];");
+                                    }
+                                    if (m.HasSetOrRemoveAccessor)
+                                    {
+                                        writer.WriteLine("set");
+                                        using (writer.EnterBracketIndentScope('{'))
+                                        {
+                                            foreach (var variant in data.Variants)
+                                            {
+                                                writer.WriteLine($"if (this.__flag == {variant.Id})");
+                                                writer.WriteLine($"    {VariantToInterfaceExpr(variant, intf.FullQualifiedTypeName)}.{m.Name}[{arguments}] = value;");
+                                            }
+                                            writer.WriteLine($"(({intf.FullQualifiedTypeName})null!).{m.Name}[{arguments}] = value;");
+                                        }
                                     }
                                 }
-                                if (m.HasSetOrRemoveAccessor) {
-                                    writer.WriteLine("set");
-                                    using (writer.EnterBracketIndentScope('{')) {
-                                        foreach (var variant in data.Variants) {
-                                            writer.WriteLine($"if (this.__flag == {variant.Id})");
-                                            writer.WriteLine($"    {VariantToInterfaceExpr(variant, intf.FullQualifiedTypeName)}.{m.Name}[{arguments}] = value;");
-                                        }
-                                        writer.WriteLine($"(({intf.FullQualifiedTypeName})null!).{m.Name}[{arguments}] = value;");
-                                    }
-                                }
+                                break;
                             }
-                            break;
-                        }
-                        case InterfaceMemberKind.Event: {
-                            writer.WriteLine(data.ShareInterface is ShareInterfaceOption.Explicit
-                                ? $"{Optional.Create(m.IsStatic, "static ")}event {m.ReturnTypeWithModifiers} {intf.FullQualifiedTypeName}.{m.Name}"
-                                : $"public {Optional.Create(m.IsStatic, "static ")}event {m.ReturnTypeWithModifiers} {m.Name}");
-                            using (writer.EnterBracketIndentScope('{')) {
-                                if (m.HasGetOrAddAccessor) {
-                                    writer.WriteLine("add");
-                                    using (writer.EnterBracketIndentScope('{')) {
-                                        foreach (var variant in data.Variants) {
-                                            writer.WriteLine($"if (this.__flag == {variant.Id})");
-                                            using (writer.EnterBracketIndentScope('{')) {
-                                                writer.WriteLine($"{VariantToInterfaceExpr(variant, intf.FullQualifiedTypeName)}.{m.Name} += value;");
+                        case InterfaceMemberKind.Event:
+                            {
+                                writer.WriteLine(data.ShareInterface is ShareInterfaceOption.Explicit
+                                    ? $"{Optional.Create(m.IsStatic, "static ")}event {m.ReturnTypeWithModifiers} {intf.FullQualifiedTypeName}.{m.Name}"
+                                    : $"public {Optional.Create(m.IsStatic, "static ")}event {m.ReturnTypeWithModifiers} {m.Name}");
+                                using (writer.EnterBracketIndentScope('{'))
+                                {
+                                    if (m.HasGetOrAddAccessor)
+                                    {
+                                        writer.WriteLine("add");
+                                        using (writer.EnterBracketIndentScope('{'))
+                                        {
+                                            foreach (var variant in data.Variants)
+                                            {
+                                                writer.WriteLine($"if (this.__flag == {variant.Id})");
+                                                using (writer.EnterBracketIndentScope('{'))
+                                                {
+                                                    writer.WriteLine($"{VariantToInterfaceExpr(variant, intf.FullQualifiedTypeName)}.{m.Name} += value;");
+                                                    writer.WriteLine($"return;");
+                                                }
+                                            }
+                                            writer.WriteLine($"(({intf.FullQualifiedTypeName})null!).{m.Name} += value;");
+                                        }
+                                    }
+                                    if (m.HasSetOrRemoveAccessor)
+                                    {
+                                        writer.WriteLine("remove");
+                                        using (writer.EnterBracketIndentScope('{'))
+                                        {
+                                            foreach (var variant in data.Variants)
+                                            {
+                                                writer.WriteLine($"if (this.__flag == {variant.Id})");
+                                                using (writer.EnterBracketIndentScope('{'))
+                                                {
+                                                    writer.WriteLine($"{VariantToInterfaceExpr(variant, intf.FullQualifiedTypeName)}.{m.Name} -= value;");
+                                                    writer.WriteLine($"return;");
+                                                }
+                                            }
+                                            writer.WriteLine($"(({intf.FullQualifiedTypeName})null!).{m.Name} -= value;");
+                                        }
+                                    }
+                                }
+                                break;
+                            }
+                        case InterfaceMemberKind.Method:
+                            {
+                                var parameters = string.Join(", ", m.Parameters.Select(x => $"{x.FullyQualifiedTypeNameWithModifiers} {x.Name}"));
+                                var arguments = string.Join(", ", m.Parameters.Select(x => $"{CodeFactory.GetArgumentRefKeywords(x.RefKind, true)}{x.Name}"));
+                                writer.WriteLine(data.ShareInterface is ShareInterfaceOption.Explicit
+                                    ? $"{Optional.Create(m.IsStatic, "static ")}{m.ReturnTypeWithModifiers} {intf.FullQualifiedTypeName}.{m.Name}({parameters}) {m.Constraints}"
+                                    : $"public {Optional.Create(m.IsStatic, "static ")}{m.ReturnTypeWithModifiers} {m.Name}({parameters}) {m.Constraints}");
+                                using (writer.EnterBracketIndentScope('{'))
+                                {
+                                    foreach (var variant in data.Variants)
+                                    {
+                                        writer.WriteLine($"if (this.__flag == {variant.Id})");
+                                        using (writer.EnterBracketIndentScope('{'))
+                                        {
+                                            if (m.ReturnsVoid)
+                                            {
+                                                writer.WriteLine($"{VariantToInterfaceExpr(variant, intf.FullQualifiedTypeName)}.{m.Name}({arguments});");
                                                 writer.WriteLine($"return;");
                                             }
-                                        }
-                                        writer.WriteLine($"(({intf.FullQualifiedTypeName})null!).{m.Name} += value;");
-                                    }
-                                }
-                                if (m.HasSetOrRemoveAccessor) {
-                                    writer.WriteLine("remove");
-                                    using (writer.EnterBracketIndentScope('{')) {
-                                        foreach (var variant in data.Variants) {
-                                            writer.WriteLine($"if (this.__flag == {variant.Id})");
-                                            using (writer.EnterBracketIndentScope('{')) {
-                                                writer.WriteLine($"{VariantToInterfaceExpr(variant, intf.FullQualifiedTypeName)}.{m.Name} -= value;");
-                                                writer.WriteLine($"return;");
+                                            else
+                                            {
+                                                writer.WriteLine($"return {CodeFactory.GetReturnRefKeywords(m.ReturnRefKind, true)}{VariantToInterfaceExpr(variant, intf.FullQualifiedTypeName)}.{m.Name}({arguments});");
                                             }
                                         }
-                                        writer.WriteLine($"(({intf.FullQualifiedTypeName})null!).{m.Name} -= value;");
+                                    }
+                                    if (m.ReturnsVoid)
+                                    {
+                                        writer.WriteLine($"(({intf.FullQualifiedTypeName})null!).{m.Name}({arguments});");
+                                        writer.WriteLine($"return;");
+                                    }
+                                    else
+                                    {
+                                        writer.WriteLine($"return {CodeFactory.GetReturnRefKeywords(m.ReturnRefKind, true)}(({intf.FullQualifiedTypeName})null!).{m.Name}({arguments});");
                                     }
                                 }
-                            }
-                            break;
-                        }
-                        case InterfaceMemberKind.Method: {
-                            var parameters = string.Join(", ", m.Parameters.Select(x => $"{x.FullyQualifiedTypeNameWithModifiers} {x.Name}"));
-                            var arguments = string.Join(", ", m.Parameters.Select(x => $"{CodeFactory.GetArgumentRefKeywords(x.RefKind, true)}{x.Name}"));
-                            writer.WriteLine(data.ShareInterface is ShareInterfaceOption.Explicit
-                                ? $"{Optional.Create(m.IsStatic, "static ")}{m.ReturnTypeWithModifiers} {intf.FullQualifiedTypeName}.{m.Name}({parameters}) {m.Constraints}"
-                                : $"public {Optional.Create(m.IsStatic, "static ")}{m.ReturnTypeWithModifiers} {m.Name}({parameters}) {m.Constraints}");
-                            using (writer.EnterBracketIndentScope('{')) {
-                                foreach (var variant in data.Variants) {
-                                    writer.WriteLine($"if (this.__flag == {variant.Id})");
-                                    using (writer.EnterBracketIndentScope('{')) {
-                                        if (m.ReturnsVoid) {
-                                            writer.WriteLine($"{VariantToInterfaceExpr(variant, intf.FullQualifiedTypeName)}.{m.Name}({arguments});");
-                                            writer.WriteLine($"return;");
-                                        }
-                                        else {
-                                            writer.WriteLine($"return {CodeFactory.GetReturnRefKeywords(m.ReturnRefKind, true)}{VariantToInterfaceExpr(variant, intf.FullQualifiedTypeName)}.{m.Name}({arguments});");
-                                        }
-                                    }
-                                }
-                                if (m.ReturnsVoid) {
-                                    writer.WriteLine($"(({intf.FullQualifiedTypeName})null!).{m.Name}({arguments});");
-                                    writer.WriteLine($"return;");
-                                }
-                                else {
-                                    writer.WriteLine($"return {CodeFactory.GetReturnRefKeywords(m.ReturnRefKind, true)}(({intf.FullQualifiedTypeName})null!).{m.Name}({arguments});");
-                                }
-                            }
 
-                            break;
-                        }
+                                break;
+                            }
                         default:
                             break;
                     }
@@ -534,8 +600,10 @@ internal sealed partial class TypeUnionGenerator : IIncrementalGenerator
             writer.WriteLine($"[global::System.Runtime.InteropServices.StructLayout(global::System.Runtime.InteropServices.LayoutKind.Explicit)]");
             writer.WriteLine(Codes.GeneratedCodeAttributeList);
             writer.WriteLine($"private struct __UnmanagedUnionStruct");
-            using (writer.EnterBracketIndentScope('{')) {
-                foreach (var variant in data.Variants.Where(x => x.TypeKind is VariantTypeKind.Unmanaged)) {
+            using (writer.EnterBracketIndentScope('{'))
+            {
+                foreach (var variant in data.Variants.Where(x => x.TypeKind is VariantTypeKind.Unmanaged))
+                {
                     writer.WriteLine($"[global::System.Runtime.InteropServices.FieldOffset(0)]");
                     writer.WriteLine($"public {variant.FullyQualifiedTypeName} _{variant.FieldId};");
                 }
@@ -564,7 +632,8 @@ internal sealed partial class TypeUnionGenerator : IIncrementalGenerator
 
     static string VariantToInterfaceExpr(VariantData variant, string targetType)
     {
-        switch (variant.TypeKind) {
+        switch (variant.TypeKind)
+        {
             case VariantTypeKind.Reference:
                 return $"global::System.Runtime.CompilerServices.Unsafe.As<object, {targetType}>(ref global::System.Runtime.CompilerServices.Unsafe.AsRef<object>(in {VariantAccessExpr(variant)}))";
             default:

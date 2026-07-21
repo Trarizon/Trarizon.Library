@@ -95,31 +95,6 @@ public static partial class ResultExtensions
 
     #endregion
 
-    public static Result<TResult, TError> Bind<T, TError, TMid, TResult>(this Result<T, TError> self, Func<T, Result<TMid, TError>> selector, Func<T, TMid, TResult> resultSelector)
-        => self.IsSuccess && selector(self.Value) is { IsSuccess: true } mid ? Result.Success(resultSelector(self.Value, mid.Value)) : Result.Failure(self.Error);
-
-#if REF_MONAD
-
-    public static Result<TResult, TError> Bind<T, TError, TMid, TResult>(this RefResult<T, TError> self, Func<T, RefResult<TMid, TError>> selector, Func<T, TMid, TResult> resultSelector)
-        => self.IsSuccess && selector(self.Value) is { IsSuccess: true } mid ? Result.Success(resultSelector(self.Value, mid.Value)) : Result.Failure(self.Error);
-
-#endif
-
-    #region SelectMany
-
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public static Result<TResult, TError> SelectMany<T, TError, TMid, TResult>(this Result<T, TError> self, Func<T, Result<TMid, TError>> selector, Func<T, TMid, TResult> resultSelector)
-        => self.IsSuccess && selector(self.Value) is { IsSuccess: true } mid ? Result.Success(resultSelector(self.Value, mid.Value)) : Result.Failure(self.Error);
-
-#if REF_MONAD
-
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public static Result<TResult, TError> SelectMany<T, TError, TMid, TResult>(this RefResult<T, TError> self, Func<T, RefResult<TMid, TError>> selector, Func<T, TMid, TResult> resultSelector)
-        => self.IsSuccess && selector(self.Value) is { IsSuccess: true } mid ? Result.Success(resultSelector(self.Value, mid.Value)) : Result.Failure(self.Error);
-
-#endif
-
-    #endregion
 
     public static Result<TResult, TResultError> BindError<TError, TResult, TResultError>(this Result.FailureBuilder<TError> self, Func<TError, Result<TResult, TResultError>> selector)
         => selector(self.Error);

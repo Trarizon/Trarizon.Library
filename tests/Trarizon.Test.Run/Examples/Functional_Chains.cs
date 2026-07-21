@@ -19,12 +19,12 @@ internal class Functional_Chains
             .Bind(x => Optional.Of(x.ToString())); // ref -> val
 
         _ = Optional.Of("str".AsSpan())
-            .Bind(x => Optional.Of(x.ToString()), (x, y) => $"{x}{y}")             // ref - val - val
-            .Bind(x => Optional.Of(x.AsSpan()), (x, y) => $"{x}{y}")               // val - ref - val
-            .Bind(x => Optional.Of(x.ToString()), (x, y) => $"{x}{y}".AsSpan())    // val - val - ref
-            .Bind(x => Optional.Of(x.ToString()), (x, y) => $"{x}{y}".AsSpan())    // ref - val - ref
-            .Bind(x => Optional.Of(x[..1]), (x, y) => $"{x}{y}".ToString())        // ref - ref - val
-            .Bind(x => Optional.Of(x.AsSpan()), (x, y) => $"{x}{y}".AsSpan());     // val - ref - ref
+            .SelectMany(x => Optional.Of(x.ToString()), (x, y) => $"{x}{y}")             // ref - val - val
+            .SelectMany(x => Optional.Of(x.AsSpan()), (x, y) => $"{x}{y}")               // val - ref - val
+            .SelectMany(x => Optional.Of(x.ToString()), (x, y) => $"{x}{y}".AsSpan())    // val - val - ref
+            .SelectMany(x => Optional.Of(x.ToString()), (x, y) => $"{x}{y}".AsSpan())    // ref - val - ref
+            .SelectMany(x => Optional.Of(x[..1]), (x, y) => $"{x}{y}".ToString())        // ref - ref - val
+            .SelectMany(x => Optional.Of(x.AsSpan()), (x, y) => $"{x}{y}".AsSpan());     // val - ref - ref
 
         _ = Optional.Of("str".AsSpan()).Zip(Optional.Of("ing"), (x, y) => $"{x}{y}");    // ref + val = val
         _ = Optional.Of("str").Zip(Optional.Of("ing".AsSpan()), (x, y) => $"{x}{y}");    // val + ref = val

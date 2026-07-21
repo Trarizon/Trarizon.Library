@@ -24,6 +24,32 @@ public static partial class OptionalExtensions
 
 #endif
 
+    #region With State
+
+    public static Optional<TResult> Bind<T, TState, TResult>(this Optional<T> self, TState state, Func<T, TState, Optional<TResult>> selector)
+#if NET9_0_OR_GREATER
+        where TState : allows ref struct
+#endif
+        => self.HasValue ? selector(self.Value, state) : Optional.None;
+
+#if REF_MONAD
+
+    public static RefOptional<TResult> Bind<T, TState, TResult>(this Optional<T> self, TState state, Func<T, TState, RefOptional<TResult>> selector)
+        where TState : allows ref struct where TResult : allows ref struct
+        => self.HasValue ? selector(self.Value, state) : Optional.None;
+
+    public static Optional<TResult> Bind<T, TState, TResult>(this RefOptional<T> self, TState state, Func<T, TState, Optional<TResult>> selector)
+        where T : allows ref struct where TState : allows ref struct
+        => self.HasValue ? selector(self.Value, state) : Optional.None;
+
+    public static RefOptional<TResult> Bind<T, TState, TResult>(this RefOptional<T> self, TState state, Func<T, TState, RefOptional<TResult>> selector)
+        where T : allows ref struct where TState : allows ref struct where TResult : allows ref struct
+        => self.HasValue ? selector(self.Value, state) : Optional.None;
+
+#endif
+
+    #endregion
+
     #region SelectMany
 
     [EditorBrowsable(EditorBrowsableState.Never)]
@@ -46,96 +72,6 @@ public static partial class OptionalExtensions
     public static RefOptional<TResult> SelectMany<T, TResult>(this RefOptional<T> self, Func<T, RefOptional<TResult>> selector)
         where T : allows ref struct where TResult : allows ref struct
         => self.Bind(selector);
-
-#endif
-
-    #endregion
-
-    public static Optional<TResult> Bind<T, TMid, TResult>(this Optional<T> self, Func<T, Optional<TMid>> selector, Func<T, TMid, TResult> resultSelector)
-        => self.HasValue && selector(self.Value) is { HasValue: true } mid ? Optional.Of(resultSelector(self.Value, mid.Value)) : Optional.None;
-
-#if REF_MONAD
-
-    [OverloadResolutionPriority(-1)]
-    public static RefOptional<TResult> Bind<T, TMid, TResult>(this Optional<T> self, Func<T, Optional<TMid>> selector, RefFunc<T, TMid, TResult> resultSelector)
-        where TResult : allows ref struct
-        => self.HasValue && selector(self.Value) is { HasValue: true } mid ? Optional.Of(resultSelector(self.Value, mid.Value)) : Optional.None;
-
-    public static Optional<TResult> Bind<T, TMid, TResult>(this Optional<T> self, Func<T, RefOptional<TMid>> selector, Func<T, TMid, TResult> resultSelector)
-        where TMid : allows ref struct
-        => self.HasValue && selector(self.Value) is { HasValue: true } mid ? Optional.Of(resultSelector(self.Value, mid.Value)) : Optional.None;
-
-    [OverloadResolutionPriority(-1)]
-    public static RefOptional<TResult> Bind<T, TMid, TResult>(this Optional<T> self, Func<T, RefOptional<TMid>> selector, RefFunc<T, TMid, TResult> resultSelector)
-        where TMid : allows ref struct where TResult : allows ref struct
-        => self.HasValue && selector(self.Value) is { HasValue: true } mid ? Optional.Of(resultSelector(self.Value, mid.Value)) : Optional.None;
-
-    public static Optional<TResult> Bind<T, TMid, TResult>(this RefOptional<T> self, Func<T, Optional<TMid>> selector, Func<T, TMid, TResult> resultSelector)
-        where T : allows ref struct
-        => self.HasValue && selector(self.Value) is { HasValue: true } mid ? Optional.Of(resultSelector(self.Value, mid.Value)) : Optional.None;
-
-    [OverloadResolutionPriority(-1)]
-    public static RefOptional<TResult> Bind<T, TMid, TResult>(this RefOptional<T> self, Func<T, Optional<TMid>> selector, RefFunc<T, TMid, TResult> resultSelector)
-        where T : allows ref struct where TResult : allows ref struct
-        => self.HasValue && selector(self.Value) is { HasValue: true } mid ? Optional.Of(resultSelector(self.Value, mid.Value)) : Optional.None;
-
-    public static Optional<TResult> Bind<T, TMid, TResult>(this RefOptional<T> self, Func<T, RefOptional<TMid>> selector, Func<T, TMid, TResult> resultSelector)
-        where T : allows ref struct where TMid : allows ref struct
-        => self.HasValue && selector(self.Value) is { HasValue: true } mid ? Optional.Of(resultSelector(self.Value, mid.Value)) : Optional.None;
-
-    [OverloadResolutionPriority(-1)]
-    public static RefOptional<TResult> Bind<T, TMid, TResult>(this RefOptional<T> self, Func<T, RefOptional<TMid>> selector, RefFunc<T, TMid, TResult> resultSelector)
-        where T : allows ref struct where TMid : allows ref struct where TResult : allows ref struct
-        => self.HasValue && selector(self.Value) is { HasValue: true } mid ? Optional.Of(resultSelector(self.Value, mid.Value)) : Optional.None;
-
-#endif
-
-    #region Select Many
-
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public static Optional<TResult> SelectMany<T, TMid, TResult>(this Optional<T> self, Func<T, Optional<TMid>> selector, Func<T, TMid, TResult> resultSelector)
-        => self.Bind(selector, resultSelector);
-
-#if REF_MONAD
-
-    [OverloadResolutionPriority(-1)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public static RefOptional<TResult> SelectMany<T, TMid, TResult>(this Optional<T> self, Func<T, Optional<TMid>> selector, RefFunc<T, TMid, TResult> resultSelector)
-        where TResult : allows ref struct
-        => self.Bind(selector, resultSelector);
-
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public static Optional<TResult> SelectMany<T, TMid, TResult>(this Optional<T> self, Func<T, RefOptional<TMid>> selector, Func<T, TMid, TResult> resultSelector)
-        where TMid : allows ref struct
-        => self.Bind(selector, resultSelector);
-
-    [OverloadResolutionPriority(-1)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public static RefOptional<TResult> SelectMany<T, TMid, TResult>(this Optional<T> self, Func<T, RefOptional<TMid>> selector, RefFunc<T, TMid, TResult> resultSelector)
-        where TMid : allows ref struct where TResult : allows ref struct
-        => self.Bind(selector, resultSelector);
-
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public static Optional<TResult> SelectMany<T, TMid, TResult>(this RefOptional<T> self, Func<T, Optional<TMid>> selector, Func<T, TMid, TResult> resultSelector)
-        where T : allows ref struct
-        => self.Bind(selector, resultSelector);
-
-    [OverloadResolutionPriority(-1)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public static RefOptional<TResult> SelectMany<T, TMid, TResult>(this RefOptional<T> self, Func<T, Optional<TMid>> selector, RefFunc<T, TMid, TResult> resultSelector)
-        where T : allows ref struct where TResult : allows ref struct
-        => self.Bind(selector, resultSelector);
-
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public static Optional<TResult> SelectMany<T, TMid, TResult>(this RefOptional<T> self, Func<T, RefOptional<TMid>> selector, Func<T, TMid, TResult> resultSelector)
-        where T : allows ref struct where TMid : allows ref struct
-        => self.Bind(selector, resultSelector);
-
-    [OverloadResolutionPriority(-1)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public static RefOptional<TResult> SelectMany<T, TMid, TResult>(this RefOptional<T> self, Func<T, RefOptional<TMid>> selector, RefFunc<T, TMid, TResult> resultSelector)
-        where T : allows ref struct where TMid : allows ref struct where TResult : allows ref struct
-        => self.Bind(selector, resultSelector);
 
 #endif
 
