@@ -18,6 +18,7 @@
     <ProjectReference Include="..\..\src\Trarizon.Library.Collections\Trarizon.Library.Collections.csproj" />
     <ProjectReference Include="..\..\src\Trarizon.Library.Functional\Trarizon.Library.Functional.csproj" />
     <ProjectReference Include="..\..\src\Trarizon.Library.Linq\Trarizon.Library.Linq.csproj" />
+    <ProjectReference Include="..\..\src\Trarizon.Library\Trarizon.Library.csproj" />
   </ItemGroup>
 
   <ItemGroup>
