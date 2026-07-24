@@ -12,18 +12,7 @@ using Trarizon.Library.Functional;
 using Trarizon.Library.Functional.Attributes;
 using Trarizon.Library.Playground.Interpreting.TypeScript;
 
-new TypeScriptInterpreter().Execute(TypeScriptInterpreter.ts);
-//LightVNTool.Program._Main(["-u", "D:\\Games\\Games\\Katanegai\\Data\\_"]);
-
-var r = Result.Success(1).Build<string>();
-var r2 = r;
-_ = from i in r
-    from j in r2
-    select i + j;
-
-r.AsRef()
-    .Select(x => Unit.Value)
-    .Select(() => ReadOnlySpan<char>.Empty);
+RunBenchmarks();
 
 [TypeUnion<int, string>]
 partial struct A

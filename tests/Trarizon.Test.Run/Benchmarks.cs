@@ -5,7 +5,10 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Trarizon.Library.Collections;
 using Trarizon.Library.Collections.Generic;
+using Trarizon.Library.Text;
 using Trarizon.Library.Wrappers;
+
+using NumberText2 = Trarizon.Library.Text.NumberText;
 
 #pragma warning disable TRALIB
 
@@ -14,80 +17,85 @@ namespace Trarizon.Test.Run;
 [MemoryDiagnoser]
 public class Benchmarks
 {
-    public IEnumerable<object?[]> ArgsInt()
-    {
-        yield return [
-            new int[] { 1, 2, 3, 4, 5 },
-            2,
-            EqualityComparer<int>.Default,
-        ];
-        yield return [
-            new int[] { 1, 2, 3, 4, 5 },
-            2,
-            null,
-        ];
-    }
+    private const int TestInt = int.MaxValue;
+    private const long TestLong = long.MaxValue;
+    private const uint TestUInt = uint.MaxValue;
+    private const ulong TestULong = ulong.MaxValue;
 
-    public IEnumerable<object?[]> ArgsObj()
+    private static readonly int[] IntValues = { 0, 1, 10, 100, 1000, 10000, 12345, 99999999, TestInt };
+    private static readonly long[] LongValues = { 0, 1, 10, 10000, 100000000, 123456789012345L, TestLong };
+    private static readonly uint[] UIntValues = { 0, 1, 10, 1000, 10000, 12345, 99999999, TestUInt };
+    private static readonly ulong[] ULongValues = { 0, 1, 10, 10000, 100000000, 123456789012345UL, TestULong };
+
+    [Benchmark]
+    public string NumberText_UInt() => NumberText.NumberToChinese(TestUInt);
+
+    [Benchmark]
+    public string NumberText2_UInt() => NumberText2.NumberToChinese(TestUInt);
+
+    [Benchmark]
+    public string NumberText_ULong() => NumberText.NumberToChinese(TestULong);
+
+    [Benchmark]
+    public string NumberText2_ULong() => NumberText2.NumberToChinese(TestULong);
+
+    [Benchmark]
+    public int NumberText_Int_Span()
     {
-        var obj = new object();
-        yield return [
-            new object[]{new object(),obj,new object(),new object()},
-            obj,
-            null,
-        ];
-        yield return [
-            new object[]{new object(),obj,new object(),new object()},
-            obj,
-            null,
-        ];
+        Span<char> span = stackalloc char[20];
+        NumberText.NumberToChinese(TestInt, NumberText.ToChineseOptions.None, span, out int length);
+        return length;
     }
 
     [Benchmark]
-    [ArgumentsSource(nameof(ArgsInt))]
-    public int MGeneralInt(int[] array,int val, IEqualityComparer<int>? cmp)
-        => MGeneral(array, val, cmp);
-
-    [Benchmark]
-    [ArgumentsSource(nameof(ArgsInt))]
-    public int MSpValInt(int[] array, int val, IEqualityComparer<int>? cmp)
-        => MSpVal(array, val, cmp);
-
-    [Benchmark]
-    [ArgumentsSource(nameof(ArgsObj))]
-    public object? MGeneralObj(object[] array, object? val, IEqualityComparer<object?>? cmp)
-        => MGeneral(array, val, cmp);
-
-    [Benchmark]
-    [ArgumentsSource(nameof(ArgsObj))]
-    public object? MSpValObj(object[] array, object? val, IEqualityComparer<object?>? cmp)
-        => MSpVal(array, val, cmp);
-
-    public T MGeneral<T>(T[] array, T val, IEqualityComparer<T>? cmp)
+    public int NumberText2_Int_Span()
     {
-        cmp ??= EqualityComparer<T>.Default;
-        foreach (var item in array) {
-            if (cmp.Equals(item, val))
-                return val;
-        }
-        return default!;
+        Span<char> span = stackalloc char[20];
+        NumberText2.NumberToChinese(TestInt, NumberText2.ToChineseOptions.None, span, out int length);
+        return length;
     }
 
-    public T MSpVal<T>(T[] array, T val, IEqualityComparer<T>? cmp)
+    [Benchmark]
+    public int NumberText_Long_Span()
     {
-        if (typeof(T).IsValueType && cmp is null) {
-            foreach (var item in array) {
-                if (EqualityComparer<T>.Default.Equals(item, val))
-                    return val;
-            }
-        }
-        else {
-            cmp ??= EqualityComparer<T>.Default;
-            foreach (var item in array) {
-                if (cmp.Equals(item, val))
-                    return val;
-            }
-        }
-        return default!;
+        Span<char> span = stackalloc char[40];
+        NumberText.NumberToChinese(TestLong, NumberText.ToChineseOptions.None, span, out int length);
+        return length;
     }
+
+    [Benchmark]
+    public int NumberText2_Long_Span()
+    {
+        Span<char> span = stackalloc char[40];
+        NumberText2.NumberToChinese(TestLong, NumberText2.ToChineseOptions.None, span, out int length);
+        return length;
+    }
+
+    // [Benchmark]
+    // public void NumberText_MixedUIntValues()
+    // {
+    //     foreach (var value in UIntValues)
+    //         NumberText.NumberToChinese(value);
+    // }
+
+    // [Benchmark]
+    // public void NumberText2_MixedUIntValues()
+    // {
+    //     foreach (var value in UIntValues)
+    //         NumberText2.NumberToChinese(value);
+    // }
+
+    // [Benchmark]
+    // public void NumberText_MixedULongValues()
+    // {
+    //     foreach (var value in ULongValues)
+    //         NumberText.NumberToChinese(value);
+    // }
+
+    // [Benchmark]
+    // public void NumberText2_MixedULongValues()
+    // {
+    //     foreach (var value in ULongValues)
+    //         NumberText2.NumberToChinese(value);
+    // }
 }

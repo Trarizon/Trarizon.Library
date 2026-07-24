@@ -35,8 +35,8 @@ public static partial class NumberText
 
     private static void GetChineseNumberUnits(ToChineseOptions options, out char negative, out ReadOnlySpan<char> digits, out ReadOnlySpan<char> tens, out ReadOnlySpan<char> wans)
     {
-        var financial = options.HasFlag(ToChineseOptions.FinancialNumerals);
-        var hant = options.HasFlag(ToChineseOptions.TraditionalChinese);
+        var financial = (options & ToChineseOptions.FinancialNumerals) != 0;
+        var hant = (options & ToChineseOptions.TraditionalChinese) != 0;
         switch (financial, hant)
         {
             case (false, false):
@@ -108,6 +108,10 @@ public static partial class NumberText
         NumberToChineseCoreULong(number, digits, tens, wans, span, out length, options);
     }
 
+    private static ReadOnlySpan<uint> Pow10_UInt => [10, 100, 1000];
+    private static ReadOnlySpan<uint> Pow10000_UInt => [1_0000, 1_0000_0000];
+    private static ReadOnlySpan<ulong> Pow10000_ULong => [1_0000, 1_0000_0000, 1_0000_0000_0000, 1_0000_0000_0000_0000];
+
     private static void NumberToChineseCoreUInt(uint number, ReadOnlySpan<char> digits, ReadOnlySpan<char> tens, ReadOnlySpan<char> wans, Span<char> span, out int length, ToChineseOptions options)
     {
         if (number is 0)
@@ -119,21 +123,40 @@ public static partial class NumberText
 
         var isb = 0;
 
+        var useYiShiForTen = (options & ToChineseOptions.YiShiForTen) != 0;
+
         int requiresZero = 0; // 0 no_output_now, 1 not_required, 2 required 
         for (int i = wans.Length - 1; i >= 0; i--)
         {
-            var unit = Pow10000(unchecked((uint)(i + 1)));
-            uint digit = number / unit;
+            var unit = Pow10000_UInt[i];
+#if NET9_0_OR_GREATER
+            var (digit, rem) = Math.DivRem(number, unit);
+#else
+            uint digit, rem;
+            if (number <= (uint)int.MaxValue)
+            {
+                digit = unchecked((uint)Math.DivRem(unchecked((int)number), unchecked((int)unit), out int remI));
+                rem = unchecked((uint)remI);
+            }
+            else
+            {
+                digit = number / unit;
+                rem = number % unit;
+            }
+#endif
+
             if (digit > 0)
             {
                 if (requiresZero is 2)
                 {
                     span[isb++] = digits[0];
                 }
-                NumberToChineseCoreUnder10000(digit, digits, tens, requiresZero, span[isb..], out length, options);
+                NumberToChineseCoreUnder10000(digit, digits, tens, requiresZero, span[isb..], out length, useYiShiForTen);
                 isb += length;
                 span[isb++] = wans[i];
                 requiresZero = 1;
+
+                number = rem;
             }
             else
             {
@@ -144,7 +167,6 @@ public static partial class NumberText
                     requiresZero = 2;
                 }
             }
-            number %= unit;
         }
         if (number > 0)
         {
@@ -152,22 +174,15 @@ public static partial class NumberText
             {
                 span[isb++] = digits[0];
             }
-            NumberToChineseCoreUnder10000(number, digits, tens, requiresZero, span[isb..], out length, options);
+            NumberToChineseCoreUnder10000(number, digits, tens, requiresZero, span[isb..], out length, useYiShiForTen);
             isb += length;
         }
         length = isb;
-
-        static uint Pow10000(uint exponent) => exponent switch
-        {
-            1 => 10000u,
-            2 => 100000000u,
-            _ => 1,
-        };
     }
 
     private static void NumberToChineseCoreULong(ulong number, ReadOnlySpan<char> digits, ReadOnlySpan<char> tens, ReadOnlySpan<char> wans, Span<char> span, out int length, ToChineseOptions options)
     {
-        if (options.HasFlag(ToChineseOptions.LargeUnits))
+        if ((options & ToChineseOptions.LargeUnits) != 0)
             NumberToChineseCoreULongLargeUnits(number, digits, tens, wans, span, out length, options);
         else
             NumberToChineseCoreULongYiMax(number, digits, tens, wans[..2], span, out length, options);
@@ -188,11 +203,18 @@ public static partial class NumberText
 
         var isb = 0;
 
+        var useYiShiForTen = (options & ToChineseOptions.YiShiForTen) != 0;
+
         int requiresZero = 0; // 0 no_output_now, 1 not_required, 2 required
         for (int i = WanUnitCount - 1; i >= 0; i--)
         {
-            var unit = Pow10000(unchecked((uint)(i + 1)));
-            ulong digit = number / unit;
+            var unit = Pow10000_ULong[i];
+#if NET9_0_OR_GREATER
+            var (digit, rem) = Math.DivRem(number, unit);
+#else
+            var digit = number / unit;
+            var rem = number % unit;
+#endif
             if (digit > 0)
             {
                 Debug.Assert(digit < 10000);
@@ -200,13 +222,13 @@ public static partial class NumberText
                 {
                     span[isb++] = digits[0];
                 }
-                NumberToChineseCoreUnder10000(unchecked((uint)digit), digits, tens, requiresZero, span[isb..], out length, options);
+                NumberToChineseCoreUnder10000(unchecked((uint)digit), digits, tens, requiresZero, span[isb..], out length, useYiShiForTen);
                 isb += length;
                 AppendWanUnit(wans, i, span[isb..], out length);
                 isb += length;
                 requiresZero = 1;
 
-                number %= unit;
+                number = rem;
             }
             else
             {
@@ -224,27 +246,21 @@ public static partial class NumberText
             {
                 span[isb++] = digits[0];
             }
-            NumberToChineseCoreUnder10000(unchecked((uint)number), digits, tens, requiresZero, span[isb..], out length, options);
+            NumberToChineseCoreUnder10000(unchecked((uint)number), digits, tens, requiresZero, span[isb..], out length, useYiShiForTen);
             isb += length;
         }
         length = isb;
-
-        static ulong Pow10000(uint exponent) => exponent switch
-        {
-            1 => 1_0000ul,
-            2 => 1_0000_0000ul,
-            3 => 1_0000_0000_0000ul,
-            4 => 1_0000_0000_0000_0000ul,
-            _ => 1,
-        };
 
         static void AppendWanUnit(ReadOnlySpan<char> wans, int wanUnit, Span<char> span, out int length)
         {
             var isb = 0;
             span[isb++] = wans[wanUnit % 2];
             var yiCount = wanUnit / 2;
-            for (int i = 0; i < yiCount; i++)
-                span[isb++] = wans[1];
+            if (yiCount > 0)
+            {
+                span.Slice(1, yiCount).Fill(wans[1]);
+                isb += yiCount;
+            }
             length = isb;
         }
     }
@@ -260,11 +276,18 @@ public static partial class NumberText
 
         var isb = 0;
 
+        var useYiShiForTen = (options & ToChineseOptions.YiShiForTen) != 0;
+
         int requiresZero = 0; // 0 no_output_now, 1 not_required, 2 required
         for (int i = wans.Length - 1; i >= 0; i--)
         {
-            var unit = Pow10000(unchecked((uint)(i + 1)));
-            ulong digit = number / unit;
+            var unit = Pow10000_ULong[i];
+#if NET9_0_OR_GREATER
+            var (digit, rem) = Math.DivRem(number, unit);
+#else
+            var digit = number / unit;
+            var rem = number % unit;
+#endif
             if (digit > 0)
             {
                 Debug.Assert(digit < 10000);
@@ -272,12 +295,12 @@ public static partial class NumberText
                 {
                     span[isb++] = digits[0];
                 }
-                NumberToChineseCoreUnder10000(unchecked((uint)digit), digits, tens, requiresZero, span[isb..], out length, options);
+                NumberToChineseCoreUnder10000(unchecked((uint)digit), digits, tens, requiresZero, span[isb..], out length, useYiShiForTen);
                 isb += length;
                 span[isb++] = wans[i];
                 requiresZero = 1;
 
-                number %= unit;
+                number = rem;
             }
             else
             {
@@ -295,37 +318,31 @@ public static partial class NumberText
             {
                 span[isb++] = digits[0];
             }
-            NumberToChineseCoreUnder10000(unchecked((uint)number), digits, tens, requiresZero, span[isb..], out length, options);
+            NumberToChineseCoreUnder10000(unchecked((uint)number), digits, tens, requiresZero, span[isb..], out length, useYiShiForTen);
             isb += length;
         }
         length = isb;
-
-        static ulong Pow10000(uint exponent) => exponent switch
-        {
-            1 => 1_0000ul,
-            2 => 1_0000_0000ul,
-            3 => 1_0000_0000_0000ul,
-            4 => 1_0000_0000_0000_0000ul,
-            _ => 1,
-        };
     }
 
     // 0 no_output_now, no prefix zero required
     // 1 insert,        insert prefix zero if no thousand digit
     // 2 not_insert,    do not insert prefix zero as already inserted
-    private static void NumberToChineseCoreUnder10000(uint number, ReadOnlySpan<char> digits, ReadOnlySpan<char> tens, int insertPrefixZero, Span<char> span, out int length, ToChineseOptions options)
+    private static void NumberToChineseCoreUnder10000(uint number, ReadOnlySpan<char> digits, ReadOnlySpan<char> tens, int insertPrefixZero, Span<char> span, out int length, bool useYiShiForTen)
     {
         Debug.Assert(number < 10000);
         Debug.Assert(tens.Length <= 3);
-
-        bool useYiShiForTen = options.HasFlag(ToChineseOptions.YiShiForTen);
 
         var isb = 0;
         int requiresZero = 0; // 0 prefix, 1 not_required, 2 required
         for (int i = tens.Length - 1; i >= 0; i--)
         {
-            var unit = Pow10(unchecked((uint)(i + 1)));
-            uint digit = number / unit;
+            var unit = Pow10_UInt[i];
+#if NET9_0_OR_GREATER
+            var (digit, rem) = Math.DivRem(number, unit);
+#else
+            var digit = unchecked((uint)Math.DivRem(unchecked((int)number), unchecked((int)unit), out int remI));
+            var rem = unchecked((uint)remI);
+#endif
             if (digit > 0)
             {
                 if (requiresZero == 2)
@@ -336,6 +353,8 @@ public static partial class NumberText
                 span[isb++] = tens[i];
 
                 requiresZero = 1;
+
+                number = rem;
             }
             else
             {
@@ -344,7 +363,6 @@ public static partial class NumberText
                     requiresZero = 2;
                 }
             }
-            number %= unit;
         }
         // 个位数
         if (number > 0)
@@ -354,14 +372,6 @@ public static partial class NumberText
             span[isb++] = digits[unchecked((int)number)];
         }
         length = isb;
-
-        static uint Pow10(uint exponent) => exponent switch
-        {
-            1 => 10u,
-            2 => 100u,
-            3 => 1000u,
-            _ => 1,
-        };
     }
 
     [Flags]

@@ -3,7 +3,7 @@ using Trarizon.Library.Text;
 
 namespace Trarizon.Test.UnitTests;
 
-public class Text_FormattingTests
+public class Text_NumberTextTests
 {
     [Fact]
     public void NumberToChineseTests()
