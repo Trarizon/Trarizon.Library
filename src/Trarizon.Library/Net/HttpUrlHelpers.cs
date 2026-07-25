@@ -1,15 +1,20 @@
-﻿namespace Trarizon.Library.Net;
+namespace Trarizon.Library.Net;
 
 public static class HttpUrlHelpers
 {
-    public static ReadOnlySpan<char> GetQueryValue(ReadOnlySpan<char> queryParts, ReadOnlySpan<char> key)
+    public static bool TryGetQueryValue(ReadOnlySpan<char> queryParts, ReadOnlySpan<char> key, out ReadOnlySpan<char> value, StringComparison comparison = StringComparison.CurrentCulture)
     {
         var iterator = new QuerySpanIterator(queryParts);
-        foreach (var pair in iterator) {
-            if (pair.Key.Equals(key, StringComparison.OrdinalIgnoreCase))
-                return pair.Value;
+        foreach (var pair in iterator)
+        {
+            if (pair.Key.Equals(key, comparison))
+            {
+                value = pair.Value;
+                return true;
+            }
         }
-        return [];
+        value = default;
+        return false;
     }
 
     public static ReadOnlySpan<char> GetQueryPart(ReadOnlySpan<char> url)
@@ -46,14 +51,13 @@ public static class HttpUrlHelpers
             int delimiter = -1;
             int start = _end + 1;
             int index = start;
-            for (; index < _queryString.Length; index++) {
+            for (; index < _queryString.Length; index++)
+            {
                 var ch = _queryString[index];
-                if (delimiter == -1 && ch == '=') {
+                if (delimiter == -1 && ch == '=')
                     delimiter = index;
-                }
-                else if (ch == '&') {
+                else if (ch == '&')
                     break;
-                }
             }
             _start = start;
             _delimiter = delimiter;
@@ -62,20 +66,10 @@ public static class HttpUrlHelpers
         }
     }
 
-    private readonly ref struct QueryKeyValuePair
+    private readonly ref struct QueryKeyValuePair(ReadOnlySpan<char> pair, int equalIndex)
     {
-        private readonly ReadOnlySpan<char> _pair;
-        private readonly int _equalIndex;
-
-        public QueryKeyValuePair(ReadOnlySpan<char> pair, int equalIndex)
-        {
-            _pair = pair;
-            _equalIndex = equalIndex;
-        }
-
-        public ReadOnlySpan<char> Key => _equalIndex < 0 ? [] : _pair[0.._equalIndex];
-
-        public ReadOnlySpan<char> Value => _pair[(_equalIndex + 1)..];
+        private readonly ReadOnlySpan<char> _pair = pair;
+        public ReadOnlySpan<char> Key => equalIndex < 0 ? [] : _pair[..equalIndex];
+        public ReadOnlySpan<char> Value => _pair[(equalIndex + 1)..];
     }
-
 }

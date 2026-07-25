@@ -1,5 +1,4 @@
-﻿using Trarizon.Library.Collections;
-#if NETSTANDARD
+﻿#if NETSTANDARD
 using ArrayMaxLengthProvider = Trarizon.Library.Collections.TraCollection;
 #else
 using ArrayMaxLengthProvider = System.Array;

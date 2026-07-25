@@ -1,14 +1,17 @@
-﻿using System.Text;
+using System.Text;
 
-namespace Trarizon.Library.Text.Encodings;
-public static class TraEncoding
-{
+namespace Trarizon.Library;
+
 #if NETSTANDARD
+
+internal static partial class Polyfills
+{
     public static unsafe int GetByteCount(this Encoding encoding, ReadOnlySpan<char> chars)
     {
         if (chars.IsEmpty)
             return 0;
-        fixed (char* ch = chars) {
+        fixed (char* ch = chars)
+        {
             return encoding.GetByteCount(ch, chars.Length);
         }
     }
@@ -17,7 +20,8 @@ public static class TraEncoding
     {
         if (chars.IsEmpty)
             return 0;
-        fixed (char* ch = chars) fixed (byte* by = bytes) {
+        fixed (char* ch = chars) fixed (byte* by = bytes)
+        {
             return encoding.GetBytes(ch, chars.Length, by, bytes.Length);
         }
     }
@@ -26,7 +30,8 @@ public static class TraEncoding
     {
         if (bytes.IsEmpty)
             return 0;
-        fixed (byte* by = bytes) {
+        fixed (byte* by = bytes)
+        {
             return encoding.GetCharCount(by, bytes.Length);
         }
     }
@@ -35,7 +40,8 @@ public static class TraEncoding
     {
         if (bytes.IsEmpty)
             return 0;
-        fixed (byte* by = bytes) fixed (char* ch = chars) {
+        fixed (byte* by = bytes) fixed (char* ch = chars)
+        {
             return encoding.GetChars(by, bytes.Length, ch, chars.Length);
         }
     }
@@ -44,10 +50,11 @@ public static class TraEncoding
     {
         if (bytes.IsEmpty)
             return string.Empty;
-        fixed (byte* by = bytes) {
+        fixed (byte* by = bytes)
+        {
             return encoding.GetString(by, bytes.Length);
         }
     }
+}
 
 #endif
-}

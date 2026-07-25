@@ -21,12 +21,6 @@
     <!-- Reference -->
 
     <ItemGroup>
-        <ProjectReference Include="..\Trarizon.Library.Collections\Trarizon.Library.Collections.csproj" />
-        <ProjectReference Include="..\Trarizon.Library.Functional\Trarizon.Library.Functional.csproj" />
-        <ProjectReference Include="..\Trarizon.Library.Mathematics\Trarizon.Library.Mathematics.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
         <PackageReference Include="PolySharp">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -39,6 +33,8 @@
 
     <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
         <PackageReference Include="System.Threading.Tasks.Extensions" />
+        <PackageReference Include="Microsoft.Bcl.Memory" />
+        <PackageReference Include="System.Memory" />
     </ItemGroup>
 
     <ItemGroup>
