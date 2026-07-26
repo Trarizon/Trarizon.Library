@@ -46,11 +46,6 @@
           <AutoGen>True</AutoGen>
           <DependentUpon>TraDelegate.tt</DependentUpon>
         </Compile>
-        <Compile Update="TraDelegate.ttg.cs">
-            <DesignTime>True</DesignTime>
-            <AutoGen>True</AutoGen>
-            <DependentUpon>TraDelegate.tt</DependentUpon>
-        </Compile>
     </ItemGroup>
 
     <PropertyGroup Label="Polyfills">

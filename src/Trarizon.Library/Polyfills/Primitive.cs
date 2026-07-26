@@ -10,11 +10,7 @@ internal static partial class Polyfills
             => value1 + (value2 - value1) * amount;
 
         public static float Clamp(float value, float min, float max)
-#if NETSTANDARD2_1
-            => MathF.Min(MathF.Max(value, min), max);
-#else
             => value < min ? min : value > max ? max : value;
-#endif
     }
 
     extension(double)
