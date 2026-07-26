@@ -19,7 +19,8 @@ public static class AttributeDataExtensions
 
     public static Optional<TypedConstant> GetNamedArgument(this AttributeData attributeData, string parameterName)
     {
-        foreach (var arg in attributeData.NamedArguments) {
+        foreach (var arg in attributeData.NamedArguments)
+        {
             if (arg.Key == parameterName)
                 return arg.Value;
         }
@@ -37,10 +38,12 @@ public static class AttributeDataExtensions
 
     public static ImmutableArray<T> CastArray<T>(this in Optional<TypedConstant> typedConstant)
     {
-        if (typedConstant.HasValue) {
+        if (typedConstant.HasValue)
+        {
             return typedConstant.Value.CastArray<T>();
         }
-        else {
+        else
+        {
             return [];
         }
     }
@@ -57,7 +60,8 @@ public static class AttributeDataExtensions
             return [];
 
         var values = new T[arr.Length];
-        for (int i = 0; i < arr.Length; i++) {
+        for (int i = 0; i < arr.Length; i++)
+        {
             values[i] = arr[i].CastValue<T>();
         }
         return ImmutableCollectionsMarshal.AsImmutableArray(values);

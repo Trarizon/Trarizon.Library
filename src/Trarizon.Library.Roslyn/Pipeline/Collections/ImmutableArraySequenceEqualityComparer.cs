@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 
 namespace Trarizon.Library.Roslyn.Pipeline.Collections;
+
 public sealed class ImmutableArraySequenceEqualityComparer<T> : IEqualityComparer<ImmutableArray<T>>
 {
     private ImmutableArraySequenceEqualityComparer() { }
@@ -13,7 +12,8 @@ public sealed class ImmutableArraySequenceEqualityComparer<T> : IEqualityCompare
     {
         if (x.Length != y.Length)
             return false;
-        for (int i = 0; i < x.Length; i++) {
+        for (int i = 0; i < x.Length; i++)
+        {
             if (!EqualityComparer<T>.Default.Equals(x[i], y[i]))
                 return false;
         }
@@ -23,7 +23,8 @@ public sealed class ImmutableArraySequenceEqualityComparer<T> : IEqualityCompare
     public int GetHashCode(ImmutableArray<T> obj)
     {
         HashCode hc = new();
-        for (int i = 0; i < obj.Length; i++) {
+        for (int i = 0; i < obj.Length; i++)
+        {
             hc.Add(obj);
         }
         return hc.ToHashCode();

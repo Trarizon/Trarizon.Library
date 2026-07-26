@@ -2,10 +2,10 @@
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
 using Trarizon.Library.CodeAnalysis.SourceGeneration.Internal;
-using Trarizon.Library.Collections;
 using Trarizon.Library.Roslyn;
 
 namespace Trarizon.Library.CodeAnalysis.SourceGeneration;
+
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 internal sealed partial class ExternalSealedAnalyzer : DiagnosticAnalyzer
 {
@@ -33,7 +33,8 @@ internal sealed partial class ExternalSealedAnalyzer : DiagnosticAnalyzer
             {
                 var symbol = (INamedTypeSymbol)context.Symbol;
 
-                if (symbol.BaseType?.HasAttribute(externalSealedAttributeSymbol) ?? false) {
+                if (symbol.BaseType?.HasAttribute(externalSealedAttributeSymbol) ?? false)
+                {
                     context.ReportDiagnostic(Diag, symbol.Locations[0]);
                 }
 

@@ -1,7 +1,7 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 namespace Trarizon.Library.CodeAnalysis.Diagnostics;
+
 [AttributeUsage(
     AttributeTargets.Constructor |
     AttributeTargets.Method |

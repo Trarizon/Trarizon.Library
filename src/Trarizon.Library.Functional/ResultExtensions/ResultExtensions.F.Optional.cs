@@ -16,11 +16,13 @@ public static partial class ResultExtensions
 
     public static Optional<Result<T, TError>> Transpose<T, TError>(this Result<Optional<T>, TError> result)
     {
-        if (result.IsSuccess) {
+        if (result.IsSuccess)
+        {
             ref readonly var optional = ref result._value;
             return optional.HasValue ? Optional.Of(Result.Success<T, TError>(optional.Value)) : Optional.None;
         }
-        else {
+        else
+        {
             return Optional.Of(Result.Failure<T, TError>(result.Error));
         }
     }
@@ -41,10 +43,12 @@ public static partial class ResultExtensions
 
     public static RefOptional<RefResult<T, TError>> ToOptional<T, TError>(this RefResult<RefOptional<T>, TError> result) where T : allows ref struct where TError : allows ref struct
     {
-        if (result.IsSuccess) {
+        if (result.IsSuccess)
+        {
             return result._value.TryGetValue(out var value) ? RefOptional.Of(RefResult.Success<T, TError>(value)) : RefOptional<RefResult<T, TError>>.None;
         }
-        else {
+        else
+        {
             return RefOptional.Of(RefResult.Failure<T, TError>(result.Error));
         }
     }

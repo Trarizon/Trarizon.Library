@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
 namespace Trarizon.Library.Text.Json.Internal;
+
 internal static class Throws
 {
     [DoesNotReturn]

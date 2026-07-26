@@ -12,7 +12,8 @@ public static partial class TraEnumerable
         if (count <= 0)
             return true;
 
-        while (enumerator.MoveNext()) {
+        while (enumerator.MoveNext())
+        {
             if (++iteratedCount >= count)
                 return true;
         }

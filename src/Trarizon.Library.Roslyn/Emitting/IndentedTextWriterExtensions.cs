@@ -1,5 +1,4 @@
-﻿using System;
-using System.CodeDom.Compiler;
+﻿using System.CodeDom.Compiler;
 
 namespace Trarizon.Library.Roslyn.Emitting;
 
@@ -9,7 +8,8 @@ public static class IndentedTextWriterExtensions
 
     public static void WriteMultipleLines(this IndentedTextWriter writer, string text)
     {
-        foreach (var line in text.Split(_newlineSeperators, StringSplitOptions.None)) {
+        foreach (var line in text.Split(_newlineSeperators, StringSplitOptions.None))
+        {
             writer.WriteLine(line);
         }
     }

@@ -1,4 +1,5 @@
 ﻿namespace Trarizon.Library.Buffers.Pooling;
+
 public enum ObjectPoolKind
 {
     /// <summary>

@@ -25,7 +25,7 @@ public static partial class OptionalExtensions
 
 #endif
 
-#region With State
+    #region With State
 
     public static Optional<TResult> Select<T, TState, TResult>(this Optional<T> self, TState state, Func<T, TState, TResult> selector)
 #if NET9_0_OR_GREATER
@@ -51,5 +51,5 @@ public static partial class OptionalExtensions
 
 #endif
 
-#endregion
+    #endregion
 }

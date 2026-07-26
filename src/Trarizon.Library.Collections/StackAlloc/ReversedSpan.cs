@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections.StackAlloc;
+
 public readonly ref partial struct ReversedSpan<T>
 {
 #if NETSTANDARD
@@ -28,7 +29,8 @@ public readonly ref partial struct ReversedSpan<T>
     public ref T this[int index]
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get {
+        get
+        {
             Throws.ThrowIfGreaterThanOrEqual(index, Length);
             return ref DangerousGetReferenceAt(index);
         }
@@ -91,7 +93,8 @@ public readonly ref partial struct ReversedSpan<T>
     {
         Throws.ThrowIfLessThan(destination.Length, Length);
 
-        for (int i = 0; i < Length; i++) {
+        for (int i = 0; i < Length; i++)
+        {
             Utility.GetReferenceAt(destination, i) = DangerousGetReferenceAt(i);
         }
     }
@@ -101,7 +104,8 @@ public readonly ref partial struct ReversedSpan<T>
         if (destination.Length < Length)
             return false;
 
-        for (int i = 0; i < Length; i++) {
+        for (int i = 0; i < Length; i++)
+        {
             Utility.GetReferenceAt(destination, i) = DangerousGetReferenceAt(i);
         }
         return true;
@@ -157,7 +161,8 @@ public readonly ref partial struct ReversedSpan<T>
         public bool MoveNext()
         {
             int index = _index + 1;
-            if (index < _span.Length) {
+            if (index < _span.Length)
+            {
                 _index = index;
                 return true;
             }
@@ -179,7 +184,8 @@ public readonly ref partial struct ReversedSpan<T>
 
     public override string ToString()
     {
-        if (typeof(T) == typeof(char)) {
+        if (typeof(T) == typeof(char))
+        {
             return ((ReadOnlyReversedSpan<T>)this).ToString();
         }
 

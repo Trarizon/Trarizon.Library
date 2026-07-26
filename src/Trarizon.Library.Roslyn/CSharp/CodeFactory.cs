@@ -21,8 +21,10 @@ public static partial class CodeFactory
     public static string GetMethodDefinitionText(IMethodSymbol symbol, MethodDeclarationSyntax syntax, bool ensurePartialModifier = false)
     {
         var syntaxModifiers = syntax.Modifiers;
-        if (ensurePartialModifier) {
-            if (!syntaxModifiers.Any(SyntaxKind.PartialKeyword)) {
+        if (ensurePartialModifier)
+        {
+            if (!syntaxModifiers.Any(SyntaxKind.PartialKeyword))
+            {
                 syntaxModifiers = syntaxModifiers.Add(SyntaxFactory.Token(SyntaxKind.PartialKeyword));
             }
         }
@@ -70,7 +72,8 @@ public static partial class CodeFactory
     public static string? GetConstraintText(ITypeParameterSymbol typeParameter)
     {
         List<string> constraints = [];
-        if (typeParameter.HasReferenceTypeConstraint) {
+        if (typeParameter.HasReferenceTypeConstraint)
+        {
             if (typeParameter.ReferenceTypeConstraintNullableAnnotation is NullableAnnotation.Annotated)
                 constraints.Add("class?");
             else

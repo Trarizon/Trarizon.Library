@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 
 namespace Trarizon.Library.Collections.Comparers;
 
-public readonly struct ComparerComparable<T,TComparer>(T value,TComparer comparer) : IComparable<T> where TComparer : IComparer<T>
+public readonly struct ComparerComparable<T, TComparer>(T value, TComparer comparer) : IComparable<T> where TComparer : IComparer<T>
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int CompareTo(T? other) => comparer.Compare(value, other);

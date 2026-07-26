@@ -2,6 +2,7 @@
 using System.Diagnostics;
 
 namespace Trarizon.Library.Buffers.Pooling;
+
 public sealed class ThreadSafeObjectPool<T> : ObjectPool<T> where T : class
 {
     private readonly ConcurrentBag<T> _pooled;
@@ -28,40 +29,48 @@ public sealed class ThreadSafeObjectPool<T> : ObjectPool<T> where T : class
 
     public override void ReleasePooled()
     {
-        while (_pooled.TryTake(out var item)) {
+        while (_pooled.TryTake(out var item))
+        {
             _onDispose?.Invoke(item);
         }
     }
 
     public override T Rent()
     {
-        if (_pooled.TryTake(out var resItem)) {
+        if (_pooled.TryTake(out var resItem))
+        {
             var item = resItem;
             _onRent?.Invoke(item);
             var added = _rented.TryAdd(item, default);
             Debug.Assert(added);
             return item;
         }
-        else {
-            while (true) {
+        else
+        {
+            while (true)
+            {
                 var curCount = _count;
-                if (_count == _maxCount) {
+                if (_count == _maxCount)
+                {
                     // Final check if there's item returned
-                    if (_pooled.TryTake(out resItem)) {
+                    if (_pooled.TryTake(out resItem))
+                    {
                         var item = resItem;
                         _onRent?.Invoke(item);
                         var added = _rented.TryAdd(item, default);
                         Debug.Assert(added);
                         return item;
                     }
-                    else {
+                    else
+                    {
                         Throws.ThrowInvalidOperation("Failed to rent new item, object pool is full");
                         return default!;
                     }
                 }
 
                 // _count not modified, create new item
-                if (Interlocked.CompareExchange(ref _count, curCount + 1, curCount) == curCount) {
+                if (Interlocked.CompareExchange(ref _count, curCount + 1, curCount) == curCount)
+                {
                     var item = _createFactory();
                     var added = _rented.TryAdd(item, default);
                     Debug.Assert(added);
@@ -74,7 +83,8 @@ public sealed class ThreadSafeObjectPool<T> : ObjectPool<T> where T : class
 
     public override void Return(T item)
     {
-        if (_rented.TryRemove(item, out _)) {
+        if (_rented.TryRemove(item, out _))
+        {
             _onReturn?.Invoke(item);
             _pooled.Add(item);
         }

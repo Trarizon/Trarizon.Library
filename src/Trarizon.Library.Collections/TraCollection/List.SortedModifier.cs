@@ -3,6 +3,7 @@ using Trarizon.Library.Collections.Comparers;
 using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections;
+
 public static partial class TraCollection
 {
     /// <summary>
@@ -21,7 +22,7 @@ public static partial class TraCollection
     public static ListSortedModifier<T, TComparer> GetSortedModifier<T, TComparer>(this List<T> list, TComparer comparer) where TComparer : IComparer<T>
         => new(list, comparer);
 
-    public static ListSortedModifier<T, TComparer>.TrackingScope EnterTrackingScope<T, TComparer>(this ListSortedModifier<T, TComparer> list, int index) where T : class where TComparer : IComparer<T> 
+    public static ListSortedModifier<T, TComparer>.TrackingScope EnterTrackingScope<T, TComparer>(this ListSortedModifier<T, TComparer> list, int index) where T : class where TComparer : IComparer<T>
         => new(list, index, list[index]);
 
     public static ListSortedModifier<T, TComparer>.TrackingScope EnterTrackingScope<T, TComparer>(this ListSortedModifier<T, TComparer> list, T item) where T : class where TComparer : IComparer<T>
@@ -50,7 +51,8 @@ public static partial class TraCollection
         public T this[int index]
         {
             get => _list[index];
-            set {
+            set
+            {
                 _list[index] = value;
                 NotifyEditedAt(index);
             }
@@ -115,7 +117,8 @@ public static partial class TraCollection
         public int Remove(T item)
         {
             var index = _list.BinarySearch(item, _comparer);
-            if (index >= 0) {
+            if (index >= 0)
+            {
                 _list.RemoveAt(index);
             }
             return index;
@@ -161,19 +164,22 @@ public static partial class TraCollection
         public void NotifyEditedAt(int index)
         {
             var editItem = _list[index];
-            if (index >= 1 && _comparer.Compare(_list[index - 1], editItem) > 0) {
+            if (index >= 1 && _comparer.Compare(_list[index - 1], editItem) > 0)
+            {
                 var destIndex = _list.BinarySearch(0, index, editItem, _comparer);
                 if (destIndex < 0)
                     destIndex = ~destIndex;
                 _list.AsSpan().MoveTo(index, destIndex);
             }
-            else if (index < _list.Count - 1 && _comparer.Compare(editItem, _list[index + 1]) > 0) {
+            else if (index < _list.Count - 1 && _comparer.Compare(editItem, _list[index + 1]) > 0)
+            {
                 var destIndex = _list.BinarySearch(index + 1, _list.Count - 1 - index, editItem, _comparer);
                 if (destIndex < 0)
                     destIndex = ~destIndex;
                 _list.AsSpan().MoveTo(index, index + destIndex);
             }
-            else {
+            else
+            {
                 // No move
             }
         }
@@ -195,7 +201,8 @@ public static partial class TraCollection
 
             public void Dispose()
             {
-                if (!ReferenceEquals(_item, _list[_index])) {
+                if (!ReferenceEquals(_item, _list[_index]))
+                {
                     Throws.ThrowInvalidOperation("The item is moved during tracking.");
                 }
                 _list.NotifyEditedAt(_index);

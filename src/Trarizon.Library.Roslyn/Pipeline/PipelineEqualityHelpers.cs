@@ -1,10 +1,8 @@
-﻿using Microsoft.CodeAnalysis;
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using Trarizon.Library.Roslyn.Pipeline.Collections;
 
 namespace Trarizon.Library.Roslyn.Pipeline;
+
 public static partial class PipelineEqualityHelpers
 {
     public static SequenceEquatableImmutableArray<T> ToSequenceEquatableImmutableArray<T>(this ImmutableArray<T> source)

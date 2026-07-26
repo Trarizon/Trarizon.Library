@@ -1,6 +1,7 @@
 ﻿using System.Buffers;
 
 namespace Trarizon.Library.Collections.Buffers;
+
 public interface IArrayAllocator<T>
 {
     T[] Allocate(int minLength);

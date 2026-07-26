@@ -35,10 +35,13 @@ public static class PrefixTreeExtensions
             var node = tree._root;
 
             var comparer = lookup.Comparer;
-            foreach (var val in prefix) {
+            foreach (var val in prefix)
+            {
                 var children = node.ChildrenSpan;
-                foreach (var child in children) {
-                    if (comparer.Equals(val, child.Value!)) {
+                foreach (var child in children)
+                {
+                    if (comparer.Equals(val, child.Value!))
+                    {
                         node = child;
                         goto ContinueFor;
                     }
@@ -62,14 +65,17 @@ public static class PrefixTreeExtensions
         {
             var tree = lookup.Tree;
             node = tree.Root;
-            foreach (var item in sequence) {
+            foreach (var item in sequence)
+            {
                 node = lookup.GetOrAddChild(node, item);
             }
 
-            if (node._end) {
+            if (node._end)
+            {
                 return false;
             }
-            else {
+            else
+            {
                 tree._version++;
                 tree._count++;
                 node._end = true;
@@ -98,11 +104,13 @@ public static class PrefixTreeExtensions
         public bool TryGetValue(ReadOnlySpan<TAlternate> sequence, [MaybeNullWhen(false)] out TValue value)
         {
             var node = lookup.FindPrefixNode(sequence);
-            if (node is { IsEnd: true }) {
+            if (node is { IsEnd: true })
+            {
                 value = node.GetValueOrDefault()!;
                 return true;
             }
-            else {
+            else
+            {
                 value = default;
                 return false;
             }
@@ -134,10 +142,13 @@ public static class PrefixTreeExtensions
             var node = tree._root;
 
             var comparer = lookup.Comparer;
-            foreach (var val in prefix) {
+            foreach (var val in prefix)
+            {
                 var children = node.ChildrenSpan;
-                foreach (var child in children) {
-                    if (comparer.Equals(val, child.Key!)) {
+                foreach (var child in children)
+                {
+                    if (comparer.Equals(val, child.Key!))
+                    {
                         node = child;
                         goto ContinueFor;
                     }
@@ -161,14 +172,17 @@ public static class PrefixTreeExtensions
         {
             var tree = lookup.Tree;
             node = tree.Root;
-            foreach (var item in sequence) {
+            foreach (var item in sequence)
+            {
                 node = lookup.GetOrAddChild(node, item);
             }
 
-            if (node.IsEnd) {
+            if (node.IsEnd)
+            {
                 return false;
             }
-            else {
+            else
+            {
                 tree._version++;
                 tree._count++;
                 node.SetIsEnd(value);

@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections.StackAlloc;
+
 [method: MethodImpl(MethodImplOptions.AggressiveInlining)]
 public readonly ref struct ConcatSpan<T>(Span<T> first, Span<T> second)
 {
@@ -19,7 +20,8 @@ public readonly ref struct ConcatSpan<T>(Span<T> first, Span<T> second)
     public ref T this[int index]
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get {
+        get
+        {
             if (index < _first.Length)
                 return ref Utility.GetReferenceAt(_first, index);
             index -= _first.Length;
@@ -46,17 +48,21 @@ public readonly ref struct ConcatSpan<T>(Span<T> first, Span<T> second)
         if (length == 0)
             return default;
 
-        if (startIndex < _first.Length) {
+        if (startIndex < _first.Length)
+        {
             var endIndex = startIndex + length;
-            if (endIndex < _first.Length) {
+            if (endIndex < _first.Length)
+            {
                 return new(_first.Slice(startIndex, length), []);
             }
-            else {
+            else
+            {
                 endIndex -= _first.Length;
                 return new(_first, _second[..endIndex]);
             }
         }
-        else {
+        else
+        {
             startIndex -= _first.Length;
             return new(_second.Slice(startIndex, length), []);
         }
@@ -65,10 +71,12 @@ public readonly ref struct ConcatSpan<T>(Span<T> first, Span<T> second)
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ConcatSpan<T> Slice(int startIndex)
     {
-        if (startIndex < _first.Length) {
+        if (startIndex < _first.Length)
+        {
             return new(_first[startIndex..], _second);
         }
-        else {
+        else
+        {
             var start = startIndex - _first.Length;
             return new(_second[start..], []);
         }
@@ -85,7 +93,8 @@ public readonly ref struct ConcatSpan<T>(Span<T> first, Span<T> second)
 
     public bool TryCopyTo(Span<T> destination)
     {
-        if (destination.Length >= Length) {
+        if (destination.Length >= Length)
+        {
             _first.CopyTo(destination);
             _second.CopyTo(destination[_first.Length..]);
             return true;
@@ -105,7 +114,8 @@ public readonly ref struct ConcatSpan<T>(Span<T> first, Span<T> second)
 
     public override string ToString()
     {
-        if (typeof(T) == typeof(char)) {
+        if (typeof(T) == typeof(char))
+        {
 
 #if NETSTANDARD2_0
             return $"{_first.ToString()}{_second.ToString()}";
@@ -146,7 +156,8 @@ public readonly ref struct ConcatSpan<T>(Span<T> first, Span<T> second)
         public bool MoveNext()
         {
             int index = _index + 1;
-            if (index < _span.Length) {
+            if (index < _span.Length)
+            {
                 _index = index;
                 return true;
             }

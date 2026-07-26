@@ -37,11 +37,13 @@ public struct RentedList<T> : IDisposable
 
     public readonly T this[int index]
     {
-        get {
+        get
+        {
             Throws.ThrowIfIndexGreaterThanOrEqual(index, _count);
             return _array[index];
         }
-        set {
+        set
+        {
             Throws.ThrowIfIndexGreaterThanOrEqual(index, _count);
             _array[index] = value;
         }
@@ -66,7 +68,8 @@ public struct RentedList<T> : IDisposable
     public void Add(T item)
     {
         Debug.Assert(_count <= _array.Length);
-        if (_count == _array.Length) {
+        if (_count == _array.Length)
+        {
             ArrayGrowHelper.GrowPooled(ref _array, _count + 1, _count);
         }
         _array[_count++] = item;
@@ -74,13 +77,15 @@ public struct RentedList<T> : IDisposable
 
     public void AddRange(IEnumerable<T> items)
     {
-        if (items is ICollection<T> collection) {
+        if (items is ICollection<T> collection)
+        {
             int count = collection.Count;
             if (count <= 0)
                 return;
 
             var newCount = _count + count;
-            if (newCount > _array.Length) {
+            if (newCount > _array.Length)
+            {
                 ArrayGrowHelper.GrowPooled(ref _array, newCount, _count);
             }
             collection.CopyTo(_array, _count);
@@ -88,7 +93,8 @@ public struct RentedList<T> : IDisposable
             return;
         }
 
-        foreach (var item in items) {
+        foreach (var item in items)
+        {
             Add(item);
         }
     }
@@ -99,7 +105,8 @@ public struct RentedList<T> : IDisposable
             return;
 
         var newCount = _count + items.Length;
-        if (newCount > _array.Length) {
+        if (newCount > _array.Length)
+        {
             ArrayGrowHelper.GrowPooled(ref _array, newCount, _count);
         }
         items.CopyTo(_array.AsSpan(_count, items.Length));
@@ -119,23 +126,27 @@ public struct RentedList<T> : IDisposable
     {
         Throws.ThrowIfIndexGreaterThanOrEqual(index, _count);
 
-        if (items.TryGetNonEnumeratedCount(out var count)) {
+        if (items.TryGetNonEnumeratedCount(out var count))
+        {
             if (count <= 0)
                 return;
             EnsureArrayForInsertion(index, count);
-            if (items is ICollection<T> collection) {
+            if (items is ICollection<T> collection)
+            {
                 collection.CopyTo(_array, index);
             }
-            else {
-                foreach (var item in items) {
+            else
+            {
+                foreach (var item in items)
                     _array[index++] = item;
-                }
             }
             _count += count;
             return;
         }
-        else {
-            foreach (var item in items) {
+        else
+        {
+            foreach (var item in items)
+            {
                 Insert(index++, item);
             }
             return;
@@ -158,10 +169,12 @@ public struct RentedList<T> : IDisposable
     private void EnsureArrayForInsertion(int index, int insertCount)
     {
         var newSize = _count + insertCount;
-        if (newSize > _array.Length) {
+        if (newSize > _array.Length)
+        {
             ArrayGrowHelper.GrowPooledForInsertion(ref _array, newSize, _count, index, insertCount);
         }
-        else {
+        else
+        {
             ArrayGrowHelper.ShiftRightForInsert(_array, _count, index, insertCount);
         }
     }
@@ -212,11 +225,13 @@ public struct RentedList<T> : IDisposable
             return 0;
 
         int ptr = newSize + 1;
-        while (ptr < Count) {
+        while (ptr < Count)
+        {
             while (ptr < Count && !predicate(this[ptr]))
                 ptr++;
 
-            if (ptr < Count) {
+            if (ptr < Count)
+            {
                 this[newSize++] = this[ptr++];
             }
         }
@@ -246,7 +261,8 @@ public struct RentedList<T> : IDisposable
 
     public void Dispose()
     {
-        if (_array.Length > 0) {
+        if (_array.Length > 0)
+        {
             ArrayPool<T>.Shared.Return(_array, RuntimeHelpers.IsReferenceOrContainsReferences<T>());
         }
         _array = null!;
@@ -274,12 +290,14 @@ public struct RentedList<T> : IDisposable
             if (_index < 0)
                 return false;
 
-            if (_index < _list.Count) {
+            if (_index < _list.Count)
+            {
                 _current = _list[_index];
                 _index++;
                 return true;
             }
-            else {
+            else
+            {
                 _index = -1;
                 _current = default!;
                 return false;

@@ -1,6 +1,4 @@
-﻿using System;
-using System.CodeDom.Compiler;
-using System.Collections.Generic;
+﻿using System.CodeDom.Compiler;
 using Trarizon.Library.Roslyn.Emitting;
 using Trarizon.Library.Roslyn.Pipeline;
 
@@ -15,19 +13,22 @@ public static class EmitExtensions
 
         var cur = type.Parent;
         var stack = new Stack<TypeHierarchyInfo>();
-        while (cur is not null) {
+        while (cur is not null)
+        {
             stack.Push(cur);
             cur = cur.Parent;
         }
         var defer = writer.EnterIndentTrackingScope();
 
-        if (type.Namespace is not null) {
+        if (type.Namespace is not null)
+        {
             defer.Writer.WriteLine($"namespace {type.Namespace}");
             defer.WriteBracketAndIndent('{');
         }
 
         string partialKeyword = partial ? "partial " : string.Empty;
-        foreach (var t in stack) {
+        foreach (var t in stack)
+        {
             defer.Writer.WriteLine($"{partialKeyword}{t.Keywords} {t.Name}");
             defer.WriteBracketAndIndent('{');
         }

@@ -4,6 +4,7 @@ using Trarizon.Library.Collections.Buffers;
 using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections;
+
 public static partial class TraSpan
 {
     public static void MoveTo<T>(this Span<T> span, int fromIndex, int toIndex)
@@ -16,11 +17,13 @@ public static partial class TraSpan
 
         var val = span[fromIndex];
 
-        if (fromIndex > toIndex) {
+        if (fromIndex > toIndex)
+        {
             var len = fromIndex - toIndex;
             span.Slice(toIndex, len).CopyTo(span.Slice(toIndex + 1, len));
         }
-        else {
+        else
+        {
             var len = toIndex - fromIndex;
             span.Slice(fromIndex + 1, len).CopyTo(span.Slice(fromIndex, len));
         }
@@ -41,11 +44,13 @@ public static partial class TraSpan
         if (fromIndex == toIndex)
             return;
 
-        if (fromIndex > toIndex) {
+        if (fromIndex > toIndex)
+        {
             Throws.ThrowIfGreaterThan(fromIndex + length, span.Length);
             Core(span, toIndex, toIndex + length, length, fromIndex - toIndex);
         }
-        else {
+        else
+        {
             Throws.ThrowIfGreaterThan(toIndex + length, span.Length);
             Core(span, fromIndex, toIndex, toIndex - fromIndex, length);
         }
@@ -56,13 +61,15 @@ public static partial class TraSpan
             Debug.Assert(dist > 0);
             Debug.Assert(dist != length);
 
-            if (dist < length) {
+            if (dist < length)
+            {
                 using var b = ArrayPool<T>.Shared.RentAsSpan(dist, out var buffer);
                 span.Slice(from + length, dist).CopyTo(buffer);
                 span.Slice(from, length).CopyTo(span.Slice(to, length));
                 buffer.CopyTo(span.Slice(from, dist));
             }
-            else {
+            else
+            {
                 using var b = ArrayPool<T>.Shared.RentAsSpan(length, out var buffer);
                 span.Slice(from, length).CopyTo(buffer);
                 span.Slice(from + length, dist).CopyTo(span.Slice(from, dist));

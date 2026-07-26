@@ -3,6 +3,7 @@
 using System.Runtime.CompilerServices;
 
 namespace Trarizon.Library;
+
 public static partial class TraDelegate
 {
     public static unsafe Action Create<TObj>(TObj obj, delegate*<TObj, void> methodPtr) where TObj : class

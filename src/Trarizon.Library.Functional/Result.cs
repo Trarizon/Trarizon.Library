@@ -182,11 +182,13 @@ public readonly partial struct Result<T, TError>
 
     public string ToString(bool includeVariantInfo)
     {
-        if (!includeVariantInfo) {
+        if (!includeVariantInfo)
+        {
             return ToString();
         }
 
-        if (IsSuccess) {
+        if (IsSuccess)
+        {
             string? str;
             if (_value is ITaggedUnion monad)
                 str = monad.ToString(true);
@@ -194,7 +196,8 @@ public readonly partial struct Result<T, TError>
                 str = _value.ToString();
             return str is null ? "Result Success" : $"Success({str})";
         }
-        else {
+        else
+        {
             string? str;
             if (_error is ITaggedUnion monad)
                 str = monad.ToString(true);

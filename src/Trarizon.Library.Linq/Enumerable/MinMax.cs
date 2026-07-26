@@ -143,13 +143,16 @@ public static partial class TraEnumerable
     private static (T Min, T Max) TryMinMax<T, TSorter>(IEnumerable<T> source, TSorter sorter, out bool success) where TSorter : IOrderComparer<T>
     {
         T min, max;
-        if (source.TryGetSpan(out var span)) {
-            if (span.Length == 0) {
+        if (source.TryGetSpan(out var span))
+        {
+            if (span.Length == 0)
+            {
                 success = false;
                 return default!;
             }
             min = max = span[0];
-            for (var i = 1; i < span.Length; i++) {
+            for (var i = 1; i < span.Length; i++)
+            {
                 var curr = span[i];
                 if (sorter.Less(curr, min))
                     min = curr;
@@ -161,14 +164,16 @@ public static partial class TraEnumerable
         }
 
         using var enumerator = source.GetEnumerator();
-        if (!enumerator.MoveNext()) {
+        if (!enumerator.MoveNext())
+        {
             success = false;
             return default;
         }
 
         min = max = enumerator.Current;
 
-        while (enumerator.MoveNext()) {
+        while (enumerator.MoveNext())
+        {
             var curr = enumerator.Current;
             if (sorter.Less(curr, min))
                 min = curr;
@@ -184,14 +189,16 @@ public static partial class TraEnumerable
     {
         TResult min, max;
         using var enumerator = source.GetEnumerator();
-        if (!enumerator.MoveNext()) {
+        if (!enumerator.MoveNext())
+        {
             success = false;
             return default;
         }
 
         min = max = selector(enumerator.Current);
 
-        while (enumerator.MoveNext()) {
+        while (enumerator.MoveNext())
+        {
             var curr = selector(enumerator.Current);
             if (sorter.Less(curr, min))
                 min = curr;
@@ -209,7 +216,8 @@ public static partial class TraEnumerable
         TKey minKey, maxKey;
 
         using var enumerator = source.GetEnumerator();
-        if (!enumerator.MoveNext()) {
+        if (!enumerator.MoveNext())
+        {
             success = false;
             return default;
         }
@@ -217,7 +225,8 @@ public static partial class TraEnumerable
         min = max = enumerator.Current;
         minKey = maxKey = keySelector(min);
 
-        while (enumerator.MoveNext()) {
+        while (enumerator.MoveNext())
+        {
             var curr = enumerator.Current;
             var key = keySelector(curr);
             if (sorter.Less(key, minKey))
@@ -234,13 +243,16 @@ public static partial class TraEnumerable
         where TSorter : IOrderComparer<T>
     {
         T val;
-        if (source.TryGetSpan(out var span)) {
-            if (span.Length == 0) {
+        if (source.TryGetSpan(out var span))
+        {
+            if (span.Length == 0)
+            {
                 success = false;
                 return default!;
             }
             val = span[0];
-            for (var i = 1; i < span.Length; i++) {
+            for (var i = 1; i < span.Length; i++)
+            {
                 var curr = span[i];
                 if (sorter.Less(curr, val))
                     val = curr;
@@ -250,13 +262,15 @@ public static partial class TraEnumerable
         }
 
         using var enumerator = source.GetEnumerator();
-        if (!enumerator.MoveNext()) {
+        if (!enumerator.MoveNext())
+        {
             success = false;
             return default!;
         }
 
         val = enumerator.Current;
-        while (enumerator.MoveNext()) {
+        while (enumerator.MoveNext())
+        {
             var curr = enumerator.Current;
             if (sorter.Less(curr, val))
                 val = curr;

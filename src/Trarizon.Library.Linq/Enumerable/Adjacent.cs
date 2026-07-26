@@ -6,7 +6,8 @@ partial class TraEnumerable
 {
     public static IEnumerable<(T, T)> Adjacent<T>(this IEnumerable<T> source)
     {
-        if (source is T[] array) {
+        if (source is T[] array)
+        {
             if (array.Length < 2)
                 return [];
             else
@@ -24,7 +25,8 @@ partial class TraEnumerable
                 yield break;
             T prev = enumerator.Current;
 
-            while (enumerator.MoveNext()) {
+            while (enumerator.MoveNext())
+            {
                 var curr = enumerator.Current;
                 yield return (prev, curr);
                 prev = curr;
@@ -46,7 +48,8 @@ partial class TraEnumerable
         {
             const int End = MinPreservedState - 1;
 
-            switch (_state) {
+            switch (_state)
+            {
                 case InitState:
                     Debug.Assert(source.Length >= 2);
                     _current = (source[0], source[1]);
@@ -57,7 +60,8 @@ partial class TraEnumerable
                 default:
                     Debug.Assert(_state >= 2);
                     var index2 = _state;
-                    if (index2 < source.Length) {
+                    if (index2 < source.Length)
+                    {
                         _current = (_current.Item2, source[_state]);
                         _state++;
                         return true;
@@ -85,7 +89,8 @@ partial class TraEnumerable
 
         public override (T, T) this[int index]
         {
-            get {
+            get
+            {
                 var lat = source[index + 1]; // If out of range, fail early
                 return (source[index], lat);
             }
@@ -99,12 +104,15 @@ partial class TraEnumerable
         {
             const int End = MinPreservedState - 1;
 
-            switch (_state) {
+            switch (_state)
+            {
                 case InitState:
                     _enumerator = source.GetEnumerator();
-                    if (_enumerator.MoveNext()) {
+                    if (_enumerator.MoveNext())
+                    {
                         _current.Item1 = _enumerator.Current;
-                        if (_enumerator.MoveNext()) {
+                        if (_enumerator.MoveNext())
+                        {
                             _current.Item2 = _enumerator.Current;
                             _state = 0;
                             return true;
@@ -116,7 +124,8 @@ partial class TraEnumerable
                     return false;
                 default:
                     Debug.Assert(_enumerator is not null);
-                    if (_enumerator!.MoveNext()) {
+                    if (_enumerator!.MoveNext())
+                    {
                         _current = (_current.Item2, _enumerator.Current);
                         return true;
                     }

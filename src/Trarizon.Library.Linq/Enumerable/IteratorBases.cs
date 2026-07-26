@@ -48,16 +48,20 @@ partial class TraEnumerable
 
         public virtual bool Contains(T item)
         {
-            if (typeof(T).IsValueType) {
-                foreach (var val in this) {
+            if (typeof(T).IsValueType)
+            {
+                foreach (var val in this)
+                {
                     if (EqualityComparer<T>.Default.Equals(val, item))
                         return true;
                 }
                 return false;
             }
-            else {
+            else
+            {
                 var comparer = EqualityComparer<T>.Default;
-                foreach (var val in this) {
+                foreach (var val in this)
+                {
                     if (comparer.Equals(val, item))
                         return true;
                 }
@@ -73,7 +77,8 @@ partial class TraEnumerable
 
             var span = array.AsSpan(arrayIndex, count);
             int i = 0;
-            foreach (var val in this) {
+            foreach (var val in this)
+            {
                 span[i++] = val;
             }
         }
@@ -86,7 +91,8 @@ partial class TraEnumerable
             if (array.Rank != 1)
                 Throws.ThrowInvalidOperation("Array must have rank 1");
 
-            foreach (var val in this) {
+            foreach (var val in this)
+            {
                 array.SetValue(val, index++);
             }
         }
@@ -107,16 +113,20 @@ partial class TraEnumerable
 
         public virtual int IndexOf(T item)
         {
-            if (typeof(T).IsValueType) {
-                for (int i = 0; i < Count; i++) {
+            if (typeof(T).IsValueType)
+            {
+                for (int i = 0; i < Count; i++)
+                {
                     if (EqualityComparer<T>.Default.Equals(this[i], item))
                         return i;
                 }
                 return -1;
             }
-            else {
+            else
+            {
                 var comparer = EqualityComparer<T>.Default;
-                for (int i = 0; i < Count; i++) {
+                for (int i = 0; i < Count; i++)
+                {
                     if (comparer.Equals(this[i], item))
                         return i;
                 }
@@ -131,7 +141,8 @@ partial class TraEnumerable
         {
             const int End = MinPreservedState - 1;
 
-            switch (_state) {
+            switch (_state)
+            {
                 case InitState:
                     _state = 0;
                     goto default;
@@ -140,7 +151,8 @@ partial class TraEnumerable
                 default:
                     Debug.Assert(_state >= 0);
                     var index = _state;
-                    if (index < Count) {
+                    if (index < Count)
+                    {
                         currentField = this[_state];
                         _state = index + 1;
                         return true;

@@ -22,22 +22,29 @@ public static partial class TraEnumerable
             using var enumerator = source.GetEnumerator();
             using var enumerator2 = other.GetEnumerator();
 
-            while (enumerator.MoveNext()) {
-                if (enumerator2.MoveNext()) {
+            while (enumerator.MoveNext())
+            {
+                if (enumerator2.MoveNext())
+                {
                     yield return enumerator.Current;
                     yield return enumerator2.Current;
                 }
-                else {
-                    if (!truncateToShorter) {
-                        do {
+                else
+                {
+                    if (!truncateToShorter)
+                    {
+                        do
+                        {
                             yield return enumerator.Current;
                         } while (enumerator.MoveNext());
                     }
                     yield break;
                 }
             }
-            if (!truncateToShorter) {
-                while (enumerator2.MoveNext()) {
+            if (!truncateToShorter)
+            {
+                while (enumerator2.MoveNext())
+                {
                     yield return enumerator2.Current;
                 }
             }
@@ -50,8 +57,10 @@ public static partial class TraEnumerable
 
         public override T this[int index]
         {
-            get {
-                if (index >= Count) {
+            get
+            {
+                if (index >= Count)
+                {
                     Throws.ThrowArgumentOutOfRange(nameof(index), index, "Index out of range");
                 }
                 if (index % 2 == 0)
@@ -69,7 +78,8 @@ public static partial class TraEnumerable
         {
             const int End = MinPreservedState - 1;
 
-            switch (_state) {
+            switch (_state)
+            {
                 case InitState:
                     _state = 0;
                     goto default;
@@ -77,8 +87,10 @@ public static partial class TraEnumerable
                     return false;
                 default:
                     var index = _state / 2;
-                    if (_state % 2 == 0) {
-                        if (index < list.Count && index < other.Count) {
+                    if (_state % 2 == 0)
+                    {
+                        if (index < list.Count && index < other.Count)
+                        {
                             _current = list[index];
                             _state++;
                             return true;
@@ -87,7 +99,8 @@ public static partial class TraEnumerable
                         _current = default;
                         return false;
                     }
-                    else {
+                    else
+                    {
                         Debug.Assert(index < list.Count && index < other.Count);
                         _current = other[index];
                         _state++;
@@ -100,7 +113,8 @@ public static partial class TraEnumerable
 
         internal override T TryGetFirst(out bool exists)
         {
-            if (list.Count > 0 && other.Count > 0) {
+            if (list.Count > 0 && other.Count > 0)
+            {
                 exists = true;
                 return list[0];
             }
@@ -113,7 +127,8 @@ public static partial class TraEnumerable
             var listCount = list.Count;
             var otherCount = other.Count;
 
-            if (listCount > 0 && otherCount > 0) {
+            if (listCount > 0 && otherCount > 0)
+            {
                 exists = true;
                 return other[Math.Min(listCount, otherCount) - 1];
             }
@@ -129,15 +144,18 @@ public static partial class TraEnumerable
 
         public override T this[int index]
         {
-            get {
+            get
+            {
                 var shortCount = Math.Min(list.Count, other.Count);
-                if (index < shortCount) {
+                if (index < shortCount)
+                {
                     if (index % 2 == 0)
                         return list[index / 2];
                     else
                         return other[index / 2];
                 }
-                else {
+                else
+                {
                     if (list.Count > other.Count)
                         return list[index - shortCount];
                     else
@@ -154,23 +172,28 @@ public static partial class TraEnumerable
         {
             const int End = MinPreservedState - 1;
 
-            switch (_state) {
+            switch (_state)
+            {
                 case InitState:
                     _state = 0;
                     goto default;
                 case End:
                     return false;
-                default: {
+                default:
+                {
                     var index = _state >>> 1;
-                    if (_state % 2 == 0) {
-                        if (index < list.Count) {
+                    if (_state % 2 == 0)
+                    {
+                        if (index < list.Count)
+                        {
                             _current = list[index];
                             unchecked { _state += _rest ? 2 : 1; }
                             return true;
                         }
                         // even state, but list has no more value, means we start iterate rest of other
                         _rest = true;
-                        if (index < other.Count) {
+                        if (index < other.Count)
+                        {
                             _current = other[index];
                             unchecked { _state += 3; }
                             return true;
@@ -178,15 +201,18 @@ public static partial class TraEnumerable
                         _state = End;
                         return false;
                     }
-                    else {
-                        if (index < other.Count) {
+                    else
+                    {
+                        if (index < other.Count)
+                        {
                             _current = other[index];
                             unchecked { _state += _rest ? 2 : 1; }
                             return true;
                         }
                         _rest = true;
                         index++;
-                        if (index < list.Count) {
+                        if (index < list.Count)
+                        {
                             _current = list[index];
                             unchecked { _state += 3; }
                             return true;
@@ -202,11 +228,13 @@ public static partial class TraEnumerable
 
         internal override T TryGetFirst(out bool exists)
         {
-            if (list.Count > 0) {
+            if (list.Count > 0)
+            {
                 exists = true;
                 return list[0];
             }
-            if (other.Count > 0) {
+            if (other.Count > 0)
+            {
                 exists = true;
                 return other[0];
             }
@@ -219,14 +247,18 @@ public static partial class TraEnumerable
             var listCount = list.Count;
             var otherCount = other.Count;
 
-            if (listCount <= otherCount) {
-                if (otherCount > 0) {
+            if (listCount <= otherCount)
+            {
+                if (otherCount > 0)
+                {
                     exists = true;
                     return other[otherCount - 1];
                 }
             }
-            else {
-                if (listCount > 0) {
+            else
+            {
+                if (listCount > 0)
+                {
                     exists = true;
                     return list[listCount - 1];
                 }

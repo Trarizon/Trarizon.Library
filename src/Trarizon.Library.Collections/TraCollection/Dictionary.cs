@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections;
+
 public static partial class TraCollection
 {
 #if NET8_0_OR_GREATER
@@ -102,7 +103,8 @@ public static partial class TraCollection
 
     public static TValue AddOrUpdate<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue addValue, Func<TKey, TValue, TValue> updateFactory) where TKey : notnull
     {
-        if (dictionary.TryGetValue(key, out var value)) {
+        if (dictionary.TryGetValue(key, out var value))
+        {
             var newValue = updateFactory(key, value);
             dictionary[key] = newValue;
             return newValue;
@@ -113,7 +115,8 @@ public static partial class TraCollection
 
     public static TValue AddOrUpdate<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, Func<TKey, TValue> addFactory, Func<TKey, TValue, TValue> updateFactory) where TKey : notnull
     {
-        if (dictionary.TryGetValue(key, out var value)) {
+        if (dictionary.TryGetValue(key, out var value))
+        {
             var newValue = updateFactory(key, value);
             dictionary[key] = newValue;
             return newValue;
@@ -125,7 +128,8 @@ public static partial class TraCollection
 
     public static TValue AddOrUpdate<TKey, TValue, TArgs>(this IDictionary<TKey, TValue> dictionary, TKey key, TArgs factoryArgs, Func<TKey, TArgs, TValue> addFactory, Func<TKey, TArgs, TValue, TValue> updateFactory) where TKey : notnull
     {
-        if (dictionary.TryGetValue(key, out var value)) {
+        if (dictionary.TryGetValue(key, out var value))
+        {
             var newValue = updateFactory(key, factoryArgs, value);
             dictionary[key] = newValue;
             return newValue;

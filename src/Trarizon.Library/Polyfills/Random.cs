@@ -10,11 +10,18 @@ internal static partial class Polyfills
     public static float NextSingle(this Random random)
         => (float)random.NextDouble();
 
-    public static long NextInt64d(this Random random)
+    public static long NextInt64(this Random random)
     {
+#if NETSTANDARD2_0
+        long low, high;
+        low = random.Next();
+        high = random.Next();
+        return (high << 32) | low;
+#else
         var bytes = (stackalloc byte[sizeof(long)]);
         random.NextBytes(bytes);
-        return Unsafe.ReadUnaligned<long>(in MemoryMarshal.GetReference(bytes));
+        return Unsafe.ReadUnaligned<long>(ref MemoryMarshal.GetReference(bytes));
+#endif
     }
 
     public static void Shuffle<T>(this Random random, Span<T> span)

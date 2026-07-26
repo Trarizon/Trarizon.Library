@@ -2,6 +2,7 @@
 using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections;
+
 public static class TraIndex
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

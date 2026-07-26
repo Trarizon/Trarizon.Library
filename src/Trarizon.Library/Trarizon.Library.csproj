@@ -10,14 +10,6 @@
         <Description>Trarizon's personal library</Description>
     </PropertyGroup>
 
-    <ItemGroup>
-        <None Include="TraDelegate.ttg.cs">
-            <DesignTime>True</DesignTime>
-            <AutoGen>True</AutoGen>
-            <DependentUpon>TraDelegate.tt</DependentUpon>
-        </None>
-    </ItemGroup>
-
     <!-- Reference -->
 
     <ItemGroup>
@@ -40,7 +32,7 @@
     <ItemGroup>
         <None Update="TraDelegate.tt">
             <Generator>TextTemplatingFileGenerator</Generator>
-            <LastGenOutput>TraDelegate.ttg.cs</LastGenOutput>
+            <LastGenOutput>TraDelegate.tt.g.cs</LastGenOutput>
         </None>
     </ItemGroup>
 
@@ -49,6 +41,11 @@
     </ItemGroup>
 
     <ItemGroup>
+        <Compile Update="TraDelegate.tt.g.cs">
+          <DesignTime>True</DesignTime>
+          <AutoGen>True</AutoGen>
+          <DependentUpon>TraDelegate.tt</DependentUpon>
+        </Compile>
         <Compile Update="TraDelegate.ttg.cs">
             <DesignTime>True</DesignTime>
             <AutoGen>True</AutoGen>
@@ -59,6 +56,7 @@
     <PropertyGroup Label="Polyfills">
         <PolySharpIncludeGeneratedTypes>
             System.Diagnostics.CodeAnalysis.ExperimentalAttribute;
+            System.Runtime.CompilerServices.CallerArgumentExpressionAttribute;
 
             System.Diagnostics.CodeAnalysis.MaybeNullAttribute;
             System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute;

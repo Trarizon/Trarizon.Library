@@ -1,4 +1,5 @@
 ﻿namespace Trarizon.Library.Collections.Generic;
+
 public interface IBinaryTreeNode<TSelf> where TSelf : IBinaryTreeNode<TSelf>
 {
     TSelf? Parent { get; set; }
@@ -15,11 +16,13 @@ public static class BinaryTreeNode
         node.Parent = parent;
 
         TNode? child;
-        if (appendParentsRight) {
+        if (appendParentsRight)
+        {
             child = parent.RightChild;
             parent.RightChild = node;
         }
-        else {
+        else
+        {
             child = parent.LeftChild;
             parent.LeftChild = node;
         }
@@ -27,13 +30,15 @@ public static class BinaryTreeNode
             child.Parent = node;
 
         TNode? oldChild;
-        if (appendNodesRight) {
+        if (appendNodesRight)
+        {
             oldChild = node.RightChild;
             node.RightChild = child;
             if (oldParent is not null)
                 oldParent.RightChild = oldChild;
         }
-        else {
+        else
+        {
             oldChild = node.LeftChild;
             node.LeftChild = child;
             if (oldParent is not null)
@@ -83,7 +88,8 @@ public static class BinaryTreeNode
         where TNode : IBinaryTreeNode<TNode>
     {
         var parent = node.Parent;
-        while (parent is not null) {
+        while (parent is not null)
+        {
             node = parent;
             parent = node.Parent;
         }
@@ -99,7 +105,8 @@ public static class BinaryTreeNode
     {
         var queue = new Queue<TNode>();
         queue.Enqueue(root);
-        while (queue.TryDequeue(out var node)) {
+        while (queue.TryDequeue(out var node))
+        {
             yield return node;
             if (node.LeftChild is not null)
                 queue.Enqueue(node.LeftChild);
@@ -113,7 +120,8 @@ public static class BinaryTreeNode
     {
         var stack = new Stack<TNode>();
         stack.Push(root);
-        while (stack.TryPop(out var node)) {
+        while (stack.TryPop(out var node))
+        {
             yield return node;
             if (root.RightChild is { } right)
                 stack.Push(right);
@@ -129,7 +137,8 @@ public static class BinaryTreeNode
             yield return node;
 
         var n = node.Parent;
-        while (n is not null) {
+        while (n is not null)
+        {
             yield return n;
             n = n.Parent;
         }

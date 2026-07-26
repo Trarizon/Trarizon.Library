@@ -1,4 +1,5 @@
 ﻿namespace Trarizon.Library.Collections.Generic;
+
 public interface ILinkedListNode<TSelf> where TSelf : ILinkedListNode<TSelf>
 {
     TSelf? Next { get; set; }
@@ -14,11 +15,13 @@ public static class LinkedListNode
     {
         var prev = node.Prev;
         var next = node.Next;
-        if (prev is not null) {
+        if (prev is not null)
+        {
             prev.Next = next;
             node.Prev = default;
         }
-        if (next is not null) {
+        if (next is not null)
+        {
             next.Prev = prev;
             node.Next = default;
         }
@@ -29,7 +32,8 @@ public static class LinkedListNode
     {
         RemoveFromChain(node);
         var prev = source.Prev;
-        if (prev is not null) {
+        if (prev is not null)
+        {
             prev.Next = node;
             node.Prev = prev;
         }
@@ -42,7 +46,8 @@ public static class LinkedListNode
     {
         RemoveFromChain(node);
         var next = source.Next;
-        if (next is not null) {
+        if (next is not null)
+        {
             next.Prev = node;
             node.Next = next;
         }
@@ -54,11 +59,13 @@ public static class LinkedListNode
         where TNode : ILinkedListNode<TNode>
     {
         endsNextNode = prevNode.Next;
-        if (endsNextNode is not null) {
+        if (endsNextNode is not null)
+        {
             endsNextNode.Prev = default;
         }
         startsPrevNode = nextNode.Prev;
-        if (startsPrevNode is not null) {
+        if (startsPrevNode is not null)
+        {
             startsPrevNode.Next = default;
         }
         prevNode.Next = nextNode;
@@ -79,12 +86,14 @@ public static class LinkedListNode
         var deque = new Deque<TNode>();
 
         TNode? tmp = node;
-        while (tmp is not null) {
+        while (tmp is not null)
+        {
             deque.EnqueueLast(tmp);
             tmp = tmp.Next;
         }
         tmp = node.Prev;
-        while (tmp is not null) {
+        while (tmp is not null)
+        {
             deque.EnqueueFirst(tmp);
             tmp = tmp.Prev;
         }
@@ -95,7 +104,8 @@ public static class LinkedListNode
         where TNode : ILinkedListNode<TNode>
     {
         var prev = node.Prev;
-        while (prev is not null) {
+        while (prev is not null)
+        {
             node = prev;
             prev = prev.Prev;
         }
@@ -106,7 +116,8 @@ public static class LinkedListNode
         where TNode : ILinkedListNode<TNode>
     {
         var next = node.Next;
-        while (next is not null) {
+        while (next is not null)
+        {
             node = next;
             next = next.Next;
         }
@@ -130,16 +141,19 @@ public static class LinkedListNode
     {
         var stack = new Stack<TNode>();
         var prev = node.Prev;
-        while (prev is not null) {
+        while (prev is not null)
+        {
             stack.Push(prev);
             prev = prev.Prev;
         }
-        foreach (var n in stack) {
+        foreach (var n in stack)
+        {
             yield return n;
         }
 
         var tmp = node;
-        while (tmp is not null) {
+        while (tmp is not null)
+        {
             yield return tmp;
             tmp = tmp.Next;
         }
@@ -150,16 +164,19 @@ public static class LinkedListNode
     {
         var stack = new Stack<TNode>();
         var next = node.Next;
-        while (next is not null) {
+        while (next is not null)
+        {
             stack.Push(next);
             next = next.Next;
         }
-        foreach (var n in stack) {
+        foreach (var n in stack)
+        {
             yield return n;
         }
 
         var tmp = node;
-        while (tmp is not null) {
+        while (tmp is not null)
+        {
             yield return tmp;
             tmp = tmp.Prev;
         }
@@ -169,7 +186,8 @@ public static class LinkedListNode
         where TNode : ILinkedListNode<TNode>
     {
         var tmp = node;
-        while (tmp is not null) {
+        while (tmp is not null)
+        {
             yield return tmp;
             tmp = tmp.Next;
         }
@@ -178,7 +196,8 @@ public static class LinkedListNode
     public static IEnumerable<TNode> EnumerateBackFrom<TNode>(TNode? node) where TNode : class, ILinkedListNode<TNode>
     {
         var tmp = node;
-        while (tmp is not null) {
+        while (tmp is not null)
+        {
             yield return tmp;
             tmp = tmp.Prev;
         }

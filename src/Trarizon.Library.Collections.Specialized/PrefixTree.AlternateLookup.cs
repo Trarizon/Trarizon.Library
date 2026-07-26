@@ -11,7 +11,8 @@ partial class PrefixTree<T>
 {
     public AlternateLookup<TAlternate> GetAlternateLookup<TAlternate>() where TAlternate : allows ref struct
     {
-        if (!IsCompatibleAlternateKey<TAlternate>(this)) {
+        if (!IsCompatibleAlternateKey<TAlternate>(this))
+        {
             Throws.IncompatibleAlternateComparer();
         }
         return new AlternateLookup<TAlternate>(this);
@@ -19,7 +20,8 @@ partial class PrefixTree<T>
 
     public bool TryGetAlternateLookup<TAlternate>(out AlternateLookup<TAlternate> lookup) where TAlternate : allows ref struct
     {
-        if (!IsCompatibleAlternateKey<TAlternate>(this)) {
+        if (!IsCompatibleAlternateKey<TAlternate>(this))
+        {
             lookup = default;
             return false;
         }
@@ -63,10 +65,13 @@ partial class PrefixTree<T>
                 return null;
 
             var comparer = Comparer;
-            foreach (var val in prefix) {
+            foreach (var val in prefix)
+            {
                 var children = node.ChildrenSpan;
-                foreach (var child in children) {
-                    if (comparer.Equals(val, child.Value!)) {
+                foreach (var child in children)
+                {
+                    if (comparer.Equals(val, child.Value!))
+                    {
                         node = child;
                         goto ContinueFor;
                     }
@@ -88,11 +93,13 @@ partial class PrefixTree<T>
         public bool TryAdd(IEnumerable<TAlternate> sequence, out Node node)
         {
             node = Tree.Root;
-            foreach (var item in sequence) {
+            foreach (var item in sequence)
+            {
                 node = GetOrAddChild(node, item);
             }
 
-            if (node._end) {
+            if (node._end)
+            {
                 return false;
             }
 
@@ -106,7 +113,8 @@ partial class PrefixTree<T>
         {
             var children = parent.ChildrenSpan;
             var comparer = Comparer;
-            foreach (var child in children) {
+            foreach (var child in children)
+            {
                 if (comparer.Equals(value, child.Value!))
                     return child;
             }

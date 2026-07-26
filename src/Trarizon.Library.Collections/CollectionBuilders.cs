@@ -2,6 +2,7 @@
 using Trarizon.Library.Collections.Generic;
 
 namespace Trarizon.Library.Collections;
+
 public static class CollectionBuilders
 {
     public static RentedList<T> CreateAllocOptList<T>(ReadOnlySpan<T> values)
@@ -10,20 +11,6 @@ public static class CollectionBuilders
         list.AddRange(values);
         return list;
     }
-
-#if CONTIGUOUS_COLLECTIONS
-
-    public static ContiguousLinkedList<T> CreateContiguousLinkedList<T>(ReadOnlySpan<T> values)
-    {
-        var list = new ContiguousLinkedList<T>();
-        list.EnsureCapacity(values.Length);
-        foreach (var item in values) {
-            list.AddLast(item);
-        }
-        return list;
-    }
-
-#endif
 
     public static Deque<T> CreateDeque<T>(ReadOnlySpan<T> values)
     {
@@ -37,7 +24,8 @@ public static class CollectionBuilders
     {
         var dict = new ListDictionary<TKey, TValue>();
         dict.EnsureCapacty(values.Length);
-        foreach (var item in values) {
+        foreach (var item in values)
+        {
             dict.Add(item.Key, item.Value);
         }
         return dict;

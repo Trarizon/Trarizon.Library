@@ -52,10 +52,10 @@ public static partial class TraCollection
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_head")]
         public static extern ref int GetHead(Queue<T> queue);
 #else
-        public static ref T[] GetArray(Queue<T> queue) 
+        public static ref T[] GetArray(Queue<T> queue)
             => ref Unsafe.As<QueueMarchalHelper>(queue)._array;
 
-        public static ref int GetHead(Queue<T> queue) 
+        public static ref int GetHead(Queue<T> queue)
             => ref Unsafe.As<QueueMarchalHelper>(queue)._head;
 #endif
 

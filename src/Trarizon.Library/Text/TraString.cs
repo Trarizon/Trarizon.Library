@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace Trarizon.Library.Text;
+
 public static partial class TraString
 {
     private const int MaxStackAllocCharLength = 256;
@@ -28,28 +29,28 @@ public static partial class TraString
         if (chars.Length == 0)
             return "";
 
-        if (chars.Length <= MaxStackAllocCharLength) {
+        if (chars.Length <= MaxStackAllocCharLength)
+        {
             var buffer = (stackalloc char[chars.Length]);
-            if (TryUnescape(chars, buffer, out var written, noThrowUnknownEscape)) {
+            if (TryUnescape(chars, buffer, out var written, noThrowUnknownEscape))
                 return buffer[..written].ToString();
-            }
-            else {
+
+            Throws.ThrowInvalidOperation("Invalid escaped sequence");
+            return default;
+        }
+        else
+        {
+            char[] rented = ArrayPool<char>.Shared.Rent(chars.Length);
+            try
+            {
+                if (TryUnescape(chars, rented, out var written, noThrowUnknownEscape))
+                    return rented.AsSpan()[..written].ToString();
+             
                 Throws.ThrowInvalidOperation("Invalid escaped sequence");
                 return default;
             }
-        }
-        else {
-            char[] rented = ArrayPool<char>.Shared.Rent(chars.Length);
-            try {
-                if (TryUnescape(chars, rented, out var written, noThrowUnknownEscape)) {
-                    return rented.AsSpan()[..written].ToString();
-                }
-                else {
-                    Throws.ThrowInvalidOperation("Invalid escaped sequence");
-                    return default;
-                }
-            }
-            finally {
+            finally
+            {
                 ArrayPool<char>.Shared.Return(rented);
             }
         }
@@ -67,12 +68,13 @@ public static partial class TraString
 
         int nonEscapeStart = 0;
         int i = 0;
-        while (i < chars.Length) {
-            if (chars[i] is not '\\') {
+        while (i < chars.Length)
+        {
+            if (chars[i] is not '\\')
                 goto Continue;
-            }
 
-            if (i + 1 == chars.Length) {
+            if (i + 1 == chars.Length)
+            {
                 if (!reserveUnknownEscapeChar)
                     goto Error;
                 goto Continue;
@@ -86,7 +88,8 @@ public static partial class TraString
             i++;
             var ch = chars[i];
 
-            switch (ch) {
+            switch (ch)
+            {
                 case '\\' or '\'' or '\"': buffer[bfrIdx++] = ch; break;
                 case '0': buffer[bfrIdx++] = '\0'; break;
                 case 'a': buffer[bfrIdx++] = '\a'; break;
@@ -97,10 +100,13 @@ public static partial class TraString
                 case 'r': buffer[bfrIdx++] = '\r'; break;
                 case 't': buffer[bfrIdx++] = '\t'; break;
                 case 'v': buffer[bfrIdx++] = '\v'; break;
-                case 'u': { // unicode \uXXXX
-                    if (i + 4 < chars.Length) {
+                case 'u':
+                { // unicode \uXXXX
+                    if (i + 4 < chars.Length)
+                    {
                         int hex = 0;
-                        for (int k = 1; k < 5; k++) {
+                        for (int k = 1; k < 5; k++)
+                        {
                             var num = GetHex(chars[i + k]);
                             if (num >= 0)
                                 hex = (hex << 4) + num;
@@ -116,18 +122,22 @@ public static partial class TraString
                         goto Error;
                     goto UnknownEscapeContinue;
                 }
-                case 'x': { // \xX ~ \xXXX
-                    if (i + 1 < chars.Length) {
+                case 'x':
+                { // \xX ~ \xXXX
+                    if (i + 1 < chars.Length)
+                    {
                         int hex = 0;
                         int k;
-                        for (k = 1; k < 5; k++) {
+                        for (k = 1; k < 5; k++)
+                        {
                             var num = GetHex(chars[i + k]);
                             if (num >= 0)
                                 hex = (hex << 4) + num;
                             else
                                 break; // for
                         }
-                        if (k > 1) {
+                        if (k > 1)
+                        {
                             buffer[bfrIdx++] = (char)hex;
                             i += k - 1;
                             break; // switch

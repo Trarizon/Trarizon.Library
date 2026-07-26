@@ -3,9 +3,9 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System.Collections.Immutable;
-using System.Linq;
 
 namespace Trarizon.Library.Functional.SourceGeneration.Analyzers;
+
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 internal class MonadsCastAnalyzer : DiagnosticAnalyzer
 {
@@ -41,7 +41,8 @@ internal class MonadsCastAnalyzer : DiagnosticAnalyzer
                 if (operation.Instance?.Type is not INamedTypeSymbol instanceType)
                     return;
 
-                if (SymbolEqualityComparer.Default.Equals(operation.TargetMethod.OriginalDefinition, castMethodSymbol)) {
+                if (SymbolEqualityComparer.Default.Equals(operation.TargetMethod.OriginalDefinition, castMethodSymbol))
+                {
                     var fromType = instanceType.TypeArguments[0];
                     var toType = operation.TargetMethod.TypeArguments[0];
                     if (MaybeCastable(fromType, toType, compilation))
@@ -77,7 +78,8 @@ internal class MonadsCastAnalyzer : DiagnosticAnalyzer
                     return;
                 var invokeMethod = operation.TargetMethod.OriginalDefinition;
 
-                if (SymbolEqualityComparer.Default.Equals(invokeMethod, resultCastSymbol)) {
+                if (SymbolEqualityComparer.Default.Equals(invokeMethod, resultCastSymbol))
+                {
                     var fromType = instanceType.TypeArguments[0];
                     var toType = operation.TargetMethod.TypeArguments[0];
                     if (MaybeCastable(fromType, toType, compilation))
@@ -85,7 +87,8 @@ internal class MonadsCastAnalyzer : DiagnosticAnalyzer
                     context.ReportDiagnostic(GetDiagnostic(operation, fromType, toType));
                     return;
                 }
-                if (SymbolEqualityComparer.Default.Equals(invokeMethod, resultCastErrorSymbol)) {
+                if (SymbolEqualityComparer.Default.Equals(invokeMethod, resultCastErrorSymbol))
+                {
                     var fromType = instanceType.TypeArguments[1];
                     var toType = operation.TargetMethod.TypeArguments[0];
                     if (MaybeCastable(fromType, toType, compilation))
@@ -93,7 +96,8 @@ internal class MonadsCastAnalyzer : DiagnosticAnalyzer
                     context.ReportDiagnostic(GetDiagnostic(operation, fromType, toType));
                     return;
                 }
-                if (SymbolEqualityComparer.Default.Equals(invokeMethod, resultCast2Symbol)) {
+                if (SymbolEqualityComparer.Default.Equals(invokeMethod, resultCast2Symbol))
+                {
                     var from1 = instanceType.TypeArguments[0];
                     var from2 = instanceType.TypeArguments[1];
                     var to1 = operation.TargetMethod.TypeArguments[0];

@@ -6,7 +6,8 @@ public static partial class TraEnumerable
 {
     public static IEnumerable<T> ListReverse<T>(this IEnumerable<T> source)
     {
-        if (source is IList<T> list) {
+        if (source is IList<T> list)
+        {
             if (source is T[] { Length: <= 1 })
                 return source;
             if (source is ListLazyReverseIterator<T> iterator)

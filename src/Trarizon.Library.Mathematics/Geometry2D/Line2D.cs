@@ -3,6 +3,7 @@ using System.Numerics;
 using Trarizon.Library.Mathematics.Helpers;
 
 namespace Trarizon.Library.Mathematics.Geometry2D;
+
 public readonly struct Line2D
 {
     // ax + by + c = 0
@@ -89,7 +90,8 @@ public readonly struct Line2D
         float c1 = left._c, c2 = right._c;
 
         var n = a2 * b1 - a1 * b2;
-        if (n == 0) {
+        if (n == 0)
+        {
             Debug.Assert(AreParallel(left, right));
             return null;
         }

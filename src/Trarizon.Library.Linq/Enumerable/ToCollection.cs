@@ -1,7 +1,7 @@
 ﻿using System.Buffers;
+using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Collections.Immutable;
 
 namespace Trarizon.Library.Linq;
 
@@ -9,7 +9,8 @@ public static partial class TraEnumerable
 {
     public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
     {
-        foreach (var item in source) {
+        foreach (var item in source)
+        {
             action.Invoke(item);
         }
     }
@@ -26,15 +27,18 @@ public static partial class TraEnumerable
 
     public static T[] ToPooledArray<T>(this IEnumerable<T> source, ArrayPool<T> pool, out int length)
     {
-        if (source.TryGetNonEnumeratedCount(out length)) {
+        if (source.TryGetNonEnumeratedCount(out length))
+        {
             var array = pool.Rent(length);
             int i = 0;
-            foreach (var item in source) {
+            foreach (var item in source)
+            {
                 array[i++] = item;
             }
             return array;
         }
-        else {
+        else
+        {
             var tmp = source.ToArray();
             var array = pool.Rent(tmp.Length);
             return array;
@@ -46,11 +50,13 @@ public static partial class TraEnumerable
 
     internal static bool TryGetSpan<T>(this IEnumerable<T> source, out ReadOnlySpan<T> span)
     {
-        if (source.GetType() == typeof(T[])) {
+        if (source.GetType() == typeof(T[]))
+        {
             span = Unsafe.As<T[]>(source).AsSpan();
             return true;
         }
-        if (source.GetType() == typeof(List<T>)) {
+        if (source.GetType() == typeof(List<T>))
+        {
             var list = Unsafe.As<List<T>>(source);
 #if NET8_0_OR_GREATER
             span = CollectionsMarshal.AsSpan(list);

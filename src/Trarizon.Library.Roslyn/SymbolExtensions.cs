@@ -32,7 +32,8 @@ public static partial class SymbolExtensions
             yield return symbol;
 
         var sym = symbol.ContainingSymbol;
-        while (sym is not null) {
+        while (sym is not null)
+        {
             yield return sym;
             sym = sym.ContainingSymbol;
         }
@@ -43,8 +44,10 @@ public static partial class SymbolExtensions
     public static ImmutableArray<AttributeData> GetAttributeDatas(this ISymbol symbol, INamedTypeSymbol attributeType)
     {
         var builder = ImmutableArray.CreateBuilder<AttributeData>();
-        foreach (var attr in symbol.GetAttributes()) {
-            if (SymbolEqualityComparer.Default.Equals(attr.AttributeClass, attributeType)) {
+        foreach (var attr in symbol.GetAttributes())
+        {
+            if (SymbolEqualityComparer.Default.Equals(attr.AttributeClass, attributeType))
+            {
                 builder.Add(attr);
             }
         }
@@ -53,8 +56,10 @@ public static partial class SymbolExtensions
 
     public static bool TryGetAttributeData(this ISymbol symbol, INamedTypeSymbol attributeType, [MaybeNullWhen(false)] out AttributeData attributeData)
     {
-        foreach (var attr in symbol.GetAttributes()) {
-            if (SymbolEqualityComparer.Default.Equals(attr.AttributeClass, attributeType)) {
+        foreach (var attr in symbol.GetAttributes())
+        {
+            if (SymbolEqualityComparer.Default.Equals(attr.AttributeClass, attributeType))
+            {
                 attributeData = attr;
                 return true;
             }
@@ -69,8 +74,10 @@ public static partial class SymbolExtensions
     public static ImmutableArray<AttributeData> GetAttributeDatasByFullyQualifiedMetadataName(this ISymbol symbol, string fullyQualifiedMetadataName)
     {
         var builder = ImmutableArray.CreateBuilder<AttributeData>();
-        foreach (var attr in symbol.GetAttributes()) {
-            if (attr.AttributeClass?.MatchMetadataName(fullyQualifiedMetadataName) is true) {
+        foreach (var attr in symbol.GetAttributes())
+        {
+            if (attr.AttributeClass?.MatchMetadataName(fullyQualifiedMetadataName) is true)
+            {
                 builder.Add(attr);
             }
         }
@@ -79,8 +86,10 @@ public static partial class SymbolExtensions
 
     public static bool TryGetAttributeDataByFullyQualifiedMetadataName(this ISymbol symbol, string fullyQualifiedMetadataName, [MaybeNullWhen(false)] out AttributeData attributeData)
     {
-        foreach (var attr in symbol.GetAttributes()) {
-            if (attr.AttributeClass?.MatchMetadataName(fullyQualifiedMetadataName) == true) {
+        foreach (var attr in symbol.GetAttributes())
+        {
+            if (attr.AttributeClass?.MatchMetadataName(fullyQualifiedMetadataName) == true)
+            {
                 attributeData = attr;
                 return true;
             }
@@ -101,7 +110,8 @@ public static partial class SymbolExtensions
         if (interfaceType.TypeKind is not TypeKind.Interface)
             return false;
 
-        foreach (var it in type.AllInterfaces) {
+        foreach (var it in type.AllInterfaces)
+        {
             if (SymbolEqualityComparer.Default.Equals(it, interfaceType))
                 return true;
         }
@@ -113,8 +123,10 @@ public static partial class SymbolExtensions
 
     public static bool IsImplementsByFullyQualifiedMetadataName(this ITypeSymbol type, string fullyQualifiedMetadataName, [MaybeNullWhen(false)] out INamedTypeSymbol implementedInterfaceType)
     {
-        foreach (var it in type.AllInterfaces) {
-            if (it.MatchMetadataName(fullyQualifiedMetadataName)) {
+        foreach (var it in type.AllInterfaces)
+        {
+            if (it.MatchMetadataName(fullyQualifiedMetadataName))
+            {
                 implementedInterfaceType = it;
                 return true;
             }
@@ -133,7 +145,8 @@ public static partial class SymbolExtensions
             return false;
 
         var sym = type.BaseType;
-        while (sym is not null) {
+        while (sym is not null)
+        {
             if (SymbolEqualityComparer.Default.Equals(sym, baseType))
                 return true;
             sym = sym.BaseType;
@@ -147,8 +160,10 @@ public static partial class SymbolExtensions
     public static bool IsInheritsByFullyQualifiedMetadataName(this ITypeSymbol type, string fullyQualifiedMetadataName, [MaybeNullWhen(false)] out INamedTypeSymbol baseTypeSymbol)
     {
         var sym = type.BaseType;
-        while (sym is not null) {
-            if (sym.MatchMetadataName(fullyQualifiedMetadataName)) {
+        while (sym is not null)
+        {
+            if (sym.MatchMetadataName(fullyQualifiedMetadataName))
+            {
                 baseTypeSymbol = sym;
                 return true;
             }
@@ -164,7 +179,8 @@ public static partial class SymbolExtensions
             yield return type;
 
         var sym = type.BaseType;
-        while (sym is not null) {
+        while (sym is not null)
+        {
             yield return sym;
             sym = sym.BaseType;
         }
@@ -172,7 +188,8 @@ public static partial class SymbolExtensions
 
     public static bool IsNullableValueType(this ITypeSymbol type, [NotNullWhen(true)] out ITypeSymbol? underlyingType)
     {
-        if (type is { IsValueType: true, NullableAnnotation: NullableAnnotation.Annotated }) {
+        if (type is { IsValueType: true, NullableAnnotation: NullableAnnotation.Annotated })
+        {
             underlyingType = ((INamedTypeSymbol)type).TypeArguments[0];
             return true;
         }
@@ -207,7 +224,8 @@ public static partial class SymbolExtensions
         static bool Core(ISymbol symbol, ReadOnlySpan<char> fullyQualifiedMetadataName)
         {
             string name;
-            switch (symbol) {
+            switch (symbol)
+            {
                 // Nested namespace
                 case INamedTypeSymbol { ContainingNamespace.IsGlobalNamespace: false }:
                     name = symbol.MetadataName;

@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 
 namespace Trarizon.Library;
+
 public static class TraEnum
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -14,7 +15,7 @@ public static class TraEnum
             return (Unsafe.As<T, int>(ref value) & Unsafe.As<T, int>(ref flags)) != 0;
         if (Unsafe.SizeOf<T>() == 8)
             return (Unsafe.As<T, long>(ref value) & Unsafe.As<T, long>(ref flags)) != 0L;
-        
+
         Throws.ThrowNotSupport("Not supported enum size");
         return default!;
     }

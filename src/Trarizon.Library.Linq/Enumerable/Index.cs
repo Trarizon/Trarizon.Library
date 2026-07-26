@@ -6,7 +6,8 @@ public static partial class TraEnumerable
 
     public static IEnumerable<(int Index, T Item)> Index<T>(this IEnumerable<T> source)
     {
-        if (source is IList<T> list) {
+        if (source is IList<T> list)
+        {
             if (source is T[] { Length: 0 })
                 return [];
             return new ListWithIndexIterator<T>(list);
@@ -16,7 +17,8 @@ public static partial class TraEnumerable
         static IEnumerable<(int, T)> Iterate(IEnumerable<T> source)
         {
             int i = 0;
-            foreach (var item in source) {
+            foreach (var item in source)
+            {
                 yield return (i++, item);
             }
         }

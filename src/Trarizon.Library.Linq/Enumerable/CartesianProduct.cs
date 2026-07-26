@@ -27,15 +27,18 @@ public static partial class TraEnumerable
             var cur2 = enumerator2.Current;
             yield return (cur, cur2);
             cache.Add(cur2);
-            while (enumerator2.MoveNext()) {
+            while (enumerator2.MoveNext())
+            {
                 cur2 = enumerator2.Current;
                 yield return (cur, cur2);
                 cache.Add(cur2);
             }
 
-            while (enumerator.MoveNext()) {
+            while (enumerator.MoveNext())
+            {
                 cur = enumerator.Current;
-                foreach (var item in cache) {
+                foreach (var item in cache)
+                {
                     yield return (cur, item);
                 }
             }
@@ -49,7 +52,8 @@ public static partial class TraEnumerable
 
         public override (T, T2) this[int index]
         {
-            get {
+            get
+            {
                 var div = Math.DivRem(index, second.Length, out var rem);
                 return (first[div], second[rem]);
             }
@@ -63,7 +67,8 @@ public static partial class TraEnumerable
         {
             const int End = MinPreservedState - 1;
 
-            switch (_state) {
+            switch (_state)
+            {
                 case InitState:
                     _state = 0;
                     _index2 = -1;
@@ -72,13 +77,15 @@ public static partial class TraEnumerable
                     return false;
                 default:
                     var index2 = _index2 + 1;
-                    if (index2 < second.Length) {
+                    if (index2 < second.Length)
+                    {
                         _current.Item2 = second[index2];
                         _index2 = index2;
                         return true;
                     }
                     var index1 = _state + 1;
-                    if (index1 < first.Length) {
+                    if (index1 < first.Length)
+                    {
                         _current = (first[index1], second[0]);
                         _state = index1;
                         _index2 = 0;

@@ -3,6 +3,7 @@ using System.Diagnostics;
 using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections.Generic;
+
 public readonly struct TriangularArray<T>
 {
     private readonly T[] _array;
@@ -16,11 +17,13 @@ public readonly struct TriangularArray<T>
 
     public ref T this[int levelIndex, int itemIndex]
     {
-        get {
+        get
+        {
             Throws.ThrowIfIndexGreaterThanOrEqual(levelIndex, _level);
             Throws.ThrowIfGreaterThan((uint)itemIndex, (uint)levelIndex);
 
-            if (levelIndex == 0) {
+            if (levelIndex == 0)
+            {
                 Debug.Assert(itemIndex == 0);
                 return ref _array[0];
             }

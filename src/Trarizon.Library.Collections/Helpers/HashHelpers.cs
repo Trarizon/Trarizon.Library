@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Trarizon.Library.Collections.Helpers;
+﻿namespace Trarizon.Library.Collections.Helpers;
 
 internal static class HashHelpers
 {
@@ -20,12 +16,14 @@ internal static class HashHelpers
 
     public static int GetPrime(int min)
     {
-        foreach (var prime in Primes) {
+        foreach (var prime in Primes)
+        {
             if (prime >= min)
                 return prime;
         }
 
-        for (int i = (min % 2); i < int.MaxValue; i += 2) {
+        for (int i = (min % 2); i < int.MaxValue; i += 2)
+        {
             if (IsPrime(i) && ((i - 1) % HashPrime != 0))
                 return i;
         }
@@ -34,12 +32,12 @@ internal static class HashHelpers
 
     public static bool IsPrime(int number)
     {
-        if (number % 2 == 0) {
+        if (number % 2 == 0)
             return number == 2;
-        }
 
         int limit = (int)Math.Sqrt(number);
-        for (int div = 3; div < limit; div += 2) {
+        for (int div = 3; div < limit; div += 2)
+        {
             if (number % div == 0)
                 return false;
         }
@@ -49,9 +47,9 @@ internal static class HashHelpers
     public static int ExpandPrime(int oldSize)
     {
         int newSize = 2 * oldSize;
-        if ((uint)newSize > MaxPrimeArrayLength && MaxPrimeArrayLength > oldSize) {
+        if ((uint)newSize > MaxPrimeArrayLength && MaxPrimeArrayLength > oldSize)
             return MaxPrimeArrayLength;
-        }
+        
         return GetPrime(newSize);
     }
 }

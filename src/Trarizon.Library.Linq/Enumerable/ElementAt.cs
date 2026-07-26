@@ -6,33 +6,40 @@ public static partial class TraEnumerable
 {
     public static bool TryAt<T>(this IEnumerable<T> source, int index, [MaybeNullWhen(false)] out T element)
     {
-        if (index < 0) {
+        if (index < 0)
+        {
             element = default;
             return false;
         }
 
-        if (source is IteratorBase<T> iterator) {
+        if (source is IteratorBase<T> iterator)
+        {
             element = iterator.TryCheapAt(index, out var exists);
             return exists;
         }
 
-        if (source is IList<T> list) {
-            if (index >= list.Count) {
+        if (source is IList<T> list)
+        {
+            if (index >= list.Count)
+            {
                 element = default;
                 return false;
             }
-            else {
+            else
+            {
                 element = list[index];
                 return true;
             }
         }
 
         using var enumerator = source.GetEnumerator();
-        if (enumerator.TryIterate(index + 1, out _)) {
+        if (enumerator.TryIterate(index + 1, out _))
+        {
             element = enumerator.Current;
             return true;
         }
-        else {
+        else
+        {
             element = default;
             return false;
         }
@@ -40,27 +47,32 @@ public static partial class TraEnumerable
 
     public static bool TryAt<T>(this IEnumerable<T> source, Index index, [MaybeNullWhen(false)] out T element)
     {
-        if (!index.IsFromEnd) {
+        if (!index.IsFromEnd)
+        {
             return source.TryAt(index.Value, out element);
         }
-        if (source.TryGetNonEnumeratedCount(out var count)) {
+        if (source.TryGetNonEnumeratedCount(out var count))
+        {
             return source.TryAt(count - index.Value, out element);
         }
 
         using var enumerator = source.GetEnumerator();
-        if (!enumerator.MoveNext()) {
+        if (!enumerator.MoveNext())
+        {
             element = default;
             return false;
         }
 
         var queue = new Queue<T>(index.Value);
-        do {
+        do
+        {
             if (queue.Count == index.Value)
                 queue.Dequeue();
             queue.Enqueue(enumerator.Current);
         } while (enumerator.MoveNext());
 
-        if (queue.Count == index.Value) {
+        if (queue.Count == index.Value)
+        {
             element = queue.Peek();
             return true;
         }

@@ -1,10 +1,5 @@
 ﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
-#if NETSTANDARD
-using ArrayMaxLengthProvider = Trarizon.Library.Collections.TraCollection;
-#else
-using ArrayMaxLengthProvider = System.Array;
-#endif
 
 namespace Trarizon.Library.Collections.Helpers;
 internal static partial class ArrayGrowHelper
@@ -104,7 +99,7 @@ internal static partial class ArrayGrowHelper
         Debug.Assert(length < expectedLength);
 
         int newLen;
-        var maxLength = ArrayMaxLengthProvider.MaxLength;
+        var maxLength = Array.MaxLength;
         if (length == 0)
             newLen = 4;
         else

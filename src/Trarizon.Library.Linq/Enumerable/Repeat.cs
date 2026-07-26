@@ -13,7 +13,8 @@ public static partial class TraEnumerable
         if (count <= 0 || source is T[] { Length: 0 })
             return [];
 
-        if (source is IList<T> ilist) {
+        if (source is IList<T> ilist)
+        {
             if (source is ListRepeatIterator<T> iterator)
                 return iterator.Repeat(count);
             else
@@ -24,34 +25,44 @@ public static partial class TraEnumerable
 
         static IEnumerable<T> Iterate(IEnumerable<T> source, int count)
         {
-            if (source.TryGetNonEnumeratedCount(out var srcCount)) {
+            if (source.TryGetNonEnumeratedCount(out var srcCount))
+            {
                 var cache = ArrayPool<T>.Shared.Rent(srcCount);
-                try {
+                try
+                {
                     int ic = 0;
-                    foreach (var item in source) {
+                    foreach (var item in source)
+                    {
                         cache[ic++] = item;
                         yield return item;
                     }
 
-                    for (int i = 1; i < count; i++) {
-                        foreach (var item in cache) {
+                    for (int i = 1; i < count; i++)
+                    {
+                        foreach (var item in cache)
+                        {
                             yield return item;
                         }
                     }
                 }
-                finally {
+                finally
+                {
                     ArrayPool<T>.Shared.Return(cache, RuntimeHelpers.IsReferenceOrContainsReferences<T>());
                 }
             }
-            else {
+            else
+            {
                 var cache = new List<T>();
-                foreach (var item in source) {
+                foreach (var item in source)
+                {
                     cache.Add(item);
                     yield return item;
                 }
 
-                for (int i = 1; i < count; i++) {
-                    foreach (var item in cache) {
+                for (int i = 1; i < count; i++)
+                {
+                    foreach (var item in cache)
+                    {
                         yield return item;
                     }
                 }
@@ -66,7 +77,8 @@ public static partial class TraEnumerable
             return source;
         if (count <= 0 || source is T[] { Length: 0 })
             return [];
-        if (source is IList<T> ilist) {
+        if (source is IList<T> ilist)
+        {
             if (source is ListRepeatInterleaveIterator<T> iterator)
                 return iterator.RepeatInterleave(count);
             return new ListRepeatInterleaveIterator<T>(ilist, count);
@@ -76,8 +88,10 @@ public static partial class TraEnumerable
 
         static IEnumerable<T> Iterate(IEnumerable<T> source, int count)
         {
-            foreach (var item in source) {
-                for (int i = 0; i < count; i++) {
+            foreach (var item in source)
+            {
+                for (int i = 0; i < count; i++)
+                {
                     yield return item;
                 }
             }
@@ -91,7 +105,8 @@ public static partial class TraEnumerable
 
         public override T this[int index]
         {
-            get {
+            get
+            {
                 var count = list.Count;
                 Throws.ThrowIfIndexGreaterThanOrEqual(index, count * repeat);
                 return list[index % count];
@@ -106,7 +121,8 @@ public static partial class TraEnumerable
         {
             const int End = MinPreservedState - 1;
 
-            switch (_state) {
+            switch (_state)
+            {
                 case InitState:
                     _repeatIndex = 0;
                     _state = 0;
@@ -114,19 +130,22 @@ public static partial class TraEnumerable
                 case End:
                     return false;
                 default:
-                    if (_state < list.Count) {
+                    if (_state < list.Count)
+                    {
                         _current = list[_state];
                         _state++;
                         return true;
                     }
                     var newRepeatIdx = _repeatIndex + 1;
-                    if (newRepeatIdx < repeat) {
+                    if (newRepeatIdx < repeat)
+                    {
                         _current = list[0];
                         _state = 1;
                         _repeatIndex = newRepeatIdx;
                         return true;
                     }
-                    else {
+                    else
+                    {
                         _current = default;
                         _state = End;
                         return false;
@@ -162,7 +181,8 @@ public static partial class TraEnumerable
 
         public override T this[int index]
         {
-            get {
+            get
+            {
                 var count = list.Count;
                 Throws.ThrowIfIndexGreaterThanOrEqual(index, count * repeat);
                 return list[index / count];
@@ -177,7 +197,8 @@ public static partial class TraEnumerable
         {
             const int End = MinPreservedState - 1;
 
-            switch (_state) {
+            switch (_state)
+            {
                 case InitState:
                     _repeatIndex = 0;
                     _state = 0;
@@ -186,18 +207,21 @@ public static partial class TraEnumerable
                 case End:
                     return false;
                 default:
-                    if (_repeatIndex < repeat) {
+                    if (_repeatIndex < repeat)
+                    {
                         _repeatIndex++;
                         return true;
                     }
                     var idx = _state + 1;
-                    if (idx < list.Count) {
+                    if (idx < list.Count)
+                    {
                         _current = list[idx];
                         _repeatIndex = 1;
                         _state = idx;
                         return true;
                     }
-                    else {
+                    else
+                    {
                         _current = default;
                         _state = End;
                         return false;

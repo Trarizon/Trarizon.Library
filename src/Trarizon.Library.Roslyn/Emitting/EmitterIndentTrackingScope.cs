@@ -1,6 +1,4 @@
-﻿using System;
-using System.CodeDom.Compiler;
-using System.Collections.Generic;
+﻿using System.CodeDom.Compiler;
 
 namespace Trarizon.Library.Roslyn.Emitting;
 
@@ -32,7 +30,8 @@ public readonly struct EmitterIndentTrackingScope(IndentedTextWriter writer) : I
 
     public readonly void Dispose()
     {
-        for (int i = _suffixes.Count - 1; i >= 0; i--) {
+        for (int i = _suffixes.Count - 1; i >= 0; i--)
+        {
             var suf = _suffixes.Pop();
             writer.Indent--;
             writer.WriteLine(suf);

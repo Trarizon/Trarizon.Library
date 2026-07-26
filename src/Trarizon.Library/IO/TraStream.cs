@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 
 namespace Trarizon.Library.IO;
+
 public static class TraStream
 {
     /// <summary>

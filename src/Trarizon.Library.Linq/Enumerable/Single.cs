@@ -10,15 +10,19 @@ public static partial class TraEnumerable
     /// </summary>
     public static SingleResult<T> TrySingle<T>(this IEnumerable<T> source)
     {
-        if (source.TryGetNonEnumeratedCount(out var count)) {
-            switch (count) {
+        if (source.TryGetNonEnumeratedCount(out var count))
+        {
+            switch (count)
+            {
                 case < 0:
                     return new(0);
                 case 1:
-                    if (source is IList<T> list) {
+                    if (source is IList<T> list)
+                    {
                         return new(1, list[0]);
                     }
-                    else {
+                    else
+                    {
                         using var e = source.GetEnumerator();
                         e.MoveNext();
                         return new(1, e.Current);
@@ -30,12 +34,14 @@ public static partial class TraEnumerable
 
         using var enumerator = source.GetEnumerator();
 
-        if (!enumerator.MoveNext()) {
+        if (!enumerator.MoveNext())
+        {
             return new(0);
         }
 
         var val = enumerator.Current;
-        if (!enumerator.MoveNext()) {
+        if (!enumerator.MoveNext())
+        {
             return new(1, val);
         }
 
@@ -52,20 +58,25 @@ public static partial class TraEnumerable
 
         bool found = false;
         T? current = default!;
-        while (enumerator.MoveNext()) {
+        while (enumerator.MoveNext())
+        {
             current = enumerator.Current;
-            if (predicate(current)) {
-                if (found) {
+            if (predicate(current))
+            {
+                if (found)
+                {
                     return new(2);
                 }
                 found = true;
             }
         }
 
-        if (found) {
+        if (found)
+        {
             return new(1, current);
         }
-        else {
+        else
+        {
             return new(0);
         }
     }

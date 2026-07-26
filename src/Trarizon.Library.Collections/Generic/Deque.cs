@@ -7,6 +7,7 @@ using Trarizon.Library.Collections.Helpers;
 using Trarizon.Library.Collections.StackAlloc;
 
 namespace Trarizon.Library.Collections.Generic;
+
 [CollectionBuilder(typeof(CollectionBuilders), nameof(CollectionBuilders.CreateDeque))]
 public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
 {
@@ -37,11 +38,13 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public bool TryPeekFirst([MaybeNullWhen(false)] out T item)
     {
-        if (_count == 0) {
+        if (_count == 0)
+        {
             item = default;
             return false;
         }
-        else {
+        else
+        {
             item = PeekFirst();
             return true;
         }
@@ -51,11 +54,13 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public bool TryPeekLast([MaybeNullWhen(false)] out T item)
     {
-        if (_count == 0) {
+        if (_count == 0)
+        {
             item = default;
             return false;
         }
-        else {
+        else
+        {
             item = PeekLast();
             return true;
         }
@@ -106,13 +111,15 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public void EnqueueFirst(T item)
     {
-        if (_count == Capacity) {
+        if (_count == Capacity)
+        {
             var capacity = Capacity;
             GrowAndCopy(capacity + 1, 1);
             _head = 0;
             _tail = Increment(capacity);
         }
-        else {
+        else
+        {
             _head = Decrement(_head);
         }
         _array[_head] = item;
@@ -122,7 +129,8 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public void EnqueueLast(T item)
     {
-        if (_count == Capacity) {
+        if (_count == Capacity)
+        {
             var capacity = Capacity;
             GrowAndCopy(capacity + 1, 0);
             _head = 0;
@@ -136,17 +144,20 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public void EnqueueRangeFirst(IEnumerable<T> collection)
     {
-        if (collection is ICollection<T> col) {
+        if (collection is ICollection<T> col)
+        {
             EnqueueRangeCollection(col);
             _version++;
             return;
         }
 
         using RentedList<T> buffer = new();
-        foreach (var item in collection) {
+        foreach (var item in collection)
+        {
             buffer.Add(item);
         }
-        for (int i = buffer.Count - 1; i >= 0; i--) {
+        for (int i = buffer.Count - 1; i >= 0; i--)
+        {
             EnqueueFirst(buffer[i]);
         }
 
@@ -157,33 +168,40 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
                 return;
 
             var newCount = _count + count;
-            if (newCount > Capacity) {
+            if (newCount > Capacity)
+            {
                 GrowAndCopy(newCount, count);
                 col.CopyTo(_array, 0);
                 _head = 0;
                 _tail = newCount == Capacity ? 0 : newCount;
             }
             // |-- <==--|
-            else if (_head >= count) {
+            else if (_head >= count)
+            {
                 _head -= count;
                 col.CopyTo(_array, _head);
             }
             // |=---- <=|
-            else {
+            else
+            {
                 _head = _head - count + Capacity;
                 var seperator = Capacity - _head;
-                if (col.TryGetSpan(out var span)) {
+                if (col.TryGetSpan(out var span))
+                {
                     span[..seperator].CopyTo(_array.AsSpan(_head..));
                     span[seperator..].CopyTo(_array);
                 }
-                else {
+                else
+                {
                     using var enumerator = col.GetEnumerator();
-                    for (int i = 0; i < seperator; i++) {
+                    for (int i = 0; i < seperator; i++)
+                    {
                         var hasNext = enumerator.MoveNext();
                         Debug.Assert(hasNext);
                         _array[_head + i] = enumerator.Current;
                     }
-                    for (int i = seperator; i < count; i++) {
+                    for (int i = seperator; i < count; i++)
+                    {
                         var hasNext = enumerator.MoveNext();
                         Debug.Assert(hasNext);
                         _array[i - seperator] = enumerator.Current;
@@ -201,19 +219,22 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
             return;
 
         var newCount = _count + count;
-        if (newCount > Capacity) {
+        if (newCount > Capacity)
+        {
             GrowAndCopy(newCount, count);
             span.CopyTo(_array);
             _head = 0;
             _tail = newCount == Capacity ? 0 : newCount;
         }
         // |-- <==--|
-        else if (_head >= count) {
+        else if (_head >= count)
+        {
             _head -= count;
             span.CopyTo(_array.AsSpan(_head));
         }
         // |=---- <=|
-        else {
+        else
+        {
             _head = _head - count + Capacity;
             var seperator = Capacity - _head;
             span[..seperator].CopyTo(_array.AsSpan(_head..));
@@ -225,13 +246,15 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public void EnqueueRangeLast(IEnumerable<T> collection)
     {
-        if (collection is ICollection<T> col) {
+        if (collection is ICollection<T> col)
+        {
             EnqueueRangeCollection(col);
             _version++;
             return;
         }
 
-        foreach (var item in collection) {
+        foreach (var item in collection)
+        {
             EnqueueLast(item);
         }
 
@@ -243,32 +266,39 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
 
             var oldCount = _count;
             var newCount = _count + count;
-            if (newCount > Capacity) {
+            if (newCount > Capacity)
+            {
                 GrowAndCopy(newCount, 0);
                 col.CopyTo(_array, oldCount);
                 _head = 0;
                 _tail = newCount == Capacity ? 0 : newCount;
             }
             // |--==> --|
-            else if (_tail + count <= Capacity) {
+            else if (_tail + count <= Capacity)
+            {
                 col.CopyTo(_array, _tail);
                 _tail += count;
             }
             // |=> ----=|
-            else {
+            else
+            {
                 var seperator = Capacity - _tail;
-                if (col.TryGetSpan(out var span)) {
+                if (col.TryGetSpan(out var span))
+                {
                     span[..seperator].CopyTo(_array.AsSpan(_tail..));
                     span[seperator..].CopyTo(_array);
                 }
-                else {
+                else
+                {
                     using var enumerator = col.GetEnumerator();
-                    for (int i = 0; i < seperator; i++) {
+                    for (int i = 0; i < seperator; i++)
+                    {
                         var next = enumerator.MoveNext();
                         Debug.Assert(next == true);
                         _array[_tail + i] = enumerator.Current;
                     }
-                    for (int i = seperator; i < count; i++) {
+                    for (int i = seperator; i < count; i++)
+                    {
                         var next = enumerator.MoveNext();
                         Debug.Assert(next == true);
                         _array[i - seperator] = enumerator.Current;
@@ -288,19 +318,22 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
 
         var oldCount = _count;
         var newCount = _count + count;
-        if (newCount > Capacity) {
+        if (newCount > Capacity)
+        {
             GrowAndCopy(newCount, 0);
             span.CopyTo(_array.AsSpan(oldCount));
             _head = 0;
             _tail = newCount == Capacity ? 0 : newCount;
         }
         // |--==> --|
-        else if (_tail + count <= Capacity) {
+        else if (_tail + count <= Capacity)
+        {
             span.CopyTo(_array.AsSpan(_tail));
             _tail += count;
         }
         // |=> ----=|
-        else {
+        else
+        {
             var seperator = Capacity - _tail;
             span[..seperator].CopyTo(_array.AsSpan(_tail..));
             span[seperator..].CopyTo(_array);
@@ -312,7 +345,8 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public T DequeueFirst()
     {
-        if (!TryDequeueFirst(out var res)) {
+        if (!TryDequeueFirst(out var res))
+        {
             Throws.CollectionIsEmpty(nameof(Deque<>));
         }
         return res;
@@ -320,7 +354,8 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public T DequeueLast()
     {
-        if (!TryDequeueLast(out var res)) {
+        if (!TryDequeueLast(out var res))
+        {
             Throws.CollectionIsEmpty(nameof(Deque<>));
         }
         return res;
@@ -328,7 +363,8 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public bool TryDequeueFirst([MaybeNullWhen(false)] out T item)
     {
-        if (_count == 0) {
+        if (_count == 0)
+        {
             item = default;
             return false;
         }
@@ -344,7 +380,8 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public bool TryDequeueLast([MaybeNullWhen(false)] out T item)
     {
-        if (_count == 0) {
+        if (_count == 0)
+        {
             item = default;
             return false;
         }
@@ -375,7 +412,8 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
     public int EnsureCapacity(int capacity)
     {
         Throws.ThrowIfNegative(capacity);
-        if (_array.Length < capacity) {
+        if (_array.Length < capacity)
+        {
             GrowAndCopy(capacity, 0);
         }
         return _array.Length;
@@ -384,7 +422,8 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
     public void TrimExcess()
     {
         int threshold = (int)(_array.Length * 0.9);
-        if (_count < threshold) {
+        if (_count < threshold)
+        {
             _array = ToArray();
         }
     }
@@ -454,13 +493,15 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
         {
             CheckVersion();
 
-            if (_index < 0) {
+            if (_index < 0)
+            {
                 _current = default;
                 return false;
             }
 
             // | -- |
-            if (_deque._head < _deque._tail) {
+            if (_deque._head < _deque._tail)
+            {
                 _current = _deque._array[_index];
                 if (_index + 1 == _deque._tail)
                     _index = -1;
@@ -469,7 +510,8 @@ public class Deque<T> : ICollection<T>, IReadOnlyCollection<T>
                 return true;
             }
             // |- -|
-            else {
+            else
+            {
                 _current = _deque._array[_index];
                 var next = _deque.Increment(_index);
                 if (next == _deque._tail)

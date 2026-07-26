@@ -14,15 +14,7 @@ public partial class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
     internal int _version;
     private readonly IEqualityComparer<TKey>? _comparer;
 
-    public Node Root
-    {
-        get {
-            if (_root is null) {
-                _root = new(this, default);
-            }
-            return _root;
-        }
-    }
+    public Node Root => _root ??= new(this, default);
 
     public int NodeCount => _nodeCount;
 
@@ -32,13 +24,16 @@ public partial class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
 
     public TValue this[ReadOnlySpan<TKey> sequence]
     {
-        get {
+        get
+        {
             if (!TryGetValue(sequence, out var value))
                 Throws.KeyNotFound(sequence, nameof(PrefixTreeDictionary<,>));
             return value;
         }
-        set {
-            if (!TryAdd(sequence, value, out var node)) {
+        set
+        {
+            if (!TryAdd(sequence, value, out var node))
+            {
                 node.SetIsEnd(value);
                 _version++;
             }
@@ -57,11 +52,13 @@ public partial class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
     public bool TryGetValue(ReadOnlySpan<TKey> sequence, [MaybeNullWhen(false)] out TValue value)
     {
         var node = FindPrefixNode(sequence);
-        if (node is { IsEnd: true }) {
+        if (node is { IsEnd: true })
+        {
             value = node.GetValueOrDefault()!;
             return true;
         }
-        else {
+        else
+        {
             value = default;
             return false;
         }
@@ -70,11 +67,13 @@ public partial class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
     public bool TryGetValue(IEnumerable<TKey> sequence, [MaybeNullWhen(false)] out TValue value)
     {
         var node = FindPrefixNode(sequence);
-        if (node is { IsEnd: true }) {
+        if (node is { IsEnd: true })
+        {
             value = node.GetValueOrDefault()!;
             return true;
         }
-        else {
+        else
+        {
             value = default;
             return false;
         }
@@ -114,11 +113,15 @@ public partial class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
 
         var node = _root;
 
-        if (typeof(TKey).IsValueType && _comparer is null) {
-            foreach (var val in prefix) {
+        if (typeof(TKey).IsValueType && _comparer is null)
+        {
+            foreach (var val in prefix)
+            {
                 var children = node.ChildrenSpan;
-                foreach (var child in children) {
-                    if (EqualityComparer<TKey>.Default.Equals(child.Key!, val)) {
+                foreach (var child in children)
+                {
+                    if (EqualityComparer<TKey>.Default.Equals(child.Key!, val))
+                    {
                         node = child;
                         goto ContinueFor;
                     }
@@ -129,13 +132,17 @@ public partial class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
                 continue;
             }
         }
-        else {
+        else
+        {
             Debug.Assert(_comparer is not null);
             var comparer = _comparer!;
-            foreach (var val in prefix) {
+            foreach (var val in prefix)
+            {
                 var children = node.ChildrenSpan;
-                foreach (var child in children) {
-                    if (comparer.Equals(child.Key!, val)) {
+                foreach (var child in children)
+                {
+                    if (comparer.Equals(child.Key!, val))
+                    {
                         node = child;
                         goto ContinueFor;
                     }
@@ -157,11 +164,15 @@ public partial class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
 
         var node = _root;
 
-        if (typeof(TKey).IsValueType && _comparer is null) {
-            foreach (var val in prefix) {
+        if (typeof(TKey).IsValueType && _comparer is null)
+        {
+            foreach (var val in prefix)
+            {
                 var children = node.ChildrenSpan;
-                foreach (var child in children) {
-                    if (EqualityComparer<TKey>.Default.Equals(child.Key!, val)) {
+                foreach (var child in children)
+                {
+                    if (EqualityComparer<TKey>.Default.Equals(child.Key!, val))
+                    {
                         node = child;
                         goto ContinueFor;
                     }
@@ -172,13 +183,17 @@ public partial class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
                 continue;
             }
         }
-        else {
+        else
+        {
             Debug.Assert(_comparer is not null);
             var comparer = _comparer!;
-            foreach (var val in prefix) {
+            foreach (var val in prefix)
+            {
                 var children = node.ChildrenSpan;
-                foreach (var child in children) {
-                    if (comparer.Equals(child.Key!, val)) {
+                foreach (var child in children)
+                {
+                    if (comparer.Equals(child.Key!, val))
+                    {
                         node = child;
                         goto ContinueFor;
                     }
@@ -208,11 +223,13 @@ public partial class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
     public bool TryAdd(ReadOnlySpan<TKey> sequence, TValue value, out Node node)
     {
         node = Root;
-        foreach (var item in sequence) {
+        foreach (var item in sequence)
+        {
             node = GetOrAddChild(node, item);
         }
 
-        if (node.IsEnd) {
+        if (node.IsEnd)
+        {
             return false;
         }
 
@@ -225,11 +242,13 @@ public partial class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
     public bool TryAdd(IEnumerable<TKey> sequence, TValue value, out Node node)
     {
         node = Root;
-        foreach (var item in sequence) {
+        foreach (var item in sequence)
+        {
             node = GetOrAddChild(node, item);
         }
 
-        if (node.IsEnd) {
+        if (node.IsEnd)
+        {
             return false;
         }
         _version++;
@@ -242,18 +261,24 @@ public partial class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
     {
         Debug.Assert(parent._tree == this);
 
-        if (typeof(TKey).IsValueType && _comparer is null) {
-            foreach (var child in parent.ChildrenSpan) {
-                if (EqualityComparer<TKey>.Default.Equals(child.Key!, key)) {
+        if (typeof(TKey).IsValueType && _comparer is null)
+        {
+            foreach (var child in parent.ChildrenSpan)
+            {
+                if (EqualityComparer<TKey>.Default.Equals(child.Key!, key))
+                {
                     return child;
                 }
             }
         }
-        else {
+        else
+        {
             Debug.Assert(_comparer is not null);
             var comparer = _comparer!;
-            foreach (var child in parent.ChildrenSpan) {
-                if (comparer.Equals(child.Key!, key)) {
+            foreach (var child in parent.ChildrenSpan)
+            {
+                if (comparer.Equals(child.Key!, key))
+                {
                     return child;
                 }
             }
@@ -295,10 +320,12 @@ public partial class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
         Debug.Assert(_root is not null, "If there's any node in the tree, the root node should have been initialized");
 
         endNode.SetNotEnd();
-        if (endNode.ChildrenSpan.IsEmpty) {
+        if (endNode.ChildrenSpan.IsEmpty)
+        {
             // If this is leaf, remove redundant nodes on this branch
             var node = endNode;
-            do {
+            do
+            {
                 Debug.Assert(node._parent is not null);
                 var parent = node._parent!;
                 parent.RemoveChild(node);
@@ -341,11 +368,13 @@ public partial class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
 
         public TValue Value
         {
-            get {
+            get
+            {
                 if (!IsEnd) ThrowNoValue();
                 return _value!;
             }
-            set {
+            set
+            {
                 if (!IsEnd) ThrowNoValue();
                 _value = value;
             }
@@ -353,7 +382,8 @@ public partial class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
 
         public ref TValue ValueRef
         {
-            get {
+            get
+            {
                 if (!IsEnd) ThrowNoValue();
                 return ref _value!;
             }
@@ -388,7 +418,8 @@ public partial class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
         {
             Debug.Assert(child._parent is null);
 
-            if (_childCount == _children.Length) {
+            if (_childCount == _children.Length)
+            {
                 ArrayGrowHelper.Grow(ref _children, _childCount + 1, _childCount);
             }
 
@@ -414,7 +445,8 @@ public partial class PrefixTreeDictionary<TKey, TValue> where TKey : notnull
 
         private int ChildIndexOf(Node child)
         {
-            for (int i = 0; i < _childCount; i++) {
+            for (int i = 0; i < _childCount; i++)
+            {
                 if (_children[i] == child)
                     return i;
             }

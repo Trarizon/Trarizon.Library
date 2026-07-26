@@ -3,10 +3,9 @@ using System.Runtime.InteropServices;
 using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections;
+
 public static partial class TraCollection
 {
-
-
     public static ref T AtRef<T>(this List<T> list, int index)
         => ref list.AsSpan()[index];
 

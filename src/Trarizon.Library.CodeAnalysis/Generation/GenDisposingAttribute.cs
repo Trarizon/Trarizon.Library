@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Trarizon.Library.CodeAnalysis.Generation;
+﻿namespace Trarizon.Library.CodeAnalysis.Generation;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
 public sealed class GenDisposingAttribute : Attribute

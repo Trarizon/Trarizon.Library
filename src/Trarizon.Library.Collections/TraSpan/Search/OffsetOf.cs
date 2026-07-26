@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 
 namespace Trarizon.Library.Collections;
+
 public static partial class TraSpan
 {
     public static int OffsetOf<T>(this Span<T> span, ref readonly T item)

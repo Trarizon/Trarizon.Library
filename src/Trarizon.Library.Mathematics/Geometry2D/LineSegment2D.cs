@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 
 namespace Trarizon.Library.Mathematics.Geometry2D;
+
 public struct LineSegment2D(Vector2 start, Vector2 end)
 {
     public Vector2 StartPoint = start;

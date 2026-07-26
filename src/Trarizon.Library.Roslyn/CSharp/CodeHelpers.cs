@@ -1,7 +1,5 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
+﻿namespace Trarizon.Library.Roslyn.CSharp;
 
-namespace Trarizon.Library.Roslyn.CSharp;
 public static class CodeHelpers
 {
     public static bool IsValidIdentifier(ReadOnlySpan<char> identifier, bool allowAtPrefix = false)
@@ -16,7 +14,8 @@ public static class CodeHelpers
         if (first is not ('_' or >= 'a' and <= 'z' or >= 'A' and <= 'Z'))
             return false;
 
-        foreach (var c in identifier[1..]) {
+        foreach (var c in identifier[1..])
+        {
             if (c is not ('_' or >= 'a' and <= 'z' or >= 'A' and <= 'Z' or >= '0' and <= '9'))
                 return false;
         }
@@ -32,12 +31,15 @@ public static class CodeHelpers
         bool changed = false;
         var builder = (stackalloc char[csharpMemberName.Length]);
         csharpMemberName.AsSpan().CopyTo(builder);
-        foreach (ref var c in builder) {
-            if (c is '<') {
+        foreach (ref var c in builder)
+        {
+            if (c is '<')
+            {
                 c = '{';
                 changed = true;
             }
-            else if (c is '>') {
+            else if (c is '>')
+            {
                 c = '}';
                 changed = true;
             }

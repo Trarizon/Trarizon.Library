@@ -9,7 +9,8 @@ public static partial class TraEnumerable
     /// </summary>
     public static IEnumerable<T> Intersperse<T>(this IEnumerable<T> source, T seperator)
     {
-        if (source is T[] arr) {
+        if (source is T[] arr)
+        {
             if (arr.Length <= 1)
                 return source;
             return new ArrayIntersperseIterator<T>(arr, seperator);
@@ -25,7 +26,8 @@ public static partial class TraEnumerable
 
             yield return enumerator.Current;
 
-            while (enumerator.MoveNext()) {
+            while (enumerator.MoveNext())
+            {
                 yield return seperator;
                 yield return enumerator.Current;
             }
@@ -38,7 +40,8 @@ public static partial class TraEnumerable
 
         public override T this[int index]
         {
-            get {
+            get
+            {
                 var idx = index / 2;
                 if (index % 2 == 0)
                     return list[idx];
@@ -57,7 +60,8 @@ public static partial class TraEnumerable
             const int End = MinPreservedState - 1;
             const int SeperatorStart = End - 1;
 
-            switch (_state) {
+            switch (_state)
+            {
                 case InitState:
                     _state = 0;
                     goto InList;
@@ -71,12 +75,14 @@ public static partial class TraEnumerable
 
         InList:
             Debug.Assert(_state >= 0);
-            if (_state < list.Length) {
+            if (_state < list.Length)
+            {
                 _current = list[_state];
                 _state = SeperatorStart - _state - 1;
                 return true;
             }
-            else {
+            else
+            {
                 _current = default;
                 _state = End;
                 return false;
@@ -85,12 +91,14 @@ public static partial class TraEnumerable
         ReturnSeperator:
             Debug.Assert(_state <= SeperatorStart);
             var sepIdx = SeperatorStart - _state;
-            if (sepIdx < list.Length) {
+            if (sepIdx < list.Length)
+            {
                 _current = seperator;
                 _state = sepIdx;
                 return true;
             }
-            else {
+            else
+            {
                 _current = default;
                 _state = End;
                 return false;
@@ -108,7 +116,8 @@ public static partial class TraEnumerable
 
         public override int IndexOf(T item)
         {
-            if (EqualityComparer<T>.Default.Equals(item, seperator)) {
+            if (EqualityComparer<T>.Default.Equals(item, seperator))
+            {
                 if (list.Length >= 2)
                     return 1;
                 else

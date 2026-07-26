@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections;
+
 public static partial class TraCollection
 {
     public static ListLookup<T, EqualityComparer<T>> GetLookup<T>(this List<T> list)
@@ -29,7 +30,8 @@ public static partial class TraCollection
         public bool TryGetValue(T equalItem, [MaybeNullWhen(false)] out T actualValue)
         {
             ref var find = ref FindFirstRef(equalItem);
-            if (Unsafe.IsNullRef(ref find)) {
+            if (Unsafe.IsNullRef(ref find))
+            {
                 actualValue = default;
                 return false;
             }
@@ -50,7 +52,8 @@ public static partial class TraCollection
         public bool Remove(T item)
         {
             ref var find = ref FindFirstRef(item);
-            if (Unsafe.IsNullRef(ref find)) {
+            if (Unsafe.IsNullRef(ref find))
+            {
                 return false;
             }
             var index = _list.AsSpan().OffsetOf(in item);
@@ -75,7 +78,8 @@ public static partial class TraCollection
         public bool TryAdd(T item)
         {
             ref var find = ref FindFirstRef(item);
-            if (Unsafe.IsNullRef(ref find)) {
+            if (Unsafe.IsNullRef(ref find))
+            {
                 _list.Add(item);
                 return true;
             }
@@ -84,7 +88,8 @@ public static partial class TraCollection
 
         private ref T FindFirstRef(T item)
         {
-            foreach (ref var v in _list.AsSpan()) {
+            foreach (ref var v in _list.AsSpan())
+            {
                 if (_comparer.Equals(v, item))
                     return ref v;
             }

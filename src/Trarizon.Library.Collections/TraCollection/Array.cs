@@ -7,7 +7,8 @@ public static partial class TraCollection
 {
     public static bool TryAt<T>(this ImmutableArray<T> array, int index, [MaybeNullWhen(false)] out T element)
     {
-        if (array.IsDefault || index < 0 || index >= array.Length) {
+        if (array.IsDefault || index < 0 || index >= array.Length)
+        {
             element = default!;
             return false;
         }

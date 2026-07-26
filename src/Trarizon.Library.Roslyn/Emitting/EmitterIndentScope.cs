@@ -1,6 +1,4 @@
-﻿using System;
-using System.CodeDom.Compiler;
-using System.Collections.Generic;
+﻿using System.CodeDom.Compiler;
 
 namespace Trarizon.Library.Roslyn.Emitting;
 
@@ -32,18 +30,21 @@ public readonly struct EmitterIndentScope : IDisposable
         if (_writer is null)
             return;
 
-        if (_suffixes is null) {
+        if (_suffixes is null)
+        {
             return;
         }
 
-        if (_suffixes is string str) {
+        if (_suffixes is string str)
+        {
             _writer.Indent--;
             if (str != "")
                 _writer.WriteLine(str);
             return;
         }
 
-        foreach (var suf in (string?[])_suffixes) {
+        foreach (var suf in (string?[])_suffixes)
+        {
             _writer.Indent--;
             if (suf is not null)
                 _writer.WriteLine(suf);

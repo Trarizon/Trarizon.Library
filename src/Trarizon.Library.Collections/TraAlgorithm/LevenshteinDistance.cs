@@ -1,9 +1,9 @@
 ﻿using System.Buffers;
 using System.Diagnostics;
 using Trarizon.Library.Collections.Buffers;
-using Trarizon.Library.Collections.Generic;
 
 namespace Trarizon.Library.Collections;
+
 public static partial class TraAlgorithm
 {
     public static int LevenshteinDistance(string from, string to) => LevenshteinDistance(from.AsSpan(), to.AsSpan());
@@ -25,10 +25,12 @@ public static partial class TraAlgorithm
             b = -1;
         }
 #endif
-        if (typeof(T).IsValueType) {
+        if (typeof(T).IsValueType)
+        {
             LevenshteinDistanceImplDefault(buffer, from, to);
         }
-        else {
+        else
+        {
             LevenshteinDistanceImplComparer(buffer, from, to, EqualityComparer<T>.Default);
         }
 
@@ -54,15 +56,19 @@ public static partial class TraAlgorithm
     {
         Debug.Assert(buffer.Length >= from.Length * to.Length);
         var initDelta = EqualityComparer<T>.Default.Equals(from[0], to[0]) ? 0 : 1;
-        for (int i = 0; i < from.Length; i++) {
+        for (int i = 0; i < from.Length; i++)
+        {
             buffer[i] = i + initDelta;
         }
-        for (int i = 1; i < to.Length; i++) {
+        for (int i = 1; i < to.Length; i++)
+        {
             buffer[i * from.Length] = i + initDelta;
         }
 
-        for (int col = 1; col < to.Length; col++) {
-            for (int row = 1; row < from.Length; row++) {
+        for (int col = 1; col < to.Length; col++)
+        {
+            for (int row = 1; row < from.Length; row++)
+            {
                 var up = buffer[(col - 1) * from.Length + row] + 1;
                 var lf = buffer[col * from.Length + row - 1] + 1;
                 var lu = buffer[(col - 1) * from.Length + row - 1];
@@ -78,15 +84,19 @@ public static partial class TraAlgorithm
     {
         Debug.Assert(buffer.Length >= from.Length * to.Length);
         var initDelta = comparer.Equals(from[0], to[0]) ? 0 : 1;
-        for (int i = 0; i < from.Length; i++) {
+        for (int i = 0; i < from.Length; i++)
+        {
             buffer[i] = i + initDelta;
         }
-        for (int i = 1; i < to.Length; i++) {
+        for (int i = 1; i < to.Length; i++)
+        {
             buffer[i * from.Length] = i + initDelta;
         }
 
-        for (int col = 1; col < to.Length; col++) {
-            for (int row = 1; row < from.Length; row++) {
+        for (int col = 1; col < to.Length; col++)
+        {
+            for (int row = 1; row < from.Length; row++)
+            {
                 var up = buffer[(col - 1) * from.Length + row] + 1;
                 var lf = buffer[col * from.Length + row - 1] + 1;
                 var lu = buffer[(col - 1) * from.Length + row - 1];
@@ -102,15 +112,19 @@ public static partial class TraAlgorithm
     {
         Debug.Assert(buffer.Length >= from.Length * to.Length);
         var initDelta = EqualityComparer<T>.Default.Equals(from[0], to[0]) ? 0 : 1;
-        for (int i = 0; i < from.Length; i++) {
+        for (int i = 0; i < from.Length; i++)
+        {
             buffer[i] = (i + initDelta, LevenshteinRouteEditKind.Delete);
         }
-        for (int i = 1; i < to.Length; i++) {
+        for (int i = 1; i < to.Length; i++)
+        {
             buffer[i * from.Length] = (i + initDelta, LevenshteinRouteEditKind.Add);
         }
 
-        for (int col = 1; col < to.Length; col++) {
-            for (int row = 1; row < from.Length; row++) {
+        for (int col = 1; col < to.Length; col++)
+        {
+            for (int row = 1; row < from.Length; row++)
+            {
                 var up = buffer[(col - 1) * from.Length + row].Distance + 1;
                 var lf = buffer[col * from.Length + row - 1].Distance + 1;
                 var lu = buffer[(col - 1) * from.Length + row - 1].Distance;
@@ -118,13 +132,15 @@ public static partial class TraAlgorithm
                 if (edit) lu++;
                 int cur;
                 LevenshteinRouteEditKind kind;
-                if (up > lf) {
+                if (up > lf)
+                {
                     if (lf > lu)
                         (cur, kind) = (lu, edit ? LevenshteinRouteEditKind.Edit : LevenshteinRouteEditKind.None);
                     else
                         (cur, kind) = (lf, LevenshteinRouteEditKind.Delete);
                 }
-                else {
+                else
+                {
                     if (up > lu)
                         (cur, kind) = (lu, edit ? LevenshteinRouteEditKind.Edit : LevenshteinRouteEditKind.None);
                     else

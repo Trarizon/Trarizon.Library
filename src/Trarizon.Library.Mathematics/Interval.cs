@@ -77,7 +77,7 @@ public struct Interval : IEquatable<Interval>
         return (new Interval(Math.Min(left.Start, right.Start), Math.Max(left.End, right.End)), Empty);
     }
 
-#endregion
+    #endregion
 
     public readonly bool Contains(float value) => value >= Start && value < End;
 

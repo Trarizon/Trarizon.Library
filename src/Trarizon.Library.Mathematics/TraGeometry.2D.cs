@@ -2,6 +2,7 @@
 using Trarizon.Library.Mathematics.Helpers;
 
 namespace Trarizon.Library.Mathematics;
+
 public static partial class TraGeometry
 {
     public static Vector2 RotateBy90Degree(Vector2 vector, int multiplier)

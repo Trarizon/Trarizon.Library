@@ -8,7 +8,8 @@ public static partial class TraTraversable
     {
         using var traverser = new DepthFirstTraverser<T, DelegateChildrenEnumeratorProvider<T>>(
             firstLevel.GetEnumerator(), new(childrenSelector));
-        while (traverser.MoveNext(out var current)) {
+        while (traverser.MoveNext(out var current))
+        {
             yield return current;
         }
     }
@@ -17,7 +18,8 @@ public static partial class TraTraversable
     {
         using var traverser = new BreadthFirstTraverser<T, DelegateChildrenEnumeratorProvider<T>>(
             firstLevel.GetEnumerator(), new(childrenSelector));
-        while (traverser.MoveNext(out var current)) {
+        while (traverser.MoveNext(out var current))
+        {
             yield return current;
         }
     }
@@ -33,7 +35,8 @@ public static partial class TraTraversable
 
         using var traverser = new DepthFirstTraverser<T, DelegateChildrenEnumeratorProvider<T>>(
             children.GetEnumerator(), new(childrenSelector));
-        while (traverser.MoveNext(out var current)) {
+        while (traverser.MoveNext(out var current))
+        {
             yield return current;
         }
     }
@@ -49,7 +52,8 @@ public static partial class TraTraversable
 
         using var traverse = new BreadthFirstTraverser<T, DelegateChildrenEnumeratorProvider<T>>(
             children.GetEnumerator(), new(childrenSelector));
-        while (traverse.MoveNext(out var current)) {
+        while (traverse.MoveNext(out var current))
+        {
             yield return current;
         }
     }

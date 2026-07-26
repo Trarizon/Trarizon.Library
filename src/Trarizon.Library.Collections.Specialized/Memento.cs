@@ -4,6 +4,7 @@ using Trarizon.Library.Collections.Helpers;
 using Trarizon.Library.Collections.StackAlloc;
 
 namespace Trarizon.Library.Collections.Specialized;
+
 public class Memento<T>
 {
     private T[] _array;
@@ -61,7 +62,8 @@ public class Memento<T>
     /// <returns></returns>
     public bool TryPeek([MaybeNullWhen(false)] out T activeItem)
     {
-        if (ActiveCount == 0) {
+        if (ActiveCount == 0)
+        {
             activeItem = default;
             return false;
         }
@@ -87,7 +89,8 @@ public class Memento<T>
     /// </summary>
     public bool TryPeekInactive([MaybeNullWhen(false)] out T inactiveItem)
     {
-        if (ActiveCount == Count) {
+        if (ActiveCount == Count)
+        {
             inactiveItem = default;
             return false;
         }
@@ -100,14 +103,16 @@ public class Memento<T>
 
     public void Add(T item)
     {
-        if (_activeCount != _count) {
+        if (_activeCount != _count)
+        {
             Debug.Assert(_activeCount < _count);
             Debug.Assert(_activeCount < _maxCount);
             _array[_index] = item;
             Increment(ref _index);
             if (_index < _tail)
                 ArrayGrowHelper.FreeIfReferenceOrContainsReferences(_array.AsSpan(_index.._tail));
-            else {
+            else
+            {
                 var free = new ConcatSpan<T>(_array.AsSpan(_index), _array.AsSpan(.._tail));
                 ArrayGrowHelper.FreeIfReferenceOrContainsReferences(free.First);
                 ArrayGrowHelper.FreeIfReferenceOrContainsReferences(free.Second);
@@ -120,14 +125,16 @@ public class Memento<T>
         }
 
         Debug.Assert(_index == _tail);
-        if (_activeCount == MaxCount) {
+        if (_activeCount == MaxCount)
+        {
             _array[_index] = item;
             Increment(ref _index);
             _head = _tail = _index;
         }
         // If current array is full, and capacity hasnt reach _maxCount
         // extend array length
-        else if (_activeCount == _array.Length) {
+        else if (_activeCount == _array.Length)
+        {
             var capacity = _array.Length;
             GrowAndCopy(capacity + 1);
             _head = 0;
@@ -139,7 +146,8 @@ public class Memento<T>
             _activeCount++;
         }
         // Normal queue
-        else {
+        else
+        {
             _array[_index] = item;
             Increment(ref _index);
             _tail = _index;
@@ -158,7 +166,8 @@ public class Memento<T>
 
     public bool TryRollback([MaybeNullWhen(false)] out T item)
     {
-        if (_activeCount == 0) {
+        if (_activeCount == 0)
+        {
             item = default;
             return false;
         }
@@ -178,7 +187,8 @@ public class Memento<T>
 
     public bool TryReapply([MaybeNullWhen(false)] out T item)
     {
-        if (_activeCount == _count) {
+        if (_activeCount == _count)
+        {
             item = default;
             return false;
         }
@@ -266,15 +276,18 @@ public class Memento<T>
         {
             CheckVersion();
 
-            if (_index < 0) {
+            if (_index < 0)
+            {
                 _current = default;
                 return false;
             }
 
             // | --- |
-            if (_memento._head < _memento._tail) {
+            if (_memento._head < _memento._tail)
+            {
                 _current = _memento._array[_index];
-                if (_isActive && _index == _memento._index) {
+                if (_isActive && _index == _memento._index)
+                {
                     _isActive = false;
                 }
 
@@ -286,7 +299,8 @@ public class Memento<T>
                 return true;
             }
             // |--  --|
-            else {
+            else
+            {
                 _current = _memento._array[_index];
                 // If _index == _memento._tail, the array is full, and all items are active
                 if (_isActive && _index == _memento._index && _index != _memento._tail)
@@ -294,7 +308,8 @@ public class Memento<T>
 
                 var index = _index;
                 _memento.Increment(ref index);
-                if (index == _memento._tail) {
+                if (index == _memento._tail)
+                {
                     _index = -1;
 
                 }
@@ -357,10 +372,12 @@ public class Memento<T>
             public readonly T Current => _enumerator.Current;
             public bool MoveNext()
             {
-                if (_enumerator.MoveNext()) {
+                if (_enumerator.MoveNext())
+                {
                     if (_enumerator.IsActive)
                         return true;
-                    else {
+                    else
+                    {
                         _enumerator.SetEnd();
                         return false;
                     }

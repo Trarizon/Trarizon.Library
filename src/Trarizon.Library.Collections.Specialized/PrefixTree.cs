@@ -13,15 +13,7 @@ public partial class PrefixTree<T>
     internal int _version;
     private readonly IEqualityComparer<T>? _comparer;
 
-    public Node Root
-    {
-        get {
-            if (_root is null) {
-                _root = new(this, default);
-            }
-            return _root;
-        }
-    }
+    public Node Root => _root ??= new(this, default);
 
     public int NodeCount => _nodeCount;
 
@@ -72,11 +64,15 @@ public partial class PrefixTree<T>
 
         var node = _root;
 
-        if (typeof(T).IsValueType && _comparer is null) {
-            foreach (var val in prefix) {
+        if (typeof(T).IsValueType && _comparer is null)
+        {
+            foreach (var val in prefix)
+            {
                 var children = node.ChildrenSpan;
-                foreach (var child in children) {
-                    if (EqualityComparer<T>.Default.Equals(child.Value!, val)) {
+                foreach (var child in children)
+                {
+                    if (EqualityComparer<T>.Default.Equals(child.Value!, val))
+                    {
                         node = child;
                         goto ContinueFor;
                     }
@@ -87,13 +83,17 @@ public partial class PrefixTree<T>
                 continue;
             }
         }
-        else {
+        else
+        {
             Debug.Assert(_comparer is not null);
             var comparer = _comparer!;
-            foreach (var val in prefix) {
+            foreach (var val in prefix)
+            {
                 var children = node.ChildrenSpan;
-                foreach (var child in children) {
-                    if (comparer.Equals(child.Value!, val)) {
+                foreach (var child in children)
+                {
+                    if (comparer.Equals(child.Value!, val))
+                    {
                         node = child;
                         goto ContinueFor;
                     }
@@ -115,11 +115,15 @@ public partial class PrefixTree<T>
 
         var node = _root;
 
-        if (typeof(T).IsValueType && _comparer is null) {
-            foreach (var val in prefix) {
+        if (typeof(T).IsValueType && _comparer is null)
+        {
+            foreach (var val in prefix)
+            {
                 var children = node.ChildrenSpan;
-                foreach (var child in children) {
-                    if (EqualityComparer<T>.Default.Equals(child.Value!, val)) {
+                foreach (var child in children)
+                {
+                    if (EqualityComparer<T>.Default.Equals(child.Value!, val))
+                    {
                         node = child;
                         goto ContinueFor;
                     }
@@ -130,13 +134,17 @@ public partial class PrefixTree<T>
                 continue;
             }
         }
-        else {
+        else
+        {
             Debug.Assert(_comparer is not null);
             var comparer = _comparer!;
-            foreach (var val in prefix) {
+            foreach (var val in prefix)
+            {
                 var children = node.ChildrenSpan;
-                foreach (var child in children) {
-                    if (comparer.Equals(child.Value!, val)) {
+                foreach (var child in children)
+                {
+                    if (comparer.Equals(child.Value!, val))
+                    {
                         node = child;
                         goto ContinueFor;
                     }
@@ -165,11 +173,13 @@ public partial class PrefixTree<T>
     public bool TryAdd(ReadOnlySpan<T> sequence, out Node node)
     {
         node = Root;
-        foreach (var item in sequence) {
+        foreach (var item in sequence)
+        {
             node = GetOrAddChild(node, item);
         }
 
-        if (node._end) {
+        if (node._end)
+        {
             return false;
         }
 
@@ -182,11 +192,13 @@ public partial class PrefixTree<T>
     public bool TryAdd(IEnumerable<T> sequence, out Node node)
     {
         node = Root;
-        foreach (var item in sequence) {
+        foreach (var item in sequence)
+        {
             node = GetOrAddChild(node, item);
         }
 
-        if (node._end) {
+        if (node._end)
+        {
             return false;
         }
 
@@ -200,18 +212,24 @@ public partial class PrefixTree<T>
     {
         Debug.Assert(parent._tree == this);
 
-        if (typeof(T).IsValueType && _comparer is null) {
-            foreach (var child in parent.ChildrenSpan) {
-                if (EqualityComparer<T>.Default.Equals(child.Value!, value)) {
+        if (typeof(T).IsValueType && _comparer is null)
+        {
+            foreach (var child in parent.ChildrenSpan)
+            {
+                if (EqualityComparer<T>.Default.Equals(child.Value!, value))
+                {
                     return child;
                 }
             }
         }
-        else {
+        else
+        {
             Debug.Assert(_comparer is not null);
             var comparer = _comparer!;
-            foreach (var child in parent.ChildrenSpan) {
-                if (comparer.Equals(child.Value!, value)) {
+            foreach (var child in parent.ChildrenSpan)
+            {
+                if (comparer.Equals(child.Value!, value))
+                {
                     return child;
                 }
             }
@@ -253,10 +271,12 @@ public partial class PrefixTree<T>
         Debug.Assert(_root is not null, "If there's any node in the tree, the root node should have been initialized");
 
         endNode._end = false;
-        if (endNode.ChildrenSpan.IsEmpty) {
+        if (endNode.ChildrenSpan.IsEmpty)
+        {
             // If this is leaf, remove redundant nodes on this branch
             var node = endNode;
-            do {
+            do
+            {
                 Debug.Assert(node._parent is not null);
                 var parent = node._parent!;
                 parent.RemoveChild(node);
@@ -308,7 +328,8 @@ public partial class PrefixTree<T>
         {
             Debug.Assert(child._parent is null);
 
-            if (_childCount == _children.Length) {
+            if (_childCount == _children.Length)
+            {
                 ArrayGrowHelper.Grow(ref _children, _childCount + 1, _childCount);
             }
 
@@ -334,7 +355,8 @@ public partial class PrefixTree<T>
 
         private int ChildIndexOf(Node child)
         {
-            for (int i = 0; i < _childCount; i++) {
+            for (int i = 0; i < _childCount; i++)
+            {
                 if (_children[i] == child)
                     return i;
             }

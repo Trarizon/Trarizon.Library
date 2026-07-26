@@ -1,15 +1,11 @@
-﻿using System.ComponentModel;
+﻿namespace Trarizon.Library.Collections;
 
-namespace Trarizon.Library.Collections.Comparers;
+#if NETSTANDARD
 
-partial class TraComparers
+internal static partial class Polyfills
 {
     extension<T>(EqualityComparer<T>)
     {
-#if NET8_0_OR_GREATER
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [Obsolete("Use Official EqualityComparer<T>.Create Instead")]
-#endif
         public static IEqualityComparer<T> Create(Func<T?, T?, bool> equals, Func<T, int> getHashCode)
             => new DelegateEqualityComparer<T>(equals, getHashCode);
     }
@@ -20,3 +16,5 @@ partial class TraComparers
         public int GetHashCode(T obj) => getHashCode(obj);
     }
 }
+
+#endif

@@ -31,12 +31,15 @@ public static partial class TraAlgorithm
 
         bool inOrder;
 
-        for (int i = 0; i < values.Length; i++) {
+        for (int i = 0; i < values.Length; i++)
+        {
             inOrder = true;
-            for (int j = values.Length - 1; j > i; j--) {
+            for (int j = values.Length - 1; j > i; j--)
+            {
                 ref var left = ref values[j - 1];
                 ref var right = ref values[j];
-                if (!sorter.IsInOrder(left, right)) {
+                if (!sorter.IsInOrder(left, right))
+                {
                     Utils.Swap(ref left, ref right);
                     inOrder = false;
                 }
@@ -59,7 +62,7 @@ public static partial class TraAlgorithm
 
 #endif
 
-    public static void InsertionSort<T>(Span<T> values, IComparer<T>? comparer=null)
+    public static void InsertionSort<T>(Span<T> values, IComparer<T>? comparer = null)
         => InsertionSort<T, IComparer<T>>(values, comparer ?? Comparer<T>.Default);
 
     private static void InsertionSort<T, TComparer>(Span<T> values, TComparer comparer) where TComparer : IComparer<T>
@@ -70,12 +73,15 @@ public static partial class TraAlgorithm
         if (values.Length <= 1)
             return;
 
-        for (int i = 1; i < values.Length; i++) {
+        for (int i = 1; i < values.Length; i++)
+        {
             int j = i - 1;
-            for (; j >= 0; j--) {
+            for (; j >= 0; j--)
+            {
                 var left = values[j];
                 var right = values[i];
-                if (sorter.IsInOrderOrEqual(left, right)) {
+                if (sorter.IsInOrderOrEqual(left, right))
+                {
                     break;
                 }
             }

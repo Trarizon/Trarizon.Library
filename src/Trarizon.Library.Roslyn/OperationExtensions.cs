@@ -1,9 +1,9 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
-using System.Collections.Generic;
 
 namespace Trarizon.Library.Roslyn;
+
 public static class OperationExtensions
 {
     public static IEnumerable<IOperation> Ancestors(this IOperation operation, bool includeSelf = false)
@@ -12,7 +12,8 @@ public static class OperationExtensions
             yield return operation;
 
         var op = operation.Parent;
-        while (op is not null) {
+        while (op is not null)
+        {
             yield return op;
             op = op.Parent;
         }

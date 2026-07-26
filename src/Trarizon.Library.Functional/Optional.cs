@@ -88,11 +88,13 @@ public readonly partial struct Optional<T>
 
     public string ToString(bool includeVariantInfo)
     {
-        if (!includeVariantInfo) {
+        if (!includeVariantInfo)
+        {
             return ToString();
         }
 
-        if (HasValue) {
+        if (HasValue)
+        {
             string? str;
 #if MONAD
             if (_value is ITaggedUnion monad)
@@ -102,7 +104,8 @@ public readonly partial struct Optional<T>
             str = _value.ToString();
             return str is null ? "Optional Value" : $"Value({str})";
         }
-        else {
+        else
+        {
             return "Optional None";
         }
     }

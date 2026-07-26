@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections.StackAlloc;
+
 public readonly ref struct ReadOnlyReversedSpan<T>
 {
 #if NETSTANDARD
@@ -29,7 +30,8 @@ public readonly ref struct ReadOnlyReversedSpan<T>
     public ref readonly T this[int index]
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get {
+        get
+        {
             Throws.ThrowIfIndexGreaterThanOrEqual(index, Length);
             return ref DangerousGetReferenceAt(index);
         }
@@ -85,7 +87,8 @@ public readonly ref struct ReadOnlyReversedSpan<T>
     {
         Throws.ThrowIfLessThan(destination.Length, Length);
 
-        for (int i = 0; i < Length; i++) {
+        for (int i = 0; i < Length; i++)
+        {
             Utility.GetReferenceAt(destination, i) = DangerousGetReferenceAt(i);
         }
     }
@@ -96,7 +99,8 @@ public readonly ref struct ReadOnlyReversedSpan<T>
         if (destination.Length < Length)
             return false;
         destination.GetEnumerator();
-        for (int i = 0; i < Length; i++) {
+        for (int i = 0; i < Length; i++)
+        {
             Utility.GetReferenceAt(destination, i) = DangerousGetReferenceAt(i);
         }
         return true;
@@ -145,7 +149,8 @@ public readonly ref struct ReadOnlyReversedSpan<T>
         public bool MoveNext()
         {
             int index = _index + 1;
-            if (index < _span.Length) {
+            if (index < _span.Length)
+            {
                 _index = index;
                 return true;
             }
@@ -167,7 +172,8 @@ public readonly ref struct ReadOnlyReversedSpan<T>
 
     public override string ToString()
     {
-        if (typeof(T) == typeof(char)) {
+        if (typeof(T) == typeof(char))
+        {
 #if NETSTANDARD
             var buffer = new char[Length];
             this.CopyTo(Unsafe.As<T[]>(buffer));

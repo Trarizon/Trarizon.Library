@@ -4,6 +4,7 @@ using Trarizon.Library.Collections.Comparers;
 using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections.Generic;
+
 public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
 {
     private T[] _array;
@@ -13,11 +14,13 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
 
     public T this[int index]
     {
-        get {
+        get
+        {
             Throws.ThrowIfIndexGreaterThanOrEqual(index, _count);
             return _array[index];
         }
-        set {
+        set
+        {
             Throws.ThrowIfIndexGreaterThanOrEqual(index, _count);
             _array[index] = value;
             NotifyEditedAt(index);
@@ -29,12 +32,14 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
     public int Capacity
     {
         get => _array.Length;
-        set {
+        set
+        {
             Throws.ThrowIfLessThan(value, _count);
             if (value == _count)
                 return;
             T[] array = new T[value];
-            if (_count > 0) {
+            if (_count > 0)
+            {
                 _array.AsSpan(.._count).CopyTo(array);
             }
             _array = array;
@@ -44,7 +49,8 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
     public IComparer<T> Comparer
     {
         get => _comparer;
-        set {
+        set
+        {
             _comparer = value;
             Resort();
         }
@@ -128,7 +134,8 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
     public int Remove(T item)
     {
         var index = BinarySearch(item);
-        if (index >= 0) {
+        if (index >= 0)
+        {
             RemoveAt(index);
         }
         return index;
@@ -188,10 +195,12 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
     private void InsertAt(int index, T item)
     {
         Debug.Assert(_count <= _array.Length);
-        if (_count == _array.Length) {
+        if (_count == _array.Length)
+        {
             ArrayGrowHelper.GrowForInsertion(ref _array, _count + 1, _count, index, 1);
         }
-        else {
+        else
+        {
             ArrayGrowHelper.ShiftRightForInsert(_array, _count, index, 1);
         }
         _array[index] = item;
@@ -229,17 +238,20 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
         Debug.Assert(index < _count);
 
         var editItem = _array[index];
-        if (index >= 1 && _comparer.Compare(_array[index - 1], editItem) > 0) {
+        if (index >= 1 && _comparer.Compare(_array[index - 1], editItem) > 0)
+        {
             var destIndex = _array.AsSpan(0, index).BinarySearch(editItem, _comparer);
             TraIndex.FlipNegative(ref destIndex);
             MoveTo(index, destIndex);
         }
-        else if (index < _count - 1 && _comparer.Compare(editItem, _array[index + 1]) > 0) {
+        else if (index < _count - 1 && _comparer.Compare(editItem, _array[index + 1]) > 0)
+        {
             var destIndex = _array.AsSpan(index + 1, _count - 1 - index).BinarySearch(editItem, _comparer);
             TraIndex.FlipNegative(ref destIndex);
             MoveTo(index, index + destIndex);
         }
-        else {
+        else
+        {
             // No Move
         }
     }
@@ -291,12 +303,14 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
             if (_index < 0)
                 return false;
 
-            if (_index < _list.Count) {
+            if (_index < _list.Count)
+            {
                 _current = _list[_index];
                 _index++;
                 return true;
             }
-            else {
+            else
+            {
                 _index = -1;
                 _current = default!;
                 return false;
@@ -335,7 +349,8 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
 
         public void Dispose()
         {
-            if (!ReferenceEquals(_item, _list[_index])) {
+            if (!ReferenceEquals(_item, _list[_index]))
+            {
                 Throws.ThrowInvalidOperation("The item is moved during tracking.");
             }
             _list.NotifyEditedAt(_index);

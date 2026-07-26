@@ -53,7 +53,8 @@ public sealed record class TypeHierarchyInfo
             .ToArray();
 
         TypeHierarchyInfo res = types.First();
-        foreach (var (l, r) in types.Adjacent()) {
+        foreach (var (l, r) in types.Adjacent())
+        {
             l.Parent = r;
         }
         return res;

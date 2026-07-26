@@ -1,9 +1,11 @@
 ﻿namespace Trarizon.Library.Collections;
+
 public static partial class TraAlgorithm
 {
     public static int LinearSearch<T, TComparable>(ReadOnlySpan<T> items, TComparable item) where TComparable : IComparable<T>
     {
-        for (int i = 0; i < items.Length; i++) {
+        for (int i = 0; i < items.Length; i++)
+        {
             var res = item.CompareTo(items[i]);
             if (res < 0)
                 return ~i;
@@ -15,7 +17,8 @@ public static partial class TraAlgorithm
 
     public static int LinearSearchFromEnd<T, TComparable>(ReadOnlySpan<T> items, TComparable item) where TComparable : IComparable<T>
     {
-        for (int i = items.Length - 1; i >= 0; i--) {
+        for (int i = items.Length - 1; i >= 0; i--)
+        {
             var res = item.CompareTo(items[i]);
             if (res > 0)
                 return ~(i + 1);

@@ -6,12 +6,12 @@ using System.Runtime.CompilerServices;
 using Int = int;
 using Trarizon.Library.Mathematics.Helpers;
 
-
 #if NETSTANDARD
-using BitOperations = Trarizon.Library.Mathematics.Helpers.PfBitOperations;
+using BitOperations = Trarizon.Library.Mathematics.Polyfills;
 #endif
 
 namespace Trarizon.Library.Mathematics;
+
 public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rational>
     , IComparable<Rational>, IComparable
 #if NET7_0_OR_GREATER
@@ -68,12 +68,14 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
 
     private static (long Numerator, long Denominator) Reduce(long numerator, long denominator)
     {
-        switch (numerator, denominator) {
+        switch (numerator, denominator)
+        {
             case (0, 0): return (0, 0);
             case ( > 0, 0): return (1, 0);
             case ( < 0, 0): return (-1, 0);
             case (0, _): return (0, 1);
-            default: {
+            default:
+            {
                 var gcd = TraMath.GreatestCommonDivisor(numerator, denominator);
                 return (numerator / gcd, denominator / gcd);
             }
@@ -82,12 +84,14 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
 
     private static (int numerator, int Denominator) Reduce(int numerator, int denominator)
     {
-        switch (numerator, denominator) {
+        switch (numerator, denominator)
+        {
             case (0, 0): return (0, 0);
             case ( > 0, 0): return (1, 0);
             case ( < 0, 0): return (-1, 0);
             case (0, _): return (0, 1);
-            default: {
+            default:
+            {
                 var gcd = TraMath.GreatestCommonDivisor(numerator, denominator);
                 return (numerator / gcd, denominator / gcd);
             }
@@ -107,7 +111,8 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
     /// <param name="right"></param>
     public static void CommonDenominator(ref Rational left, ref Rational right)
     {
-        if (IsFinite(left) && IsFinite(right)) {
+        if (IsFinite(left) && IsFinite(right))
+        {
             var lcm = TraMath.LeastCommonMultiple(left._denominator, right._denominator);
             left = new Rational(left._numerator * lcm / left._denominator, lcm);
             right = new Rational(right._numerator * lcm / right._denominator, lcm);
@@ -116,13 +121,15 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
 
     public static (Rational Left, Rational Right) CommonDenominator(Rational left, Rational right)
     {
-        if (IsFinite(left) && IsFinite(right)) {
+        if (IsFinite(left) && IsFinite(right))
+        {
             var lcm = TraMath.LeastCommonMultiple(left._denominator, right._denominator);
             var l = new Rational(left._numerator * lcm / left._denominator, lcm);
             var r = new Rational(right._numerator * lcm / right._denominator, lcm);
             return (l, r);
         }
-        else {
+        else
+        {
             return (left, right);
         }
     }
@@ -132,13 +139,16 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
         Debug.Assert(IsFinite(left));
         Debug.Assert(IsFinite(right));
 
-        if (left._denominator == right._denominator) {
-            if (left._denominator < 0) {
+        if (left._denominator == right._denominator)
+        {
+            if (left._denominator < 0)
+            {
                 numeratorLeft = -left._numerator;
                 numeratorRight = -right._numerator;
                 return -left._denominator;
             }
-            else {
+            else
+            {
                 numeratorLeft = left._numerator;
                 numeratorRight = right._numerator;
                 return left._denominator;
@@ -146,11 +156,13 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
         }
 
         var den = left._denominator * right._denominator;
-        if (den < 0) {
+        if (den < 0)
+        {
             numeratorLeft = -left._numerator * right._denominator;
             numeratorRight = -right._numerator * left._denominator;
         }
-        else {
+        else
+        {
             numeratorLeft = left._numerator * right._denominator;
             numeratorRight = right._numerator * left._denominator;
         }
@@ -159,7 +171,8 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
 
     private static long DangerousCommonDenominatorUnchecked(Rational left, Rational right, out long numeratorLeft, out long numeratorRight)
     {
-        if (left._denominator == right._denominator) {
+        if (left._denominator == right._denominator)
+        {
             numeratorLeft = left._numerator;
             numeratorRight = right._numerator;
             return numeratorLeft;
@@ -192,10 +205,12 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
 
     public static Rational Floor(Rational num)
     {
-        if (IsFinite(num)) {
+        if (IsFinite(num))
+        {
             if (IsPositiveOrZeroKnownFinite(num))
                 return num._numerator / num._denominator;
-            else {
+            else
+            {
                 var quo = Math.DivRem(num._numerator, num._denominator, out var rem);
                 if (rem == 0)
                     return quo;
@@ -203,17 +218,20 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
                     return quo - 1;
             }
         }
-        else {
+        else
+        {
             return num;
         }
     }
 
     public static Rational Ceiling(Rational num)
     {
-        if (IsFinite(num)) {
+        if (IsFinite(num))
+        {
             if (!IsPositiveOrZeroKnownFinite(num))
                 return num._numerator / num._denominator;
-            else {
+            else
+            {
                 var quo = Math.DivRem(num._numerator, num._denominator, out var rem);
                 if (rem == 0)
                     return quo;
@@ -221,7 +239,8 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
                     return quo + 1;
             }
         }
-        else {
+        else
+        {
             return num;
         }
     }
@@ -236,13 +255,15 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
 
         var div = Math.DivRem(num._numerator, num._denominator, out var rem);
 
-        if (div > 0) {
+        if (div > 0)
+        {
             if (num._denominator / rem > 2)
                 return div;
             else
                 return div + 1;
         }
-        else {
+        else
+        {
             if (num._denominator / rem < -2)
                 return div;
             else
@@ -260,13 +281,15 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
 
         var div = Math.DivRem(num._numerator, num._denominator, out var rem);
 
-        if (div > 0) {
+        if (div > 0)
+        {
             if (num._denominator / rem >= 2)
                 return div;
             else
                 return div + 1;
         }
-        else {
+        else
+        {
             if (num._denominator / rem <= -2)
                 return div;
             else
@@ -276,7 +299,8 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
 
     public static Rational Max(Rational x, Rational y)
     {
-        if (x != y) {
+        if (x != y)
+        {
             if (IsNaN(x))
                 return y < x ? x : y;
             return x;
@@ -286,8 +310,10 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
 
     public static Rational Min(Rational x, Rational y)
     {
-        if (x != y) {
-            if (!IsNaN(x)) {
+        if (x != y)
+        {
+            if (!IsNaN(x))
+            {
                 return x < y ? x : y;
             }
             return x;
@@ -300,8 +326,10 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
 
     private static Rational Add(Rational l, Rational r)
     {
-        switch (l._numerator, l._denominator, r._numerator, r._denominator) {
-            case (_, not 0, _, not 0): {
+        switch (l._numerator, l._denominator, r._numerator, r._denominator)
+        {
+            case (_, not 0, _, not 0):
+            {
                 var den = DangerousCommonDenominatorUnchecked(l, r, out var lnum, out var rnum);
                 var num = lnum + rnum;
                 return FromLongUnchecked(num, den);
@@ -319,8 +347,10 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
 
     private static Rational CheckedAdd(Rational l, Rational r)
     {
-        switch (l._numerator, l._denominator, r._numerator, r._denominator) {
-            case (_, not 0, _, not 0): {
+        switch (l._numerator, l._denominator, r._numerator, r._denominator)
+        {
+            case (_, not 0, _, not 0):
+            {
                 var den = DangerousCommonDenominatorUnchecked(l, r, out var lnum, out var rnum);
                 var num = lnum + rnum;
                 return FromLongChecked(num, den);
@@ -352,11 +382,13 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
 
     private static Rational Modulus(Rational left, Rational right)
     {
-        if (!IsFinite(left)) {
+        if (!IsFinite(left))
+        {
             return NaN;
         }
 
-        if (right._denominator == 0) {
+        if (right._denominator == 0)
+        {
             if (right._numerator == 0)
                 return NaN;
             else
@@ -374,7 +406,8 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
 
     private static bool IsGreater(Rational l, Rational r)
     {
-        switch (l._numerator, l._denominator, r._numerator, r._denominator) {
+        switch (l._numerator, l._denominator, r._numerator, r._denominator)
+        {
             case (_, not 0, _, not 0):
                 DangerousCommonPositiveDenominator(l, r, out var numl, out var numr);
                 return numl > numr;
@@ -392,7 +425,8 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
 
     private static int Compare(Rational l, Rational r)
     {
-        switch (l._numerator, l._denominator, r._numerator, r._denominator) {
+        switch (l._numerator, l._denominator, r._numerator, r._denominator)
+        {
             case (_, not 0, _, not 0):
                 DangerousCommonPositiveDenominator(l, r, out var numl, out var numr);
                 return numl.CompareTo(numr);
@@ -425,7 +459,8 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static bool FiniteImpl(Rational l, Rational r)
         {
-            if (Math.Abs(l._denominator) < Math.Abs(r._denominator)) {
+            if (Math.Abs(l._denominator) < Math.Abs(r._denominator))
+            {
                 (l, r) = (r, l);
             }
             var div = Math.DivRem(l._denominator, r._denominator, out var rem);
@@ -455,7 +490,8 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
 
     int IComparable.CompareTo(object? obj)
     {
-        if (obj is not Rational number) {
+        if (obj is not Rational number)
+        {
             Throws.ThrowInvalidOperation();
             return default!;
         }
@@ -503,7 +539,8 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
             return Zero;
 
         // Inf
-        if (exponent == ExpMask) {
+        if (exponent == ExpMask)
+        {
             if (mantissa == 0)
                 return new(sign, 0);
             else
@@ -522,12 +559,14 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
         // shift < 0, denominator < 1
         // If shift denominator to 1, new_numerator is (numerator << shift),
         // if new_numerator > int.Max/Min, return inf
-        if (shift < 23 - 31) {
+        if (shift < 23 - 31)
+        {
             // numerator = numerator << 31 - 23  >= int.MaxValue + 1
             // denominator = 1
             if (sign >= 0)
                 return PositiveInfinity;
-            else {
+            else
+            {
                 // numerator == 1 << 23
                 // after: numerator == 1 << 23 << 31 >> 23 = 1 << 31
                 if (numerator == 1 << ExpShift)
@@ -535,23 +574,27 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
                 return NegativeInfinity;
             }
         }
-        if (shift < 0) {
+        if (shift < 0)
+        {
             numerator <<= -shift;
             return sign * numerator;
         }
 
         // shift >= 0, denominator >= 1
-        else {
+        else
+        {
             var trailing = BitOperations.TrailingZeroCount(numerator);
             Debug.Assert(trailing <= 23);
 
             // 110000 / 100 => 1100 / 1
-            if (shift <= trailing) {
+            if (shift <= trailing)
+            {
                 return new Rational(numerator >> shift, 1);
             }
             // 1100 / 10000 => 11 / 100
             // denominator may > int.MaxValue, in other words, (shift >= 31)
-            else {
+            else
+            {
                 // reduced_numerator = numerator >> trailing;
                 int reducedShift = shift - trailing;
 
@@ -559,15 +602,18 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
                 // We truncate numerator and get an inaccurate result;
                 // NOTE: We make denominator always positive here, if denominator is negative,
                 //       the condition should be shift > 31 as -int.MinValue is (int.MaxValue - 1)
-                if (reducedShift >= 31) {
+                if (reducedShift >= 31)
+                {
                     // max_numerator_shift is 24(numerator will be 0)
                     var numeratorShift = shift - 31;
 
                     // numerator will be 0
-                    if (numeratorShift > 23) {
+                    if (numeratorShift > 23)
+                    {
                         return Zero;
                     }
-                    else {
+                    else
+                    {
                         // denonimator:
                         // (1 << shift) >> numeratorShift
                         // (1 << shift) >> shift << 31
@@ -578,7 +624,8 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
 
                 // After reduce, shift is < 31, denominator is <= int.MaxValue,
                 // The result value is ok
-                else {
+                else
+                {
                     // numerator:            denominator:
                     // numerator             1 << shift
                     // numerator >> trailing 1 << shift >> trailing
@@ -900,10 +947,13 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
     {
         int index = 0;
 
-        if (style.HasFlag(NumberStyles.AllowLeadingWhite)) {
-            while (index < s.Length) {
+        if (style.HasFlag(NumberStyles.AllowLeadingWhite))
+        {
+            while (index < s.Length)
+            {
                 var ch = s[index];
-                if (!IsWhite(ch)) {
+                if (!IsWhite(ch))
+                {
                     break;
                 }
                 index++;
@@ -913,11 +963,13 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
 
         int leadingSign;
 
-        if (style.HasFlag(NumberStyles.AllowLeadingSign)) {
+        if (style.HasFlag(NumberStyles.AllowLeadingSign))
+        {
             leadingSign = ParseLeadingSign(s.Slice(index), out var readCount);
             index += readCount;
         }
-        else {
+        else
+        {
             leadingSign = 1;
         }
 
@@ -928,30 +980,37 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
         var sepch = s[index];
         index++;
         long denominator;
-        if (sepch is '.') {
+        if (sepch is '.')
+        {
             denominator = 1;
             ReadDenominator(s, ref index, ref number, ref denominator);
         }
-        else if (sepch is '/') {
+        else if (sepch is '/')
+        {
             denominator = 0;
             ReadInteger(s, ref index, ref denominator);
         }
-        else {
+        else
+        {
             denominator = 1;
         }
 
         var gcd = TraMath.GreatestCommonDivisor(number, denominator);
         number = number / gcd * leadingSign;
         denominator /= gcd;
-        if (!(number is >= int.MinValue and <= int.MaxValue && denominator is >= int.MinValue and < int.MaxValue)) {
+        if (!(number is >= int.MinValue and <= int.MaxValue && denominator is >= int.MinValue and < int.MaxValue))
+        {
             result = default;
             return false;
         }
 
-        if (style.HasFlag(NumberStyles.AllowTrailingWhite)) {
-            while (index < s.Length) {
+        if (style.HasFlag(NumberStyles.AllowTrailingWhite))
+        {
+            while (index < s.Length)
+            {
                 var ch = s[index];
-                if (!IsWhite(ch)) {
+                if (!IsWhite(ch))
+                {
                     result = default;
                     return false;
                 }
@@ -966,15 +1025,19 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
         int ParseLeadingSign(ReadOnlySpan<char> s, out int readCount)
         {
             var posSign = info.PositiveSign;
-            if (posSign.Length <= s.Length) {
-                if (s.Slice(0, posSign.Length).SequenceEqual(posSign)) {
+            if (posSign.Length <= s.Length)
+            {
+                if (s.Slice(0, posSign.Length).SequenceEqual(posSign))
+                {
                     readCount = posSign.Length;
                     return 1;
                 }
             }
             var negSign = info.NegativeSign;
-            if (negSign.Length <= s.Length) {
-                if (s.Slice(0, negSign.Length).SequenceEqual(negSign)) {
+            if (negSign.Length <= s.Length)
+            {
+                if (s.Slice(0, negSign.Length).SequenceEqual(negSign))
+                {
                     readCount = negSign.Length;
                     return -1;
                 }
@@ -985,7 +1048,8 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
 
         static void ReadInteger(ReadOnlySpan<char> s, ref int index, ref long num)
         {
-            while (index < s.Length) {
+            while (index < s.Length)
+            {
                 var ch = s[index];
                 var digit = GetDigit(ch);
                 if (digit < 0)
@@ -997,7 +1061,8 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
 
         static void ReadDenominator(ReadOnlySpan<char> s, ref int index, ref long num, ref long den)
         {
-            while (index < s.Length) {
+            while (index < s.Length)
+            {
                 var ch = s[index];
                 var digit = GetDigit(ch);
                 if (digit < 0)
@@ -1022,7 +1087,8 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
 
     public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
     {
-        if (_denominator == 0) {
+        if (_denominator == 0)
+        {
             var str = _numerator switch
             {
                 0 => "NaN",
@@ -1031,21 +1097,25 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
             };
             return TryWrite(destination, str, out charsWritten);
         }
-        else if (_denominator is 1) {
+        else if (_denominator is 1)
+        {
 #if NET7_0_OR_GREATER
             return _numerator.TryFormat(destination, out charsWritten, format, provider);
 #else
             return TryWrite(destination, _numerator.ToString(format.ToString(), provider), out charsWritten);
 #endif
         }
-        else {
+        else
+        {
 #if NET7_0_OR_GREATER
             if (_numerator.TryFormat(destination, out var w, format, provider)) {
 #else
             var formatstr = format.ToString();
-            if (TryWrite(destination, _numerator.ToString(formatstr, provider), out var w)) {
+            if (TryWrite(destination, _numerator.ToString(formatstr, provider), out var w))
+            {
 #endif
-                if (destination.Length < w + 1) {
+                if (destination.Length < w + 1)
+                {
                     charsWritten = w;
                     return false;
                 }
@@ -1053,14 +1123,16 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
 #if NET7_0_OR_GREATER
                 if (_denominator.TryFormat(destination[(w + 1)..], out var w2, format, provider)) {
 #else
-                if (TryWrite(destination.Slice(w + 1), _denominator.ToString(formatstr, provider), out var w2)) {
+                if (TryWrite(destination.Slice(w + 1), _denominator.ToString(formatstr, provider), out var w2))
+                {
 #endif
                     destination[w] = '/';
                     charsWritten = w + w2 + 1;
                     return true;
                 }
             }
-            if (destination.Length < w + 1) {
+            if (destination.Length < w + 1)
+            {
                 charsWritten = w;
                 return false;
             }
@@ -1070,7 +1142,8 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
 
         static bool TryWrite(Span<char> destination, ReadOnlySpan<char> text, out int charsWritten)
         {
-            if (destination.Length > text.Length) {
+            if (destination.Length > text.Length)
+            {
                 text.CopyTo(destination);
                 charsWritten = text.Length;
                 return true;
@@ -1082,7 +1155,8 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
 
     public string ToString(string? format, IFormatProvider? formatProvider)
     {
-        if (_denominator == 0) {
+        if (_denominator == 0)
+        {
             if (_numerator == 0)
                 return "NaN";
             else if (_numerator > 0)
@@ -1090,10 +1164,12 @@ public readonly struct Rational(Int numerator, Int denominator) : IEquatable<Rat
             else
                 return "-∞";
         }
-        else if (_denominator is 1) {
+        else if (_denominator is 1)
+        {
             return _numerator.ToString(format, formatProvider);
         }
-        else {
+        else
+        {
             return $"{_numerator.ToString(format, formatProvider)}/{_denominator.ToString(format, formatProvider)}";
         }
     }

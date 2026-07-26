@@ -27,11 +27,13 @@ internal static class Utility
 
     internal static bool TryGetSpan<T>(this IEnumerable<T> source, out ReadOnlySpan<T> span)
     {
-        if (source.GetType() == typeof(T[])) {
+        if (source.GetType() == typeof(T[]))
+        {
             span = Unsafe.As<T[]>(source).AsSpan();
             return true;
         }
-        if (source.GetType() == typeof(List<T>)) {
+        if (source.GetType() == typeof(List<T>))
+        {
             var list = Unsafe.As<List<T>>(source);
             span = list.AsSpan();
             return true;

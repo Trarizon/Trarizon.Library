@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections.Generic;
+
 internal enum BinaryTreeNavigation
 {
     Parent, LeftChild, RightChild,
@@ -18,10 +19,12 @@ internal class BinaryTree<T>
     [MemberNotNull(nameof(Root))]
     public Node SetRoot(T value)
     {
-        if (Root is null) {
+        if (Root is null)
+        {
             Root = new(this, value);
         }
-        else {
+        else
+        {
             Root.Value = value;
         }
         return Root;
@@ -38,28 +41,35 @@ internal class BinaryTree<T>
         ValidateNodeBelonging(node);
 
         var @new = new Node(this, value);
-        switch (navigation) {
-            case BinaryTreeNavigation.Parent: {
-                if (node != Root) {
+        switch (navigation)
+        {
+            case BinaryTreeNavigation.Parent:
+            {
+                if (node != Root)
+                {
                     Debug.Assert(node._parent is not null);
                     var parent = node._parent!;
                     @new._parent = parent;
-                    if (parent._left == node) {
+                    if (parent._left == node)
+                    {
                         parent._left = @new;
                     }
-                    else {
+                    else
+                    {
                         Debug.Assert(parent._right == node);
                         parent._right = @new;
                     }
                 }
-                else {
+                else
+                {
                     Root = @new;
                 }
 
                 ConcatChild(@new, node, childNavigation);
                 break;
             }
-            case BinaryTreeNavigation.LeftChild: {
+            case BinaryTreeNavigation.LeftChild:
+            {
                 var original = node._left;
                 node._left = @new;
                 @new._parent = node;
@@ -67,7 +77,8 @@ internal class BinaryTree<T>
                     ConcatChild(@new, original, childNavigation);
                 break;
             }
-            case BinaryTreeNavigation.RightChild: {
+            case BinaryTreeNavigation.RightChild:
+            {
                 var original = node._right;
                 node._right = @new;
                 @new._parent = node;
@@ -87,7 +98,8 @@ internal class BinaryTree<T>
         static void ConcatChild(Node parent, Node child, BinaryTreeNavigation childNavigation)
         {
             child._parent = parent;
-            switch (childNavigation) {
+            switch (childNavigation)
+            {
                 case BinaryTreeNavigation.LeftChild:
                     parent._left = child;
                     break;
@@ -131,7 +143,8 @@ internal class BinaryTree<T>
 
         public bool IsLeaf
         {
-            get {
+            get
+            {
                 Debug.Assert((_left is null && _right is null) || _left != _right);
                 return _left == _right;
             }

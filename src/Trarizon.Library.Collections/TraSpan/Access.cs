@@ -3,11 +3,13 @@ using Trarizon.Library.Collections.Helpers;
 using Trarizon.Library.Collections.StackAlloc;
 
 namespace Trarizon.Library.Collections;
+
 public static partial class TraSpan
 {
     public static bool TryAt<T>(this ReadOnlySpan<T> span, int index, [MaybeNullWhen(false)] out T item)
     {
-        if ((uint)index < span.Length) {
+        if ((uint)index < span.Length)
+        {
             item = span[index];
             return true;
         }
@@ -20,7 +22,8 @@ public static partial class TraSpan
 
     public static T? ElementAtOrDefault<T>(this ReadOnlySpan<T> span, int index)
     {
-        if ((uint)index < span.Length) {
+        if ((uint)index < span.Length)
+        {
             return span[index];
         }
         return default;

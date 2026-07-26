@@ -12,13 +12,16 @@ public static partial class TraEnumerable
         {
             using var enumerator = source.GetEnumerator();
 
-            while (enumerator.MoveNext()) {
+            while (enumerator.MoveNext())
+            {
                 var left = enumerator.Current;
-                if (enumerator.MoveNext()) {
+                if (enumerator.MoveNext())
+                {
                     var right = enumerator.Current;
                     yield return (left, right);
                 }
-                else {
+                else
+                {
                     yield return (left, default);
                     yield break;
                 }
@@ -36,19 +39,22 @@ public static partial class TraEnumerable
         {
             using var enumerator = source.GetEnumerator();
 
-            while (enumerator.MoveNext()) {
+            while (enumerator.MoveNext())
+            {
                 var first = enumerator.Current;
-                if (!enumerator.MoveNext()) {
+                if (!enumerator.MoveNext())
+                {
                     yield return (first, default, default);
                     yield break;
                 }
                 var second = enumerator.Current;
 
-                if (!enumerator.MoveNext()) {
+                if (!enumerator.MoveNext())
+                {
                     yield return (first, second, default);
                     yield break;
                 }
-                var third= enumerator.Current;
+                var third = enumerator.Current;
 
                 yield return (first, second, third);
             }
@@ -67,13 +73,16 @@ public static partial class TraEnumerable
         {
             using var enumerator = source.GetEnumerator();
             var buffer = new List<T>();
-            while (enumerator.MoveNext()) {
+            while (enumerator.MoveNext())
+            {
                 var current = enumerator.Current;
-                if (seperator.Equals(current)) {
+                if (seperator.Equals(current))
+                {
                     yield return buffer.ToArray();
                     buffer.Clear();
                 }
-                else {
+                else
+                {
                     buffer.Add(current);
                 }
             }
@@ -85,19 +94,24 @@ public static partial class TraEnumerable
         {
             using var enumerator = source.GetEnumerator();
             var buffer = new List<T>();
-            while (enumerator.MoveNext()) {
+            while (enumerator.MoveNext())
+            {
                 var current = enumerator.Current;
-                if (seperator.Equals(current)) {
-                    if (buffer.Count > 0) {
+                if (seperator.Equals(current))
+                {
+                    if (buffer.Count > 0)
+                    {
                         yield return buffer.ToArray();
                         buffer.Clear();
                     }
                 }
-                else {
+                else
+                {
                     buffer.Add(current);
                 }
             }
-            if (buffer.Count > 0) {
+            if (buffer.Count > 0)
+            {
                 yield return buffer.ToArray();
                 buffer.Clear();
             }
@@ -110,7 +124,8 @@ public static partial class TraEnumerable
 
         public override (T, T?) this[int index]
         {
-            get {
+            get
+            {
                 var i = index * 2;
                 return (array[i], array.ElementAtOrDefault(i + 1));
             }
@@ -130,7 +145,8 @@ public static partial class TraEnumerable
 
         public override (T, T?, T?) this[int index]
         {
-            get {
+            get
+            {
                 var i = index * 3;
                 return (array[i], array.ElementAtOrDefault(i + 1), array.ElementAtOrDefault(i + 2));
             }

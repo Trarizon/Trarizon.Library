@@ -8,7 +8,8 @@ public static partial class TraTraversable
     public static IEnumerable<T> TraverseDepthFirst<T>(this IChildrenTraversable<T> source) where T : IChildrenTraversable<T>
     {
         using var traverser = new DepthFirstTraverser<T, ChildrenTraversableEnumeratorProvider<T>>(source.GetChildrenEnumerator(), default);
-        while (traverser.MoveNext(out var current)) {
+        while (traverser.MoveNext(out var current))
+        {
             yield return current;
         }
     }
@@ -16,7 +17,8 @@ public static partial class TraTraversable
     public static IEnumerable<T> TraverseBreadthFirst<T>(this IChildrenTraversable<T> source) where T : IChildrenTraversable<T>
     {
         using var traverser = new BreadthFirstTraverser<T, ChildrenTraversableEnumeratorProvider<T>>(source.GetChildrenEnumerator(), default);
-        while (traverser.MoveNext(out var current)) {
+        while (traverser.MoveNext(out var current))
+        {
             yield return current;
         }
     }
@@ -27,7 +29,8 @@ public static partial class TraTraversable
             yield return source;
 
         using var traverser = new DepthFirstTraverser<T, ChildrenTraversableEnumeratorProvider<T>>(source.GetChildrenEnumerator(), default);
-        while (traverser.MoveNext(out var current)) {
+        while (traverser.MoveNext(out var current))
+        {
             yield return current;
         }
     }
@@ -38,7 +41,8 @@ public static partial class TraTraversable
             yield return source;
 
         using var traverser = new BreadthFirstTraverser<T, ChildrenTraversableEnumeratorProvider<T>>(source.GetChildrenEnumerator(), default);
-        while (traverser.MoveNext(out var current)) {
+        while (traverser.MoveNext(out var current))
+        {
             yield return current;
         }
     }
@@ -58,13 +62,16 @@ public static partial class TraTraversable
 
         public bool MoveNext([MaybeNullWhen(false)] out T current)
         {
-            while (_stack.TryPeek(out var enumerator)) {
-                if (enumerator.MoveNext()) {
+            while (_stack.TryPeek(out var enumerator))
+            {
+                if (enumerator.MoveNext())
+                {
                     current = enumerator.Current;
                     _stack.Push(_provider.GetChildrenEnumerator(current));
                     return true;
                 }
-                else {
+                else
+                {
                     enumerator.Dispose();
                     _stack.Pop();
                 }
@@ -75,7 +82,8 @@ public static partial class TraTraversable
 
         public void Dispose()
         {
-            foreach (var item in _stack) {
+            foreach (var item in _stack)
+            {
                 item.Dispose();
             }
         }
@@ -98,7 +106,8 @@ public static partial class TraTraversable
         public bool MoveNext([MaybeNullWhen(false)] out T current)
         {
         Begin:
-            if (_enumerator.MoveNext()) {
+            if (_enumerator.MoveNext())
+            {
                 current = _enumerator.Current;
                 _queue.Enqueue(_provider.GetChildrenEnumerator(current));
                 return true;
@@ -106,7 +115,8 @@ public static partial class TraTraversable
 
             _enumerator.Dispose();
 
-            if (_queue.TryDequeue(out var en)) {
+            if (_queue.TryDequeue(out var en))
+            {
                 _enumerator = en;
                 goto Begin;
             }
@@ -117,7 +127,8 @@ public static partial class TraTraversable
         public void Dispose()
         {
             _enumerator.Dispose();
-            foreach (var item in _queue) {
+            foreach (var item in _queue)
+            {
                 item.Dispose();
             }
         }

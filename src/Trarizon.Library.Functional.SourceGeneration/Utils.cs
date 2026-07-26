@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-
-namespace Trarizon.Library.Functional.SourceGeneration;
+﻿namespace Trarizon.Library.Functional.SourceGeneration;
 
 internal static class Utils
 {
@@ -11,7 +8,8 @@ internal static class Utils
         if (!enumerator.MoveNext())
             yield break;
         var current = enumerator.Current;
-        while (enumerator.MoveNext()) {
+        while (enumerator.MoveNext())
+        {
             yield return current;
             writer.WriteLine();
             current = enumerator.Current;

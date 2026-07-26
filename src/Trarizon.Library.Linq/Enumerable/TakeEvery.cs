@@ -7,7 +7,8 @@ public static partial class TraEnumerable
         if (step <= 1)
             return source;
 
-        if (source is T[] arr) {
+        if (source is T[] arr)
+        {
             return arr.Length switch
             {
                 0 => [],
@@ -16,9 +17,8 @@ public static partial class TraEnumerable
             };
         }
 
-        if (source is IList<T> list) {
+        if (source is IList<T> list)
             return new ListTakeEveryIterator<T>(list, step);
-        }
 
         return Iterate(source, step);
 
@@ -26,9 +26,11 @@ public static partial class TraEnumerable
         {
             using var enumerator = source.GetEnumerator();
 
-            while (enumerator.MoveNext()) {
+            while (enumerator.MoveNext())
+            {
                 yield return enumerator.Current;
-                for (int i = 1; i < step; i++) {
+                for (int i = 1; i < step; i++)
+                {
                     if (!enumerator.MoveNext())
                         yield break;
                 }

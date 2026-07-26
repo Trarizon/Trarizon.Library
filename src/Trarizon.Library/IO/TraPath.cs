@@ -1,8 +1,8 @@
 ﻿using System.Buffers;
 using System.Diagnostics.CodeAnalysis;
-using Trarizon.Library.Text;
 
 namespace Trarizon.Library.IO;
+
 public static class TraPath
 {
 #if NETSTANDARD
@@ -21,7 +21,8 @@ public static class TraPath
     public static bool IsValidFileName(ReadOnlySpan<char> fileName)
     {
         var chars = InvalidFileNameChars;
-        foreach (var c in fileName) {
+        foreach (var c in fileName)
+        {
             if (chars.Contains(c))
                 return false;
         }
@@ -31,7 +32,8 @@ public static class TraPath
     public static bool IsValidPathName(ReadOnlySpan<char> fileName)
     {
         var chars = InvalidPathNameChars;
-        foreach (var c in fileName) {
+        foreach (var c in fileName)
+        {
             if (chars.Contains(c))
                 return false;
         }
@@ -41,7 +43,8 @@ public static class TraPath
     public static void ReplaceInvalidFileNameChars(Span<char> input, char newChar)
     {
         var chars = InvalidFileNameChars;
-        foreach (ref var c in input) {
+        foreach (ref var c in input)
+        {
             if (chars.Contains(c))
                 c = newChar;
         }
@@ -53,8 +56,10 @@ public static class TraPath
         int lastReplaceIndex = -1;
 
         var chars = InvalidFileNameChars;
-        for (int i = 0; i < fileName.Length; i++) {
-            if (chars.Contains(fileName[i])) {
+        for (int i = 0; i < fileName.Length; i++)
+        {
+            if (chars.Contains(fileName[i]))
+            {
                 CopyToBuffer(buffer, i);
                 buffer[i] = newChar;
                 lastReplaceIndex = i;

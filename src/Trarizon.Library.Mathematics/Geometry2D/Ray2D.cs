@@ -2,6 +2,7 @@
 using System.Numerics;
 
 namespace Trarizon.Library.Mathematics.Geometry2D;
+
 public struct Ray2D(Vector2 origin, Vector2 direction) : IEquatable<Ray2D>
 #if NET7_0_OR_GREATER
     , IEqualityOperators<Ray2D, Ray2D, bool>

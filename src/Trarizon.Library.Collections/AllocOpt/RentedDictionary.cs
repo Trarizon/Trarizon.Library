@@ -28,14 +28,17 @@ public struct RentedDictionary<TKey, TValue> : IDisposable where TKey : notnull
     public RentedDictionary(IEqualityComparer<TKey>? comparer) : this(0, comparer) { }
     public RentedDictionary(int minInitialCapacity, IEqualityComparer<TKey>? comparer)
     {
-        if (minInitialCapacity > 0) {
+        if (minInitialCapacity > 0)
+        {
             Initialize(minInitialCapacity);
         }
 
-        if (!typeof(TKey).IsValueType) {
+        if (!typeof(TKey).IsValueType)
+        {
             _comparer = comparer ?? EqualityComparer<TKey>.Default;
         }
-        else if (_comparer is not null && _comparer != EqualityComparer<TKey>.Default) {
+        else if (_comparer is not null && _comparer != EqualityComparer<TKey>.Default)
+        {
             _comparer = comparer;
         }
     }
@@ -45,16 +48,16 @@ public struct RentedDictionary<TKey, TValue> : IDisposable where TKey : notnull
     public readonly int Capacity => _bucketLength;
     public TValue this[TKey key]
     {
-        readonly get {
+        readonly get
+        {
             ref var entry = ref FindEntryRef(key);
-            if (Unsafe.IsNullRef(ref entry)) {
+            if (Unsafe.IsNullRef(ref entry))
+            {
                 Throws.KeyNotFound(key, nameof(RentedDictionary<,>));
             }
             return entry.value;
         }
-        set {
-            TryAddInternal(key, value, DictionaryKeyExistingBehaviour.Overwrite);
-        }
+        set => TryAddInternal(key, value, DictionaryKeyExistingBehaviour.Overwrite);
     }
 
     /// <summary>
@@ -75,7 +78,8 @@ public struct RentedDictionary<TKey, TValue> : IDisposable where TKey : notnull
 
     public void Clear()
     {
-        if (_count > 0) {
+        if (_count > 0)
+        {
             Debug.Assert(_buckets is not null);
             Debug.Assert(_entries is not null);
             Array.Clear(_buckets, 0, _bucketLength);
@@ -92,26 +96,29 @@ public struct RentedDictionary<TKey, TValue> : IDisposable where TKey : notnull
     public readonly bool ContainsValue(TValue value)
     {
         var entries = _entries.AsSpan(0, _count);
-        if (value == null) {
-            foreach (ref readonly var entry in entries) {
-                if (entry.next >= -1 && entry.value == null) {
+        if (value == null)
+        {
+            foreach (ref readonly var entry in entries)
+            {
+                if (entry.next >= -1 && entry.value == null)
                     return true;
-                }
             }
         }
-        else if (typeof(TValue).IsValueType) {
-            foreach (ref readonly var entry in entries) {
-                if (entry.next >= -1 && EqualityComparer<TValue>.Default.Equals(entry.value, value)) {
+        else if (typeof(TValue).IsValueType)
+        {
+            foreach (ref readonly var entry in entries)
+            {
+                if (entry.next >= -1 && EqualityComparer<TValue>.Default.Equals(entry.value, value))
                     return true;
-                }
             }
         }
-        else {
+        else
+        {
             var comparer = EqualityComparer<TValue>.Default;
-            foreach (ref readonly var entry in entries) {
-                if (entry.next >= -1 && comparer.Equals(entry.value, value)) {
+            foreach (ref readonly var entry in entries)
+            {
+                if (entry.next >= -1 && comparer.Equals(entry.value, value))
                     return true;
-                }
             }
         }
         return false;
@@ -121,7 +128,8 @@ public struct RentedDictionary<TKey, TValue> : IDisposable where TKey : notnull
 
     public bool Remove(TKey key, [MaybeNullWhen(false)] out TValue value)
     {
-        if (_buckets is null) {
+        if (_buckets is null)
+        {
             value = default;
             return false;
         }
@@ -132,14 +140,18 @@ public struct RentedDictionary<TKey, TValue> : IDisposable where TKey : notnull
         var entries = _entries.AsSpan(0, _bucketLength);
         var last = -1;
 
-        while ((uint)i < (uint)_bucketLength) {
+        while ((uint)i < (uint)_bucketLength)
+        {
             ref var entry = ref entries[i];
             if (entry.hashCode == hashCode &&
-                (typeof(TKey).IsValueType && _comparer is null ? EqualityComparer<TKey>.Default.Equals(entry.key, key) : _comparer!.Equals(entry.key, key))) {
-                if (last < 0) {
+                (typeof(TKey).IsValueType && _comparer is null ? EqualityComparer<TKey>.Default.Equals(entry.key, key) : _comparer!.Equals(entry.key, key)))
+            {
+                if (last < 0)
+                {
                     bucket = entry.next + 1;
                 }
-                else {
+                else
+                {
                     entries[last].next = entry.next;
                 }
 
@@ -148,10 +160,12 @@ public struct RentedDictionary<TKey, TValue> : IDisposable where TKey : notnull
                 Debug.Assert((StartOfFreeList - _freeHead) < 0);
                 entry.next = StartOfFreeList - _freeHead;
 
-                if (RuntimeHelpers.IsReferenceOrContainsReferences<TKey>()) {
+                if (RuntimeHelpers.IsReferenceOrContainsReferences<TKey>())
+                {
                     entry.key = default!;
                 }
-                if (RuntimeHelpers.IsReferenceOrContainsReferences<TValue>()) {
+                if (RuntimeHelpers.IsReferenceOrContainsReferences<TValue>())
+                {
                     entry.value = default!;
                 }
 
@@ -171,7 +185,8 @@ public struct RentedDictionary<TKey, TValue> : IDisposable where TKey : notnull
     public readonly bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value)
     {
         ref var entry = ref FindEntryRef(key);
-        if (Unsafe.IsNullRef(ref entry)) {
+        if (Unsafe.IsNullRef(ref entry))
+        {
             value = default!;
             return false;
         }
@@ -182,13 +197,11 @@ public struct RentedDictionary<TKey, TValue> : IDisposable where TKey : notnull
     public int EnsureCapacity(int capacity)
     {
         int currentCapacity = _bucketLength;
-        if (currentCapacity >= capacity) {
+        if (currentCapacity >= capacity)
             return currentCapacity;
-        }
 
-        if (_buckets is null) {
+        if (_buckets is null)
             return Initialize(capacity);
-        }
 
         int newSize = HashHelpers.GetPrime(capacity);
         Resize(newSize);
@@ -201,30 +214,34 @@ public struct RentedDictionary<TKey, TValue> : IDisposable where TKey : notnull
         if (_buckets is null)
             goto NotFound;
 
-        if (typeof(TKey).IsValueType && _comparer is null) {
+        if (typeof(TKey).IsValueType && _comparer is null)
+        {
             var hashCode = (uint)key.GetHashCode();
             var i = GetBucket(hashCode) - 1;
             var entries = _entries.AsSpan(0, _bucketLength);
 
-            while ((uint)i < (uint)_bucketLength) {
+            while ((uint)i < (uint)_bucketLength)
+            {
                 entry = ref entries[i];
-                if (entry.hashCode == hashCode && EqualityComparer<TKey>.Default.Equals(entry.key, key)) {
+                if (entry.hashCode == hashCode && EqualityComparer<TKey>.Default.Equals(entry.key, key))
                     return ref entry;
-                }
+                
                 i = entries[i].next;
             }
         }
-        else {
+        else
+        {
             Debug.Assert(_comparer is not null);
             var hashCode = (uint)_comparer!.GetHashCode(key);
             var i = GetBucket(hashCode) - 1;
             var entries = _entries.AsSpan(0, _bucketLength);
 
-            while ((uint)i < (uint)_bucketLength) {
+            while ((uint)i < (uint)_bucketLength)
+            {
                 entry = ref entries[i];
-                if (entry.hashCode == hashCode && _comparer.Equals(entry.key, key)) {
+                if (entry.hashCode == hashCode && _comparer.Equals(entry.key, key))
                     return ref entry;
-                }
+                
                 i = entries[i].next;
             }
         }
@@ -235,23 +252,29 @@ public struct RentedDictionary<TKey, TValue> : IDisposable where TKey : notnull
 
     private bool TryAddInternal(TKey key, TValue value, DictionaryKeyExistingBehaviour behaviour)
     {
-        if (_buckets is null) {
+        if (_buckets is null)
+        {
             Initialize(0);
         }
+        
         Debug.Assert(_entries is not null);
         var entries = _entries.AsSpan(0, _bucketLength);
         uint hashCode;
         ref int bucket = ref Unsafe.NullRef<int>();
 
-        if (typeof(TKey).IsValueType && _comparer is null) {
+        if (typeof(TKey).IsValueType && _comparer is null)
+        {
             hashCode = (uint)key.GetHashCode();
             bucket = ref GetBucket(hashCode);
             int i = bucket - 1;
 
-            while ((uint)i < (uint)_bucketLength) {
+            while ((uint)i < (uint)_bucketLength)
+            {
                 ref var curEntry = ref entries[i];
-                if (curEntry.hashCode == hashCode && EqualityComparer<TKey>.Default.Equals(curEntry.key, key)) {
-                    switch (behaviour) {
+                if (curEntry.hashCode == hashCode && EqualityComparer<TKey>.Default.Equals(curEntry.key, key))
+                {
+                    switch (behaviour)
+                    {
                         case DictionaryKeyExistingBehaviour.Overwrite:
                             curEntry.value = value;
                             return true;
@@ -267,16 +290,20 @@ public struct RentedDictionary<TKey, TValue> : IDisposable where TKey : notnull
                 i = curEntry.next;
             }
         }
-        else {
+        else
+        {
             Debug.Assert(_comparer is not null);
             hashCode = (uint)_comparer!.GetHashCode(key);
             bucket = ref GetBucket(hashCode);
             int i = bucket - 1;
 
-            while ((uint)i < (uint)_bucketLength) {
+            while ((uint)i < (uint)_bucketLength)
+            {
                 ref var curEntry = ref entries[i];
-                if (curEntry.hashCode == hashCode && _comparer.Equals(curEntry.key, key)) {
-                    switch (behaviour) {
+                if (curEntry.hashCode == hashCode && _comparer.Equals(curEntry.key, key))
+                {
+                    switch (behaviour)
+                    {
                         case DictionaryKeyExistingBehaviour.Overwrite:
                             curEntry.value = value;
                             return true;
@@ -295,13 +322,16 @@ public struct RentedDictionary<TKey, TValue> : IDisposable where TKey : notnull
 
         // Not found
         int index;
-        if (_freeCount > 0) {
+        if (_freeCount > 0)
+        {
             index = _freeHead;
             _freeHead = StartOfFreeList - entries[_freeHead].next;
             _freeCount--;
         }
-        else {
-            if (_count == _bucketLength) {
+        else
+        {
+            if (_count == _bucketLength)
+            {
                 Resize();
                 bucket = ref GetBucket(hashCode);
             }
@@ -339,9 +369,11 @@ public struct RentedDictionary<TKey, TValue> : IDisposable where TKey : notnull
         _buckets = buckets;
         _bucketLength = newSize;
 
-        for (int i = 0; i < _count; i++) {
+        for (int i = 0; i < _count; i++)
+        {
             ref Entry entry = ref _entries[i];
-            if (entry.next >= -1) {
+            if (entry.next >= -1)
+            {
                 ref int bucket = ref GetBucket(entry.hashCode);
                 entry.next = bucket - 1;
                 bucket = i + 1;
@@ -371,10 +403,12 @@ public struct RentedDictionary<TKey, TValue> : IDisposable where TKey : notnull
 
     public void Dispose()
     {
-        if (_buckets is not null) {
+        if (_buckets is not null)
+        {
             ArrayPool<int>.Shared.Return(_buckets);
         }
-        if (_entries is not null) {
+        if (_entries is not null)
+        {
             ArrayPool<Entry>.Shared.Return(_entries, RuntimeHelpers.IsReferenceOrContainsReferences<TKey>() || RuntimeHelpers.IsReferenceOrContainsReferences<TValue>());
         }
         _entries = null!;

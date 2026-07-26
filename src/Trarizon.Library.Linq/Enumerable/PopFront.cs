@@ -14,14 +14,16 @@ public static partial class TraEnumerable
 
     public static IEnumerable<T> PopFirst<T>(this IEnumerable<T> source, out T first)
     {
-        if (source.TryGetNonEnumeratedCount(out int count) && count < 1) {
+        if (source.TryGetNonEnumeratedCount(out int count) && count < 1)
+        {
             Throws.CollectionIsEmpty();
             first = default!;
             return default!;
         }
 
         var enumerator = source.GetEnumerator();
-        if (!enumerator.MoveNext()) {
+        if (!enumerator.MoveNext())
+        {
             enumerator.Dispose();
             first = default!;
             return [];
@@ -47,15 +49,18 @@ public static partial class TraEnumerable
             const int End = MinPreservedState - 1;
             const int AllCached = End - 1;
 
-            switch (_state) {
+            switch (_state)
+            {
                 case InitState:
-                    if (_enumerator is null) {
+                    if (_enumerator is null)
+                    {
                         _enumerator ??= source.GetEnumerator();
                         _cachedItems ??= new T[count];
                         _state = 0;
                         goto default;
                     }
-                    else {
+                    else
+                    {
                         // The value may be assigned in IterateToCacheAll when _state is -2
                         _state = AllCached;
                         goto Case_AllCached;
@@ -65,39 +70,45 @@ public static partial class TraEnumerable
                 case <= AllCached:
                 Case_AllCached:
                     var index = AllCached - _state;
-                    if (index < _cachedCount) {
+                    if (index < _cachedCount)
+                    {
                         _current = _cachedItems[index];
                         _state--;
                         return true;
                     }
-                    else {
+                    else
+                    {
                         _current = default!;
                         _state = End;
                         return false;
                     }
                 default:
                     Debug.Assert(_state >= 0);
-                    if (_state < _cachedCount) {
+                    if (_state < _cachedCount)
+                    {
                         _current = _cachedItems[_state];
                         _state++;
                         return true;
                     }
 
                     Debug.Assert(_state == _cachedCount);
-                    if (_cachedCount >= _cachedItems.Length) {
+                    if (_cachedCount >= _cachedItems.Length)
+                    {
                         _current = default!;
                         _state = End;
                         return false;
                     }
 
-                    if (_enumerator.MoveNext()) {
+                    if (_enumerator.MoveNext())
+                    {
                         _current = _enumerator.Current;
                         _cachedItems[_cachedCount] = _current;
                         _state++;
                         _cachedCount++;
                         return true;
                     }
-                    else {
+                    else
+                    {
                         _state = End;
                         _current = default!;
                         return false;
@@ -110,7 +121,8 @@ public static partial class TraEnumerable
             const int End = MinPreservedState - 1;
             const int AllCached = End - 1;
 
-            switch (_state) {
+            switch (_state)
+            {
                 case InitState:
                     _enumerator = source.GetEnumerator();
                     _cachedItems = new T[count];
@@ -120,7 +132,8 @@ public static partial class TraEnumerable
                 case MinPreservedState: // -2, the collection has never used
                     _enumerator = source.GetEnumerator();
                     _cachedItems = new T[count];
-                    for (; _cachedCount < _cachedItems.Length; _cachedCount++) {
+                    for (; _cachedCount < _cachedItems.Length; _cachedCount++)
+                    {
                         if (_enumerator.MoveNext())
                             _cachedItems[_cachedCount] = _enumerator.Current;
                         else
@@ -129,7 +142,8 @@ public static partial class TraEnumerable
                     // Do not reset state
                     break;
                 default:
-                    for (; _cachedCount < _cachedItems.Length; _cachedCount++) {
+                    for (; _cachedCount < _cachedItems.Length; _cachedCount++)
+                    {
                         if (_enumerator.MoveNext())
                             _cachedItems[_cachedCount] = _enumerator.Current;
                         else
@@ -145,17 +159,20 @@ public static partial class TraEnumerable
             const int End = MinPreservedState - 1;
             const int AllCached = End - 1;
 
-            if (_state <= AllCached || _state == End) {
+            if (_state <= AllCached || _state == End)
+            {
                 // If items of this LeadingIterator has all cached, we create a 
                 // new enumerator for the new rest collection.
                 // Otherwise, just use this._enumerator
                 var newEnumerator = source.GetEnumerator();
-                for (int i = 0; i < _cachedCount; i++) {
+                for (int i = 0; i < _cachedCount; i++)
+                {
                     newEnumerator.MoveNext();
                 }
                 return new RestCollection(this, newEnumerator);
             }
-            else {
+            else
+            {
                 _associatedRestCollection = new RestCollection(this);
                 return _associatedRestCollection;
             }
@@ -169,16 +186,20 @@ public static partial class TraEnumerable
             _current = default!;
             _state = End;
 
-            if (_associatedRestCollection is not null) {
-                if (_associatedRestCollection.State is End) {
+            if (_associatedRestCollection is not null)
+            {
+                if (_associatedRestCollection.State is End)
+                {
                     _enumerator?.Dispose();
                     _enumerator = null!;
                 }
-                else {
+                else
+                {
                     // Do not dispose;
                 }
             }
-            else {
+            else
+            {
                 _enumerator?.Dispose();
                 _enumerator = null!;
             }
@@ -198,7 +219,8 @@ public static partial class TraEnumerable
             {
                 const int End = MinPreservedState - 1;
 
-                switch (_state) {
+                switch (_state)
+                {
                     case InitState:
                         _iterator.IterateToCacheAll();
                         _enumerator ??= _iterator._enumerator;
@@ -207,11 +229,13 @@ public static partial class TraEnumerable
                     case End:
                         return false;
                     default:
-                        if (_enumerator.MoveNext()) {
+                        if (_enumerator.MoveNext())
+                        {
                             _current = _enumerator.Current;
                             return true;
                         }
-                        else {
+                        else
+                        {
                             _current = default!;
                             _state = End;
                             return false;
@@ -228,37 +252,46 @@ public static partial class TraEnumerable
                 _current = default!;
                 _state = End;
 
-                if (_state == InitState) {
+                if (_state == InitState)
+                {
                     // Here if _enumerator is not null, then the _enumerator is cloned
-                    if (_enumerator is not null) {
+                    if (_enumerator is not null)
+                    {
                         _enumerator.Dispose();
                         _enumerator = null!;
                     }
                     // Here the _enumerator is associated to PopFrontIterator
-                    else {
-                        if (_iterator._state is <= AllCached or End) {
+                    else
+                    {
+                        if (_iterator._state is <= AllCached or End)
+                        {
                             _iterator._enumerator.Dispose();
                             _iterator._enumerator = null!;
                         }
-                        else {
+                        else
+                        {
                             // Here PopFrontIterator will dispose.
                         }
                     }
                 }
-                else if (_enumerator == _iterator._enumerator) {
+                else if (_enumerator == _iterator._enumerator)
+                {
                     // Here PopFrontIterator and RestCollection use the same 
                     // enumerator
-                    if (_iterator._state is End or <= AllCached) {
+                    if (_iterator._state is End or <= AllCached)
+                    {
                         // LeadingElements cached, safe to dispose
                         _enumerator?.Dispose();
                         _enumerator = null!;
                     }
-                    else {
+                    else
+                    {
                         Debug.Assert(_iterator._state is MinPreservedState or InitState);
                         // This branch never reached.
                     }
                 }
-                else {
+                else
+                {
                     // Here RestCollection is cloned, thus use different 
                     // enumerator, we should dispose it
                     _enumerator?.Dispose();
@@ -279,9 +312,11 @@ public static partial class TraEnumerable
         {
             const int End = MinPreservedState - 1;
 
-            switch (_state) {
+            switch (_state)
+            {
                 case InitState:
-                    if (_enumerator is null) {
+                    if (_enumerator is null)
+                    {
                         _enumerator = source.GetEnumerator();
                         _enumerator.MoveNext();
                     }
@@ -290,11 +325,13 @@ public static partial class TraEnumerable
                 case End:
                     return false;
                 default:
-                    if (_enumerator.MoveNext()) {
+                    if (_enumerator.MoveNext())
+                    {
                         _current = _enumerator.Current;
                         return true;
                     }
-                    else {
+                    else
+                    {
                         _current = default!;
                         _state = End;
                         return false;

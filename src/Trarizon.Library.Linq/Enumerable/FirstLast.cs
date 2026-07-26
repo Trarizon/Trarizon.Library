@@ -11,19 +11,24 @@ public static partial class TraEnumerable
     /// </remarks>
     public static bool TryFirst<T>(this IEnumerable<T> source, [MaybeNullWhen(false)] out T value)
     {
-        if (source.TryGetNonEnumeratedCount(out var count)) {
-            if (count > 0) {
-                if (source is IteratorBase<T> iterator) {
+        if (source.TryGetNonEnumeratedCount(out var count))
+        {
+            if (count > 0)
+            {
+                if (source is IteratorBase<T> iterator)
+                {
                     value = iterator.TryGetFirst(out var exists);
                     return exists;
                 }
-                if (source is IList<T> list) {
+                if (source is IList<T> list)
+                {
                     value = list[0];
                     return true;
                 }
                 goto ByEnumerate;
             }
-            else {
+            else
+            {
                 value = default;
                 return false;
             }
@@ -33,11 +38,13 @@ public static partial class TraEnumerable
 
         using var enumerator = source.GetEnumerator();
 
-        if (enumerator.MoveNext()) {
+        if (enumerator.MoveNext())
+        {
             value = enumerator.Current;
             return true;
         }
-        else {
+        else
+        {
             value = default;
             return false;
         }
@@ -47,9 +54,11 @@ public static partial class TraEnumerable
     {
         using var enumerator = source.GetEnumerator();
 
-        while (enumerator.MoveNext()) {
+        while (enumerator.MoveNext())
+        {
             var current = enumerator.Current;
-            if (predicate(current)) {
+            if (predicate(current))
+            {
                 value = current;
                 return true;
             }
@@ -60,19 +69,24 @@ public static partial class TraEnumerable
 
     public static bool TryLast<T>(this IEnumerable<T> source, [MaybeNullWhen(false)] out T value)
     {
-        if (source.TryGetNonEnumeratedCount(out var count)) {
-            if (count > 0) {
-                if (source is IteratorBase<T> iterator) {
+        if (source.TryGetNonEnumeratedCount(out var count))
+        {
+            if (count > 0)
+            {
+                if (source is IteratorBase<T> iterator)
+                {
                     value = iterator.TryGetLast(out var exists);
                     return exists;
                 }
-                if (source is IList<T> list) {
+                if (source is IList<T> list)
+                {
                     value = list[^1];
                     return true;
                 }
                 goto ByEnumerate;
             }
-            else {
+            else
+            {
                 value = default;
                 return false;
             }
@@ -81,14 +95,16 @@ public static partial class TraEnumerable
     ByEnumerate:
 
         using var enumerator = source.GetEnumerator();
-        if (!enumerator.MoveNext()) {
+        if (!enumerator.MoveNext())
+        {
             value = default;
             return false;
         }
 
         value = enumerator.Current;
 
-        while (enumerator.MoveNext()) {
+        while (enumerator.MoveNext())
+        {
             value = enumerator.Current;
         }
         return true;
@@ -99,9 +115,11 @@ public static partial class TraEnumerable
         using var enumerator = source.GetEnumerator();
         bool hasValue = false;
         T val = default!;
-        while (enumerator.MoveNext()) {
+        while (enumerator.MoveNext())
+        {
             var current = enumerator.Current;
-            if (predicate(current)) {
+            if (predicate(current))
+            {
                 hasValue = true;
                 val = current;
             }
@@ -137,8 +155,10 @@ public static partial class TraEnumerable
 
     private static T TryGetFirstNearToMax<T, TComparer>(IEnumerable<T> source, T max, TComparer comparer, out bool exists) where TComparer : IComparer<T>
     {
-        if (source.TryGetSpan(out var span)) {
-            if (span.IsEmpty) {
+        if (source.TryGetSpan(out var span))
+        {
+            if (span.IsEmpty)
+            {
                 exists = false;
                 return default!;
             }
@@ -147,7 +167,8 @@ public static partial class TraEnumerable
             if (comparer.Compare(value, max) >= 0)
                 return value;
 
-            foreach (var item in span[1..]) {
+            foreach (var item in span[1..])
+            {
                 if (comparer.Compare(item, max) >= 0)
                     return item;
                 if (comparer.Compare(item, value) > 0)
@@ -155,11 +176,13 @@ public static partial class TraEnumerable
             }
             return value;
         }
-        else {
+        else
+        {
             using var enumerator = source.GetEnumerator();
 
 
-            if (!enumerator.MoveNext()) {
+            if (!enumerator.MoveNext())
+            {
                 exists = false;
                 return default!;
             }
@@ -169,7 +192,8 @@ public static partial class TraEnumerable
             if (comparer.Compare(value, max) >= 0)
                 return value;
 
-            while (enumerator.MoveNext()) {
+            while (enumerator.MoveNext())
+            {
                 var current = enumerator.Current;
 
                 if (comparer.Compare(current, max) >= 0)
@@ -204,8 +228,10 @@ public static partial class TraEnumerable
 
     private static (TKey, T) TryGetFirstNearToMaxBy<T, TKey, TComparer>(IEnumerable<T> source, TKey max, Func<T, TKey> keySelector, TComparer comparer, out bool exists) where TComparer : IComparer<TKey>
     {
-        if (source.TryGetSpan(out var span)) {
-            if (span.IsEmpty) {
+        if (source.TryGetSpan(out var span))
+        {
+            if (span.IsEmpty)
+            {
                 exists = false;
                 return default;
             }
@@ -215,7 +241,8 @@ public static partial class TraEnumerable
             if (comparer.Compare(key, max) >= 0)
                 return (key, value);
 
-            foreach (var item in span[1..]) {
+            foreach (var item in span[1..])
+            {
                 var curKey = keySelector(item);
                 if (comparer.Compare(curKey, max) >= 0)
                     return (curKey, item);
@@ -224,11 +251,13 @@ public static partial class TraEnumerable
             }
             return (key, value);
         }
-        else {
+        else
+        {
             using var enumerator = source.GetEnumerator();
 
 
-            if (!enumerator.MoveNext()) {
+            if (!enumerator.MoveNext())
+            {
                 exists = false;
                 return default;
             }
@@ -239,7 +268,8 @@ public static partial class TraEnumerable
             if (comparer.Compare(key, max) >= 0)
                 return (key, value);
 
-            while (enumerator.MoveNext()) {
+            while (enumerator.MoveNext())
+            {
                 var current = enumerator.Current;
                 var curKey = keySelector(current);
 

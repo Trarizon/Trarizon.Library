@@ -16,7 +16,8 @@ public static partial class TraEnumerable
             using var enumerator = first.GetEnumerator();
             using var enumerator2 = second.GetEnumerator();
 
-            switch (enumerator.MoveNext(), enumerator2.MoveNext()) {
+            switch (enumerator.MoveNext(), enumerator2.MoveNext())
+            {
                 case (true, true):
                     goto CompareAndSetNext;
                 case (false, true):
@@ -30,14 +31,16 @@ public static partial class TraEnumerable
         CompareAndSetNext:
             var left = enumerator.Current;
             var right = enumerator2.Current;
-            if (comparer.Compare(left, right) <= 0) {
+            if (comparer.Compare(left, right) <= 0)
+            {
                 yield return left;
                 if (enumerator.MoveNext())
                     goto CompareAndSetNext;
                 else
                     goto IterSecondOnly;
             }
-            else {
+            else
+            {
                 yield return right;
                 if (enumerator2.MoveNext())
                     goto CompareAndSetNext;
@@ -46,13 +49,15 @@ public static partial class TraEnumerable
             }
 
         IterFirstOnly:
-            do {
+            do
+            {
                 yield return enumerator.Current;
             } while (enumerator.MoveNext());
             yield break;
 
         IterSecondOnly:
-            do {
+            do
+            {
                 yield return enumerator2.Current;
             } while (enumerator2.MoveNext());
             yield break;

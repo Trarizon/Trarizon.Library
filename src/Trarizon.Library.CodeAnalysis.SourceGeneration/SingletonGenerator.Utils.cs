@@ -5,18 +5,21 @@ using Trarizon.Library.Roslyn;
 using Trarizon.Library.Roslyn.CSharp;
 
 namespace Trarizon.Library.CodeAnalysis.SourceGeneration;
+
 partial class SingletonGenerator
 {
     internal static class Utils
     {
         public static bool IsValidInstancePropertyIdentifier([NotNullWhen(false)] string? identifier, [MaybeNullWhen(false)] out string actualIdentifier)
         {
-            if (identifier is null) {
+            if (identifier is null)
+            {
                 actualIdentifier = "Instance";
                 return true;
             }
 
-            if (CodeHelpers.IsValidIdentifier(identifier)) {
+            if (CodeHelpers.IsValidIdentifier(identifier))
+            {
                 actualIdentifier = identifier;
                 return true;
             }
@@ -27,12 +30,14 @@ partial class SingletonGenerator
 
         public static bool IsValidProviderIdentifier(string identifier, [MaybeNullWhen(false)] out string actualIdentifier)
         {
-            if (identifier == "") {
+            if (identifier == "")
+            {
                 actualIdentifier = "__SingletonProvider";
                 return true;
             }
 
-            if (CodeHelpers.IsValidIdentifier(identifier)) {
+            if (CodeHelpers.IsValidIdentifier(identifier))
+            {
                 actualIdentifier = identifier;
                 return true;
             }

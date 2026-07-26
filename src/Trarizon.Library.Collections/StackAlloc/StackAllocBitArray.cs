@@ -15,11 +15,13 @@ public ref struct StackAllocBitArray(Span<uint> allocatedSpace)
 
     public readonly bool this[int index]
     {
-        get {
+        get
+        {
             var (i, mask) = GetSpanIndexAndMask(index);
             return (_span[i] & mask) != 0;
         }
-        set {
+        set
+        {
             var (i, mask) = GetSpanIndexAndMask(index);
 
             if (value)
@@ -61,7 +63,8 @@ public ref struct StackAllocBitArray(Span<uint> allocatedSpace)
         public bool MoveNext()
         {
             var index = _index + 1;
-            if (index < _array.Length) {
+            if (index < _array.Length)
+            {
                 _index = index;
                 return true;
             }

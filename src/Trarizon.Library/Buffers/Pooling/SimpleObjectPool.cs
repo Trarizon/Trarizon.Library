@@ -1,10 +1,5 @@
-﻿#if NETSTANDARD
-using ArrayMaxLengthProvider = Trarizon.Library.Collections.TraCollection;
-#else
-using ArrayMaxLengthProvider = System.Array;
-#endif
+﻿namespace Trarizon.Library.Buffers.Pooling;
 
-namespace Trarizon.Library.Buffers.Pooling;
 public sealed partial class SimpleObjectPool<T> : ObjectPool<T> where T : class
 {
     private readonly Stack<T> _pooled;
@@ -21,18 +16,20 @@ public sealed partial class SimpleObjectPool<T> : ObjectPool<T> where T : class
         _onReturn = onReturn;
         _onDispose = onDispose;
         _pooled = new();
-        _maxCount = maxCount < 0 ? ArrayMaxLengthProvider.MaxLength : maxCount;
+        _maxCount = maxCount < 0 ? Array.MaxLength : maxCount;
     }
 
     /// <inheritdoc />
     public override void ReleasePooled()
     {
-        if (_onDispose is null) {
+        if (_onDispose is null)
+        {
             _pooled.Clear();
             return;
         }
 
-        while (_pooled.TryPop(out var item)) {
+        while (_pooled.TryPop(out var item))
+        {
             _onDispose.Invoke(item);
         }
     }
@@ -40,12 +37,14 @@ public sealed partial class SimpleObjectPool<T> : ObjectPool<T> where T : class
     public override T Rent()
     {
         T item;
-        if (_pooled.TryPop(out var resItem)) {
+        if (_pooled.TryPop(out var resItem))
+        {
             item = resItem;
             _onRent?.Invoke(item);
             return item;
         }
-        else {
+        else
+        {
             item = _createFactory();
         }
         return item;
@@ -53,7 +52,8 @@ public sealed partial class SimpleObjectPool<T> : ObjectPool<T> where T : class
 
     public override void Return(T item)
     {
-        if (_pooled.Count == _maxCount) {
+        if (_pooled.Count == _maxCount)
+        {
             _onReturn?.Invoke(item);
             _onDispose?.Invoke(item);
             return;

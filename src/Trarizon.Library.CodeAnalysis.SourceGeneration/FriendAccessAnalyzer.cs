@@ -6,7 +6,6 @@ using Microsoft.CodeAnalysis.Operations;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using Trarizon.Library.Collections;
 using Trarizon.Library.Roslyn;
 
@@ -44,17 +43,20 @@ internal sealed partial class FriendAccessAnalyzer : DiagnosticAnalyzer
                     return;
 
                 // Generic type should be unbounded
-                if (!IsGenericTypeUnbounded()) {
+                if (!IsGenericTypeUnbounded())
+                {
                     context.ReportDiagnostic(Descriptors.FriendTypeRecommendBeUnbounded,
                         symbol.Locations[0]);
                 }
                 // No use on explicit interface
-                if (IsExplicitInterfaceImplementation()) {
+                if (IsExplicitInterfaceImplementation())
+                {
                     context.ReportDiagnostic(Descriptors.FriendTypeShouldNotOnExplicitInterfaceMember,
                         symbol.Locations[0]);
                     return;
                 }
-                if (IsPublicAccess()) {
+                if (IsPublicAccess())
+                {
                     context.ReportDiagnostic(Descriptors.FriendMemberMayBeAccessedByOtherAssembly,
                         symbol.Locations[0]);
                 }
@@ -140,7 +142,8 @@ internal sealed partial class FriendAccessAnalyzer : DiagnosticAnalyzer
                     if (memberSymbol is null)
                         return false;
 
-                    if (memberSymbol.TryGetAttributeData(friendAccessAttributeSymbol, out var attr)) {
+                    if (memberSymbol.TryGetAttributeData(friendAccessAttributeSymbol, out var attr))
+                    {
                         attribute = attr;
                         return true;
                     }
@@ -155,7 +158,8 @@ internal sealed partial class FriendAccessAnalyzer : DiagnosticAnalyzer
                         _ => null,
                     };
 
-                    if (accessor?.TryGetAttributeData(friendAccessAttributeSymbol, out var accessorAttr) ?? false) {
+                    if (accessor?.TryGetAttributeData(friendAccessAttributeSymbol, out var accessorAttr) ?? false)
+                    {
                         attribute = accessorAttr;
                         return true;
                     }

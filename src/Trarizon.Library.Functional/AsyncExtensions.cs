@@ -6,14 +6,13 @@ public static class AsyncExtensions
 {
     public static Task<Optional<T>> Transpose<T>(this Optional<Task<T>> self)
     {
-        if (self.HasValue) {
+        if (self.HasValue)
+        {
             var task = self.Value;
-            if (task.IsCompletedSuccessfully) {
+            if (task.IsCompletedSuccessfully)
                 return Task.FromResult(Optional.Of(task.Result));
-            }
-            else {
+            else
                 return Continue(task);
-            }
         }
         return Task.FromResult(Optional<T>.None);
 
@@ -22,14 +21,13 @@ public static class AsyncExtensions
 
     public static Task<Result<T, TError>> Transpose<T, TError>(this Result<Task<T>, TError> self)
     {
-        if (self.IsSuccess) {
+        if (self.IsSuccess)
+        {
             var task = self.Value;
-            if (task.IsCompletedSuccessfully) {
+            if (task.IsCompletedSuccessfully)
                 return Task.FromResult(Result.Success<T, TError>(task.Result));
-            }
-            else {
+            else
                 return Continue(task);
-            }
         }
         return Task.FromResult(Result.Failure<T, TError>(self.Error));
 
@@ -93,22 +91,18 @@ public static class AsyncExtensions
 
         public void OnCompleted(Action continuation)
         {
-            if (_awaiter.HasValue) {
+            if (_awaiter.HasValue)
                 _awaiter.Value.OnCompleted(continuation);
-            }
-            else {
+            else
                 continuation();
-            }
         }
 
         public void UnsafeOnCompleted(Action continuation)
         {
-            if (_awaiter.HasValue) {
+            if (_awaiter.HasValue)
                 _awaiter.Value.UnsafeOnCompleted(continuation);
-            }
-            else {
+            else
                 continuation();
-            }
         }
     }
 
@@ -127,22 +121,18 @@ public static class AsyncExtensions
 
         public void OnCompleted(Action continuation)
         {
-            if (_awaiter.HasValue) {
+            if (_awaiter.HasValue)
                 _awaiter.Value.OnCompleted(continuation);
-            }
-            else {
+            else
                 continuation();
-            }
         }
 
         public void UnsafeOnCompleted(Action continuation)
         {
-            if (_awaiter.HasValue) {
+            if (_awaiter.HasValue)
                 _awaiter.Value.UnsafeOnCompleted(continuation);
-            }
-            else {
+            else
                 continuation();
-            }
         }
     }
 
@@ -167,22 +157,18 @@ public static class AsyncExtensions
 
         public void OnCompleted(Action continuation)
         {
-            if (_awaiter.HasValue) {
+            if (_awaiter.HasValue)
                 _awaiter.Value.OnCompleted(continuation);
-            }
-            else {
+            else
                 continuation();
-            }
         }
 
         public void UnsafeOnCompleted(Action continuation)
         {
-            if (_awaiter.HasValue) {
+            if (_awaiter.HasValue)
                 _awaiter.Value.UnsafeOnCompleted(continuation);
-            }
-            else {
+            else
                 continuation();
-            }
         }
     }
 
@@ -201,22 +187,18 @@ public static class AsyncExtensions
 
         public void OnCompleted(Action continuation)
         {
-            if (_awaiter.HasValue) {
+            if (_awaiter.HasValue)
                 _awaiter.Value.OnCompleted(continuation);
-            }
-            else {
+            else
                 continuation();
-            }
         }
 
         public void UnsafeOnCompleted(Action continuation)
         {
-            if (_awaiter.HasValue) {
+            if (_awaiter.HasValue)
                 _awaiter.Value.UnsafeOnCompleted(continuation);
-            }
-            else {
+            else
                 continuation();
-            }
         }
     }
 

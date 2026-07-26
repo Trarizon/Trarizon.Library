@@ -9,7 +9,8 @@ public static partial class TraEnumerable
         if (splitPosition <= 0)
             return source;
 
-        if (source is T[] arr) {
+        if (source is T[] arr)
+        {
             if (arr.Length <= splitPosition)
                 return source;
             return new ListRotateIterator<T>(arr, splitPosition);
@@ -28,16 +29,20 @@ public static partial class TraEnumerable
             var firstPart = new List<T>();
 
             using var enumerator = source.GetEnumerator();
-            for (int i = 0; i < splitPosition; i++) {
-                if (enumerator.MoveNext()) {
+            for (int i = 0; i < splitPosition; i++)
+            {
+                if (enumerator.MoveNext())
+                {
                     firstPart.Add(enumerator.Current);
                 }
-                else {
+                else
+                {
                     goto YieldFirstPart;
                 }
             }
 
-            while (enumerator.MoveNext()) {
+            while (enumerator.MoveNext())
+            {
                 yield return enumerator.Current;
             }
 
@@ -56,13 +61,15 @@ public static partial class TraEnumerable
         if (fromEndValue <= 0)
             return source;
 
-        if (source is T[] arr) {
+        if (source is T[] arr)
+        {
             if (arr.Length <= fromEndValue)
                 return source;
             return new ListRotateIterator<T>(arr, arr.Length - fromEndValue);
         }
 
-        if (source is IList<T> list) {
+        if (source is IList<T> list)
+        {
             return new ListRotateFromEndIterator<T>(list, fromEndValue);
         }
 
@@ -72,17 +79,22 @@ public static partial class TraEnumerable
         {
             var cache = source.ToArray();
 
-            if (splitFromEnd < cache.Length) {
+            if (splitFromEnd < cache.Length)
+            {
                 var split = cache.Length - splitFromEnd;
-                for (int i = split; i < cache.Length; i++) {
+                for (int i = split; i < cache.Length; i++)
+                {
                     yield return cache[i];
                 }
-                for (int i = 0; i < split; i++) {
+                for (int i = 0; i < split; i++)
+                {
                     yield return cache[i];
                 }
             }
-            else {
-                foreach (var item in cache) {
+            else
+            {
+                foreach (var item in cache)
+                {
                     yield return item;
                 }
             }
@@ -104,15 +116,19 @@ public static partial class TraEnumerable
             const int SecondPart = MinPreservedState - 1;
             const int End = SecondPart - 1;
 
-            switch (_state) {
+            switch (_state)
+            {
                 case InitState:
                     _enumerator = source.GetEnumerator();
                     _firstPart = new();
-                    for (int i = 0; i < split; i++) {
-                        if (_enumerator.MoveNext()) {
+                    for (int i = 0; i < split; i++)
+                    {
+                        if (_enumerator.MoveNext())
+                        {
                             _firstPart.Add(_enumerator.Current);
                         }
-                        else {
+                        else
+                        {
                             _state = 0;
                             goto default;
                         }
@@ -120,11 +136,13 @@ public static partial class TraEnumerable
                     _state = SecondPart;
                     goto case SecondPart;
                 case SecondPart:
-                    if (_enumerator.MoveNext()) {
+                    if (_enumerator.MoveNext())
+                    {
                         _current = _enumerator.Current;
                         return true;
                     }
-                    else {
+                    else
+                    {
                         _state = 0;
                         goto default;
                     }
@@ -132,12 +150,14 @@ public static partial class TraEnumerable
                     return false;
                 default:
                     Debug.Assert(_state >= 0);
-                    if (_state < _firstPart.Count) {
+                    if (_state < _firstPart.Count)
+                    {
                         _current = _firstPart[_state];
                         _state++;
                         return true;
                     }
-                    else {
+                    else
+                    {
                         _state = End;
                         return false;
                     }
@@ -157,7 +177,8 @@ public static partial class TraEnumerable
 
         public override T this[int index]
         {
-            get {
+            get
+            {
                 if (index < split)
                     return list[index + split];
                 else
@@ -174,34 +195,41 @@ public static partial class TraEnumerable
             const int End = MinPreservedState - 1;
             const int FirstPartStart = End - 1;
 
-            switch (_state) {
+            switch (_state)
+            {
                 case InitState:
                     _state = 0;
                     goto default;
                 case End:
                     return false;
-                case <= FirstPartStart: {
+                case <= FirstPartStart:
+                {
                     var index = FirstPartStart - _state;
-                    if (index < split) {
+                    if (index < split)
+                    {
                         _current = list[index];
                         _state--;
                         return true;
                     }
-                    else {
+                    else
+                    {
                         _current = default;
                         _state = End;
                         return false;
                     }
                 }
-                default: {
+                default:
+                {
                     Debug.Assert(_state >= 0);
                     var index = _state + split;
-                    if (index < list.Count) {
+                    if (index < list.Count)
+                    {
                         _current = list[index];
                         _state++;
                         return true;
                     }
-                    else {
+                    else
+                    {
                         _current = default;
                         _state = FirstPartStart;
                         return MoveNext();
@@ -215,11 +243,13 @@ public static partial class TraEnumerable
         internal override T TryGetFirst(out bool exists)
         {
             var count = list.Count;
-            if (split < count) {
+            if (split < count)
+            {
                 exists = true;
                 return list[split];
             }
-            if (count > 0) {
+            if (count > 0)
+            {
                 exists = true;
                 return list[0];
             }
@@ -230,11 +260,13 @@ public static partial class TraEnumerable
         internal override T TryGetLast(out bool exists)
         {
             var count = list.Count;
-            if (split < count) {
+            if (split < count)
+            {
                 exists = true;
                 return list[split - 1];
             }
-            if (count > 0) {
+            if (count > 0)
+            {
                 exists = true;
                 return list[^1];
             }
@@ -249,7 +281,8 @@ public static partial class TraEnumerable
 
         public override T this[int index]
         {
-            get {
+            get
+            {
                 var split = list.Count - fromEndSplit;
                 if (index < split)
                     return list[index + split];
@@ -267,31 +300,36 @@ public static partial class TraEnumerable
             const int End = MinPreservedState - 1;
             const int FirstPartStart = End - 1;
 
-            switch (_state) {
+            switch (_state)
+            {
                 case InitState:
                     _state = Math.Max(0, fromEndSplit - list.Count);
                     goto default;
                 case <= FirstPartStart:
                 First:
                     var index = FirstPartStart - _state;
-                    if (index < list.Count - fromEndSplit) {
+                    if (index < list.Count - fromEndSplit)
+                    {
                         _current = list[index];
                         _state--;
                         return true;
                     }
-                    else {
+                    else
+                    {
                         _current = default;
                         _state = End;
                         return false;
                     }
                 default:
                     Debug.Assert(_state >= 0);
-                    if (_state < fromEndSplit) {
+                    if (_state < fromEndSplit)
+                    {
                         _current = list[list.Count - fromEndSplit + _state];
                         _state++;
                         return true;
                     }
-                    else {
+                    else
+                    {
                         _current = default;
                         _state = FirstPartStart;
                         goto First;
@@ -304,11 +342,13 @@ public static partial class TraEnumerable
         internal override T TryGetFirst(out bool exists)
         {
             var count = list.Count;
-            if (fromEndSplit < list.Count) {
+            if (fromEndSplit < list.Count)
+            {
                 exists = true;
                 return list[^fromEndSplit];
             }
-            if (count > 0) {
+            if (count > 0)
+            {
                 exists = true;
                 return list[0];
             }
@@ -319,11 +359,13 @@ public static partial class TraEnumerable
         internal override T TryGetLast(out bool exists)
         {
             var count = list.Count;
-            if (fromEndSplit < count) {
+            if (fromEndSplit < count)
+            {
                 exists = true;
                 return list[^(fromEndSplit + 1)];
             }
-            if (count > 0) {
+            if (count > 0)
+            {
                 exists = true;
                 return list[^1];
             }

@@ -10,7 +10,8 @@ public static partial class TraEnumerable
     public static IEnumerable<T> EnumerateByWhile<T>(T first, Func<T, T> nextSelector, Func<T, bool> predicate)
     {
         var val = first;
-        while (predicate(val)) {
+        while (predicate(val))
+        {
             yield return val;
             val = nextSelector(val);
         }
@@ -24,7 +25,8 @@ public static partial class TraEnumerable
     public static IEnumerable<T> EnumerateByNotNull<T>(T? first, Func<T, T?> nextSelector) where T : class
     {
         var val = first;
-        while (val is not null) {
+        while (val is not null)
+        {
             yield return val;
             val = nextSelector(val);
         }
@@ -38,7 +40,8 @@ public static partial class TraEnumerable
     public static IEnumerable<T> EnumerateByNotNull<T>(T? first, Func<T, T?> nextSelector) where T : struct
     {
         var nval = first;
-        while (nval is { } val) {
+        while (nval is { } val)
+        {
             yield return val;
             nval = nextSelector(val);
         }

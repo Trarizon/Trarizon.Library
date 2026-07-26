@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 
 namespace Trarizon.Library.Wrappers;
+
 /// <summary>
 /// A helper to use <see langword="using"/> statement easier, use
 /// <see cref="LazyInitDisposableExt.Set{T}(ref readonly Trarizon.Library.Wrappers.LazyInitDisposable, T)"/>

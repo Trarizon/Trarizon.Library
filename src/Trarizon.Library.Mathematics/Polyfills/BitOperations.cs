@@ -1,9 +1,11 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace Trarizon.Library.Mathematics.Helpers;
+namespace Trarizon.Library.Mathematics;
+
 #if NETSTANDARD
-internal static class PfBitOperations
+
+internal static class Polyfills
 {
     private static ReadOnlySpan<byte> TrailingZeroCountDeBruijn => // 32
     [
@@ -29,7 +31,8 @@ internal static class PfBitOperations
     public static int TrailingZeroCount(ulong value)
     {
         uint low = (uint)value;
-        if (low == 0) {
+        if (low == 0)
+        {
             return 32 + TrailingZeroCount((uint)(value >> 32));
         }
         return TrailingZeroCount(low);

@@ -5,6 +5,7 @@ using Trarizon.Library.Collections.Helpers;
 using Trarizon.Library.Collections.StackAlloc;
 
 namespace Trarizon.Library.Collections.Generic;
+
 public enum RingQueueFullBehaviour
 {
     Overwrite = 0,
@@ -78,7 +79,8 @@ public class RingQueue<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public bool TryPeekFirst([MaybeNullWhen(false)] out T item)
     {
-        if (_count > 0) {
+        if (_count > 0)
+        {
             item = _array[_head];
             return true;
         }
@@ -88,7 +90,8 @@ public class RingQueue<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public bool TryPeekLast([MaybeNullWhen(false)] out T item)
     {
-        if (_count > 0) {
+        if (_count > 0)
+        {
             var index = _tail;
             Decrement(ref index);
             item = _array[index];
@@ -102,7 +105,8 @@ public class RingQueue<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public void Enqueue(T item)
     {
-        if (_count == _maxCount) {
+        if (_count == _maxCount)
+        {
             if (_fullBehaviour is RingQueueFullBehaviour.Throw)
                 Throws.ThrowInvalidOperation("RingQueue is full.");
             else if (_fullBehaviour is RingQueueFullBehaviour.Discard)
@@ -113,7 +117,8 @@ public class RingQueue<T> : ICollection<T>, IReadOnlyCollection<T>
         }
         // If current array is full, and capacity hasn't reach _maxCount,
         // extend array length
-        else if (_count == _array.Length) {
+        else if (_count == _array.Length)
+        {
             var capacity = _array.Length;
             GrowAndCopy(capacity + 1);
             _head = 0;
@@ -123,7 +128,8 @@ public class RingQueue<T> : ICollection<T>, IReadOnlyCollection<T>
             _count++;
         }
         // Normal queue
-        else {
+        else
+        {
             _array[_tail] = item;
             Increment(ref _tail);
             _count++;
@@ -147,7 +153,8 @@ public class RingQueue<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public bool TryDequeueFirst([MaybeNullWhen(false)] out T item)
     {
-        if (_count == 0) {
+        if (_count == 0)
+        {
             item = default;
             return false;
         }
@@ -162,7 +169,8 @@ public class RingQueue<T> : ICollection<T>, IReadOnlyCollection<T>
 
     public bool TryDequeueLast([MaybeNullWhen(false)] out T item)
     {
-        if (_count == 0) {
+        if (_count == 0)
+        {
             item = default;
             return false;
         }
@@ -262,13 +270,15 @@ public class RingQueue<T> : ICollection<T>, IReadOnlyCollection<T>
         {
             CheckVersion();
 
-            if (_index < 0) {
+            if (_index < 0)
+            {
                 _current = default;
                 return false;
             }
 
             // |  ---  |
-            if (_queue._head < _queue._tail) {
+            if (_queue._head < _queue._tail)
+            {
                 _current = _queue._array[_index];
                 if (_index + 1 == _queue._tail)
                     _index = -1;
@@ -277,7 +287,8 @@ public class RingQueue<T> : ICollection<T>, IReadOnlyCollection<T>
                 return true;
             }
             // |--  --|
-            else {
+            else
+            {
                 _current = _queue._array[_index];
                 var next = _index;
                 _queue.Increment(ref next);

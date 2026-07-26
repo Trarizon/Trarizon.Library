@@ -13,23 +13,28 @@ public static partial class TraEnumerable
     /// </param>
     public static bool CountsMoreThan<T>(this IEnumerable<T> source, int count, out int actualCount)
     {
-        if (count < 0) {
+        if (count < 0)
+        {
             actualCount = count;
             return true;
         }
 
-        if (source.TryGetNonEnumeratedCount(out actualCount)) {
-            if (actualCount > count) {
+        if (source.TryGetNonEnumeratedCount(out actualCount))
+        {
+            if (actualCount > count)
+            {
                 actualCount = count;
                 return true;
             }
-            else {
+            else
+            {
                 return false;
             }
         }
 
         using var enumerator = source.GetEnumerator();
-        if (enumerator.TryIterate(count, out actualCount)) {
+        if (enumerator.TryIterate(count, out actualCount))
+        {
             return enumerator.MoveNext();
         }
         return false;
@@ -44,16 +49,20 @@ public static partial class TraEnumerable
     /// </param>
     public static bool CountsAtLeast<T>(this IEnumerable<T> source, int count, out int actualCount)
     {
-        if (count <= 0) {
+        if (count <= 0)
+        {
             actualCount = count;
             return true;
         }
 
-        if (source.TryGetNonEnumeratedCount(out actualCount)) {
-            if (actualCount < count) {
+        if (source.TryGetNonEnumeratedCount(out actualCount))
+        {
+            if (actualCount < count)
+            {
                 return false;
             }
-            else {
+            else
+            {
                 actualCount = count;
                 return true;
             }
@@ -98,7 +107,8 @@ public static partial class TraEnumerable
     /// </param>
     public static bool CountsBetween<T>(this IEnumerable<T> source, int min, int max, out int actualCount)
     {
-        if (max < min) {
+        if (max < min)
+        {
             actualCount = 0;
             return false;
         }
@@ -116,11 +126,13 @@ public static partial class TraEnumerable
     static bool TryGetNonEnumeratedCount<T>(this IEnumerable<T> source, out int count)
     {
 #if NETSTANDARD
-        if (source is ICollection<T> collection) {
+        if (source is ICollection<T> collection)
+        {
             count = collection.Count;
             return true;
         }
-        if (source is ICollection ngcollection) {
+        if (source is ICollection ngcollection)
+        {
             count = ngcollection.Count;
             return true;
         }
@@ -130,7 +142,8 @@ public static partial class TraEnumerable
         }
 #endif
 
-        if (source is IteratorBase iterator) {
+        if (source is IteratorBase iterator)
+        {
             count = iterator.TryGetCheapCount(out bool exists);
             return exists;
         }

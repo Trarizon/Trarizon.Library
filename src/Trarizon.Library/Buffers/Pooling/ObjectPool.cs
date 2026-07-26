@@ -1,4 +1,5 @@
 ﻿namespace Trarizon.Library.Buffers.Pooling;
+
 public abstract partial class ObjectPool<T> : IObjectAllocator<T> where T : class
 {
     /// <summary>

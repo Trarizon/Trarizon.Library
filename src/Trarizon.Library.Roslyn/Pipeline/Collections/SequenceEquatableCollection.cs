@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections;
 
 namespace Trarizon.Library.Roslyn.Pipeline.Collections;
+
 public readonly struct SequenceEquatableCollection<TCollection, T>(TCollection collection)
     : IEquatable<SequenceEquatableCollection<TCollection, T>>
     , IEnumerable<T>
@@ -25,7 +23,8 @@ public readonly struct SequenceEquatableCollection<TCollection, T>(TCollection c
     public override int GetHashCode()
     {
         HashCode hc = new();
-        foreach (var item in Collection) {
+        foreach (var item in Collection)
+        {
             hc.Add(item);
         }
         return hc.ToHashCode();

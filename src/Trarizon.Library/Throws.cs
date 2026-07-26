@@ -44,6 +44,10 @@ internal static class Throws
         => throw new NotSupportedException(message);
 
     [DoesNotReturn]
+    public static void ThrowArgumentOutOfRange(string? paramName, object? value, string? message)
+        => throw new ArgumentOutOfRangeException(paramName, value, message);
+
+    [DoesNotReturn]
     public static T UnknownEnumCase<T>(Enum value)
     {
         ThrowInvalidOperation($"Unknown enum value '{value}'");

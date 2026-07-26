@@ -10,7 +10,8 @@ public static partial class OptionalExtensions
 
     public static Result<Optional<T>, TError> Transpose<T, TError>(this Optional<Result<T, TError>> optional)
     {
-        if (optional.HasValue) {
+        if (optional.HasValue)
+        {
             ref readonly var result = ref optional.GetValueRefOrDefaultRef();
             return result.IsSuccess ? Optional.Of(result._value) : Result.Failure(result.Error);
         }
@@ -27,7 +28,8 @@ public static partial class OptionalExtensions
 
     public static RefResult<RefOptional<T>, TError> Transpose<T, TError>(this RefOptional<RefResult<T, TError>> optional) where T : allows ref struct
     {
-        if (optional.HasValue) {
+        if (optional.HasValue)
+        {
             ref readonly var result = ref optional.GetValueRefOrDefaultRef();
             return result.IsSuccess ? RefResult.Success(RefOptional.Of(result._value)) : RefResult.Failure(result.Error);
         }

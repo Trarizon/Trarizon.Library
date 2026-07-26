@@ -49,7 +49,8 @@ public static partial class TraEnumerable
 
         T prev = enumerator.Current;
 
-        while (enumerator.MoveNext()) {
+        while (enumerator.MoveNext())
+        {
             var curr = enumerator.Current;
             if (sorter.Greater(prev, curr))
                 return false;
@@ -70,7 +71,8 @@ public static partial class TraEnumerable
 
         TKey prevKey = keySelector(enumerator.Current);
 
-        while (enumerator.MoveNext()) {
+        while (enumerator.MoveNext())
+        {
             var curr = enumerator.Current;
             TKey key = keySelector(curr);
             if (sorter.Greater(prevKey, key))

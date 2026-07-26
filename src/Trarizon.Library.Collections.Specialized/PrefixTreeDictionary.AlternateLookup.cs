@@ -11,7 +11,8 @@ partial class PrefixTreeDictionary<TKey, TValue>
 {
     public AlternateLookup<TAlternate> GetAlternateLookup<TAlternate>() where TAlternate : notnull, allows ref struct
     {
-        if (!IsCompatibleAlternateKey<TAlternate>(this)) {
+        if (!IsCompatibleAlternateKey<TAlternate>(this))
+        {
             Throws.IncompatibleAlternateComparer();
         }
         return new AlternateLookup<TAlternate>(this);
@@ -19,7 +20,8 @@ partial class PrefixTreeDictionary<TKey, TValue>
 
     public bool TryGetAlternateLookup<TAlternate>(out AlternateLookup<TAlternate> lookup) where TAlternate : notnull, allows ref struct
     {
-        if (!IsCompatibleAlternateKey<TAlternate>(this)) {
+        if (!IsCompatibleAlternateKey<TAlternate>(this))
+        {
             lookup = default;
             return false;
         }
@@ -47,11 +49,13 @@ partial class PrefixTreeDictionary<TKey, TValue>
         public bool TryGetValue(IEnumerable<TAlternate> sequence, [MaybeNullWhen(false)] out TValue value)
         {
             var node = FindPrefixNode(sequence);
-            if (node is { IsEnd: true }) {
+            if (node is { IsEnd: true })
+            {
                 value = node.GetValueOrDefault()!;
                 return true;
             }
-            else {
+            else
+            {
                 value = default;
                 return false;
             }
@@ -76,10 +80,13 @@ partial class PrefixTreeDictionary<TKey, TValue>
                 return null;
 
             var comparer = Comparer;
-            foreach (var val in prefix) {
+            foreach (var val in prefix)
+            {
                 var children = node.ChildrenSpan;
-                foreach (var child in children) {
-                    if (comparer.Equals(val, child.Key!)) {
+                foreach (var child in children)
+                {
+                    if (comparer.Equals(val, child.Key!))
+                    {
                         node = child;
                         goto ContinueFor;
                     }
@@ -101,11 +108,13 @@ partial class PrefixTreeDictionary<TKey, TValue>
         public bool TryAdd(IEnumerable<TAlternate> sequence, TValue value, out Node node)
         {
             node = Tree.Root;
-            foreach (var item in sequence) {
+            foreach (var item in sequence)
+            {
                 node = GetOrAddChild(node, item);
             }
 
-            if (node.IsEnd) {
+            if (node.IsEnd)
+            {
                 return false;
             }
             Tree._version++;
@@ -118,7 +127,8 @@ partial class PrefixTreeDictionary<TKey, TValue>
         {
             var children = parent.ChildrenSpan;
             var comparer = Comparer;
-            foreach (var child in children) {
+            foreach (var child in children)
+            {
                 if (comparer.Equals(value, child.Key!))
                     return child;
             }

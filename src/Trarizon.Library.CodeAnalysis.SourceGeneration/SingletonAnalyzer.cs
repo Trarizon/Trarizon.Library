@@ -2,13 +2,12 @@
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System.Collections.Immutable;
-using System.Linq;
-using Trarizon.Library.Collections;
 using Trarizon.Library.Functional;
 using Trarizon.Library.Roslyn;
 using static Trarizon.Library.CodeAnalysis.SourceGeneration.SingletonGenerator;
 
 namespace Trarizon.Library.CodeAnalysis.SourceGeneration;
+
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 internal sealed class SingletonAnalyzer : DiagnosticAnalyzer
 {
@@ -29,7 +28,8 @@ internal sealed class SingletonAnalyzer : DiagnosticAnalyzer
         context.RegisterCompilationStartAction(context =>
         {
             var compilation = context.Compilation;
-            if (!compilation.TryGetSingletonAttribute(out var singletonAttributeSymbol)) {
+            if (!compilation.TryGetSingletonAttribute(out var singletonAttributeSymbol))
+            {
                 return;
             }
 
@@ -40,7 +40,8 @@ internal sealed class SingletonAnalyzer : DiagnosticAnalyzer
                     return;
 
                 // Singleton type must be a class
-                if (!symbol.IsReferenceType || symbol.IsRecord) {
+                if (!symbol.IsReferenceType || symbol.IsRecord)
+                {
                     context.ReportDiagnostic(
                         Descriptors.OnlyClassCanBeSingleton,
                         symbol.Locations[0]);
@@ -49,7 +50,8 @@ internal sealed class SingletonAnalyzer : DiagnosticAnalyzer
                 // Singleton type must be sealed,
                 // sealed keyword will be auto generated, 
                 // so we just avoid abstract and static
-                if (symbol.IsAbstract || symbol.IsStatic) {
+                if (symbol.IsAbstract || symbol.IsStatic)
+                {
                     context.ReportDiagnostic(
                         Descriptors.SingletonShouldBeSealed,
                         symbol.Locations[0]);
@@ -57,7 +59,8 @@ internal sealed class SingletonAnalyzer : DiagnosticAnalyzer
 
                 var attr = new RuntimeAttribute(attrData);
                 var propertyIdentifier = attr.GetInstancePropertyName();
-                if (!Utils.IsValidInstancePropertyIdentifier(propertyIdentifier, out var actualPropertyIdentifier)) {
+                if (!Utils.IsValidInstancePropertyIdentifier(propertyIdentifier, out var actualPropertyIdentifier))
+                {
                     context.ReportDiagnostic(
                         Descriptors.InvalidIdentifier,
                         symbol.Locations[0],
@@ -65,14 +68,17 @@ internal sealed class SingletonAnalyzer : DiagnosticAnalyzer
                 }
 
                 var providerIdentifier = attr.GetSingletonProviderName();
-                if (providerIdentifier is not null) {
-                    if (providerIdentifier is not null && !Utils.IsValidProviderIdentifier(providerIdentifier, out _)) {
+                if (providerIdentifier is not null)
+                {
+                    if (providerIdentifier is not null && !Utils.IsValidProviderIdentifier(providerIdentifier, out _))
+                    {
                         context.ReportDiagnostic(
                             Descriptors.InvalidIdentifier,
                             symbol.Locations[0],
                             providerIdentifier);
                     }
-                    if (providerIdentifier == actualPropertyIdentifier) {
+                    if (providerIdentifier == actualPropertyIdentifier)
+                    {
                         context.ReportDiagnostic(
                             Descriptors.InstancePropertyNameAndSingletonProviderNameShouldBeDifferent,
                             symbol.Locations[0]);
@@ -80,7 +86,8 @@ internal sealed class SingletonAnalyzer : DiagnosticAnalyzer
                 }
 
                 // constructors
-                switch (symbol.Constructors) {
+                switch (symbol.Constructors)
+                {
                     case []:
                         break;
                     case [var first]:
@@ -90,7 +97,8 @@ internal sealed class SingletonAnalyzer : DiagnosticAnalyzer
                             {
                                 DeclaredAccessibility: Accessibility.NotApplicable or Accessibility.Private,
                                 Parameters.Length: 0
-                            }) {
+                            })
+                        {
                             // Not private non-param ctor
                             context.ReportDiagnostic(
                                 Descriptors.SingletonShouldHaveCorrectCtor,

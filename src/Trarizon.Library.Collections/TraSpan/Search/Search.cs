@@ -2,6 +2,7 @@
 using Trarizon.Library.Collections.Helpers;
 
 namespace Trarizon.Library.Collections;
+
 public static partial class TraSpan
 {
     public static int LinearSearch<T, TComparer>(this ReadOnlySpan<T> span, T item, TComparer comparer) where TComparer : IComparer<T>
@@ -21,23 +22,28 @@ public static partial class TraSpan
         var (start, end) = priorRange.GetCheckedStartAndEndOffset(span.Length);
 
         var cmpl = item.CompareTo(span[start]);
-        if (cmpl > 0) {
-            if (end < span.Length) {
+        if (cmpl > 0)
+        {
+            if (end < span.Length)
+            {
                 var cmpr = item.CompareTo(span[end]);
-                if (cmpr < 0) {
+                if (cmpr < 0)
+                {
                     var s = start + 1;
                     var i = span[s..end].BinarySearch(item);
                     return i >= 0 ? i + s : i - s;
                 }
                 else if (cmpr == 0)
                     return end;
-                else {
+                else
+                {
                     var e = end + 1;
                     var i = span[e..].BinarySearch(item);
                     return i >= 0 ? i + e : i - e;
                 }
             }
-            else {
+            else
+            {
                 var s = start + 1;
                 var i = span[s..end].BinarySearch(item);
                 return i >= 0 ? i + s : i - s;
@@ -57,7 +63,8 @@ public static partial class TraSpan
             return nearIndex;
         else if (cmp < 0)
             return span[..nearIndex].LinearSearchFromEnd(item);
-        else {
+        else
+        {
             var i = span[nearIndex..].LinearSearch(item);
             return i >= 0 ? i + nearIndex : i - nearIndex;
         }

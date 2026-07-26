@@ -3,6 +3,7 @@ using System.Numerics;
 using Trarizon.Library.Mathematics.Helpers;
 
 namespace Trarizon.Library.Mathematics;
+
 public struct BoundedInterval : IEquatable<BoundedInterval>
 #if NET7_0_OR_GREATER
     , IEqualityOperators<BoundedInterval, BoundedInterval, bool>

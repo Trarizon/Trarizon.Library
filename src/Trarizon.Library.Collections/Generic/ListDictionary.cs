@@ -32,21 +32,26 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
 
     public TValue this[TKey key]
     {
-        get {
+        get
+        {
             ref var item = ref FindRef(key);
-            if (Unsafe.IsNullRef(ref item)) {
+            if (Unsafe.IsNullRef(ref item))
+            {
                 Throws.KeyNotFound(key, nameof(ListDictionary<,>));
                 return default;
             }
 
             return item.Value;
         }
-        set {
+        set
+        {
             ref var item = ref FindRef(key);
-            if (Unsafe.IsNullRef(ref item)) {
+            if (Unsafe.IsNullRef(ref item))
+            {
                 AddInternal(key, value);
             }
-            else {
+            else
+            {
                 item.Value = value;
             }
             _version++;
@@ -71,7 +76,8 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
     public bool TryAdd(TKey key, TValue value)
     {
         ref var val = ref FindRef(key);
-        if (!Unsafe.IsNullRef(ref val)) {
+        if (!Unsafe.IsNullRef(ref val))
+        {
             return false;
         }
         AddInternal(key, value);
@@ -101,7 +107,8 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
     public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value)
     {
         ref var item = ref FindRef(key);
-        if (Unsafe.IsNullRef(ref item)) {
+        if (Unsafe.IsNullRef(ref item))
+        {
             value = default;
             return false;
         }
@@ -111,7 +118,8 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
 
     private void AddInternal(TKey key, TValue value)
     {
-        if (_count == _pairs.Length) {
+        if (_count == _pairs.Length)
+        {
             ArrayGrowHelper.Grow(ref _pairs, _count + 1, _count);
         }
         _pairs[_count++] = (key, value);
@@ -120,15 +128,19 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
 
     private ref (TKey Key, TValue Value) FindRef(TKey key)
     {
-        if (typeof(TKey).IsValueType && _comparer is null) {
-            foreach (ref var pair in _pairs.AsSpan(_count)) {
+        if (typeof(TKey).IsValueType && _comparer is null)
+        {
+            foreach (ref var pair in _pairs.AsSpan(_count))
+            {
                 if (EqualityComparer<TKey>.Default.Equals(pair.Key, key))
                     return ref pair;
             }
         }
-        else {
+        else
+        {
             _comparer ??= EqualityComparer<TKey>.Default;
-            foreach (ref var pair in _pairs.AsSpan(_count)) {
+            foreach (ref var pair in _pairs.AsSpan(_count))
+            {
                 if (_comparer.Equals(pair.Key, key))
                     return ref pair;
             }
@@ -188,7 +200,8 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
         if (Count == 0)
             return;
 
-        foreach (var (k, v) in _pairs) {
+        foreach (var (k, v) in _pairs)
+        {
             array[arrayIndex++] = new KeyValuePair<TKey, TValue>(k, v);
         }
     }
@@ -234,13 +247,15 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
             if (_index < 0)
                 return false;
 
-            if (_index < _dict.Count) {
+            if (_index < _dict.Count)
+            {
                 var (key, value) = _dict._pairs[_index];
                 _current = new KeyValuePair<TKey, TValue>(key, value);
                 _index++;
                 return true;
             }
-            else {
+            else
+            {
                 _index = -1;
                 _current = default;
                 return false;
@@ -281,7 +296,8 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
             if (Count == 0)
                 return;
 
-            foreach (var (k, _) in _dict._pairs) {
+            foreach (var (k, _) in _dict._pairs)
+            {
                 array[arrayIndex++] = k;
             }
         }
@@ -326,7 +342,8 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
 
         public bool Contains(TValue item)
         {
-            foreach (var (_, v) in _dict._pairs) {
+            foreach (var (_, v) in _dict._pairs)
+            {
                 if (EqualityComparer<TValue>.Default.Equals(v, item))
                     return true;
             }
@@ -341,7 +358,8 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
             if (Count == 0)
                 return;
 
-            foreach (var (_, v) in _dict._pairs) {
+            foreach (var (_, v) in _dict._pairs)
+            {
                 array[arrayIndex++] = v;
             }
         }

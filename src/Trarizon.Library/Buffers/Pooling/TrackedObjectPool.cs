@@ -24,7 +24,8 @@ public sealed class TrackedObjectPool<T> : ObjectPool<T> where T : class
     /// <inheritdoc />
     public override void ReleasePooled()
     {
-        while (_pooled.TryPop(out var item)) {
+        while (_pooled.TryPop(out var item))
+        {
             _onDispose?.Invoke(item);
         }
     }
@@ -32,13 +33,16 @@ public sealed class TrackedObjectPool<T> : ObjectPool<T> where T : class
     public override T Rent()
     {
         T item;
-        if (_pooled.TryPop(out var resItem)) {
+        if (_pooled.TryPop(out var resItem))
+        {
             item = resItem;
             _onRent?.Invoke(item);
             _rented.Add(item);
         }
-        else {
-            if (_rented.Count == _maxCount) {
+        else
+        {
+            if (_rented.Count == _maxCount)
+            {
                 item = default!;
                 Throws.ThrowInvalidOperation("Failed to rent new item, object pool is full");
             }
@@ -51,7 +55,8 @@ public sealed class TrackedObjectPool<T> : ObjectPool<T> where T : class
     public override void Return(T item)
     {
         var index = _rented.IndexOf(item);
-        if (index < 0) {
+        if (index < 0)
+        {
             Throws.ThrowInvalidOperation("Try to return a object that is not pooled.");
         }
 

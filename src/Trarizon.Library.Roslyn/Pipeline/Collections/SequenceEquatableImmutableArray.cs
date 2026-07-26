@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using System.Collections.Immutable;
 using System.Runtime.InteropServices;
 
@@ -26,7 +24,8 @@ public readonly struct SequenceEquatableImmutableArray<T>(ImmutableArray<T> arra
         if (Array.Length != other.Array.Length)
             return false;
 
-        for (int i = 0; i < Array.Length; i++) {
+        for (int i = 0; i < Array.Length; i++)
+        {
             if (!EqualityComparer<T>.Default.Equals(Array[i], other.Array[i]))
                 return false;
         }
@@ -38,7 +37,8 @@ public readonly struct SequenceEquatableImmutableArray<T>(ImmutableArray<T> arra
     public override int GetHashCode()
     {
         HashCode hc = new();
-        for (int i = 0; i < Array.Length; i++) {
+        for (int i = 0; i < Array.Length; i++)
+        {
             hc.Add(Array[i]);
         }
         return hc.ToHashCode();

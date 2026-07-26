@@ -2,6 +2,7 @@
 using Trarizon.Library.CodeAnalysis.SourceGeneration.Internal;
 
 namespace Trarizon.Library.CodeAnalysis.SourceGeneration;
+
 partial class FriendAccessAnalyzer
 {
     static class Descriptors
