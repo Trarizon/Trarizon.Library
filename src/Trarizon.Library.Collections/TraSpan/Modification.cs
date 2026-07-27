@@ -9,8 +9,8 @@ public static partial class TraSpan
 {
     public static void MoveTo<T>(this Span<T> span, int fromIndex, int toIndex)
     {
-        Throws.ThrowIfIndexGreaterThanOrEqual(fromIndex, span.Length);
-        Throws.ThrowIfIndexGreaterThanOrEqual(toIndex, span.Length);
+        Throws.ThrowIfAsIndexGreaterThanOrEqual(fromIndex, span.Length);
+        Throws.ThrowIfAsIndexGreaterThanOrEqual(toIndex, span.Length);
 
         if (fromIndex == toIndex)
             return;

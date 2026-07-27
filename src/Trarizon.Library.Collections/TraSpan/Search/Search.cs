@@ -57,7 +57,7 @@ public static partial class TraSpan
 
     internal static int LinearSearchFromNear<T, TComparable>(ReadOnlySpan<T> span, int nearIndex, TComparable item) where TComparable : IComparable<T>
     {
-        Throws.ThrowIfIndexGreaterThanOrEqual(nearIndex, span.Length);
+        Throws.ThrowIfAsIndexGreaterThanOrEqual(nearIndex, span.Length);
         var cmp = item.CompareTo(span[nearIndex]);
         if (cmp == 0)
             return nearIndex;

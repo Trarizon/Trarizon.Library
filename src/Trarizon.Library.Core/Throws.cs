@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace Trarizon.Library;
 
-internal static class Throws
+internal static partial class Throws
 {
     public static void ThrowIfGreaterThan(int value, int other, [CallerArgumentExpression(nameof(value))] string name = "")
     {
@@ -35,18 +35,36 @@ internal static class Throws
 #endif
     }
 
-    [DoesNotReturn]
-    public static void ThrowInvalidOperation(string? message = null)
-        => throw new InvalidOperationException(message);
+    public static void ThrowIfGreaterThanOrEqual(int value, int other, [CallerArgumentExpression(nameof(value))] string name = "")
+    {
+#if NET8_0_OR_GREATER
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(value, other, name);
+#else
+        if (value >= other)
+            ThrowArgumentOutOfRange(name, value, $"Value must be less than '{other}'.");
+#endif
+    }
 
-    [DoesNotReturn]
-    public static void ThrowNotSupport(string? message = null)
-        => throw new NotSupportedException(message);
+    public static void ThrowIfAsIndexGreaterThanOrEqual(int value, int other, [CallerArgumentExpression(nameof(value))] string name = "")
+    {
+#if NET8_0_OR_GREATER
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual((uint)value, (uint)other, name);
+#else
+        if ((uint)value >= (uint)other)
+            ThrowArgumentOutOfRange(name, value, $"Value must be positive and less than '{other}'.");
+#endif
+    }
 
-    [DoesNotReturn]
-    public static void ThrowArgumentOutOfRange(string? paramName, object? value, string? message)
-        => throw new ArgumentOutOfRangeException(paramName, value, message);
-
+    public static void ThrowIfLessThan(int value, int other, [CallerArgumentExpression(nameof(value))] string name = "")
+    {
+#if NET8_0_OR_GREATER
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, other, name);
+#else
+        if (value < other)
+            ThrowArgumentOutOfRange(name, value, $"Value must be greater than or equal to '{other}'.");
+#endif
+    }
+    
     [DoesNotReturn]
     public static T UnknownEnumCase<T>(Enum value)
     {

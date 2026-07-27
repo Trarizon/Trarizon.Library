@@ -19,7 +19,7 @@ public readonly struct TriangularArray<T>
     {
         get
         {
-            Throws.ThrowIfIndexGreaterThanOrEqual(levelIndex, _level);
+            Throws.ThrowIfAsIndexGreaterThanOrEqual(levelIndex, _level);
             Throws.ThrowIfGreaterThan((uint)itemIndex, (uint)levelIndex);
 
             if (levelIndex == 0)
@@ -39,7 +39,7 @@ public readonly struct TriangularArray<T>
 
     public Span<T> AsLevelSpan(int levelIndex)
     {
-        Throws.ThrowIfIndexGreaterThanOrEqual(levelIndex, _level);
+        Throws.ThrowIfAsIndexGreaterThanOrEqual(levelIndex, _level);
 
         if (levelIndex == 0)
             return _array.AsSpan(0, 1);

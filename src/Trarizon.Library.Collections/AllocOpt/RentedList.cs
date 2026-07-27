@@ -39,12 +39,12 @@ public struct RentedList<T> : IDisposable
     {
         get
         {
-            Throws.ThrowIfIndexGreaterThanOrEqual(index, _count);
+            Throws.ThrowIfAsIndexGreaterThanOrEqual(index, _count);
             return _array[index];
         }
         set
         {
-            Throws.ThrowIfIndexGreaterThanOrEqual(index, _count);
+            Throws.ThrowIfAsIndexGreaterThanOrEqual(index, _count);
             _array[index] = value;
         }
     }
@@ -115,7 +115,7 @@ public struct RentedList<T> : IDisposable
 
     public void Insert(int index, T item)
     {
-        Throws.ThrowIfIndexGreaterThanOrEqual(index, _count);
+        Throws.ThrowIfAsIndexGreaterThanOrEqual(index, _count);
 
         EnsureArrayForInsertion(index, 1);
         _array[index] = item;
@@ -124,7 +124,7 @@ public struct RentedList<T> : IDisposable
 
     public void InsertRange(int index, IEnumerable<T> items)
     {
-        Throws.ThrowIfIndexGreaterThanOrEqual(index, _count);
+        Throws.ThrowIfAsIndexGreaterThanOrEqual(index, _count);
 
         if (items.TryGetNonEnumeratedCount(out var count))
         {
@@ -155,7 +155,7 @@ public struct RentedList<T> : IDisposable
 
     public void InsertRange(int index, ReadOnlySpan<T> items)
     {
-        Throws.ThrowIfIndexGreaterThanOrEqual(index, _count);
+        Throws.ThrowIfAsIndexGreaterThanOrEqual(index, _count);
 
         int count = items.Length;
         if (count <= 0)
@@ -192,7 +192,7 @@ public struct RentedList<T> : IDisposable
 
     public void RemoveAt(int index)
     {
-        Throws.ThrowIfIndexGreaterThanOrEqual(index, _count);
+        Throws.ThrowIfAsIndexGreaterThanOrEqual(index, _count);
 
         ArrayGrowHelper.ShiftLeftForRemoveAndFree(_array, _count, index, 1);
         _count--;

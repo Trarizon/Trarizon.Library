@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Trarizon.Library.Collections.Helpers;
+using Trarizon.Library.CompilerServices;
 
 namespace Trarizon.Library.Collections.StackAlloc;
 
@@ -47,7 +47,7 @@ public readonly ref partial struct ReversedSpan<T>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ref T DangerousGetReferenceAt(int index)
 #if NETSTANDARD
-        => ref Utility.GetReferenceAt(_span, Length - 1 - index);
+        => ref Internal.GetReferenceAt(_span, Length - 1 - index);
 #else
         => ref Unsafe.Subtract(ref _reference, index);
 #endif
@@ -95,7 +95,7 @@ public readonly ref partial struct ReversedSpan<T>
 
         for (int i = 0; i < Length; i++)
         {
-            Utility.GetReferenceAt(destination, i) = DangerousGetReferenceAt(i);
+            Internal.GetReferenceAt(destination, i) = DangerousGetReferenceAt(i);
         }
     }
 
@@ -106,7 +106,7 @@ public readonly ref partial struct ReversedSpan<T>
 
         for (int i = 0; i < Length; i++)
         {
-            Utility.GetReferenceAt(destination, i) = DangerousGetReferenceAt(i);
+            Internal.GetReferenceAt(destination, i) = DangerousGetReferenceAt(i);
         }
         return true;
     }

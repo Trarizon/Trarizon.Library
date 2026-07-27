@@ -193,7 +193,7 @@ public static partial class TraCollection
             internal TrackingScope(ListSortedModifier<T, TComparer> list, int index, T item)
             {
                 Debug.Assert(!typeof(T).IsValueType);
-                Throws.ThrowIfIndexGreaterThanOrEqual(index, list.List.Count);
+                Throws.ThrowIfAsIndexGreaterThanOrEqual(index, list.List.Count);
                 _list = list;
                 _index = index;
                 _item = item;

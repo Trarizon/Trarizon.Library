@@ -13,7 +13,7 @@ public static partial class TraMath
 
         public static T NormalizeUnclamped(T min, T max, T value)
             => min == max ? T.Zero : (value - min) / (max - min);
-    
+
         public static T Remap(T value, T fromMin, T fromMax, T toMin, T toMax)
             => (value - fromMin) / (fromMax - fromMin) * (toMax - toMin) + toMin;
     }
@@ -49,7 +49,7 @@ public static partial class TraMath
 
 #if NET7_0_OR_GREATER
 
-    extension<T>(T) where T : INumber<T>
+    extension<T>(T) where T : IComparisonOperators<T, T, bool>
     {
         public static void Sort(ref T left, ref T right)
         {
@@ -60,7 +60,7 @@ public static partial class TraMath
         public static (T Min, T Max) Sort(T left, T right)
             => left > right ? (right, left) : (left, right);
     }
-    
+
 #else
 
     extension(int)

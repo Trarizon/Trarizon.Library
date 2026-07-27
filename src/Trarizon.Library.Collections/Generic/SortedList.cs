@@ -16,12 +16,12 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
     {
         get
         {
-            Throws.ThrowIfIndexGreaterThanOrEqual(index, _count);
+            Throws.ThrowIfAsIndexGreaterThanOrEqual(index, _count);
             return _array[index];
         }
         set
         {
-            Throws.ThrowIfIndexGreaterThanOrEqual(index, _count);
+            Throws.ThrowIfAsIndexGreaterThanOrEqual(index, _count);
             _array[index] = value;
             NotifyEditedAt(index);
         }
@@ -159,7 +159,7 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
 
     public void RemoveAt(int index)
     {
-        Throws.ThrowIfIndexGreaterThanOrEqual(index, _count);
+        Throws.ThrowIfAsIndexGreaterThanOrEqual(index, _count);
 
         ArrayGrowHelper.ShiftLeftForRemoveAndFree(_array, _count, index, 1);
         _count--;
@@ -341,7 +341,7 @@ public sealed class SortedList<T> : IList<T>, IReadOnlyList<T>
         internal TrackingScope(SortedList<T> list, int index, T item)
         {
             Debug.Assert(!typeof(T).IsValueType);
-            Throws.ThrowIfIndexGreaterThanOrEqual(index, list.Count);
+            Throws.ThrowIfAsIndexGreaterThanOrEqual(index, list.Count);
             _list = list;
             _index = index;
             _item = item;

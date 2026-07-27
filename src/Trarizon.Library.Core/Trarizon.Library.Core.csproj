@@ -2,16 +2,18 @@
 
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0;netstandard2.1;net8.0;net9.0</TargetFrameworks>
+        <RootNamespace>Trarizon.Library</RootNamespace>
     </PropertyGroup>
 
-    <Import Project="..\..\UnitTest.props" />
     <Import Project="..\..\Nuget.props" />
     <PropertyGroup>
-        <Version>1.0.2</Version>
-        <Description>Trarizon's personal library, collections</Description>
+        <Version>1.1.0.13</Version>
+        <Description>Trarizon's personal library</Description>
     </PropertyGroup>
+
     <ItemGroup>
-        <InternalsVisibleTo Include="Trarizon.Library.Collections.Specialized" />
+        <InternalsVisibleTo Include="Trarizon.Library" />
+        <InternalsVisibleTo Include="Trarizon.Library.Collections" />
     </ItemGroup>
 
     <!-- Reference -->
@@ -25,44 +27,44 @@
 
     <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' Or '$(TargetFramework)' == 'netstandard2.1'">
         <PackageReference Include="System.Runtime.CompilerServices.Unsafe" />
-        <PackageReference Include="System.Collections.Immutable" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-        <PackageReference Include="Microsoft.Bcl.HashCode" />
+        <PackageReference Include="System.Threading.Tasks.Extensions" />
         <PackageReference Include="Microsoft.Bcl.Memory" />
         <PackageReference Include="System.Memory" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Trarizon.Library.Core\Trarizon.Library.Core.csproj" />
+        <None Update="TraDelegate.tt">
+            <Generator>TextTemplatingFileGenerator</Generator>
+            <LastGenOutput>TraDelegate.tt.g.cs</LastGenOutput>
+        </None>
     </ItemGroup>
 
-    <!-- End Reference -->
+    <ItemGroup>
+        <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+    </ItemGroup>
 
-    <!-- Polyfills -->
-    
+    <ItemGroup>
+        <Compile Update="TraDelegate.tt.g.cs">
+          <DesignTime>True</DesignTime>
+          <AutoGen>True</AutoGen>
+          <DependentUpon>TraDelegate.tt</DependentUpon>
+        </Compile>
+    </ItemGroup>
+
     <PropertyGroup Label="Polyfills">
         <PolySharpIncludeGeneratedTypes>
-            System.Diagnostics.StackTraceHiddenAttribute;
+            System.Diagnostics.CodeAnalysis.ExperimentalAttribute;
+            System.Runtime.CompilerServices.CallerArgumentExpressionAttribute;
 
-            System.Diagnostics.CodeAnalysis.DisallowNullAttribute;
             System.Diagnostics.CodeAnalysis.MaybeNullAttribute;
             System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute;
-            System.Diagnostics.CodeAnalysis.MemberNotNullAttribute;
-            System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute;
-            System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute;
-            System.Diagnostics.CodeAnalysis.NotNullWhenAttribute;
 
             System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute;
-            System.Diagnostics.CodeAnalysis.ExperimentalAttribute;
-
-            System.Runtime.CompilerServices.CollectionBuilderAttribute;
-            System.Runtime.CompilerServices.CallerArgumentExpressionAttribute;
-            System.Runtime.CompilerServices.OverloadResolutionPriorityAttribute;
+            System.Runtime.CompilerServices.IsExternalInit;
         </PolySharpIncludeGeneratedTypes>
     </PropertyGroup>
-
-    <!-- End Polyfills -->
 
 </Project>

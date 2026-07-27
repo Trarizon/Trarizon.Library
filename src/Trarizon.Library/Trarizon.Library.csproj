@@ -30,6 +30,10 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Trarizon.Library.Core\Trarizon.Library.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
         <None Update="TraDelegate.tt">
             <Generator>TextTemplatingFileGenerator</Generator>
             <LastGenOutput>TraDelegate.tt.g.cs</LastGenOutput>

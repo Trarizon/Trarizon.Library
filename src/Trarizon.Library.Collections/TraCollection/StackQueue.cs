@@ -16,7 +16,7 @@ public static partial class TraCollection
     public static T At<T>(this Queue<T> queue, int index)
     {
         var size = queue.Count;
-        Throws.ThrowIfIndexGreaterThanOrEqual(index, size);
+        Throws.ThrowIfAsIndexGreaterThanOrEqual(index, size);
 
         var array = UnsafeAccess<T>.GetArray(queue);
         var head = UnsafeAccess<T>.GetHead(queue);

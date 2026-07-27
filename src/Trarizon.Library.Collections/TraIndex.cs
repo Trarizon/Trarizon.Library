@@ -19,7 +19,7 @@ public static class TraIndex
     public static int GetCheckedOffset(this Index index, int length)
     {
         var offset = index.GetOffset(length);
-        Throws.ThrowIfIndexGreaterThanOrEqual(offset, length);
+        Throws.ThrowIfAsIndexGreaterThanOrEqual(offset, length);
         return offset;
     }
 
