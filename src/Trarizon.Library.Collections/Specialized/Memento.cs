@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Trarizon.Library.Collections.Helpers;
-using Trarizon.Library.Collections.StackAlloc;
+using Trarizon.Library.Memory;
 
 namespace Trarizon.Library.Collections.Specialized;
 

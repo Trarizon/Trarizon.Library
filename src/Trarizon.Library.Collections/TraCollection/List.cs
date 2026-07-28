@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Trarizon.Library.Collections.Helpers;
+using Trarizon.Library.Memory;
 
 namespace Trarizon.Library.Collections;
 

@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Trarizon.Library.Collections.Helpers;
+using Trarizon.Library.CompilerServices;
 
-namespace Trarizon.Library.Collections.StackAlloc;
+namespace Trarizon.Library.Memory;
 
 [method: MethodImpl(MethodImplOptions.AggressiveInlining)]
 public readonly ref struct ReadOnlyConcatSpan<T>(ReadOnlySpan<T> first, ReadOnlySpan<T> second)
@@ -23,7 +23,7 @@ public readonly ref struct ReadOnlyConcatSpan<T>(ReadOnlySpan<T> first, ReadOnly
         get
         {
             if (index < _first.Length)
-                return ref Utility.GetReferenceAt(_first, index);
+                return ref Internal.GetReferenceAt(_first, index);
             index -= _first.Length;
             // _second[index] will throw if out of range
             return ref _second[index];

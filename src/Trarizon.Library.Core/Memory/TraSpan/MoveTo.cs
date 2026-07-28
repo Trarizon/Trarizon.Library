@@ -1,9 +1,7 @@
 ﻿using System.Buffers;
 using System.Diagnostics;
-using Trarizon.Library.Collections.Buffers;
-using Trarizon.Library.Collections.Helpers;
 
-namespace Trarizon.Library.Collections;
+namespace Trarizon.Library.Memory;
 
 public static partial class TraSpan
 {
@@ -63,17 +61,33 @@ public static partial class TraSpan
 
             if (dist < length)
             {
-                using var b = ArrayPool<T>.Shared.RentAsSpan(dist, out var buffer);
-                span.Slice(from + length, dist).CopyTo(buffer);
-                span.Slice(from, length).CopyTo(span.Slice(to, length));
-                buffer.CopyTo(span.Slice(from, dist));
+                var array = ArrayPool<T>.Shared.Rent(dist);
+                try
+                {
+                    var buffer = array.AsSpan(..dist);
+                    span.Slice(from + length, dist).CopyTo(buffer);
+                    span.Slice(from, length).CopyTo(span.Slice(to, length));
+                    buffer.CopyTo(span.Slice(from, dist));
+                }
+                finally
+                {
+                    ArrayPool<T>.Shared.Return(array);
+                }
             }
             else
             {
-                using var b = ArrayPool<T>.Shared.RentAsSpan(length, out var buffer);
-                span.Slice(from, length).CopyTo(buffer);
-                span.Slice(from + length, dist).CopyTo(span.Slice(from, dist));
-                buffer.CopyTo(span.Slice(to, length));
+                var array = ArrayPool<T>.Shared.Rent(length);
+                try
+                {
+                    var buffer = array.AsSpan(..length);
+                    span.Slice(from, length).CopyTo(buffer);
+                    span.Slice(from + length, dist).CopyTo(span.Slice(from, dist));
+                    buffer.CopyTo(span.Slice(to, length));
+                }
+                finally
+                {
+                    ArrayPool<T>.Shared.Return(array);
+                }
             }
         }
     }

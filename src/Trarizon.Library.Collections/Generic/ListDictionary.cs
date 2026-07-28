@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Trarizon.Library.Collections.Helpers;
+using Trarizon.Library.Memory;
 
 #if NETSTANDARD
 #pragma warning disable CS8767
@@ -159,7 +160,7 @@ public class ListDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnly
         _count--;
     }
 
-    public void EnsureCapacty(int capacity)
+    public void EnsureCapacity(int capacity)
     {
         if (capacity <= _pairs.Length)
             return;

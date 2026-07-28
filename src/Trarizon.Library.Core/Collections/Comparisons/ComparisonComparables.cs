@@ -4,7 +4,7 @@
 
 using System.Runtime.CompilerServices;
 
-namespace Trarizon.Library.Collections.Comparers;
+namespace Trarizon.Library.Collections.Comparisons;
 
 /// <summary>
 /// A wrapper, if value == other, returns as value &lt; other, never return 0

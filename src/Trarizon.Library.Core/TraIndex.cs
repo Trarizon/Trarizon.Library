@@ -1,12 +1,11 @@
 ﻿using System.Runtime.CompilerServices;
-using Trarizon.Library.Collections.Helpers;
 
-namespace Trarizon.Library.Collections;
+namespace Trarizon.Library;
 
 public static class TraIndex
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void FlipNegative(ref int index)
+    internal static void FlipNegative(ref int index)
     {
         if (index < 0)
             index = ~index;

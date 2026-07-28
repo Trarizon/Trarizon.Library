@@ -6,17 +6,6 @@ namespace Trarizon.Library.Collections;
 
 internal static partial class Polyfills
 {
-    public static bool TryPop<T>(this Stack<T> stack, [MaybeNullWhen(false)] out T value)
-    {
-        if (stack.Count == 0)
-        {
-            value = default;
-            return false;
-        }
-        value = stack.Pop();
-        return true;
-    }
-
     public static bool TryPeek<T>(this Stack<T> stack, [MaybeNullWhen(false)] out T value)
     {
         if (stack.Count == 0)

@@ -4,7 +4,7 @@
 
 using System.Runtime.CompilerServices;
 
-namespace Trarizon.Library.Collections.Comparers;
+namespace Trarizon.Library.Collections.Comparisons;
 
 public readonly struct ComparerComparable<T, TComparer>(T value, TComparer comparer) : IComparable<T> where TComparer : IComparer<T>
 {

@@ -1,9 +1,19 @@
-﻿using Trarizon.Library.Collections.Comparers;
+﻿using Trarizon.Library.Collections.Comparisons;
 
-namespace Trarizon.Library.Collections;
+namespace Trarizon.Library.Memory;
 
 public static partial class TraSpan
 {
+    public static bool Contains<T, TEquatable>(this ReadOnlySpan<T> span, TEquatable value) where TEquatable : IEquatable<T>
+    {
+        foreach (var item in span)
+        {
+            if (value.Equals(item))
+                return true;
+        }
+        return false;
+    }
+
     public static int FindIndex<T, TArgs>(this ReadOnlySpan<T> span, TArgs args, Func<T, TArgs, bool> predicate)
     {
         for (int i = 0; i < span.Length; i++)

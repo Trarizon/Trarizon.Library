@@ -1,5 +1,5 @@
 ﻿using FluentAssertions;
-using Trarizon.Library.Collections.StackAlloc;
+using Trarizon.Library.Memory;
 
 namespace Trarizon.Test.UnitTests.Collections;
 

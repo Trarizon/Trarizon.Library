@@ -1,7 +1,6 @@
-﻿using Trarizon.Library.Collections.Comparers;
-using Trarizon.Library.Collections.Helpers;
+﻿using Trarizon.Library.Collections.Comparisons;
 
-namespace Trarizon.Library.Collections;
+namespace Trarizon.Library.Memory;
 
 public static partial class TraSpan
 {
@@ -9,13 +8,33 @@ public static partial class TraSpan
         => LinearSearch(span, new ComparerComparable<T, TComparer>(item, comparer));
 
     public static int LinearSearch<T, TComparable>(this ReadOnlySpan<T> span, TComparable item) where TComparable : IComparable<T>
-        => TraAlgorithm.LinearSearch(span, item);
+    {
+        for (int i = 0; i < span.Length; i++)
+        {
+            var res = item.CompareTo(span[i]);
+            if (res < 0)
+                return ~i;
+            if (res == 0)
+                return i;
+        }
+        return ~span.Length;
+    }
 
     public static int LinearSearchFromEnd<T, TComparer>(this ReadOnlySpan<T> span, T item, TComparer comparer) where TComparer : IComparer<T>
         => LinearSearchFromEnd(span, new ComparerComparable<T, TComparer>(item, comparer));
 
     public static int LinearSearchFromEnd<T, TComparable>(this ReadOnlySpan<T> span, TComparable item) where TComparable : IComparable<T>
-        => TraAlgorithm.LinearSearchFromEnd(span, item);
+    {
+        for (int i = span.Length - 1; i >= 0; i--)
+        {
+            var res = item.CompareTo(span[i]);
+            if (res > 0)
+                return ~(i + 1);
+            if (res == 0)
+                return i;
+        }
+        return ~0;
+    }
 
     internal static int BinarySearchRangePriority<T, TComparable>(ReadOnlySpan<T> span, Range priorRange, TComparable item) where TComparable : IComparable<T>
     {

@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using System.Runtime.CompilerServices;
+using Trarizon.Library.Memory;
 
 namespace Trarizon.Library.Collections;
 

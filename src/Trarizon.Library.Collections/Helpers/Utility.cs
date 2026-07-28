@@ -19,7 +19,7 @@ internal static class Utility
     internal static Span<T> AsSpan<T>(this List<T> list)
     {
 #if NETSTANDARD
-        return TraCollection.AsSpan(list);
+        return MemoryMarshal.AsSpan(list);
 #else
         return CollectionsMarshal.AsSpan(list);
 #endif

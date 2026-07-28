@@ -1,4 +1,5 @@
-﻿namespace Trarizon.Library.Collections.StackAlloc;
+﻿namespace Trarizon.Library.Memory;
+
 /// <summary>
 /// Stack allocated bitarray, use
 /// <c>new StackAllocBitArray(stackalloc byte[StackAllocBitArray.GetArrayLength(...)])</c>

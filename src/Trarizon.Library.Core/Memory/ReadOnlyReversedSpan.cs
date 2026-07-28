@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Trarizon.Library.CompilerServices;
 
-namespace Trarizon.Library.Collections.StackAlloc;
+namespace Trarizon.Library.Memory;
 
 public readonly ref struct ReadOnlyReversedSpan<T>
 {

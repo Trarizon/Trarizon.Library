@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Trarizon.Library.Collections.AllocOpt;
 using Trarizon.Library.Collections.Helpers;
-using Trarizon.Library.Collections.StackAlloc;
+using Trarizon.Library.Memory;
 
 namespace Trarizon.Library.Collections.Generic;
 

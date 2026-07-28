@@ -23,7 +23,7 @@ public static class CollectionBuilders
     public static ListDictionary<TKey, TValue> CreateListDictionary<TKey, TValue>(ReadOnlySpan<KeyValuePair<TKey, TValue>> values) where TKey : notnull
     {
         var dict = new ListDictionary<TKey, TValue>();
-        dict.EnsureCapacty(values.Length);
+        dict.EnsureCapacity(values.Length);
         foreach (var item in values)
         {
             dict.Add(item.Key, item.Value);

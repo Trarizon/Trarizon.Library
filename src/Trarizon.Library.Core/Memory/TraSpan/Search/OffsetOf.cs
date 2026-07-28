@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace Trarizon.Library.Collections;
+namespace Trarizon.Library.Memory;
 
 public static partial class TraSpan
 {

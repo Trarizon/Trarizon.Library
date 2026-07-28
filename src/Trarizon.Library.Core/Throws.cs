@@ -3,72 +3,39 @@ using System.Runtime.CompilerServices;
 
 namespace Trarizon.Library;
 
+#if NET6_0_OR_GREATER
+[System.Diagnostics.StackTraceHidden]
+#endif
 internal static partial class Throws
 {
-    public static void ThrowIfGreaterThan(int value, int other, [CallerArgumentExpression(nameof(value))] string name = "")
-    {
-#if NET8_0_OR_GREATER
-        ArgumentOutOfRangeException.ThrowIfGreaterThan(value, other, name);
-#else
-        if (value > other)
-            ThrowArgumentOutOfRange(name, value, $"Value must be less than or equal to '{other}'.");
-#endif
-    }
-
-    public static void ThrowIfGreaterThan(float value, float other, [CallerArgumentExpression(nameof(value))] string name = "")
-    {
-#if NET8_0_OR_GREATER
-        ArgumentOutOfRangeException.ThrowIfGreaterThan(value, other, name);
-#else
-        if (value > other)
-            ThrowArgumentOutOfRange(name, value, $"Value must be less than or equal to '{other}'.");
-#endif
-    }
-
-    public static void ThrowIfGreaterThan(double value, double other, [CallerArgumentExpression(nameof(value))] string name = "")
-    {
-#if NET8_0_OR_GREATER
-        ArgumentOutOfRangeException.ThrowIfGreaterThan(value, other, name);
-#else
-        if (value > other)
-            ThrowArgumentOutOfRange(name, value, $"Value must be less than or equal to '{other}'.");
-#endif
-    }
-
-    public static void ThrowIfGreaterThanOrEqual(int value, int other, [CallerArgumentExpression(nameof(value))] string name = "")
-    {
-#if NET8_0_OR_GREATER
-        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(value, other, name);
-#else
-        if (value >= other)
-            ThrowArgumentOutOfRange(name, value, $"Value must be less than '{other}'.");
-#endif
-    }
-
-    public static void ThrowIfAsIndexGreaterThanOrEqual(int value, int other, [CallerArgumentExpression(nameof(value))] string name = "")
-    {
-#if NET8_0_OR_GREATER
-        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual((uint)value, (uint)other, name);
-#else
-        if ((uint)value >= (uint)other)
-            ThrowArgumentOutOfRange(name, value, $"Value must be positive and less than '{other}'.");
-#endif
-    }
-
-    public static void ThrowIfLessThan(int value, int other, [CallerArgumentExpression(nameof(value))] string name = "")
-    {
-#if NET8_0_OR_GREATER
-        ArgumentOutOfRangeException.ThrowIfLessThan(value, other, name);
-#else
-        if (value < other)
-            ThrowArgumentOutOfRange(name, value, $"Value must be greater than or equal to '{other}'.");
-#endif
-    }
-    
     [DoesNotReturn]
     public static T UnknownEnumCase<T>(Enum value)
     {
         ThrowInvalidOperation($"Unknown enum value '{value}'");
         return default!;
     }
+
+    [DoesNotReturn]
+    public static void KeyNotFound(object key, string collectionName)
+        => ThrowKeyNotFound($"The given key '{key}' is not present in {collectionName}.");
+
+    [DoesNotReturn]
+    public static void KeyNotFound<T>(ReadOnlySpan<T> key, string collectionName)
+        => ThrowKeyNotFound($"The given key '{key.ToString()}' is not present in {collectionName}.");
+
+    [DoesNotReturn]
+    public static void KeyAlreadyExists(object key, string collectionName, [CallerArgumentExpression(nameof(key))] string paramName = "")
+        => ThrowArgument($"Key '{key}' is already existing in collection.", paramName);
+
+    [DoesNotReturn]
+    public static void CollectionIsEmpty(string collectionName) => ThrowInvalidOperation($"{collectionName} is empty.");
+
+    [DoesNotReturn]
+    public static void CollectionModifiedDuringEnumeration()
+        => throw new InvalidOperationException("Collection was modified during enumeration.");
+
+    [DoesNotReturn]
+    public static void IncompatibleAlternateComparer()
+        => ThrowInvalidOperation("Incompatible alternate comparer");
+
 }
