@@ -1,7 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Trarizon.Library.Functional;
 
 namespace Trarizon.Library.Roslyn.CSharp;
 
@@ -42,8 +41,7 @@ public static partial class CodeFactory
                 var modifiers = syntax.Modifiers.ToString();
                 var type = symbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
                 var name = symbol.Name;
-                var defaultValue = Optional.Create<object?>(symbol.HasExplicitDefaultValue, symbol.ExplicitDefaultValue);
-                return (modifiers, type, name, defaultValue);
+                return (modifiers, type, name, hasDefault: symbol.HasExplicitDefaultValue, defaultValue: symbol.ExplicitDefaultValue);
             });
         var constraints = symbol.TypeParameters
             .Join(syntax.ConstraintClauses, sym => sym.Name, syn => syn.Name.Identifier.Text, static (symbol, syntax) =>
@@ -54,9 +52,9 @@ public static partial class CodeFactory
         // Get String
         var prms = parameters.Select(p =>
         {
-            var (modifiers, type, name, defaultValue) = p;
+            var (modifiers, type, name, hasDefault, defaultValue) = p;
             var mod = string.IsNullOrEmpty(modifiers) ? null : $"{modifiers} ";
-            var def = defaultValue.Select(x => $" = {(x is null ? "default" : Literal(x))}").GetValueOrDefault();
+            var def = hasDefault ? $" = {(defaultValue is null ? "default" : Literal(defaultValue))}" : null;
             return $"{mod}{type} {name}{def}";
         });
         var intf = explicitInterface is not null ? $"{explicitInterface}." : null;

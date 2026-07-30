@@ -2,11 +2,15 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <DefineConstants>$(DefineConstants);LATEST_ROSLYN</DefineConstants>
+        <!-- <DefineConstants>$(DefineConstants);LATEST_ROSLYN</DefineConstants> -->
     </PropertyGroup>
 
     <PropertyGroup Condition="!$(DefineConstants.Contains(LATEST_ROSLYN))">
         <AssemblyName>Trarizon.Library.Roslyn410</AssemblyName>
+    </PropertyGroup>
+    <PropertyGroup Condition="$(DefineConstants.Contains(LATEST_ROSLYN))">
+        <AssemblyName>Trarizon.Library.Roslyn</AssemblyName>
+        <DefineConstants>$(DefineConstants);IMMUTABLE_MARSHAL</DefineConstants>
     </PropertyGroup>
 
     <Import Project="..\..\Nuget.props" />
@@ -35,9 +39,6 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="System.Memory" />
-        <PackageReference Include="Trarizon.Library.Functional" />
-        <PackageReference Include="Trarizon.Library.Linq" />
     </ItemGroup>
 
     <ItemGroup>

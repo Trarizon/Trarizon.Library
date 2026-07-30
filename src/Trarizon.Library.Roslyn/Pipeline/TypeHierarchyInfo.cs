@@ -1,6 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Trarizon.Library.Linq;
 
 namespace Trarizon.Library.Roslyn.Pipeline;
 /// <summary>
@@ -42,7 +41,8 @@ public sealed record class TypeHierarchyInfo
 
         var types = syntax
             .AncestorsAndSelf()
-            .OfTypeWhile<TypeDeclarationSyntax>()
+            .TakeWhile(x => x is TypeDeclarationSyntax)
+            .Cast<TypeDeclarationSyntax>()
             .Select(type =>
             {
                 var keyword = type is RecordDeclarationSyntax rcd
@@ -52,9 +52,11 @@ public sealed record class TypeHierarchyInfo
             })
             .ToArray();
 
-        TypeHierarchyInfo res = types.First();
-        foreach (var (l, r) in types.Adjacent())
+        TypeHierarchyInfo res = types[0];
+        for (int i = 1; i < types.Length; i++)
         {
+            var l = types[i - 1];
+            var r = types[i];
             l.Parent = r;
         }
         return res;

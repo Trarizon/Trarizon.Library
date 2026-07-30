@@ -23,7 +23,14 @@ public sealed record DiagnosticData
         MessageArgs = messageArgs;
     }
 
-    public Diagnostic ToDiagnostic() => Diagnostic.Create(Descriptor, string.IsNullOrEmpty(FilePath) ? null : Location.Create(FilePath!, TextSpan, LineSpan), ImmutableCollectionsMarshal.AsArray(MessageArgs.Array));
+    public Diagnostic ToDiagnostic() => Diagnostic.Create(
+        Descriptor, string.IsNullOrEmpty(FilePath) ? null : Location.Create(FilePath!, TextSpan, LineSpan),
+#if IMMUTABLE_MARSHAL
+        ImmutableCollectionsMarshal.AsArray(MessageArgs.Array)
+#else
+        MessageArgs.ToArray()
+#endif
+    );
 
     public DiagnosticData(DiagnosticDescriptor descriptor, SyntaxNode? syntax, ImmutableArray<object?> messageArgs) :
         this(descriptor, syntax?.SyntaxTree?.FilePath, syntax?.Span ?? default, syntax?.SyntaxTree?.GetLineSpan(syntax.Span).Span ?? default, messageArgs)

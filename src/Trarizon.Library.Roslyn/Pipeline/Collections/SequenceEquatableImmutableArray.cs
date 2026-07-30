@@ -19,8 +19,10 @@ public readonly struct SequenceEquatableImmutableArray<T>(ImmutableArray<T> arra
 
     public bool Equals(SequenceEquatableImmutableArray<T> other)
     {
+#if IMMUTABLE_MARSHAL
         if (ReferenceEquals(ImmutableCollectionsMarshal.AsArray(Array), ImmutableCollectionsMarshal.AsArray(other.Array)))
             return true;
+#endif
         if (Array.Length != other.Array.Length)
             return false;
 

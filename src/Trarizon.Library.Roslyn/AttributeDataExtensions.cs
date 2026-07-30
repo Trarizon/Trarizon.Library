@@ -1,9 +1,7 @@
-﻿using System.Collections.Immutable;
+﻿using Microsoft.CodeAnalysis;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
-using Trarizon.Library.Functional;
-using AttributeData = Microsoft.CodeAnalysis.AttributeData;
-using TypedConstant = Microsoft.CodeAnalysis.TypedConstant;
 
 namespace Trarizon.Library.Roslyn;
 
@@ -44,7 +42,7 @@ public static class AttributeDataExtensions
         }
         else
         {
-            return [];
+            return ImmutableArray<T>.Empty;
         }
     }
 
@@ -57,13 +55,22 @@ public static class AttributeDataExtensions
     {
         var arr = constant.Values;
         if (arr is [])
-            return [];
+            return ImmutableArray<T>.Empty;
 
+#if IMMUTABLE_MARSHAL
         var values = new T[arr.Length];
         for (int i = 0; i < arr.Length; i++)
         {
             values[i] = arr[i].CastValue<T>();
         }
         return ImmutableCollectionsMarshal.AsImmutableArray(values);
+#else
+        var builder = ImmutableArray.CreateBuilder<T>(arr.Length);
+        for (int i = 0; i < arr.Length; i++)
+        {
+            builder.Add(arr[i].CastValue<T>());
+        }
+        return builder.MoveToImmutable();
+#endif
     }
 }
