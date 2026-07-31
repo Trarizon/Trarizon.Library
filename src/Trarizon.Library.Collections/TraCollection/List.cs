@@ -7,12 +7,6 @@ namespace Trarizon.Library.Collections;
 
 public static partial class TraCollection
 {
-    public static ref T AtRef<T>(this List<T> list, int index)
-        => ref list.AsSpan()[index];
-
-    public static T[] GetUnderlyingArray<T>(List<T> list)
-        => UnsafeAccess<T>.GetItems(list);
-
     public static void ReplaceAll<T>(this List<T> list, ReadOnlySpan<T> span)
     {
 #if NET8_0_OR_GREATER
@@ -22,29 +16,6 @@ public static partial class TraCollection
         list.Clear();
         list.AddRange(span);
 #endif
-    }
-
-    public static void AddRange<T>(this List<T> list, ReadOnlySpan<T> span)
-    {
-#if NET8_0_OR_GREATER
-        var oldCount = list.Count;
-        CollectionsMarshal.SetCount(list, oldCount + span.Length);
-        span.CopyTo(list.AsSpan().Slice(oldCount, span.Length));
-#else
-        list.EnsureCapacity(list.Count + span.Length);
-        foreach (var item in span) {
-            list.Add(item);
-        }
-#endif
-    }
-
-    public static void RemoveAt<T>(this List<T> list, Index index)
-        => list.RemoveAt(index.GetOffset(list.Count));
-
-    public static void RemoveRange<T>(this List<T> list, Range range)
-    {
-        var (off, len) = range.GetOffsetAndLength(list.Count);
-        list.RemoveRange(off, len);
     }
 
     public static void MoveTo<T>(this List<T> list, int fromIndex, int toIndex)

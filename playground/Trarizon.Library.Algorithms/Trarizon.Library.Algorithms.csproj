@@ -8,4 +8,8 @@
     <PackageReference Include="CommunityToolkit.Diagnostics" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Trarizon.Library.Collections\Trarizon.Library.Collections.csproj" />
+  </ItemGroup>
+
 </Project>
