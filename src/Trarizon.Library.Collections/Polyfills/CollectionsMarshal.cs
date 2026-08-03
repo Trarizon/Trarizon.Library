@@ -1,16 +1,15 @@
 ﻿using System.Runtime.InteropServices;
+using Trarizon.Library.Collections;
 
-namespace Trarizon.Library.Collections;
+namespace System.Runtime.InteropServices;
 
 #if NETSTANDARD
 
-internal static partial class Polyfills
+static class CollectionsMarshal
 {
-    extension(MemoryMarshal)
-    {
         public static Span<T> AsSpan<T>(List<T> list)
             => TraCollection.UnsafeAccess<T>.GetItems(list).AsSpan(0, list.Count);
-    }
+
 }
 
 #endif

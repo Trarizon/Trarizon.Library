@@ -12,7 +12,7 @@ public static partial class TraCollection
 #if NET8_0_OR_GREATER
         var oldCount = list.Count;
         CollectionsMarshal.SetCount(list, oldCount + span.Length);
-        span.CopyTo(list.AsSpan().Slice(oldCount, span.Length));
+        span.CopyTo(CollectionsMarshal.AsSpan(list).Slice(oldCount, span.Length));
 #else
         list.EnsureCapacity(list.Count + span.Length);
         foreach (var item in span)
@@ -37,7 +37,7 @@ public static partial class TraCollection
 
     public static T? Find<T, TState>(this List<T> list, TState state, Func<T, TState, bool> predicate)
     {
-        var span = MemoryMarshal.AsSpan(list);
+        var span = CollectionsMarshal.AsSpan(list);
 
         foreach (var item in span)
         {
@@ -49,7 +49,7 @@ public static partial class TraCollection
 
     public static T? FindLast<T, TState>(this List<T> list, TState state, Func<T, TState, bool> predicate)
     {
-        var span = MemoryMarshal.AsSpan(list).AsReversed();
+        var span = CollectionsMarshal.AsSpan(list).AsReversed();
         foreach (var item in span)
         {
             if (predicate(item, state))
@@ -60,7 +60,7 @@ public static partial class TraCollection
 
     public static void ForEach<T, TState>(this List<T> list, TState state, Action<T, TState> action)
     {
-        var span = MemoryMarshal.AsSpan(list);
+        var span = CollectionsMarshal.AsSpan(list);
         foreach (var item in span)
         {
             action(item, state);

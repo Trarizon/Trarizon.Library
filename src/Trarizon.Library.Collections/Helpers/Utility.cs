@@ -18,11 +18,7 @@ internal static class Utility
     /// </remarks>
     internal static Span<T> AsSpan<T>(this List<T> list)
     {
-#if NETSTANDARD
-        return MemoryMarshal.AsSpan(list);
-#else
         return CollectionsMarshal.AsSpan(list);
-#endif
     }
 
     internal static bool TryGetSpan<T>(this IEnumerable<T> source, out ReadOnlySpan<T> span)
