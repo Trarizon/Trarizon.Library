@@ -37,6 +37,7 @@ partial class TypeUnionGenerator
         using (writer.EmitCSharpTypeHierarchy(data.TypeHierarchy.Parent, partial: true))
         {
             writer.WriteLine(Utils.GeneratedCodeAttributeList);
+            writer.WriteLine($"[global::System.Runtime.InteropServices.StructLayout(global::System.Runtime.InteropServices.LayoutKind.Auto)]");
             writer.WriteLine($"{refLike}partial {data.TypeHierarchy.Keywords} {data.TypeHierarchy.Name}");
 
             using (writer.EnterBracketIndentScope('{'))
@@ -233,9 +234,8 @@ partial class TypeUnionGenerator
         {
             foreach (var variant in data.Variants.Where(v => v.TypeKind.IsUnmanaged()))
             {
-                var @unsafe = variant.TypeKind is VariantTypeKind.Pointer ? "unsafe " : "";
                 writer.WriteLine($"[global::System.Runtime.InteropServices.FieldOffset(0)]");
-                writer.WriteLine($"public {@unsafe}{variant.FieldTypeFQName} _{variant.FieldId};");
+                writer.WriteLine($"public {variant.FieldTypeFQName} _{variant.FieldId};");
             }
         }
     }

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -19,12 +20,32 @@ RunBenchmarks();
 var newA = new A();
 var d = newA.IsNull;
 
-[TypeUnion(typeof(int), typeof(string), typeof(long*), typeof(ReadOnlySpan<char>))]
+[TypeUnion(typeof(void), typeof(int), typeof(string), typeof(long*), typeof(ReadOnlySpan<char>), typeof(JsonElement))]
 partial struct A
 {
-    IntPtr _field;
+    public int Value
+    {
+        get
+        {
+            if (this.IsExactly<int>())
+            {
+                return this.As<int>();
+            }
+            return (int)__um_flag;
+        }
+    }
 }
 
+[StructLayout(LayoutKind.Auto)]
+partial struct B
+{
+     int b;
+}
+
+partial struct B
+{
+     int bb;
+}
 
 namespace LightVNTool
 {

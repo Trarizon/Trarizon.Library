@@ -27,7 +27,7 @@ sealed record VariantData(
     }
 }
 
-enum VariantTypeKind { Managed, Reference, Unmanaged, Pointer, }
+enum VariantTypeKind { Managed, Reference, Unmanaged, Pointer, Void, }
 
 static partial class DataExtensions
 {
