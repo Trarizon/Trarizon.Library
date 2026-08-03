@@ -15,6 +15,7 @@
     <Project Path="src/Trarizon.Library.CodeAnalysis.SourceGeneration/Trarizon.Library.CodeAnalysis.SourceGeneration.csproj" Id="da8c0c3b-6451-4ae2-9560-1869b3f567df" />
     <Project Path="src/Trarizon.Library.CodeAnalysis/Trarizon.Library.CodeAnalysis.csproj" Id="65311f88-d657-41e5-8a47-aa6a9b945e5b" />
     <Project Path="src/Trarizon.Library.Collections/Trarizon.Library.Collections.csproj" />
+    <Project Path="src/Trarizon.Library.Functional.Generators/Trarizon.Library.Functional.Generators.csproj" />
     <Project Path="src/Trarizon.Library.Functional.SourceGeneration/Trarizon.Library.Functional.SourceGeneration.csproj" Id="30cfa818-c34c-4ccc-bef6-979b6b9aaff5" />
     <Project Path="src/Trarizon.Library.Functional/Trarizon.Library.Functional.csproj" />
     <Project Path="src/Trarizon.Library.Linq/Trarizon.Library.Linq.csproj" Id="ee0a98e9-d457-4830-a9e9-b20b158bad65" />

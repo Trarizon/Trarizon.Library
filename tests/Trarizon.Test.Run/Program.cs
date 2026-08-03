@@ -4,7 +4,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -14,20 +16,27 @@ using Trarizon.Library.Playground.Interpreting.TypeScript;
 
 RunBenchmarks();
 
-[TypeUnion<int, string>]
+var newA = new A();
+var d = newA.IsNull;
+
+[TypeUnion(typeof(int), typeof(string), typeof(long*), typeof(ReadOnlySpan<char>))]
 partial struct A
 {
-    
+    IntPtr _field;
 }
+
 
 namespace LightVNTool
 {
+    static
     class Program
     {
         public static void _Main(string[] args)
         {
-            try {
-                if (args.Length < 2) {
+            try
+            {
+                if (args.Length < 2)
+                {
                     Console.WriteLine("Usage: LightVNTool.exe -u <Unpack mcdat files folder>");
                     Console.WriteLine("LightVNTool.exe -p <Repack output folder>");
                     Console.WriteLine("LightVNTool.exe -patch <Path to Patch folder>");
@@ -38,17 +47,21 @@ namespace LightVNTool
                 string inDir = args[1];
 
                 var mcdat = new Mcdat();
-                if (mode == "-u") {
+                if (mode == "-u")
+                {
                     mcdat.Unpack(inDir);
                 }
-                else if (mode == "-p") {
+                else if (mode == "-p")
+                {
                     mcdat.Repack(inDir);
                 }
-                else if (mode == "-patch") {
+                else if (mode == "-patch")
+                {
                     mcdat.MakePatch(inDir);
                 }
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 Console.WriteLine(ex.Message);
             }
         }
@@ -75,18 +88,21 @@ namespace LightVNTool
             var outDir = Path.Combine(indir, "output");
             if (!Directory.Exists(outDir)) Directory.CreateDirectory(outDir);
 
-            if (!Directory.Exists(indir)) {
+            if (!Directory.Exists(indir))
+            {
                 Console.WriteLine($"Not Found {indir}");
                 return;
             }
 
             string NameListPath = Path.Combine(indir, "0.mcdat");
-            if (File.Exists(NameListPath)) {
+            if (File.Exists(NameListPath))
+            {
                 var decNameList = XorZeroMcdat(File.ReadAllBytes(NameListPath));
                 File.WriteAllBytes(Path.Combine(outDir, "0.mcdat.json"), decNameList);
                 FileNameList = ParseJson(decNameList);
             }
-            else {
+            else
+            {
                 IfRecoverName = false;
                 Console.WriteLine($"Failed to read 0.mcdat. FileName will not recover");
             }
@@ -94,18 +110,22 @@ namespace LightVNTool
             var mcdatFiles = Directory.GetFiles(indir, "*.mcdat");
             int Count = 1;
 
-            foreach (var mc in mcdatFiles) {
+            foreach (var mc in mcdatFiles)
+            {
                 var name = Path.GetFileName(mc);
                 string outPath;
 
-                if (IfRecoverName && FileNameList.TryGetValue(name, out var relativePath)) {
+                if (IfRecoverName && FileNameList.TryGetValue(name, out var relativePath))
+                {
                     outPath = Path.Combine(outDir, relativePath);
                 }
-                else {
+                else
+                {
                     outPath = Path.Combine(outDir, name);
                 }
 
-                if (!name.Equals("0.mcdat")) {
+                if (!name.Equals("0.mcdat"))
+                {
                     Directory.CreateDirectory(Path.GetDirectoryName(outPath)!);
                     byte[] decFileData = XorMcdat(File.ReadAllBytes(mc));
                     File.WriteAllBytes(outPath, decFileData);
@@ -120,19 +140,22 @@ namespace LightVNTool
             bool ProcessName = true;
 
             var outDir = Path.Combine(Directory.GetParent(inDir)?.FullName ?? inDir, "Newmcdat");
-            if (!Directory.Exists(outDir)) {
+            if (!Directory.Exists(outDir))
+            {
                 Directory.CreateDirectory(outDir);
             }
 
             string NameListPath = Path.Combine(inDir, "0.mcdat.json");
-            if (File.Exists(NameListPath)) {
+            if (File.Exists(NameListPath))
+            {
                 var jsonData = File.ReadAllBytes(NameListPath);
                 var filemap = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonData, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
                 FileNameList = filemap.ToDictionary(kvp => kvp.Key, kvp => Path.GetFileName(kvp.Value));
                 var encData = XorZeroMcdat(jsonData);
                 File.WriteAllBytes(Path.Combine(outDir, "0.mcdat"), encData);
             }
-            else {
+            else
+            {
                 ProcessName = false;
             }
 
@@ -140,14 +163,17 @@ namespace LightVNTool
             var filesList = Directory.GetFiles(inDir, "*", SearchOption.AllDirectories)
                                      .Where(f => !Path.GetFileName(f).Equals("0.mcdat.json", StringComparison.OrdinalIgnoreCase));
 
-            foreach (var filepath in filesList) {
+            foreach (var filepath in filesList)
+            {
                 string relativePath = Path.GetRelativePath(inDir, filepath).Replace('\\', '/').ToLower();
                 string FileName;
 
-                if (ProcessName && FileNameList.TryGetValue(relativePath, out var name)) {
+                if (ProcessName && FileNameList.TryGetValue(relativePath, out var name))
+                {
                     FileName = name;
                 }
-                else {
+                else
+                {
                     FileName = Path.GetFileName(filepath);
                 }
 
@@ -165,17 +191,20 @@ namespace LightVNTool
         public void MakePatch(string inDir)
         {
             var outDir = Path.Combine(Directory.GetParent(inDir)?.FullName ?? inDir, "Patch");
-            if (!Directory.Exists(outDir)) {
+            if (!Directory.Exists(outDir))
+            {
                 Directory.CreateDirectory(outDir);
             }
 
             string NameListPath = Path.Combine(inDir, "0.mcdat.json");
-            if (File.Exists(NameListPath)) {
+            if (File.Exists(NameListPath))
+            {
                 var jsonData = File.ReadAllBytes(NameListPath);
                 var filemap = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonData, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
                 FileNameList = filemap.ToDictionary(kvp => kvp.Key, kvp => Path.GetFileName(kvp.Value));
             }
-            else {
+            else
+            {
                 Console.WriteLine($"Cannot Read 0.mcdat.json, Make Patch Failed");
                 return;
             }
@@ -185,13 +214,16 @@ namespace LightVNTool
             var filesList = Directory.GetFiles(inDir, "*", SearchOption.AllDirectories)
                          .Where(f => !Path.GetFileName(f).Equals("0.mcdat.json", StringComparison.OrdinalIgnoreCase));
 
-            foreach (var filepath in filesList) {
+            foreach (var filepath in filesList)
+            {
                 string relativePath = Path.GetRelativePath(inDir, filepath).Replace('\\', '/').ToLower();
                 string FileName;
-                if (FileNameList.TryGetValue(relativePath, out var name)) {
+                if (FileNameList.TryGetValue(relativePath, out var name))
+                {
                     FileName = name;
                 }
-                else {
+                else
+                {
                     FileName = $"Patch{count}.mcdat";
                 }
 
@@ -218,7 +250,8 @@ namespace LightVNTool
             int idx_j = encdata.Length;
             int idx_i = 0;
 
-            for (int i = 0; i < encdata.Length; i++) {
+            for (int i = 0; i < encdata.Length; i++)
+            {
                 byte stream = KEY[i % KEY.Length];
                 buffer[idx_i] ^= stream;
                 buffer[idx_j] ^= stream;
@@ -233,18 +266,22 @@ namespace LightVNTool
         {
             byte[] reversedKey = KEY.Reverse().ToArray();
 
-            if (buffer.Length < 100) {
+            if (buffer.Length < 100)
+            {
                 if (buffer.Length > 0)
                     return XorZeroMcdat(buffer);
                 return buffer;
             }
-            else {
-                for (int i = 0; i < 100; i++) {
+            else
+            {
+                for (int i = 0; i < 100; i++)
+                {
                     buffer[i] ^= KEY[i % KEY.Length];
                 }
 
                 int index = buffer.Length - 99;
-                for (int i = 0; i < 99; i++) {
+                for (int i = 0; i < 99; i++)
+                {
                     buffer[i + index] ^= reversedKey[i % reversedKey.Length];
                 }
             }
@@ -258,10 +295,12 @@ namespace LightVNTool
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
             var fileMap = JsonSerializer.Deserialize<Dictionary<string, string>>(data, options);
             var result = new Dictionary<string, string>();
-            if (fileMap == null) {
+            if (fileMap == null)
+            {
                 throw new InvalidDataException("Json Parse Failed");
             }
-            foreach (var item in fileMap) {
+            foreach (var item in fileMap)
+            {
                 string encFileName = Path.GetFileName(item.Value);
                 result[encFileName] = item.Key;
             }

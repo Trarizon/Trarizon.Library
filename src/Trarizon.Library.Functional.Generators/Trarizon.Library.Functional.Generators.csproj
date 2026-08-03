@@ -15,8 +15,8 @@
         </PackageReference>
         <PackageReference Include="Trarizon.Library.Functional" PrivateAssets="all" GeneratePathProperty="true" />
         <PackageReference Include="Trarizon.Library.Linq" PrivateAssets="all" GeneratePathProperty="true" />
-        <PackageReference Include="System.Memory" PrivateAssets="all" GeneratePathProperty="true" />
         <PackageReference Include="Trarizon.Library.Roslyn" PrivateAssets="all" GeneratePathProperty="true" />
+        <PackageReference Include="System.Memory" PrivateAssets="all" GeneratePathProperty="true" />
     </ItemGroup>
 
     <!-- <ItemGroup>

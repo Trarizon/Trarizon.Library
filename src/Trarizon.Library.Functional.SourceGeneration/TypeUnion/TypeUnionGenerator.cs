@@ -414,6 +414,10 @@ internal sealed partial class TypeUnionGenerator : IIncrementalGenerator
                 }
                 writer.WriteLine("return false;");
             }
+            object obj = null!;
+
+
+            var ct = obj as CancellationToken?;
         }
 
         private void EmitSharedInterfaceMethods()
