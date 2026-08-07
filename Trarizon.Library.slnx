@@ -11,6 +11,9 @@
     <File Path="THIRD-PARTY-LICENSES.md" />
     <File Path="UnitTest.props" />
   </Folder>
+  <Folder Name="/Solution Items/Tools/">
+    <File Path="tools/build-functional.ps1" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/Trarizon.Library.CodeAnalysis.SourceGeneration/Trarizon.Library.CodeAnalysis.SourceGeneration.csproj" Id="da8c0c3b-6451-4ae2-9560-1869b3f567df" />
     <Project Path="src/Trarizon.Library.CodeAnalysis/Trarizon.Library.CodeAnalysis.csproj" Id="65311f88-d657-41e5-8a47-aa6a9b945e5b" />

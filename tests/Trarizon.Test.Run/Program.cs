@@ -3,6 +3,7 @@
 //#:package Newtonsoft.Json@13.0.4
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -13,34 +14,39 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Trarizon.Library.Functional;
 using Trarizon.Library.Functional.Unions;
-using Trarizon.Library.Playground.Interpreting.TypeScript;
 
 RunBenchmarks();
 
-var newA = new A();
-var d = newA.IsNull;
+Optional.Of("").Cast<int>();
 
 unsafe void A<T>() where T : unmanaged, allows ref struct
 {
     ReadOnlySpan<char>* span;
 }
 
-[TypeUnion(typeof(void), typeof(int), typeof(string), typeof(long*), typeof(ReadOnlySpan<char>*), typeof(JsonElement))]
-partial struct A
+/// Test type union of <see cref="global::System.Span{char}"/> type
+/// </summary>
+[TypeUnion(typeof(void), typeof(int?), typeof(string), typeof(IEnumerable), typeof(JsonElement), typeof(int), typeof(decimal),
+    typeof(Span<IEnumerable<char>>), typeof(void*), typeof(string*), typeof(ReadOnlySpan<char>*), typeof(int**))]
+partial struct U
 {
-    public int Value
-    {
-        get
-        {
-            if (this.IsExactly<int>())
-            {
-                return this.As<int>();
-            }
-            return (int)__um_flag;
-        }
-    }
+    /// <summary>
+    /// haha <c>T*</c>
+    /// <paramref name="type"/>
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public void A<T>(Type type) { }
 }
 
+// struct Span<T>
+// {
+
+// }
+
+ref struct Abbb
+{
+    public int Value;
+}
 [StructLayout(LayoutKind.Auto)]
 partial struct B
 {

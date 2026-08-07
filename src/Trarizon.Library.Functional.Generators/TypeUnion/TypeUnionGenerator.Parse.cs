@@ -1,7 +1,6 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Collections.Immutable;
-using Trarizon.Library.Linq;
 using Trarizon.Library.Roslyn;
 using Trarizon.Library.Roslyn.CSharp;
 using Trarizon.Library.Roslyn.Pipeline;
@@ -55,7 +54,7 @@ partial class TypeUnionGenerator
         var readableNameMap = new Dictionary<string, int>();
 
         List<VariantData> variantDatas = new();
-        foreach (var (index, type) in variantTypes.Index())
+        foreach (var (index, type) in variantTypes.Select((x, i)=>(i, x)))
         {
             var id = index + 1;
 

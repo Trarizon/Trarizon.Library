@@ -23,7 +23,7 @@ record VariantTypeData(
 )
 {
     public int PointerLevel => TypeKind is VariantTypeKind.Pointer ? 1 + SubtypeData!.PointerLevel : 0;
-    public bool IsNonVoidPointer => !IsVoidPointer;
+    public bool IsNonVoidPointer => TypeKind is VariantTypeKind.Pointer && !(SubtypeData!.TypeKind is VariantTypeKind.Void || SubtypeData.IsVoidPointer);
     public bool IsVoidPointer => TypeKind is VariantTypeKind.Pointer && (SubtypeData!.TypeKind is VariantTypeKind.Void || SubtypeData.IsVoidPointer);
     public VariantTypeData FinalPointerAtType => TypeKind is VariantTypeKind.Pointer ? SubtypeData!.FinalPointerAtType : this;
 
@@ -79,4 +79,9 @@ static partial class DataExtensions
 
     public static bool IsPointer(this VariantTypeKind kind)
         => kind is VariantTypeKind.Pointer or VariantTypeKind.FunctionPointer;
+
+    extension(VariantTypeKind kind)
+    {
+        public bool IsPointerP => kind is VariantTypeKind.Pointer or VariantTypeKind.FunctionPointer;
+    }
 }

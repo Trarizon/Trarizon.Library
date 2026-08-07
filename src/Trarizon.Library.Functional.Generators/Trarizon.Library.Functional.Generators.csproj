@@ -7,7 +7,7 @@
     <Import Project="..\..\SourceGenerator.props" />
     
     <PropertyGroup>
-        <Version>1.0.5-alpha.22</Version>
+        <Version>1.0.5-alpha.25</Version>
     </PropertyGroup>
 
     <!-- References -->
@@ -17,9 +17,8 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Trarizon.Library.Linq" PrivateAssets="all" GeneratePathProperty="true" />
         <PackageReference Include="Trarizon.Library.Roslyn" PrivateAssets="all" GeneratePathProperty="true" />
-        <PackageReference Include="System.Memory" PrivateAssets="all" GeneratePathProperty="true" />
+        <!-- <PackageReference Include="System.Memory" PrivateAssets="all" GeneratePathProperty="true" /> -->
     </ItemGroup>
 
     <!-- <ItemGroup>
@@ -29,9 +28,8 @@
     <!--Dependency-->
 
     <ItemGroup>
-        <_GeneratorDependencyDlls Include="$(PKGTrarizon_Library_Linq)\lib\netstandard2.0\*.dll" />
         <_GeneratorDependencyDlls Include="$(PKGTrarizon_Library_Roslyn)\lib\netstandard2.0\*.dll" />
-        <_GeneratorDependencyDlls Include="$(PKGSystem_Memory)\lib\netstandard2.0\*.dll" />
+        <!-- <_GeneratorDependencyDlls Include="$(PKGSystem_Memory)\lib\netstandard2.0\*.dll" /> -->
     </ItemGroup>
 
     <PropertyGroup>
