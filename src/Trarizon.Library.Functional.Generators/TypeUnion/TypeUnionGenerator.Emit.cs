@@ -37,17 +37,32 @@ partial class TypeUnionGenerator
                 writer.WriteLine();
                 EmitConstructors(writer, data);
                 writer.WriteLine();
+
+                writer.WriteLineNoTabs("#region As");
+                writer.WriteLine();
                 EmitAsMethod(writer, data, env);
                 writer.WriteLine();
                 EmitAsExactlyMethod(writer, data, env);
                 writer.WriteLine();
+                writer.WriteLineNoTabs("#endregion");
+                writer.WriteLine();
+
+                writer.WriteLineNoTabs("#region Is");
+                writer.WriteLine();
                 EmitIsMethod(writer, data, env);
+                writer.WriteLine();
+                EmitIsExactlyByParameterMethod(writer, data);
                 writer.WriteLine();
                 EmitIsExactlyMethod(writer, data, env);
                 writer.WriteLine();
-                writer.WriteLine("// -- DangerousGetValues --");
+                writer.WriteLineNoTabs("#endregion");
+                writer.WriteLine();
+
+                writer.WriteLineNoTabs("#region DangerousGetValueRef");
                 writer.WriteLine();
                 EmitDangerousGetValueMethods(writer, data, env);
+                writer.WriteLine();
+                writer.WriteLineNoTabs("#endregion");
                 writer.WriteLine();
                 EmitUnmanagedStructType(writer, data);
             }
@@ -67,7 +82,7 @@ partial class TypeUnionGenerator
         {
             writer.WriteLine($"private readonly {variant.TypeData.FullyQName} __um_managed{variant.FieldId};");
         }
-        if (data.Variants.Any(x => x.TypeData.TypeKind.IsUnmanaged()))
+        if (data.Variants.Any(x => x.TypeData.TypeKind.IsUnmanaged))
         {
             writer.WriteLine($"private readonly __ut_Unmanaged __um_unmanaged;");
         }
@@ -77,8 +92,8 @@ partial class TypeUnionGenerator
     {
         foreach (var variant in data.Variants.Where(x => x.TypeData.TypeKind is not VariantTypeKind.Void).JoinWriteEmptyLine(writer))
         {
-            var @unsafe = variant.TypeData.TypeKind.IsPointer() ? "unsafe " : "";
-            var cast = variant.TypeData.TypeKind.IsPointer() ? $"(global::System.IntPtr)" : "";
+            var @unsafe = variant.TypeData.TypeKind.IsPointer ? "unsafe " : "";
+            var cast = variant.TypeData.TypeKind.IsPointer ? $"(global::System.IntPtr)" : "";
             writer.WriteLine(Utils.GeneratedCodeAttributeList);
             writer.WriteMultipleLines($$"""
                 public {{@unsafe}}{{data.TypeHierarchy.Name}}({{variant.TypeData.FullyQName}} value)
@@ -96,6 +111,8 @@ partial class TypeUnionGenerator
         writer.WriteLine("public bool IsNull { get { return this.__um_flag == 0u; } }");
     }
 
+    // emit: As
+
     private void EmitAsMethod(IndentedTextWriter writer, TypeUnionData data, Env env)
     {
         var @allows = env.AllowsRefStruct ? " where T : allows ref struct" : "";
@@ -107,7 +124,7 @@ partial class TypeUnionGenerator
             writer.WriteLine("switch(this.__um_flag)");
             using (writer.EnterBracketIndentScope('{'))
             {
-                foreach (var variant in data.Variants.Where(x => x.TypeData.TypeKind.IsGenericable()))
+                foreach (var variant in data.Variants.Where(x => x.TypeData.TypeKind.IsGenericable))
                 {
                     if (env.AllowsRefStruct || !variant.TypeData.IsRefLikeType)
                     {
@@ -134,21 +151,12 @@ partial class TypeUnionGenerator
     {
         var @allows = env.AllowsRefStruct ? " where T : allows ref struct" : "";
 
-        static string DocComment(string type, bool code = true)
-        {
-            return $$"""
-            /// <summary>
-            /// Check if the union value is exactly type {{(code ? $"<c>{type}</c>" : type)}}, and return the value if it is.
-            /// </summary>
-            """;
-        }
-
-        writer.WriteMultipleLines(DocComment("<typeparamref name=\"T\"/>", code: false));
+        writer.WriteMultipleLines(DocCommentAsExactly("<typeparamref name=\"T\"/>", code: false));
         writer.WriteLine(Utils.GeneratedCodeAttributeList);
         writer.WriteLine($"public readonly T? AsExactly<T>(){@allows}");
         using (writer.EnterBracketIndentScope('{'))
         {
-            foreach (var variant in data.Variants.Where(x => x.TypeData.TypeKind.IsGenericable()))
+            foreach (var variant in data.Variants.Where(x => x.TypeData.TypeKind.IsGenericable))
             {
                 if (env.AllowsRefStruct || !variant.TypeData.IsRefLikeType)
                 {
@@ -175,7 +183,7 @@ partial class TypeUnionGenerator
                 // variant is ref struct, so possible type kind is Managed or Unmanaged
 
                 writer.WriteLine();
-                writer.WriteMultipleLines(DocComment(variant.TypeData.MinimalQName));
+                writer.WriteMultipleLines(DocCommentAsExactly(variant.TypeData.MinimalQName));
                 writer.WriteLine(Utils.GeneratedCodeAttributeList);
                 writer.WriteMultipleLines($$"""
                     public readonly {{variant.TypeData.FullyQName}} As_{{variant.ReadableIdentifier}}()
@@ -188,6 +196,24 @@ partial class TypeUnionGenerator
             }
         }
 
+        // delegate*<>
+
+        foreach(var variant in data.Variants.Where(x=>x.TypeData.TypeKind is VariantTypeKind.FunctionPointer))
+        {
+            writer.WriteLine();
+            writer.WriteMultipleLines(DocCommentAsExactly(variant.TypeData.MinimalQName));
+            writer.WriteLine(Utils.GeneratedCodeAttributeList);
+            writer.WriteMultipleLines($$"""
+                public unsafe readonly {{variant.TypeData.FullyQName}} AsFunctionPointer_{{variant.ReadableIdentifier}}()
+                {
+                    if (this.__um_flag == {{variant.Id}}u)
+                        return {{ExprVariantToT(variant, variant.TypeData.FullyQName)}};
+                    return default({{variant.TypeData.FullyQName}});
+                }
+                """);
+        }
+
+
         // T*
 
         var nonVoidPointers = data.Variants
@@ -198,7 +224,7 @@ partial class TypeUnionGenerator
         {
             var stars = new string('*', group.Key);
             writer.WriteLine();
-            writer.WriteMultipleLines(DocComment($"T{stars}"));
+            writer.WriteMultipleLines(DocCommentAsExactly($"T{stars}"));
             writer.WriteLine(Utils.GeneratedCodeAttributeList);
             writer.WriteLine($"public unsafe readonly T{stars} AsPointer{(group.Key <= 1 ? "" : $"{group.Key}")}<T>(){@allows}");
             using (writer.EnterBracketIndentScope('{'))
@@ -226,7 +252,7 @@ partial class TypeUnionGenerator
         {
             var stars = new string('*', group.TypeData.PointerLevel);
             writer.WriteLine();
-            writer.WriteMultipleLines(DocComment($"void{stars}"));
+            writer.WriteMultipleLines(DocCommentAsExactly($"void{stars}"));
             writer.WriteLine(Utils.GeneratedCodeAttributeList);
             writer.WriteMultipleLines($$"""
                 public unsafe readonly void{{stars}} AsVoidPointer{{(group.TypeData.PointerLevel <= 1 ? "" : $"{group.TypeData.PointerLevel}")}}()
@@ -248,7 +274,7 @@ partial class TypeUnionGenerator
                 var pointerLevel = variant.TypeData.PointerLevel <= 1 ? "" : $"{variant.TypeData.PointerLevel}";
                 // variant is ref struct, so possible type kind is Managed or Unmanaged
                 writer.WriteLine();
-                writer.WriteMultipleLines(DocComment(variant.TypeData.MinimalQName));
+                writer.WriteMultipleLines(DocCommentAsExactly(variant.TypeData.MinimalQName));
                 writer.WriteLine(Utils.GeneratedCodeAttributeList);
                 writer.WriteMultipleLines($$"""
                     public unsafe readonly {{variant.TypeData.FullyQName}} AsPointer{{pointerLevel}}_{{variant.ReadableIdentifier}}()
@@ -260,7 +286,28 @@ partial class TypeUnionGenerator
                     """);
             }
         }
+
+        // delegate*<>*
+
+        foreach(var variant in data.Variants.Where(x=>x.TypeData.IsNonVoidPointer && x.TypeData.FinalPointerAtType.TypeKind is VariantTypeKind.FunctionPointer))
+        {
+            var pointerLevel=variant.TypeData.PointerLevel <=1 ? "" : $"{variant.TypeData.PointerLevel}";
+
+            writer.WriteLine();
+            writer.WriteMultipleLines(DocCommentAsExactly(variant.TypeData.MinimalQName));
+            writer.WriteLine(Utils.GeneratedCodeAttributeList);
+            writer.WriteMultipleLines($$"""
+                public unsafe readonly {{variant.TypeData.FullyQName}} AsPointer{{pointerLevel}}ToFunctionPointer_{{variant.ReadableIdentifier}}()
+                {
+                    if (this.__um_flag == {{variant.Id}}u)
+                        return {{ExprVariantToT(variant, variant.TypeData.FullyQName)}};
+                    return defalut({{variant.TypeData.FullyQName}});
+                }
+                """);
+        }
     }
+
+    // emit: Is
 
     private void EmitIsMethod(IndentedTextWriter writer, TypeUnionData data, Env env)
     {
@@ -273,7 +320,7 @@ partial class TypeUnionGenerator
             writer.WriteLine("switch(this.__um_flag)");
             using (writer.EnterBracketIndentScope('{'))
             {
-                foreach (var variant in data.Variants.Where(x => x.TypeData.TypeKind.IsGenericable()))
+                foreach (var variant in data.Variants.Where(x => x.TypeData.TypeKind.IsGenericable))
                 {
                     if (env.AllowsRefStruct || !variant.TypeData.IsRefLikeType)
                     {
@@ -298,40 +345,11 @@ partial class TypeUnionGenerator
         }
     }
 
-    private void EmitIsExactlyMethod(IndentedTextWriter writer, TypeUnionData data, Env env)
+    private void EmitIsExactlyByParameterMethod(IndentedTextWriter writer, TypeUnionData data)
     {
-        var @allows = env.AllowsRefStruct ? " where T : allows ref struct" : "";
-
-        static string DocComment(string type, bool code = true)
-        {
-            return $$"""
-            /// <summary>
-            /// Check if the union value is type {{(code ? $"<c>{type}</c>" : type)}}
-            /// </summary>
-            """;
-        }
-
-        writer.WriteMultipleLines(DocComment(@"<typeparamref name=""T""/>", code: false));
-        writer.WriteLine(Utils.GeneratedCodeAttributeList);
-        writer.WriteLine($"public readonly bool IsExactly<T>(){@allows}");
-        using (writer.EnterBracketIndentScope('{'))
-        {
-            foreach (var variant in data.Variants.Where(x => x.TypeData.TypeKind.IsGenericable()))
-            {
-                if (env.AllowsRefStruct || !variant.TypeData.IsRefLikeType)
-                {
-                    writer.WriteMultipleLines($$"""
-                        if (typeof(T) == typeof({{variant.TypeData.FullyQName}}))
-                            return this.__um_flag == {{variant.Id}}u;
-                        """);
-                }
-            }
-            writer.WriteLine("return false;");
-        }
-
         // by Type
 
-        writer.WriteMultipleLines(DocComment(@"<paramref name=""type""/>", code: false));
+        writer.WriteMultipleLines(DocCommentIsExactly(@"<paramref name=""type""/>", code: false));
         writer.WriteLine(Utils.GeneratedCodeAttributeList);
         writer.WriteLine($"public readonly bool IsExactly(global::System.Type type)");
         using (writer.EnterBracketIndentScope('{'))
@@ -345,13 +363,36 @@ partial class TypeUnionGenerator
             }
             writer.WriteLine("return false;");
         }
+    }
+
+    private void EmitIsExactlyMethod(IndentedTextWriter writer, TypeUnionData data, Env env)
+    {
+        var @allows = env.AllowsRefStruct ? " where T : allows ref struct" : "";
+
+        writer.WriteMultipleLines(DocCommentIsExactly(@"<typeparamref name=""T""/>", code: false));
+        writer.WriteLine(Utils.GeneratedCodeAttributeList);
+        writer.WriteLine($"public readonly bool IsExactly<T>(){@allows}");
+        using (writer.EnterBracketIndentScope('{'))
+        {
+            foreach (var variant in data.Variants.Where(x => x.TypeData.TypeKind.IsGenericable))
+            {
+                if (env.AllowsRefStruct || !variant.TypeData.IsRefLikeType)
+                {
+                    writer.WriteMultipleLines($$"""
+                        if (typeof(T) == typeof({{variant.TypeData.FullyQName}}))
+                            return this.__um_flag == {{variant.Id}}u;
+                        """);
+                }
+            }
+            writer.WriteLine("return false;");
+        }
 
         // void
 
         if (data.Variants.FirstOrDefault(x => x.TypeData.TypeKind is VariantTypeKind.Void) is { } voidVariant)
         {
             writer.WriteLine();
-            writer.WriteMultipleLines(DocComment("void"));
+            writer.WriteMultipleLines(DocCommentIsExactly("void"));
             writer.WriteLine(Utils.GeneratedCodeAttributeList);
             writer.WriteMultipleLines($$"""
                 public readonly bool IsVoid()
@@ -368,7 +409,7 @@ partial class TypeUnionGenerator
             foreach (var variant in data.Variants.Where(x => x.TypeData.IsRefLikeType))
             {
                 writer.WriteLine();
-                writer.WriteMultipleLines(DocComment(variant.TypeData.MinimalQName));
+                writer.WriteMultipleLines(DocCommentIsExactly(variant.TypeData.MinimalQName));
                 writer.WriteLine(Utils.GeneratedCodeAttributeList);
                 writer.WriteMultipleLines($$"""
                     public readonly bool Is_{{variant.ReadableIdentifier}}()
@@ -377,6 +418,21 @@ partial class TypeUnionGenerator
                     }
                     """);
             }
+        }
+
+        // delegate*<>
+
+        foreach(var variant in data.Variants.Where(x=>x.TypeData.TypeKind is VariantTypeKind.FunctionPointer))
+        {
+            writer.WriteLine();
+            writer.WriteMultipleLines(DocCommentIsExactly(variant.TypeData.MinimalQName));
+            writer.WriteLine(Utils.GeneratedCodeAttributeList);
+            writer.WriteMultipleLines($$"""
+                public unsafe readonly bool IsFunctionPointer_{{variant.ReadableIdentifier}}()
+                {
+                    return this.__um_flag == {{variant.Id}}u;
+                }
+                """);
         }
 
         // T*
@@ -389,7 +445,7 @@ partial class TypeUnionGenerator
         {
             var stars = new string('*', group.Key);
             writer.WriteLine();
-            writer.WriteMultipleLines(DocComment($"T{stars}"));
+            writer.WriteMultipleLines(DocCommentIsExactly($"T{stars}"));
             writer.WriteLine(Utils.GeneratedCodeAttributeList);
             writer.WriteLine($"public unsafe readonly bool IsPointer{(group.Key <= 1 ? "" : $"{group.Key}")}<T>(){@allows}");
             using (writer.EnterBracketIndentScope('{'))
@@ -412,7 +468,7 @@ partial class TypeUnionGenerator
         {
             var stars = new string('*', group.TypeData.PointerLevel);
             writer.WriteLine();
-            writer.WriteMultipleLines(DocComment($"void{stars}"));
+            writer.WriteMultipleLines(DocCommentIsExactly($"void{stars}"));
             writer.WriteLine(Utils.GeneratedCodeAttributeList);
             writer.WriteMultipleLines($$"""
                 public unsafe readonly bool IsVoidPointer{{(group.TypeData.PointerLevel <= 1 ? "" : $"{group.TypeData.PointerLevel}")}}()
@@ -430,7 +486,7 @@ partial class TypeUnionGenerator
             {
                 var ptrLv = variant.TypeData.PointerLevel <= 1 ? "" : $"{variant.TypeData.PointerLevel}";
                 writer.WriteLine();
-                writer.WriteMultipleLines(DocComment(variant.TypeData.MinimalQName));
+                writer.WriteMultipleLines(DocCommentIsExactly(variant.TypeData.MinimalQName));
                 writer.WriteLine(Utils.GeneratedCodeAttributeList);
                 writer.WriteMultipleLines($$"""
                     public unsafe readonly bool IsPointer{{ptrLv}}_{{variant.ReadableIdentifier}}()
@@ -440,11 +496,29 @@ partial class TypeUnionGenerator
                     """);
             }
         }
+
+        // delegate*<>*
+
+        foreach(var variant in data.Variants.Where(x=>x.TypeData.IsNonVoidPointer && x.TypeData.TypeKind is VariantTypeKind.FunctionPointer))
+        {
+            var ptrLv=variant.TypeData.PointerLevel <= 1 ? "" : $"{variant.TypeData.PointerLevel}";
+            writer.WriteLine();
+            writer.WriteMultipleLines(DocCommentIsExactly(variant.TypeData.MinimalQName));
+            writer.WriteLine(Utils.GeneratedCodeAttributeList);
+            writer.WriteMultipleLines($$"""
+                public unsafe readonly bool IsPointer{{ptrLv}}ToFunctionPointer_{{variant.ReadableIdentifier}}()
+                {
+                    return this.__um_flag == {{variant.Id}}u;
+                }
+                """);
+        }
     }
+
+    // emit: Unmanaged struct
 
     private void EmitUnmanagedStructType(IndentedTextWriter writer, TypeUnionData data)
     {
-        var @ref = data.Variants.Any(x => x.TypeData.TypeKind.IsUnmanaged() && x.TypeData.IsRefLikeType) ? "ref " : "";
+        var @ref = data.Variants.Any(x => x.TypeData.TypeKind.IsUnmanaged && x.TypeData.IsRefLikeType) ? "ref " : "";
 
         writer.WriteLine($"[global::System.Runtime.InteropServices.StructLayout(global::System.Runtime.InteropServices.LayoutKind.Explicit)]");
         writer.WriteLine(Utils.GeneratedCodeAttributeList);
@@ -456,13 +530,15 @@ partial class TypeUnionGenerator
                 writer.WriteLine($"[global::System.Runtime.InteropServices.FieldOffset(0)]");
                 writer.WriteLine($"public {variant.TypeData.FullyQName} _{variant.FieldId};");
             }
-            if (data.Variants.Any(x => x.TypeData.TypeKind.IsPointer()))
+            if (data.Variants.Any(x => x.TypeData.TypeKind.IsPointer))
             {
                 writer.WriteLine($"[global::System.Runtime.InteropServices.FieldOffset(0)]");
                 writer.WriteLine($"public global::System.IntPtr _ptr;");
             }
         }
     }
+
+    // emit: Dangerous
 
     private void EmitDangerousGetValueMethods(IndentedTextWriter writer, TypeUnionData data, Env env)
     {
@@ -485,7 +561,7 @@ partial class TypeUnionGenerator
         }
 
         // unmanaged
-        if (data.Variants.Any(x => x.TypeData.TypeKind.IsUnmanaged() && (env.AllowsRefStruct || !x.TypeData.IsRefLikeType)))
+        if (data.Variants.Any(x => x.TypeData.TypeKind.IsUnmanaged && (env.AllowsRefStruct || !x.TypeData.IsRefLikeType)))
         {
             writer.WriteLine(Utils.GeneratedCodeAttributeList);
             writer.WriteLine(Utils.AggressiveInliningAttributeList);
@@ -548,20 +624,8 @@ partial class TypeUnionGenerator
 
         // pointer
 
-        if (data.Variants.Any(x => x.TypeData.TypeKind.IsPointer()))
+        if (data.Variants.Any(x => x.TypeData.TypeKind.IsPointer))
         {
-            writer.WriteLine(Utils.GeneratedCodeAttributeList);
-            writer.WriteLine(Utils.AggressiveInliningAttributeList);
-            if (env.UnscopedRef)
-                writer.WriteLine(Utils.UnscopedRefAttributeList);
-            writer.WriteLine($"private readonly unsafe ref readonly T* DangerousGetPointerTypeValueRef<T>()");
-            using (writer.EnterBracketIndentScope('{'))
-            {
-                writer.WriteLine($"return ref *(T**)global::System.Runtime.CompilerServices.Unsafe.AsPointer(ref global::System.Runtime.CompilerServices.Unsafe.AsRef<__ut_Unmanaged>(in this.__um_unmanaged));");
-            }
-
-            writer.WriteLine();
-
             // void*
             writer.WriteLine(Utils.GeneratedCodeAttributeList);
             writer.WriteLine(Utils.AggressiveInliningAttributeList);
@@ -574,6 +638,8 @@ partial class TypeUnionGenerator
             }
         }
     }
+
+    // expr
 
     private string ExprVariantFieldAccess(VariantData variant, string @this = "this")
     {
@@ -593,7 +659,7 @@ partial class TypeUnionGenerator
         var fieldFullyQualifiedTypeName = variant.TypeData.TypeKind switch
         {
             VariantTypeKind.Reference => "object",
-            { IsPointerP: true } => "global::System.IntPtr",
+            { IsPointer: true } => "global::System.IntPtr",
             _ => variant.TypeData.FullyQName,
         };
         if (fieldFullyQualifiedTypeName == targetType)
@@ -601,11 +667,40 @@ partial class TypeUnionGenerator
         return $"global::System.Runtime.CompilerServices.Unsafe.As<{fieldFullyQualifiedTypeName}, {targetType}>(ref global::System.Runtime.CompilerServices.Unsafe.AsRef<{fieldFullyQualifiedTypeName}>(in {ExprVariantFieldAccess(variant)}))";
     }
 
-    private string ExprVariantToT(VariantData variant, string targetType = "T")
+    private string ExprVariantToT(VariantData variant, string? targetType = null)
     {
-        if (!variant.TypeData.TypeKind.IsPointer())
-            return ExprVariantRefToT(variant, targetType);
+        if (!variant.TypeData.TypeKind.IsPointer)
+            return ExprVariantRefToT(variant, targetType ?? "T");
+
+        if (targetType is null)
+        {
+            var chars = (stackalloc char[variant.TypeData.PointerLevel + 1]);
+            chars.Fill('*');
+            chars[0] = 'T';
+            targetType = chars.ToString();
+        }
 
         return $"({targetType}){ExprVariantFieldAccess(variant)}";
     }
+
+    // doc
+
+    private static string DocCommentIsExactly(string type, bool code = true)
+    {
+        return $$"""
+            /// <summary>
+            /// Check if the union value is type {{(code ? $"<c>{type}</c>" : type)}}
+            /// </summary>
+            """;
+    }
+
+    static string DocCommentAsExactly(string type, bool code = true)
+    {
+        return $$"""
+            /// <summary>
+            /// Check if the union value is exactly type {{(code ? $"<c>{type}</c>" : type)}}, and return the value if it is.
+            /// </summary>
+            """;
+    }
+
 }

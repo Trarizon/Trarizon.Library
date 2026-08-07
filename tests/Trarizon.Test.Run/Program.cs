@@ -26,7 +26,8 @@ unsafe void A<T>() where T : unmanaged, allows ref struct
 
 /// Test type union of <see cref="global::System.Span{char}"/> type
 /// </summary>
-[TypeUnion(typeof(void), typeof(int?), typeof(string), typeof(IEnumerable), typeof(JsonElement), typeof(int), typeof(decimal),
+[TypeUnion(typeof(int?), typeof(delegate*unmanaged[Cdecl]<int>), typeof(delegate*<int,string>**),
+    typeof(string), typeof(IEnumerable), typeof(JsonElement), typeof(int), typeof(decimal),
     typeof(Span<IEnumerable<char>>), typeof(void*), typeof(string*), typeof(ReadOnlySpan<char>*), typeof(int**))]
 partial struct U
 {

@@ -71,17 +71,10 @@ enum VariantTypeKind { Managed, Reference, Unmanaged, Pointer, FunctionPointer, 
 
 static partial class DataExtensions
 {
-    public static bool IsUnmanaged(this VariantTypeKind kind)
-        => kind is VariantTypeKind.Unmanaged || kind.IsPointer();
-
-    public static bool IsGenericable(this VariantTypeKind kind)
-        => kind is not VariantTypeKind.Void && !kind.IsPointer();
-
-    public static bool IsPointer(this VariantTypeKind kind)
-        => kind is VariantTypeKind.Pointer or VariantTypeKind.FunctionPointer;
-
     extension(VariantTypeKind kind)
     {
-        public bool IsPointerP => kind is VariantTypeKind.Pointer or VariantTypeKind.FunctionPointer;
+        public bool IsUnmanaged => kind is VariantTypeKind.Unmanaged || kind.IsPointer;
+        public bool IsGenericable => kind is not VariantTypeKind.Void && !kind.IsPointer;
+        public bool IsPointer => kind is VariantTypeKind.Pointer or VariantTypeKind.FunctionPointer;
     }
 }

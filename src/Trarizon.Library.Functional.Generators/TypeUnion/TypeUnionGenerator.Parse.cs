@@ -54,7 +54,7 @@ partial class TypeUnionGenerator
         var readableNameMap = new Dictionary<string, int>();
 
         List<VariantData> variantDatas = new();
-        foreach (var (index, type) in variantTypes.Select((x, i)=>(i, x)))
+        foreach (var (index, type) in variantTypes.Select((x, i) => (i, x)))
         {
             var id = index + 1;
 
@@ -82,12 +82,14 @@ partial class TypeUnionGenerator
                 fieldId = idx;
             }
 
+            var typeData = VariantTypeData.Create(type);
+
             var data = new VariantData(
-                id, VariantTypeData.Create(type), fieldId, GetUniqueReadableName(type, readableNameMap)
+                id, typeData, fieldId, GetUniqueReadableName(type, typeData, readableNameMap)
             );
             variantDatas.Add(data);
 
-            string GetDefaultReadableName(ITypeSymbol type)
+            string GetDefaultReadableName(ITypeSymbol type, VariantTypeData data)
             {
                 var str = type.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
                 var res = (stackalloc char[str.Length]);
@@ -96,24 +98,33 @@ partial class TypeUnionGenerator
                 foreach (var c in str.AsSpan())
                 {
                     // skip consecutive underscores
-                    if (idx > 0 && res[idx - 1] == '_' && c == '_')
-                        continue;
+                    char printc = '_';
                     if (c is '_' or (>= 'a' and <= 'z') or (>= 'A' and <= 'Z') or (>= '0' and <= '9'))
-                        res[idx++] = c;
-                    else
-                        res[idx++] = '_';
+                        printc = c;
+
+                    if (idx > 0 && res[idx - 1] == '_' && printc == '_')
+                        continue;
+                    res[idx++] = printc;
                 }
 
                 // remove trailing underscores
                 while (idx > 0 && res[idx - 1] == '_')
                     idx--;
 
-                return res[..idx].ToString();
+                var start = 0;
+                if (data.FinalPointerAtType.TypeKind is VariantTypeKind.FunctionPointer)
+                    start = "delegate".Length;
+
+                // remove leading underscores;
+                while (start < idx && res[start] == '_')
+                    start++;
+
+                return res[start..idx].ToString();
             }
 
-            string GetUniqueReadableName(ITypeSymbol type, Dictionary<string, int> map)
+            string GetUniqueReadableName(ITypeSymbol type, VariantTypeData data, Dictionary<string, int> map)
             {
-                var name = GetDefaultReadableName(type);
+                var name = GetDefaultReadableName(type, data);
 
                 if (!map.TryGetValue(name, out var idx))
                 {
