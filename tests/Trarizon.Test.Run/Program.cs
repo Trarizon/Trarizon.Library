@@ -20,6 +20,11 @@ RunBenchmarks();
 var newA = new A();
 var d = newA.IsNull;
 
+void A<T>() where T : unmanaged, allows ref struct
+{
+
+}
+
 [TypeUnion(typeof(void), typeof(int), typeof(string), typeof(long*), typeof(ReadOnlySpan<char>), typeof(JsonElement))]
 partial struct A
 {
@@ -39,12 +44,12 @@ partial struct A
 [StructLayout(LayoutKind.Auto)]
 partial struct B
 {
-     int b;
+    int b;
 }
 
 partial struct B
 {
-     int bb;
+    int bb;
 }
 
 namespace LightVNTool

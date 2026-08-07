@@ -22,12 +22,12 @@
     <Import Project="..\..\Aot.props"/>
     <Import Project="..\..\Nuget.props" />
     <PropertyGroup>
-        <Version>1.0.4</Version>
+        <Version>1.0.5-alpha.20</Version>
         <Description>Trarizon's personal library, for functional programming</Description>
     </PropertyGroup>
 
     <ItemGroup>
-        <None Include="..\Trarizon.Library.Functional.SourceGeneration\bin\$(Configuration)\netstandard2.0\*.dll" PackagePath="analyzers\dotnet\cs" Pack="true" Visible="false" />
+        <None Include="..\Trarizon.Library.Functional.Generators\bin\$(Configuration)\netstandard2.0\*.dll" PackagePath="analyzers\dotnet\cs" Pack="true" Visible="false" />
     </ItemGroup>
 
     <!-- Reference -->

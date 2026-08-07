@@ -11,7 +11,7 @@ namespace Trarizon.Library.Functional.Generators.TypeUnion;
 
 partial class TypeUnionGenerator
 {
-    private Optional<TypeUnionData> Parse(GeneratorAttributeSyntaxContext context, CancellationToken cancellationToken)
+    private TypeUnionData? Parse(GeneratorAttributeSyntaxContext context, CancellationToken cancellationToken)
     {
         if (context is not
             {
@@ -19,13 +19,13 @@ partial class TypeUnionGenerator
                 TargetSymbol: INamedTypeSymbol symbol,
                 Attributes: [var attr]
             })
-            return default;
+            return null;
 
         var variantTypes = attr.GetConstructorArgument(0).CastArray<ITypeSymbol>();
         return ParseCore(syntax, symbol, attr, variantTypes, cancellationToken);
     }
 
-    private Optional<TypeUnionData> ParseGeneric(GeneratorAttributeSyntaxContext context, CancellationToken cancellationToken)
+    private TypeUnionData? ParseGeneric(GeneratorAttributeSyntaxContext context, CancellationToken cancellationToken)
     {
         if (context is not
             {
@@ -33,24 +33,26 @@ partial class TypeUnionGenerator
                 TargetSymbol: INamedTypeSymbol symbol,
                 Attributes: [var attr]
             })
-            return default;
+            return null;
 
         if (attr.AttributeClass is null)
-            return default;
+            return null;
 
         var variantTypes = attr.AttributeClass.TypeArguments;
         return ParseCore(syntax, symbol, attr, variantTypes, cancellationToken);
     }
 
-    private Optional<TypeUnionData> ParseCore(StructDeclarationSyntax syntax, INamedTypeSymbol symbol, AttributeData attr, ImmutableArray<ITypeSymbol> variantTypes, CancellationToken cancellationToken)
+    private TypeUnionData? ParseCore(StructDeclarationSyntax syntax, INamedTypeSymbol symbol, AttributeData attr, ImmutableArray<ITypeSymbol> variantTypes, CancellationToken cancellationToken)
     {
         if (variantTypes.Length == 0)
-            return default;
+            return null;
 
         int unmanagedIdx = 0;
         var unmanagedMap = new Dictionary<ITypeSymbol, int>(SymbolEqualityComparer.Default);
         int managedIdx = 0;
         var managedMap = new Dictionary<ITypeSymbol, int>(SymbolEqualityComparer.Default);
+
+        var readableNameMap = new Dictionary<string, int>();
 
         List<VariantData> variantDatas = new();
         foreach (var (index, type) in variantTypes.Index())
@@ -75,7 +77,14 @@ partial class TypeUnionGenerator
                     unmanagedMap.Add(type, idx);
                 }
 
-                vtk = type.TypeKind is TypeKind.Pointer ? VariantTypeKind.Pointer : VariantTypeKind.Unmanaged;
+                vtk = type switch
+                {
+                    { SpecialType: SpecialType.System_Void } => VariantTypeKind.Void,
+                    IPointerTypeSymbol { PointedAtType.SpecialType: SpecialType.System_Void } => VariantTypeKind.VoidPointer,
+                    IPointerTypeSymbol => VariantTypeKind.Pointer,
+                    { TypeKind: TypeKind.FunctionPointer } => VariantTypeKind.FunctionPointer,
+                    _ => VariantTypeKind.Unmanaged,
+                };
                 isInterface = false;
                 fieldId = idx;
             }
@@ -92,9 +101,55 @@ partial class TypeUnionGenerator
             }
 
             var data = new VariantData(
-                id, fqname, vtk, type.IsRefLikeType, isInterface, fieldId
+                id, fqname, vtk, type.IsRefLikeType, isInterface, fieldId, GetUniqueReadableName(type, readableNameMap)
             );
             variantDatas.Add(data);
+
+            string GetDefaultReadableName(ITypeSymbol type)
+            {
+                var str = type.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
+                var res = (stackalloc char[str.Length]);
+
+                var idx = 0;
+                foreach (var c in str.AsSpan())
+                {
+                    // skip consecutive underscores
+                    if (idx > 0 && res[idx - 1] == '_' && c == '_')
+                        continue;
+                    if (c is '_' or (>= 'a' and <= 'z') or (>= 'A' and <= 'Z') or (>= '0' and <= '9'))
+                        res[idx++] = c;
+                    else
+                        res[idx++] = '_';
+                }
+
+                // remove trailing underscores
+                while (idx > 0 && res[idx - 1] == '_')
+                    idx--;
+
+                return res[..idx].ToString();
+            }
+
+            string GetUniqueReadableName(ITypeSymbol type, Dictionary<string, int> map)
+            {
+                var name = GetDefaultReadableName(type);
+
+                if (!map.TryGetValue(name, out var idx))
+                {
+                    map.Add(name, 0);
+                    return name;
+                }
+
+            Inc:
+                idx++;
+                var resultName = $"{name}_{idx}";
+                if (map.ContainsKey(resultName))
+                {
+                    goto Inc;
+                }
+
+                map.Add(resultName, 0);
+                return resultName;
+            }
         }
 
         var shareInterfaceOption = attr.GetNamedArgument("ShareInterface").CastValueOrDefault<UnionShareInterfaceOption>();
