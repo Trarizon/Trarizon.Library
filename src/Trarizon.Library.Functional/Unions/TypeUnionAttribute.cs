@@ -1,4 +1,4 @@
-﻿namespace Trarizon.Library.Functional.Attributes;
+﻿namespace Trarizon.Library.Functional.Unions;
 
 public enum UnionShareInterfaceOption { Disabled, Enabled, Explicit, }
 

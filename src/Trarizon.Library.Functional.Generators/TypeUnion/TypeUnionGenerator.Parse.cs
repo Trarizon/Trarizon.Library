@@ -58,15 +58,10 @@ partial class TypeUnionGenerator
         foreach (var (index, type) in variantTypes.Index())
         {
             var id = index + 1;
-            var fqname = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
-            VariantTypeKind vtk;
-            bool isInterface;
             int fieldId;
             if (type.IsReferenceType)
             {
-                vtk = VariantTypeKind.Reference;
-                isInterface = type.TypeKind is TypeKind.Interface;
                 fieldId = default;
             }
             else if (type.IsUnmanagedType)
@@ -76,16 +71,6 @@ partial class TypeUnionGenerator
                     idx = unmanagedIdx++;
                     unmanagedMap.Add(type, idx);
                 }
-
-                vtk = type switch
-                {
-                    { SpecialType: SpecialType.System_Void } => VariantTypeKind.Void,
-                    IPointerTypeSymbol { PointedAtType.SpecialType: SpecialType.System_Void } => VariantTypeKind.VoidPointer,
-                    IPointerTypeSymbol => VariantTypeKind.Pointer,
-                    { TypeKind: TypeKind.FunctionPointer } => VariantTypeKind.FunctionPointer,
-                    _ => VariantTypeKind.Unmanaged,
-                };
-                isInterface = false;
                 fieldId = idx;
             }
             else
@@ -95,13 +80,11 @@ partial class TypeUnionGenerator
                     idx = managedIdx++;
                     managedMap.Add(type, idx);
                 }
-                vtk = VariantTypeKind.Managed;
-                isInterface = false;
                 fieldId = idx;
             }
 
             var data = new VariantData(
-                id, fqname, vtk, type.IsRefLikeType, isInterface, fieldId, GetUniqueReadableName(type, readableNameMap)
+                id, VariantTypeData.Create(type), fieldId, GetUniqueReadableName(type, readableNameMap)
             );
             variantDatas.Add(data);
 

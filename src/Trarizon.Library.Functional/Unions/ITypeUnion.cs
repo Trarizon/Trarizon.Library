@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Trarizon.Library.Functional.Abstraction;
+namespace Trarizon.Library.Functional.Unions;
 
 public interface ITypeUnion<T1,T2>
 {

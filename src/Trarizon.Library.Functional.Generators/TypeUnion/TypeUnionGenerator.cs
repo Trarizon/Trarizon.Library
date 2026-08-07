@@ -9,8 +9,8 @@ namespace Trarizon.Library.Functional.Generators.TypeUnion;
 [Generator(LanguageNames.CSharp)]
 public sealed partial class TypeUnionGenerator : IIncrementalGenerator
 {
-    const string TypeUnionAttrMName = "Trarizon.Library.Functional.Attributes.TypeUnionAttribute";
-    const string TypeUnionAttr2MName = "Trarizon.Library.Functional.Attributes.TypeUnionAttribute`2";
+    const string TypeUnionAttrMName = "Trarizon.Library.Functional.Unions.TypeUnionAttribute";
+    const string TypeUnionAttr2MName = "Trarizon.Library.Functional.Unions.TypeUnionAttribute`2";
 
     private record class Env(
         bool MaybeNull,

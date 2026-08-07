@@ -1,4 +1,4 @@
-﻿namespace Trarizon.Library.Functional.Abstraction;
+﻿namespace Trarizon.Library.Functional.Unions;
 
 internal interface IOptional<out T>
 {

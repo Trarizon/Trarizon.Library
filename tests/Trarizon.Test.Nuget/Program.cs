@@ -4,7 +4,7 @@
 using System.Collections;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
-using Trarizon.Library.Functional.Attributes;
+using Trarizon.Library.Functional.Unions;
 
 Console.WriteLine("Hello, World!");
 StringComparison comparison = default!;
@@ -20,22 +20,39 @@ unsafe
     // p = p2;
 }
 
-#pragma warning restore CS8500 // This takes the address of, gets the size of, or declares a pointer to a managed type
 U u = default;
 
 
-#pragma warning disable CS8500 // This takes the address of, gets the size of, or declares a pointer to a managed type
 unsafe ref T* GetPtr<T>(ref nint ptr)
 {
     return ref Unsafe.As<nint, Ptr<T>>(ref ptr).Pointer;
 }
+
+/// <summary>
+/// <typeparamref name="T"/>
+/// </summary>
+/// <typeparam name="T"></typeparam>
 unsafe struct Ptr<T> { public T* Pointer; }
 
-
-[TypeUnion(typeof(void), typeof(int), typeof(Span<IEnumerable<char>>), typeof(decimal), typeof(string), typeof(IEnumerable), typeof(void*), typeof(string*), typeof(JsonElement))]
+/// <summary>
+/// Test type union of <see cref="global::System.Span{char}"/> type
+/// </summary>
+[TypeUnion(typeof(void), typeof(string), typeof(IEnumerable), typeof(JsonElement), typeof(int), typeof(decimal),
+    typeof(Span<IEnumerable<char>>), typeof(void*), typeof(string*), typeof(ReadOnlySpan<char>*), typeof(int**))]
 partial struct U
 {
+    /// <summary>
+    /// haha <c>T*</c>
+    /// <paramref name="type"/>
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public void A<T>(Type type){}
 }
+
+// struct Span<T>
+// {
+    
+// }
 
 ref struct Abbb
 {

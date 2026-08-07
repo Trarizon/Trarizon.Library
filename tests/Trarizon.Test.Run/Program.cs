@@ -12,7 +12,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Trarizon.Library.Functional;
-using Trarizon.Library.Functional.Attributes;
+using Trarizon.Library.Functional.Unions;
 using Trarizon.Library.Playground.Interpreting.TypeScript;
 
 RunBenchmarks();
@@ -20,12 +20,12 @@ RunBenchmarks();
 var newA = new A();
 var d = newA.IsNull;
 
-void A<T>() where T : unmanaged, allows ref struct
+unsafe void A<T>() where T : unmanaged, allows ref struct
 {
-
+    ReadOnlySpan<char>* span;
 }
 
-[TypeUnion(typeof(void), typeof(int), typeof(string), typeof(long*), typeof(ReadOnlySpan<char>), typeof(JsonElement))]
+[TypeUnion(typeof(void), typeof(int), typeof(string), typeof(long*), typeof(ReadOnlySpan<char>*), typeof(JsonElement))]
 partial struct A
 {
     public int Value

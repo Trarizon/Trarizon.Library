@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
-using Trarizon.Library.Functional.Abstraction;
+using Trarizon.Library.Functional.Unions;
 
 namespace Trarizon.Library.Functional;
 
