@@ -17,6 +17,6 @@
     <PackageVersion Include="Trarizon.Library.Functional" Version="1.0.4" PrivateAssets="all" GeneratePathProperty="true" />
     <PackageVersion Include="Trarizon.Library.Collections" Version="1.0.1" PrivateAssets="all" GeneratePathProperty="true" />
     <PackageVersion Include="Trarizon.Library.Linq" Version="1.0.2" PrivateAssets="all" GeneratePathProperty="true" />
-    <PackageVersion Include="Trarizon.Library.Roslyn" Version="0.0.1-alpha.6" PrivateAssets="all" GeneratePathProperty="true" />
+    <PackageVersion Include="Trarizon.Library.Roslyn" Version="0.0.1-alpha.7" PrivateAssets="all" GeneratePathProperty="true" />
   </ItemGroup>
 </Project>

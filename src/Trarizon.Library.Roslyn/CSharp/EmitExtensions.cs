@@ -11,9 +11,9 @@ public static class EmitExtensions
         if (type is null)
             return default;
 
-        var cur = type.Parent;
+        var cur = type;
         var stack = new Stack<TypeHierarchyInfo>();
-        while (cur is not null)
+        while (cur is not null && !cur.IsNamespace)
         {
             stack.Push(cur);
             cur = cur.Parent;
@@ -33,7 +33,6 @@ public static class EmitExtensions
             defer.WriteBracketAndIndent('{');
         }
 
-        defer.WriteBracketAndIndent('{');
         return defer.ToDeferDedentsAndClear();
     }
 

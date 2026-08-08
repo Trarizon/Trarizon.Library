@@ -34,6 +34,8 @@ public sealed record class TypeHierarchyInfo
     /// </summary>
     public TypeHierarchyInfo? Parent { get; internal set; }
 
+    public bool IsNamespace => Keywords == "namespace";
+
     public static TypeHierarchyInfo Create(ITypeSymbol symbol, TypeDeclarationSyntax syntax)
     {
         var ns = symbol.ContainingNamespace;
@@ -59,6 +61,13 @@ public sealed record class TypeHierarchyInfo
             var r = types[i];
             l.Parent = r;
         }
+
+        if (nsName is not null)
+        {
+            var nsInfo = new TypeHierarchyInfo(nsName, "namespace", nsName);
+            types[^1].Parent = nsInfo;
+        }
+
         return res;
     }
 }
