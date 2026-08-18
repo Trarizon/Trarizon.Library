@@ -1,9 +1,17 @@
 ﻿using System.Collections;
 using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace Trarizon.Library.Roslyn.Pipeline.Collections;
 
+public static class CollectionBuilders
+{
+    public static SequenceEquatableImmutableArray<T> CreateSequenceEquatableImmutableArray<T>(ReadOnlySpan<T> items)
+        => new(items.ToImmutableArray());
+}
+
+[CollectionBuilder(typeof(CollectionBuilders), nameof(CollectionBuilders.CreateSequenceEquatableImmutableArray))]
 public readonly struct SequenceEquatableImmutableArray<T>(ImmutableArray<T> array)
     : IEquatable<SequenceEquatableImmutableArray<T>>
     , IReadOnlyCollection<T>

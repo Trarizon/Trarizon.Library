@@ -39,6 +39,19 @@ public static partial class SymbolExtensions
         }
     }
 
+    public static IEnumerable<INamedTypeSymbol> ContainingTypes(this INamedTypeSymbol symbol, bool includeSelf = false)
+    {
+        if (includeSelf)
+            yield return symbol;
+
+        var sym = symbol.ContainingType;
+        while (sym is not null)
+        {
+            yield return sym;
+            sym = sym.ContainingType;
+        }
+    }
+
     #region Attribute
 
     public static ImmutableArray<AttributeData> GetAttributeDatas(this ISymbol symbol, INamedTypeSymbol attributeType)

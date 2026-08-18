@@ -13,8 +13,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Trarizon.Library.Functional;
-using Trarizon.Library.Functional.Unions;
 
 RunBenchmarks();
 
@@ -24,20 +22,9 @@ unsafe void A<T>() where T : unmanaged, allows ref struct
 }
 
 
-ref struct Abbb
-{
-    public int Value;
-}
-[StructLayout(LayoutKind.Auto)]
-partial struct B
-{
-    int b;
-}
+partial record A{}
 
-partial struct B
-{
-    int bb;
-}
+partial record class A{}
 
 namespace LightVNTool
 {

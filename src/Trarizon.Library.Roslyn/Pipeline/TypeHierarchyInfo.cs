@@ -47,7 +47,7 @@ public sealed record class TypeHierarchyInfo
             .Cast<TypeDeclarationSyntax>()
             .Select(type =>
             {
-                var keyword = type is RecordDeclarationSyntax rcd
+                var keyword = type is RecordDeclarationSyntax { ClassOrStructKeyword.Span.IsEmpty: false } rcd
                     ? $"{rcd.Keyword} {rcd.ClassOrStructKeyword}"
                     : type.Keyword.ToString();
                 return new TypeHierarchyInfo(nsName, keyword, $"{type.Identifier}{type.TypeParameterList}");
@@ -68,6 +68,37 @@ public sealed record class TypeHierarchyInfo
             types[^1].Parent = nsInfo;
         }
 
+        return res;
+    }
+
+    public static TypeHierarchyInfo Create(INamedTypeSymbol symbol)
+    {
+        var ns = symbol.ContainingNamespace;
+        var nsName = ns.IsGlobalNamespace ? null : ns.ToString();
+
+        var types = symbol
+            .ContainingTypes()
+            .Select(type =>
+            {
+                var @record = type.IsRecord ? "record " : "";
+                var keyword = type.IsValueType ? "struct" : "class";
+                var typeParameters = type.TypeParameters.Length == 0 ? "" : $"<{string.Join(", ", type.TypeParameters.Select(x => x.Name))}>";
+                return new TypeHierarchyInfo(nsName, $"{@record}{keyword}", $"{type.Name}{typeParameters}");
+            })
+            .ToArray();
+
+        TypeHierarchyInfo res = types[0];
+        for (int i = 1; i < types.Length; i++)
+        {
+            var l = types[i - 1];
+            var r = types[i];
+            l.Parent = r;
+        }
+        if (nsName is not null)
+        {
+            var nsInfo = new TypeHierarchyInfo(nsName, "namespace", nsName);
+            types[^1].Parent = nsInfo;
+        }
         return res;
     }
 }
