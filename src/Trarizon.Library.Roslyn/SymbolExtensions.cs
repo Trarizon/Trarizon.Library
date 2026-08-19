@@ -240,10 +240,10 @@ public static partial class SymbolExtensions
             switch (symbol)
             {
                 // Nested namespace
-                case INamedTypeSymbol { ContainingNamespace.IsGlobalNamespace: false }:
+                case INamespaceSymbol { ContainingNamespace.IsGlobalNamespace: false }:
                     name = symbol.MetadataName;
                     return CompareWithPrefix(name, fullyQualifiedMetadataName, '.')
-                        && Core(symbol.ContainingNamespace, fullyQualifiedMetadataName[..^name.Length]);
+                        && Core(symbol.ContainingNamespace, fullyQualifiedMetadataName[..^(name.Length + 1)]);
 
                 // Top namespace
                 case INamespaceSymbol { IsGlobalNamespace: false }:
@@ -259,20 +259,20 @@ public static partial class SymbolExtensions
                 case ITypeSymbol { ContainingType: null }:
                     name = symbol.MetadataName;
                     return CompareWithPrefix(name, fullyQualifiedMetadataName, '.')
-                        && Core(symbol.ContainingNamespace, fullyQualifiedMetadataName[..^name.Length]);
+                        && Core(symbol.ContainingNamespace, fullyQualifiedMetadataName[..^(name.Length + 1)]);
 
                 // Nested type
                 case ITypeSymbol { ContainingType: { } }:
                     name = symbol.MetadataName;
                     return CompareWithPrefix(name, fullyQualifiedMetadataName, '+')
-                        && Core(symbol.ContainingType, fullyQualifiedMetadataName[..^name.Length]);
+                        && Core(symbol.ContainingType, fullyQualifiedMetadataName[..^(name.Length + 1)]);
             }
             Debug.Fail("Unknown symbol type");
             return false;
 
             static bool CompareWithPrefix(string metadataName, ReadOnlySpan<char> fullyQualifiedMetadataName, char prefix)
                 => fullyQualifiedMetadataName.Length > metadataName.Length
-                && fullyQualifiedMetadataName[^metadataName.Length] == prefix
+                && fullyQualifiedMetadataName[^(metadataName.Length + 1)] == prefix
                 && metadataName.SequenceEqual(fullyQualifiedMetadataName[^metadataName.Length..]);
         }
 

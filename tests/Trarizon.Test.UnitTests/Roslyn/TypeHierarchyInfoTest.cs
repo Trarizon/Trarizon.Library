@@ -2,6 +2,7 @@ using FluentAssertions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Trarizon.Library.Roslyn;
 using Trarizon.Library.Roslyn.Pipeline;
 
 namespace Trarizon.Test.UnitTests.Roslyn;
@@ -281,5 +282,20 @@ namespace NS
 
         result.Name.Should().Be("MyRecord");
         result.Keywords.Should().Be("record");
+    }
+
+    [Fact]
+    public void ARefStructImplementsIEquatableShouldPassIsImplementInterfaceByFullyQualifiedMetadataName()
+    {
+        const string code = @"
+namespace NS
+{
+    ref struct MyStruct :System.IEquatable<MyStruct> {
+        public bool Equals(MyStruct other) => throw new NotImplementedException();
+    }
+}";
+        var (symbol, syntax) = GetTypeInfo(code, "MyStruct");
+        
+        symbol.IsImplementsByFullyQualifiedMetadataName("System.IEquatable`1").Should().BeTrue();
     }
 }
