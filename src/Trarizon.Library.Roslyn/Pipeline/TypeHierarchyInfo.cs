@@ -77,7 +77,7 @@ public sealed record class TypeHierarchyInfo
         var nsName = ns.IsGlobalNamespace ? null : ns.ToString();
 
         var types = symbol
-            .ContainingTypes()
+            .ContainingTypes(includeSelf: true)
             .Select(type =>
             {
                 var @record = type.IsRecord ? "record " : "";

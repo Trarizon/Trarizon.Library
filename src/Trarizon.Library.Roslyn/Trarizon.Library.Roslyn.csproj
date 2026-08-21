@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <DefineConstants>$(DefineConstants);LATEST_ROSLYN</DefineConstants>
+        <!-- <DefineConstants>$(DefineConstants);LATEST_ROSLYN</DefineConstants> -->
     </PropertyGroup>
 
     <PropertyGroup Condition="!$(DefineConstants.Contains(LATEST_ROSLYN))">
@@ -15,7 +15,7 @@
 
     <Import Project="..\..\Nuget.props" />
     <PropertyGroup>
-        <Version>0.0.1-alpha.9</Version>
+        <Version>0.0.1-alpha.10</Version>
         <!--<Description>Trarizon's personal library, for functional programming</Description>-->
     </PropertyGroup>
 

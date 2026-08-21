@@ -46,4 +46,22 @@ public static class CodeHelpers
         }
         return changed ? builder.ToString() : csharpMemberName;
     }
+
+    public static string ToFileNameString(ReadOnlySpan<char> csharpMemberName)
+    {
+        var builder = (stackalloc char[csharpMemberName.Length]);
+        csharpMemberName.CopyTo(builder);
+        foreach (ref var c in builder)
+        {
+            if (c is '<')
+            {
+                c = '{';
+            }
+            else if (c is '>')
+            {
+                c = '}';
+            }
+        }
+        return builder.ToString();
+    }
 }
