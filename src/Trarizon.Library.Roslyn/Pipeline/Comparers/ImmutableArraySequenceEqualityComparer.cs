@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
 
-namespace Trarizon.Library.Roslyn.Pipeline.Collections;
+namespace Trarizon.Library.Roslyn.Pipeline.Comparers;
 
 public sealed class ImmutableArraySequenceEqualityComparer<T> : IEqualityComparer<ImmutableArray<T>>
 {

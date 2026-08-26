@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 
-namespace Trarizon.Library.Roslyn.Pipeline.Collections;
+namespace Trarizon.Library.Roslyn.Pipeline;
 
 public readonly struct SequenceEquatableCollection<TCollection, T>(TCollection collection)
     : IEquatable<SequenceEquatableCollection<TCollection, T>>

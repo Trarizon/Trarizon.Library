@@ -6,18 +6,11 @@ namespace Trarizon.Library.Roslyn.CSharp;
 
 public static class EmitExtensions
 {
-    public static EmitterIndentScope EmitCSharpTypeHierarchy(this IndentedTextWriter writer, TypeHierarchyInfo? type, bool partial)
+    public static EmitterIndentScope EmitCSharpTypeHierarchy(this IndentedTextWriter writer, TypeHierarchyInfo type, bool partial)
     {
-        if (type is null)
+        if (type == default)
             return default;
 
-        var cur = type;
-        var stack = new Stack<TypeHierarchyInfo>();
-        while (cur is not null && !cur.IsNamespace)
-        {
-            stack.Push(cur);
-            cur = cur.Parent;
-        }
         var defer = writer.EnterIndentTrackingScope();
 
         if (type.Namespace is not null)
@@ -26,10 +19,10 @@ public static class EmitExtensions
             defer.WriteBracketAndIndent('{');
         }
 
-        string partialKeyword = partial ? "partial " : string.Empty;
-        foreach (var t in stack)
+        string partialKeyword = partial ? "partial " : "";
+        foreach (var t in type.Types.Span)
         {
-            defer.Writer.WriteLine($"{partialKeyword}{t.Keywords} {t.Name}");
+            defer.Writer.WriteLine($"{partialKeyword}{t.Keyword} {t.Name}");
             defer.WriteBracketAndIndent('{');
         }
 

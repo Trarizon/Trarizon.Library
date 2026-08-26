@@ -1,17 +1,19 @@
 ﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Trarizon.Library.Roslyn.Pipeline;
 /// <summary>
 /// Represents a type or namespace
 /// </summary>
-public sealed record class TypeHierarchyInfo
+public readonly record struct TypeHierarchyInfo
 {
-    internal TypeHierarchyInfo(string? @namespace, string keyword, string name)
+    public readonly record struct TypeNode(string Keyword, string Name);
+
+    public readonly EquatableReadOnlyMemory<TypeNode> Types { get; private init; }
+
+    private TypeHierarchyInfo(string? @namespace, EquatableReadOnlyMemory<TypeNode> nodes)
     {
         Namespace = @namespace;
-        Keywords = keyword;
-        Name = name;
+        Types = nodes;
     }
 
     /// <summary>
@@ -20,85 +22,53 @@ public sealed record class TypeHierarchyInfo
     public string? Namespace { get; internal init; }
 
     /// <summary>
-    /// Keyword("<see langword="class"/>", "<see langword="record"/> <see langword="struct"/>", etc.) of type, or "<see langword="namespace"/>" for namespace
-    /// </summary>
-    public string Keywords { get; internal init; }
-
-    /// <summary>
-    /// Name of type or namespace, note it is the full name for namespace
-    /// </summary>
-    public string Name { get; internal init; }
-
-    /// <summary>
     /// Parent hierarchy, null for namespace or types in global namespace
     /// </summary>
-    public TypeHierarchyInfo? Parent { get; internal set; }
-
-    public bool IsNamespace => Keywords == "namespace";
-
-    public static TypeHierarchyInfo Create(ITypeSymbol symbol, TypeDeclarationSyntax syntax)
+    public TypeHierarchyInfo Parent
     {
-        var ns = symbol.ContainingNamespace;
-        var nsName = ns.IsGlobalNamespace ? null : ns.ToString();
-
-        var types = syntax
-            .AncestorsAndSelf()
-            .TakeWhile(x => x is TypeDeclarationSyntax)
-            .Cast<TypeDeclarationSyntax>()
-            .Select(type =>
-            {
-                var keyword = type is RecordDeclarationSyntax { ClassOrStructKeyword.Span.IsEmpty: false } rcd
-                    ? $"{rcd.Keyword} {rcd.ClassOrStructKeyword}"
-                    : type.Keyword.ToString();
-                return new TypeHierarchyInfo(nsName, keyword, $"{type.Identifier}{type.TypeParameterList}");
-            })
-            .ToArray();
-
-        TypeHierarchyInfo res = types[0];
-        for (int i = 1; i < types.Length; i++)
+        get
         {
-            var l = types[i - 1];
-            var r = types[i];
-            l.Parent = r;
+            if (Types.Length == 0)
+                return default;
+            return new(Namespace, Types[..^1]);
         }
-
-        if (nsName is not null)
-        {
-            var nsInfo = new TypeHierarchyInfo(nsName, "namespace", nsName);
-            types[^1].Parent = nsInfo;
-        }
-
-        return res;
     }
+
+    /// <summary>
+    /// Keyword of current type, or equals to <see cref="Name"/> for namespace
+    /// </summary>
+    public string Keyword => Types.Length == 0 ? "namespace" : Types.Span[^1].Keyword;
+
+    /// <summary>
+    /// Name of current type, or equals to <see cref="Keyword"/> for namespace
+    /// </summary>
+    public string Name => Types.Length == 0 ? (Namespace ?? "") : Types.Span[^1].Name;
+
+    public bool IsNamespace => Types.Length == 0;
 
     public static TypeHierarchyInfo Create(INamedTypeSymbol symbol)
     {
         var ns = symbol.ContainingNamespace;
         var nsName = ns.IsGlobalNamespace ? null : ns.ToString();
-
-        var types = symbol
+        var type = symbol
             .ContainingTypes(includeSelf: true)
             .Select(type =>
             {
                 var @record = type.IsRecord ? "record " : "";
-                var keyword = type.IsValueType ? "struct" : "class";
+                var keyword = type switch
+                {
+                    { TypeKind: TypeKind.Class } => "class",
+                    { TypeKind: TypeKind.Struct } => "struct",
+                    { TypeKind: TypeKind.Interface } => "interface",
+                    { TypeKind: TypeKind.Enum } => "enum",
+                    _ => "/* unknown type kind */",
+                };
+
                 var typeParameters = type.TypeParameters.Length == 0 ? "" : $"<{string.Join(", ", type.TypeParameters.Select(x => x.Name))}>";
-                return new TypeHierarchyInfo(nsName, $"{@record}{keyword}", $"{type.Name}{typeParameters}");
+                return new TypeNode($"{@record}{keyword}", $"{type.Name}{typeParameters}");
             })
             .ToArray();
-
-        TypeHierarchyInfo res = types[0];
-        for (int i = 1; i < types.Length; i++)
-        {
-            var l = types[i - 1];
-            var r = types[i];
-            l.Parent = r;
-        }
-        if (nsName is not null)
-        {
-            var nsInfo = new TypeHierarchyInfo(nsName, "namespace", nsName);
-            types[^1].Parent = nsInfo;
-        }
-        return res;
+        Array.Reverse(type);
+        return new TypeHierarchyInfo(nsName, type.ToEquatableImmutableArray());
     }
 }

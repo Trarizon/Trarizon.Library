@@ -7,7 +7,6 @@ using Trarizon.Library.Roslyn;
 using Trarizon.Library.Roslyn.CSharp;
 using Trarizon.Library.Roslyn.Emitting;
 using Trarizon.Library.Roslyn.Pipeline;
-using Trarizon.Library.Roslyn.Pipeline.Collections;
 
 namespace Trarizon.Library.CodeAnalysis.SourceGeneration;
 
@@ -61,7 +60,7 @@ internal sealed class GenDisposingGenerator : IIncrementalGenerator
                     symbol.IsRefLikeType,
                     attr.GetNamedArgument("Explicitly").CastValueOrDefault<bool>(),
                     useDisposeHelperMethod,
-                    disposableFields.ToSequenceEquatableImmutableArray()
+                    disposableFields.ToEquatableImmutableArray()
                     );
             })
             .OfNotNull();
@@ -182,7 +181,7 @@ internal sealed class GenDisposingGenerator : IIncrementalGenerator
         bool IsRefLikeType,
         bool Explicitly,
         bool UseDisposeHelperMethod,
-        SequenceEquatableImmutableArray<DisposableMemberInfo> DisposableMembers);
+        EquatableImmutableArray<DisposableMemberInfo> DisposableMembers);
 
     private sealed record class DisposableMemberInfo(
         string MemberName,

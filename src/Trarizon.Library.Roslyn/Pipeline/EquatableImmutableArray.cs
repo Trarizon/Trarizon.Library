@@ -1,19 +1,18 @@
 ﻿using System.Collections;
 using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
-namespace Trarizon.Library.Roslyn.Pipeline.Collections;
+namespace Trarizon.Library.Roslyn.Pipeline;
 
 public static class CollectionBuilders
 {
-    public static SequenceEquatableImmutableArray<T> CreateSequenceEquatableImmutableArray<T>(ReadOnlySpan<T> items)
+    public static EquatableImmutableArray<T> CreateEquatableImmutableArray<T>(ReadOnlySpan<T> items)
         => new(items.ToImmutableArray());
 }
 
-[CollectionBuilder(typeof(CollectionBuilders), nameof(CollectionBuilders.CreateSequenceEquatableImmutableArray))]
-public readonly struct SequenceEquatableImmutableArray<T>(ImmutableArray<T> array)
-    : IEquatable<SequenceEquatableImmutableArray<T>>
+[CollectionBuilder(typeof(CollectionBuilders), nameof(CollectionBuilders.CreateEquatableImmutableArray))]
+public readonly struct EquatableImmutableArray<T>(ImmutableArray<T> array)
+    : IEquatable<EquatableImmutableArray<T>>
     , IReadOnlyCollection<T>
     , IReadOnlyList<T>
 {
@@ -25,7 +24,7 @@ public readonly struct SequenceEquatableImmutableArray<T>(ImmutableArray<T> arra
 
     public T this[int index] => Array[index];
 
-    public bool Equals(SequenceEquatableImmutableArray<T> other)
+    public bool Equals(EquatableImmutableArray<T> other)
     {
 #if IMMUTABLE_MARSHAL
         if (ReferenceEquals(ImmutableCollectionsMarshal.AsArray(Array), ImmutableCollectionsMarshal.AsArray(other.Array)))
@@ -42,7 +41,7 @@ public readonly struct SequenceEquatableImmutableArray<T>(ImmutableArray<T> arra
         return true;
     }
 
-    public override bool Equals(object obj) => obj is SequenceEquatableImmutableArray<T> other && Equals(other);
+    public override bool Equals(object obj) => obj is EquatableImmutableArray<T> other && Equals(other);
 
     public override int GetHashCode()
     {
@@ -54,11 +53,13 @@ public readonly struct SequenceEquatableImmutableArray<T>(ImmutableArray<T> arra
         return hc.ToHashCode();
     }
 
-    public static bool operator ==(SequenceEquatableImmutableArray<T> left, SequenceEquatableImmutableArray<T> right) => left.Equals(right);
-    public static bool operator !=(SequenceEquatableImmutableArray<T> left, SequenceEquatableImmutableArray<T> right) => !(left == right);
+    public static bool operator ==(EquatableImmutableArray<T> left, EquatableImmutableArray<T> right) => left.Equals(right);
+    public static bool operator !=(EquatableImmutableArray<T> left, EquatableImmutableArray<T> right) => !(left == right);
 
-    public static implicit operator SequenceEquatableImmutableArray<T>(ImmutableArray<T> array) => new(array);
-    public static implicit operator ImmutableArray<T>(SequenceEquatableImmutableArray<T> array) => array.Array;
+    public static implicit operator EquatableImmutableArray<T>(ImmutableArray<T> array) => new(array);
+    public static implicit operator ImmutableArray<T>(EquatableImmutableArray<T> array) => array.Array;
+
+    public static ImmutableArray<T> AsImmutableArray(EquatableImmutableArray<T> array) => array.Array;
 
     public ImmutableArray<T>.Enumerator GetEnumerator() => Array.GetEnumerator();
     IEnumerator<T> IEnumerable<T>.GetEnumerator() => ((IEnumerable<T>)Array).GetEnumerator();
