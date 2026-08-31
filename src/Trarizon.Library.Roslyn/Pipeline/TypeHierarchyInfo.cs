@@ -6,9 +6,18 @@ namespace Trarizon.Library.Roslyn.Pipeline;
 /// </summary>
 public readonly record struct TypeHierarchyInfo
 {
-    public readonly record struct TypeNode(string Keyword, string Name);
+    public readonly record struct TypeNode
+    {
+        public string Keywords { get; }
+        public string Name { get; }
+        internal TypeNode(string keywords, string name)
+        {
+            Keywords = keywords;
+            Name = name;
+        }
+    }
 
-    public readonly EquatableReadOnlyMemory<TypeNode> Types { get; private init; }
+    public readonly EquatableReadOnlyMemory<TypeNode> Types { get; }
 
     private TypeHierarchyInfo(string? @namespace, EquatableReadOnlyMemory<TypeNode> nodes)
     {
@@ -19,7 +28,7 @@ public readonly record struct TypeHierarchyInfo
     /// <summary>
     /// Namespace of current type, or equals to <see cref="Name"/> for namespace
     /// </summary>
-    public string? Namespace { get; internal init; }
+    public string? Namespace { get; }
 
     /// <summary>
     /// Parent hierarchy, null for namespace or types in global namespace
@@ -35,16 +44,19 @@ public readonly record struct TypeHierarchyInfo
     }
 
     /// <summary>
-    /// Keyword of current type, or equals to <see cref="Name"/> for namespace
+    /// The minimal keywords that you can directly a prepend <c>partial</c> keyword of current type, or "namespace" for namespace
     /// </summary>
-    public string Keyword => Types.Length == 0 ? "namespace" : Types.Span[^1].Keyword;
+    public string Keywords => Types.Length == 0 ? "namespace" : Types.Span[^1].Keywords;
 
     /// <summary>
-    /// Name of current type, or equals to <see cref="Keyword"/> for namespace
+    /// Name of current type, or full namespace
     /// </summary>
     public string Name => Types.Length == 0 ? (Namespace ?? "") : Types.Span[^1].Name;
 
     public bool IsNamespace => Types.Length == 0;
+
+    private static readonly SymbolDisplayFormat TypeNameFormat = new(
+        genericsOptions: SymbolDisplayGenericsOptions.IncludeTypeParameters | SymbolDisplayGenericsOptions.IncludeTypeConstraints);
 
     public static TypeHierarchyInfo Create(INamedTypeSymbol symbol)
     {
@@ -61,14 +73,17 @@ public readonly record struct TypeHierarchyInfo
                     { TypeKind: TypeKind.Struct } => "struct",
                     { TypeKind: TypeKind.Interface } => "interface",
                     { TypeKind: TypeKind.Enum } => "enum",
-                    _ => "/* unknown type kind */",
+                    // { IsUnion: true } => "union",
+                    _ => "/* unknown type kind */class",
                 };
 
-                var typeParameters = type.TypeParameters.Length == 0 ? "" : $"<{string.Join(", ", type.TypeParameters.Select(x => x.Name))}>";
-                return new TypeNode($"{@record}{keyword}", $"{type.Name}{typeParameters}");
+                return new TypeNode(
+                    Fmt(null, stackalloc char[16], $"{@record}{keyword}"),
+                    type.ToDisplayString(TypeNameFormat)
+                );
             })
             .ToArray();
         Array.Reverse(type);
-        return new TypeHierarchyInfo(nsName, type.ToEquatableImmutableArray());
+        return new TypeHierarchyInfo(nsName, type);
     }
 }

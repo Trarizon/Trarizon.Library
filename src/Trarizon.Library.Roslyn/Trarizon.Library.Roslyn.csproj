@@ -13,9 +13,10 @@
         <DefineConstants>$(DefineConstants);IMMUTABLE_MARSHAL</DefineConstants>
     </PropertyGroup>
 
+    <Import Project="..\..\UnitTest.props" />
     <Import Project="..\..\Nuget.props" />
     <PropertyGroup>
-        <Version>0.0.1-alpha.12</Version>
+        <Version>0.0.1-alpha.14</Version>
         <!--<Description>Trarizon's personal library, for functional programming</Description>-->
     </PropertyGroup>
 
@@ -53,6 +54,8 @@
             
             System.Runtime.CompilerServices.IsExternalInit;
             System.Runtime.CompilerServices.CollectionBuilderAttribute;
+            System.Runtime.CompilerServices.InterpolatedStringHandlerAttribute;
+            System.Runtime.CompilerServices.InterpolatedStringHandlerArgumentAttribute;
         </PolySharpIncludeGeneratedTypes>
         <!--
 

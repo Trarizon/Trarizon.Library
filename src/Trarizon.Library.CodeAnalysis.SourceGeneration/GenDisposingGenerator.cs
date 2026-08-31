@@ -117,7 +117,7 @@ internal sealed class GenDisposingGenerator : IIncrementalGenerator
             writer.WriteLine();
 
             var typeHierarchy = data.TypeHierarchy;
-            using (writer.EmitCSharpTypeHierarchy(typeHierarchy.Parent, partial: true))
+            using (writer.EmitCSharpPartialTypeHierarchy(typeHierarchy.Parent, partial: true))
             {
                 writer.WriteLine($"partial {typeHierarchy.Keywords} {typeHierarchy.Name}");
                 if (data.IsRefLikeType)

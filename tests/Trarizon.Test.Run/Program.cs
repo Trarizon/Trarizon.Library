@@ -16,15 +16,21 @@ using System.Threading.Tasks;
 
 RunBenchmarks();
 
-unsafe void A<T>() where T : unmanaged, allows ref struct
+ReadOnlySpan<char> str = [];
+
+partial interface IA<T, in T2> where T : class
 {
-    ReadOnlySpan<char>* span;
+}
+
+partial interface IA<T, in T2>
+{
+
 }
 
 
-partial record A{}
+partial record A<T, T2> { }
 
-partial record class A{}
+partial record class A { }
 
 namespace LightVNTool
 {

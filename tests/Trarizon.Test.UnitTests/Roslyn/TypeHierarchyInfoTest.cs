@@ -38,13 +38,13 @@ namespace TestNamespace
         var result = TypeHierarchyInfo.Create(symbol);
 
         result.Name.Should().Be("MyClass");
-        result.Keyword.Should().Be("class");
+        result.Keywords.Should().Be("class");
         result.Namespace.Should().Be("TestNamespace");
         result.IsNamespace.Should().BeFalse();
 
         result.Parent.IsNamespace.Should().BeTrue();
         result.Parent.Name.Should().Be("TestNamespace");
-        result.Parent.Keyword.Should().Be("namespace");
+        result.Parent.Keywords.Should().Be("namespace");
         result.Parent.Namespace.Should().Be("TestNamespace");
 
         result.Parent.Parent.Should().Be(default(TypeHierarchyInfo));
@@ -60,7 +60,7 @@ class GlobalClass { }";
         var result = TypeHierarchyInfo.Create(symbol);
 
         result.Name.Should().Be("GlobalClass");
-        result.Keyword.Should().Be("class");
+        result.Keywords.Should().Be("class");
         result.Namespace.Should().BeNull();
         result.IsNamespace.Should().BeFalse();
 
@@ -86,17 +86,17 @@ namespace NS
         var result = TypeHierarchyInfo.Create(symbol);
 
         result.Name.Should().Be("Inner");
-        result.Keyword.Should().Be("class");
+        result.Keywords.Should().Be("class");
         result.Namespace.Should().Be("NS");
         result.IsNamespace.Should().BeFalse();
 
         result.Parent.Name.Should().Be("Outer");
-        result.Parent.Keyword.Should().Be("class");
+        result.Parent.Keywords.Should().Be("class");
         result.Parent.Namespace.Should().Be("NS");
         result.Parent.IsNamespace.Should().BeFalse();
 
         result.Parent.Parent.Name.Should().Be("NS");
-        result.Parent.Parent.Keyword.Should().Be("namespace");
+        result.Parent.Parent.Keywords.Should().Be("namespace");
         result.Parent.Parent.IsNamespace.Should().BeTrue();
 
         result.Parent.Parent.Parent.Should().Be(default(TypeHierarchyInfo));
@@ -115,7 +115,7 @@ namespace NS
         var result = TypeHierarchyInfo.Create(symbol);
 
         result.Name.Should().Be("MyRecord");
-        result.Keyword.Should().Be("record class");
+        result.Keywords.Should().Be("record class");
         result.IsNamespace.Should().BeFalse();
     }
 
@@ -132,7 +132,7 @@ namespace NS
         var result = TypeHierarchyInfo.Create(symbol);
 
         result.Name.Should().Be("MyRecordStruct");
-        result.Keyword.Should().Be("record struct");
+        result.Keywords.Should().Be("record struct");
         result.IsNamespace.Should().BeFalse();
     }
 
@@ -149,7 +149,7 @@ namespace NS
         var result = TypeHierarchyInfo.Create(symbol);
 
         result.Name.Should().Be("MyStruct");
-        result.Keyword.Should().Be("struct");
+        result.Keywords.Should().Be("struct");
         result.IsNamespace.Should().BeFalse();
     }
 
@@ -166,7 +166,7 @@ namespace NS
         var result = TypeHierarchyInfo.Create(symbol);
 
         result.Name.Should().Be("IMyInterface");
-        result.Keyword.Should().Be("interface");
+        result.Keywords.Should().Be("interface");
         result.IsNamespace.Should().BeFalse();
     }
 
@@ -183,7 +183,7 @@ namespace NS
         var result = TypeHierarchyInfo.Create(symbol);
 
         result.Name.Should().Be("MyEnum");
-        result.Keyword.Should().Be("enum");
+        result.Keywords.Should().Be("enum");
         result.IsNamespace.Should().BeFalse();
     }
 
@@ -200,7 +200,7 @@ namespace NS
         var result = TypeHierarchyInfo.Create(symbol);
 
         result.Name.Should().Be("Generic<T, U>");
-        result.Keyword.Should().Be("class");
+        result.Keywords.Should().Be("class");
         result.Namespace.Should().Be("NS");
     }
 
@@ -220,17 +220,17 @@ namespace NS
         var result = TypeHierarchyInfo.Create(symbol);
 
         result.Name.Should().Be("Inner");
-        result.Keyword.Should().Be("record struct");
+        result.Keywords.Should().Be("record struct");
         result.Namespace.Should().Be("NS");
         result.IsNamespace.Should().BeFalse();
 
         result.Parent.Name.Should().Be("Outer");
-        result.Parent.Keyword.Should().Be("class");
+        result.Parent.Keywords.Should().Be("class");
         result.Parent.Namespace.Should().Be("NS");
         result.Parent.IsNamespace.Should().BeFalse();
 
         result.Parent.Parent.Name.Should().Be("NS");
-        result.Parent.Parent.Keyword.Should().Be("namespace");
+        result.Parent.Parent.Keywords.Should().Be("namespace");
         result.Parent.Parent.IsNamespace.Should().BeTrue();
     }
 
@@ -253,19 +253,19 @@ namespace A.B.C
         var result = TypeHierarchyInfo.Create(symbol);
 
         result.Name.Should().Be("L3");
-        result.Keyword.Should().Be("struct");
+        result.Keywords.Should().Be("struct");
         result.IsNamespace.Should().BeFalse();
 
         result.Parent.Name.Should().Be("L2");
-        result.Parent.Keyword.Should().Be("class");
+        result.Parent.Keywords.Should().Be("class");
         result.Parent.IsNamespace.Should().BeFalse();
 
         result.Parent.Parent.Name.Should().Be("L1");
-        result.Parent.Parent.Keyword.Should().Be("class");
+        result.Parent.Parent.Keywords.Should().Be("class");
         result.Parent.Parent.IsNamespace.Should().BeFalse();
 
         result.Parent.Parent.Parent.Name.Should().Be("A.B.C");
-        result.Parent.Parent.Parent.Keyword.Should().Be("namespace");
+        result.Parent.Parent.Parent.Keywords.Should().Be("namespace");
         result.Parent.Parent.Parent.IsNamespace.Should().BeTrue();
 
         result.Parent.Parent.Parent.Parent.Should().Be(default(TypeHierarchyInfo));
@@ -287,9 +287,9 @@ namespace NS
         var result = TypeHierarchyInfo.Create(symbol);
 
         result.Name.Should().Be("Inner<U>");
-        result.Keyword.Should().Be("class");
+        result.Keywords.Should().Be("class");
         result.Parent.Name.Should().Be("Outer<T>");
-        result.Parent.Keyword.Should().Be("class");
+        result.Parent.Keywords.Should().Be("class");
     }
 
     [Fact]
@@ -305,7 +305,7 @@ namespace NS
         var result = TypeHierarchyInfo.Create(symbol);
 
         result.Name.Should().Be("MyRecord");
-        result.Keyword.Should().Be("record class");
+        result.Keywords.Should().Be("record class");
     }
 
     [Fact]
@@ -357,7 +357,7 @@ namespace NS
         var result = TypeHierarchyInfo.Create(symbol);
 
         result.Name.Should().Be("Wrapper<T>");
-        result.Keyword.Should().Be("record struct");
+        result.Keywords.Should().Be("record struct");
         result.Namespace.Should().Be("NS");
     }
 
@@ -374,7 +374,7 @@ namespace NS
         var result = TypeHierarchyInfo.Create(symbol);
 
         result.Name.Should().Be("MyRefStruct");
-        result.Keyword.Should().Be("struct");
+        result.Keywords.Should().Be("struct");
         result.IsNamespace.Should().BeFalse();
     }
 }

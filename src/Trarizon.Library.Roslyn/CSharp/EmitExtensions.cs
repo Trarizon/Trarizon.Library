@@ -6,7 +6,7 @@ namespace Trarizon.Library.Roslyn.CSharp;
 
 public static class EmitExtensions
 {
-    public static EmitterIndentScope EmitCSharpTypeHierarchy(this IndentedTextWriter writer, TypeHierarchyInfo type, bool partial)
+    public static EmitterIndentScope EmitCSharpPartialTypeHierarchy(this IndentedTextWriter writer, TypeHierarchyInfo type)
     {
         if (type == default)
             return default;
@@ -15,14 +15,13 @@ public static class EmitExtensions
 
         if (type.Namespace is not null)
         {
-            defer.Writer.WriteLine($"namespace {type.Namespace}");
+            defer.Writer.WriteLine(Fmt($"namespace {type.Namespace}"));
             defer.WriteBracketAndIndent('{');
         }
 
-        string partialKeyword = partial ? "partial " : "";
         foreach (var t in type.Types.Span)
         {
-            defer.Writer.WriteLine($"{partialKeyword}{t.Keyword} {t.Name}");
+            defer.Writer.WriteLine(Fmt($"partial {t.Keywords} {t.Name}"));
             defer.WriteBracketAndIndent('{');
         }
 
@@ -39,12 +38,12 @@ public static class EmitExtensions
         public PreprocessorConditionalScope(IndentedTextWriter writer, string text)
         {
             _writer = writer;
-            _writer.WriteLineNoTabs($"#if {text}");
+            _writer.WriteLineNoTabs(Fmt(null, stackalloc char[4 + text.Length], $"#if {text}"));
         }
 
         public void EmitElif(string conditionText)
         {
-            _writer.WriteLineNoTabs($"#elif {conditionText}");
+            _writer.WriteLineNoTabs(Fmt(null, stackalloc char[6 + conditionText.Length], $"#elif {conditionText}"));
         }
 
         public void EmitElse()

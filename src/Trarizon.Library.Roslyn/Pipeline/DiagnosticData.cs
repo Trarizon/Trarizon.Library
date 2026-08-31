@@ -1,11 +1,9 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
-using System.Collections.Immutable;
-using System.Runtime.InteropServices;
 
 namespace Trarizon.Library.Roslyn.Pipeline;
 
-public sealed record DiagnosticData
+public readonly record struct DiagnosticData
 {
     public DiagnosticDescriptor Descriptor { get; }
     public string? FilePath { get; }
@@ -31,27 +29,15 @@ public sealed record DiagnosticData
 #endif
     );
 
-    public DiagnosticData(DiagnosticDescriptor descriptor, SyntaxNode? syntax, ImmutableArray<object?> messageArgs) :
+    public DiagnosticData(DiagnosticDescriptor descriptor, SyntaxNode? syntax, params EquatableImmutableArray<object?> messageArgs) :
         this(descriptor, syntax?.SyntaxTree?.FilePath, syntax?.Span ?? default, syntax?.SyntaxTree?.GetLineSpan(syntax.Span).Span ?? default, messageArgs)
     { }
 
-    public DiagnosticData(DiagnosticDescriptor descriptor, SyntaxNode? syntax, params ReadOnlySpan<object?> messageArgs) :
-        this(descriptor, syntax, messageArgs.ToImmutableArray())
-    { }
-
-    public DiagnosticData(DiagnosticDescriptor descriptor, in SyntaxToken? syntax, ImmutableArray<object?> messageArgs) :
+    public DiagnosticData(DiagnosticDescriptor descriptor, in SyntaxToken? syntax, params EquatableImmutableArray<object?> messageArgs) :
         this(descriptor, syntax?.SyntaxTree?.FilePath, syntax?.Span ?? default, syntax is not { } syn ? default : syn.SyntaxTree?.GetLineSpan(syn.Span).Span ?? default, messageArgs)
     { }
 
-    public DiagnosticData(DiagnosticDescriptor descriptor, in SyntaxToken? syntax, params ReadOnlySpan<object?> messageArgs) :
-        this(descriptor, syntax, messageArgs.ToEquatableImmutableArray())
-    { }
-
-    public DiagnosticData(DiagnosticDescriptor descriptor, SyntaxReference? syntax, ImmutableArray<object?> messageArgs) :
-        this(descriptor, syntax?.GetSyntax(), messageArgs)
-    { }
-
-    public DiagnosticData(DiagnosticDescriptor descriptor, SyntaxReference? syntax, params ReadOnlySpan<object?> messageArgs) :
+    public DiagnosticData(DiagnosticDescriptor descriptor, SyntaxReference? syntax, params EquatableImmutableArray<object?> messageArgs) :
         this(descriptor, syntax?.GetSyntax(), messageArgs)
     { }
 }

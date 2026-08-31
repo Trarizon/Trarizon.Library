@@ -1,147 +1,41 @@
-﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-
-namespace Trarizon.Library.Roslyn.CSharp;
+﻿namespace Trarizon.Library.Roslyn.CSharp;
 
 public static partial class CodeFactory
 {
-    public static string Literal(object value) => value switch
+    #region Literal
+
+    public static string? Literal(object value) => value switch
     {
         string s => Literal(s),
         bool b => Literal(b),
-        _ => value.ToString(),
+        char c => Literal(c),
+        int i => Literal(i),
+        uint u => Literal(u),
+        long l => Literal(l),
+        ulong ul => Literal(ul),
+        float f => Literal(f),
+        double d => Literal(d),
+        _ => null
     };
 
-    public static string Literal(string value) => $"\"{value}\"";
-    public static string LiteralUtf8(string value) => $"\"{value}\"u8";
+    public static string Literal(string value) => Fmt($"\"{value}\"");
+    public static string LiteralUtf8(string value) => Fmt($"\"{value}\"u8");
     public static string Literal(bool value) => value ? "true" : "false";
+    public static string Literal(char value) => Fmt($"'{value}'");
+    public static string Literal(int value) => value.ToString();
+    public static string Literal(uint value) => Fmt(null, stackalloc char[11], $"{value}u");
+    public static string Literal(long value) => Fmt(null, stackalloc char[20], $"{value}L");
+    public static string Literal(ulong value) => Fmt(null, stackalloc char[20], $"{value}ul");
+    public static string Literal(float value) => Fmt($"{value}f");
+    public static string Literal(double value) => value.ToString();
 
-    public static string GetMethodDefinitionText(IMethodSymbol symbol, MethodDeclarationSyntax syntax, bool ensurePartialModifier = false)
-    {
-        var syntaxModifiers = syntax.Modifiers;
-        if (ensurePartialModifier)
-        {
-            if (!syntaxModifiers.Any(SyntaxKind.PartialKeyword))
-            {
-                syntaxModifiers = syntaxModifiers.Add(SyntaxFactory.Token(SyntaxKind.PartialKeyword));
-            }
-        }
-        var refModifiers = symbol.ReturnsByRef ? "ref "
-            : symbol.ReturnsByRefReadonly ? "ref readonly "
-            : "";
-        var returnType = symbol.ReturnType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-        var explicitInterface = symbol.ExplicitInterfaceImplementations.Length > 0
-            ? symbol.ExplicitInterfaceImplementations[0].ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
-            : null;
-        var name = $"{syntax.Identifier}{syntax.TypeParameterList}";
-        var parameters = symbol.Parameters
-            .Zip(syntax.ParameterList.Parameters, static (symbol, syntax) =>
-            {
-                var modifiers = syntax.Modifiers.ToString();
-                var type = symbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-                var name = symbol.Name;
-                return (modifiers, type, name, hasDefault: symbol.HasExplicitDefaultValue, defaultValue: symbol.ExplicitDefaultValue);
-            });
-        var constraints = symbol.TypeParameters
-            .Join(syntax.ConstraintClauses, sym => sym.Name, syn => syn.Name.Identifier.Text, static (symbol, syntax) =>
-            {
-                return GetConstraintText(symbol);
-            });
-
-        // Get String
-        var prms = parameters.Select(p =>
-        {
-            var (modifiers, type, name, hasDefault, defaultValue) = p;
-            var mod = string.IsNullOrEmpty(modifiers) ? null : $"{modifiers} ";
-            var def = hasDefault ? $" = {(defaultValue is null ? "default" : Literal(defaultValue))}" : null;
-            return $"{mod}{type} {name}{def}";
-        });
-        var intf = explicitInterface is not null ? $"{explicitInterface}." : null;
-        return string.Join(" ", [
-            .. syntaxModifiers.Select(tk => tk.ToString()),
-            $"{refModifiers}{returnType}",
-            $"{intf}{name}({string.Join(", ", prms)})",
-            .. constraints
-            ]);
-    }
-
-    /// <returns><c>where T : class</c></returns>
-    public static string? GetConstraintText(ITypeParameterSymbol typeParameter)
-    {
-        List<string> constraints = [];
-        if (typeParameter.HasReferenceTypeConstraint)
-        {
-            if (typeParameter.ReferenceTypeConstraintNullableAnnotation is NullableAnnotation.Annotated)
-                constraints.Add("class?");
-            else
-                constraints.Add("class");
-        }
-        if (typeParameter.HasValueTypeConstraint)
-            constraints.Add("struct");
-        if (typeParameter.HasNotNullConstraint)
-            constraints.Add("notnull");
-        if (typeParameter.HasUnmanagedTypeConstraint)
-            constraints.Add("unmanaged");
-        if (typeParameter.ConstraintTypes.Length > 0)
-            constraints.AddRange(typeParameter.ConstraintTypes.Select(t => t.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)));
-        if (typeParameter.HasConstructorConstraint)
-            constraints.Add("new()");
-#if LATEST_ROSLYN
-        if (typeParameter.AllowsRefLikeType)
-            constraints.Add("allows ref struct");
-#endif
-        if (constraints.Count == 0)
-            return null;
-        return $"where {typeParameter.Name} : {string.Join(", ", constraints)}";
-    }
-
-    public static string GetParameterRefKeywords(RefKind refKind, bool trailingWhitespace = false)
-    {
-        var res = refKind switch
-        {
-            RefKind.Ref => "ref",
-            RefKind.Out => "out",
-            RefKind.In => "in",
-#if LATEST_ROSLYN
-            RefKind.RefReadOnlyParameter => "ref readonly",
-#endif
-            _ => "in",
-        };
-        return trailingWhitespace && res != "" ? $"{res} " : res;
-    }
-
-    // M(ref a, in b, c)
-    //   ^this  ^this
-    public static string GetArgumentRefKeywords(RefKind refKind, bool trailingWhitespace = false)
-    {
-        var res = refKind switch
-        {
-            RefKind.Ref => "ref",
-            RefKind.Out => "out",
-            RefKind.In => "in",
-#if LATEST_ROSLYN
-            RefKind.RefReadOnlyParameter => "in",
-#endif
-            _ => "",
-        };
-        return trailingWhitespace && res != "" ? $"{res} " : res;
-    }
-
-    public static string GetReturnRefKeywords(RefKind refKind, bool trailingWhitespace = false)
-    {
-        var res = refKind switch
-        {
-            RefKind.Ref => "ref",
-            RefKind.RefReadOnly => "ref",
-            _ => "",
-        };
-        return trailingWhitespace && res != "" ? $"{res} " : res;
-    }
+    #endregion Literal
 
     /// <summary>
     /// <c>#pragma warning disable/restore {err-codes}</c>
     /// </summary>
-    public static string PragmaWarningTrivia(bool restore, params string[] errorCodes)
-        => $"#pragma warning {(restore ? "restore" : "disable")} {string.Join(", ", errorCodes)}";
+    public static string PragmaWarningTrivia(bool restore, params ReadOnlySpan<string> errorCodes)
+    {
+        return Fmt($"#pragma warning {(restore ? "restore" : "disable")} {string.Join(", ", errorCodes)}");
+    }
 }

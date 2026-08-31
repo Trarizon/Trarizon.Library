@@ -4,6 +4,8 @@ namespace Trarizon.Library.Roslyn.Emitting;
 
 public readonly struct EmitterIndentScope : IDisposable
 {
+    private static readonly object _noWriteSentinel = new();
+
     private readonly IndentedTextWriter _writer;
     private readonly object? _suffixes;
 
@@ -13,7 +15,7 @@ public readonly struct EmitterIndentScope : IDisposable
         _suffixes = suffixes;
     }
 
-    internal EmitterIndentScope(IndentedTextWriter writer, string suffix)
+    internal EmitterIndentScope(IndentedTextWriter writer, string? suffix)
     {
         _writer = writer;
         _suffixes = suffix;
@@ -22,7 +24,7 @@ public readonly struct EmitterIndentScope : IDisposable
     internal EmitterIndentScope(IndentedTextWriter writer)
     {
         _writer = writer;
-        _suffixes = null;
+        _suffixes = _noWriteSentinel;
     }
 
     public void Dispose()
@@ -30,19 +32,32 @@ public readonly struct EmitterIndentScope : IDisposable
         if (_writer is null)
             return;
 
+        // null - no dedent and no write
         if (_suffixes is null)
         {
             return;
         }
 
-        if (_suffixes is string str)
+        // non-Array:
+        // _sentinel - dedent but no write
+        if (_suffixes == _noWriteSentinel)
         {
             _writer.Indent--;
-            if (str != "")
-                _writer.WriteLine(str);
             return;
         }
 
+        // non-Array:
+        // string - dedent and write line
+        if (_suffixes is string str)
+        {
+            _writer.Indent--;
+            _writer.WriteLine(str);
+            return;
+        }
+
+        // Array:
+        // null: dedent but no write
+        // string: dedent and write line
         foreach (var suf in (string?[])_suffixes)
         {
             _writer.Indent--;

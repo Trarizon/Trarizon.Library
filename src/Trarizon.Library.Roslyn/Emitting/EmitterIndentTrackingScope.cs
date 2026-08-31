@@ -11,8 +11,7 @@ public readonly struct EmitterIndentTrackingScope(IndentedTextWriter writer) : I
     public void WriteBracketAndIndent(char leftBracket)
     {
         writer.WriteLine(leftBracket);
-        writer.Indent++;
-        _suffixes.Push(Utils.GetRightBracket(leftBracket)?.ToString() ?? "");
+        Indent(Utils.GetRightBracket(leftBracket)?.ToString() ?? "");
     }
 
     public void Indent(string suffix = "")
@@ -30,11 +29,11 @@ public readonly struct EmitterIndentTrackingScope(IndentedTextWriter writer) : I
 
     public readonly void Dispose()
     {
-        for (int i = _suffixes.Count - 1; i >= 0; i--)
+        foreach (var suf in _suffixes)
         {
-            var suf = _suffixes.Pop();
             writer.Indent--;
-            writer.WriteLine(suf);
+            if (suf is not null)
+                writer.WriteLine(suf);
         }
         _suffixes.Clear();
     }

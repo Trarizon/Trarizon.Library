@@ -18,7 +18,7 @@ public static class IndentedTextWriterExtensions
     {
         writer.WriteLine(leftBracket);
         writer.Indent++;
-        return new EmitterIndentScope(writer, Utils.GetRightBracket(leftBracket)?.ToString() ?? "");
+        return new EmitterIndentScope(writer, Utils.GetRightBracket(leftBracket)?.ToString());
     }
 
     public static EmitterIndentScope EnterIndentScope(this IndentedTextWriter writer, string? beforeIndentText = null, string? afterDedentText = null)

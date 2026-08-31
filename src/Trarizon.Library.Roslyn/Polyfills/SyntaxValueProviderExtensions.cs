@@ -15,9 +15,15 @@ public static class SyntaxValueProviderExtensions
         return provider.CreateSyntaxProvider(
             (node, cancellationToken) =>
             {
-                if (node is not MemberDeclarationSyntax { AttributeLists.Count: > 0 } member)
-                    return false; // No attribute
-                return predicate(member, cancellationToken);
+                if(node is MemberDeclarationSyntax member)
+                    return member.AttributeLists.Count > 0 && predicate(member, cancellationToken);
+                if (node is BaseParameterSyntax parameter)
+                    return parameter.AttributeLists.Count > 0 && predicate(parameter, cancellationToken);
+                if (node is TypeParameterSyntax typeParameter)
+                    return typeParameter.AttributeLists.Count > 0 && predicate(typeParameter, cancellationToken);
+
+                // Maybe there's some node types i haven't considered
+                return predicate(node, cancellationToken);
             },
             (context, cancellationToken) =>
             {
