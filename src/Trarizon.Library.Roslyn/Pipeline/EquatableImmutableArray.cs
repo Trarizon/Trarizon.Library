@@ -26,10 +26,9 @@ public readonly struct EquatableImmutableArray<T>(ImmutableArray<T> array)
 
     public bool Equals(EquatableImmutableArray<T> other)
     {
-#if IMMUTABLE_MARSHAL
-        if (ReferenceEquals(ImmutableCollectionsMarshal.AsArray(Array), ImmutableCollectionsMarshal.AsArray(other.Array)))
+        if (Array == other.Array)
             return true;
-#endif
+
         if (Array.Length != other.Array.Length)
             return false;
 

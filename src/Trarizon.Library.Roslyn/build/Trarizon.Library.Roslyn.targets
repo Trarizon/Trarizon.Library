@@ -1,0 +1,21 @@
+<Project>
+
+  <PropertyGroup>
+    <TrarizonRoslynVersion Condition="'$(TrarizonRoslynVersion)' == ''">Modern</TrarizonRoslynVersion>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TrarizonRoslynVersion)' == 'Modern'">
+    <Reference Include="Trarizon.Library.Roslyn">
+      <HintPath>$(MSBuildThisFileDirectory)../build/bin/roslyn_Modern/Trarizon.Library.Roslyn.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TrarizonRoslynVersion)' == 'Legacy'">
+    <Reference Include="Trarizon.Library.Roslyn">
+      <HintPath>$(MSBuildThisFileDirectory)../build/bin/roslyn_Legacy/Trarizon.Library.Roslyn.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+</Project>

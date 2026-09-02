@@ -1,4 +1,4 @@
-﻿using Microsoft.CodeAnalysis;
+﻿﻿using Microsoft.CodeAnalysis;
 
 namespace Trarizon.Library.Roslyn.Pipeline;
 /// <summary>

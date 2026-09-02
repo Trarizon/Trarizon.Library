@@ -6,6 +6,12 @@ namespace Trarizon.Library.Roslyn;
 
 public static class ValueProviderExtensions
 {
+#if LEGACY_ROSLYN
+    public static string Legacy = "Legacy";
+#else
+    public static string Latest = "Latest";
+#endif
+
     public static IncrementalValueProvider<ImmutableArray<T>> WithImmutableArraySequenceComparer<T>(this IncrementalValueProvider<ImmutableArray<T>> provider)
         => provider.WithComparer(ImmutableArraySequenceEqualityComparer<T>.Default);
 

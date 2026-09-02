@@ -2,31 +2,46 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <!-- <DefineConstants>$(DefineConstants);LATEST_ROSLYN</DefineConstants> -->
+
+        <!-- <TrarizonRoslynVersion>Legacy</TrarizonRoslynVersion> -->
     </PropertyGroup>
 
-    <PropertyGroup Condition="!$(DefineConstants.Contains(LATEST_ROSLYN))">
-        <AssemblyName>Trarizon.Library.Roslyn410</AssemblyName>
+    <!-- Build configs -->
+    <PropertyGroup>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+        <DevelopmentDependency>true</DevelopmentDependency>
+
+        <!-- Fallback version: Modern-->
+        <TrarizonRoslynVersion Condition="'$(TrarizonRoslynVersion)' == ''">Modern</TrarizonRoslynVersion>
+
+        <IntermediateOutputPath>obj\$(TrarizonRoslynVersion)\</IntermediateOutputPath>
+        <OutputPath>bin\$(Configuration)\$(TrarizonRoslynVersion)\</OutputPath>
+
     </PropertyGroup>
-    <PropertyGroup Condition="$(DefineConstants.Contains(LATEST_ROSLYN))">
-        <AssemblyName>Trarizon.Library.Roslyn</AssemblyName>
-        <DefineConstants>$(DefineConstants);IMMUTABLE_MARSHAL</DefineConstants>
+
+    <!-- Constants -->
+    <PropertyGroup Condition="'$(TrarizonRoslynVersion)' == 'Legacy'">
+        <DefineConstants>$(DefineConstants);ROSLYN_LEGACY</DefineConstants>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(TrarizonRoslynVersion)' == 'Modern'">
+        <DefineConstants>$(DefineConstants);ROSLYN_MODERN;IMMUTABLE_MARSHAL</DefineConstants>
     </PropertyGroup>
 
     <Import Project="..\..\UnitTest.props" />
     <Import Project="..\..\Nuget.props" />
     <PropertyGroup>
-        <Version>0.0.1-alpha.14</Version>
+        <Version>0.0.1-alpha.22</Version>
         <!--<Description>Trarizon's personal library, for functional programming</Description>-->
     </PropertyGroup>
 
     <!-- References -->
 
-    <ItemGroup Condition="$(DefineConstants.Contains(LATEST_ROSLYN))">
+    <ItemGroup Condition="'$(TrarizonRoslynVersion)' == 'Modern'">
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
     </ItemGroup>
-    <ItemGroup Condition="!$(DefineConstants.Contains(LATEST_ROSLYN))">
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" VersionOverride="4.1.0" />
+    <ItemGroup Condition="'$(TrarizonRoslynVersion)' == 'Legacy'">
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" VersionOverride="4.3.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -57,28 +72,29 @@
             System.Runtime.CompilerServices.InterpolatedStringHandlerAttribute;
             System.Runtime.CompilerServices.InterpolatedStringHandlerArgumentAttribute;
         </PolySharpIncludeGeneratedTypes>
-        <!--
-
-            System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute;
-
-            -->
     </PropertyGroup>
 
-    <!-- Dependency -->
+    <!-- Nuget Packing -->
 
-    <!--<Target Name="GetDependencyTargetPaths">
-        <ItemGroup>
-            <TargetPathWithTargetPlatformMoniker Include="$(PKGTrarizon_Library_Collections)\lib\netstandard2.0\Trarizon.Library.Collections.dll" IncludeRuntimeDependency="false" />
-            <TargetPathWithTargetPlatformMoniker Include="$(PKGTrarizon_Library_Functional)\lib\netstandard2.0\Trarizon.Library.Functional.dll" IncludeRuntimeDependency="false" />
-            <TargetPathWithTargetPlatformMoniker Include="$(PKGSystem_Memory)\lib\netstandard2.0\System.Memory.dll" IncludeRuntimeDependency="false" />
-        </ItemGroup>
+    <!-- 在打包生成 Nuspec 前，自动触发两次子构建 (Legacy & Modern) -->
+    <Target Name="CompileBothTrarizonRoslynVersionsBeforePack" BeforeTargets="GenerateNuspec" Condition="'$(IsSubBuild)' != 'true'">
+        <Message Text="=== [1/2] Restoring and Building Roslyn Legacy (4.3.0) ===" Importance="high" />
+        <MSBuild Projects="$(MSBuildProjectFile)" Targets="Restore;Rebuild" Properties="TrarizonRoslynVersion=Legacy;Configuration=$(Configuration);IsSubBuild=true" />
+
+        <Message Text="=== [2/2] Restoring and Building Roslyn Modern ===" Importance="high" />
+        <MSBuild Projects="$(MSBuildProjectFile)" Targets="Restore;Rebuild" Properties="TrarizonRoslynVersion=Modern;Configuration=$(Configuration);IsSubBuild=true" />
     </Target>
 
-    <PropertyGroup>
-        <GetTargetPathDependsOn>$(GetTargetPathDependsOn);GetDependencyTargetPaths</GetTargetPathDependsOn>
-    </PropertyGroup>-->
+    <!-- 将编译好的两套 DLL 及构建脚本打包进 nupkg -->
+    <ItemGroup>
+        <!-- 打包 MSBuild 条件加载脚本 -->
+        <None Include="build\Trarizon.Library.Roslyn.targets" Pack="true" PackagePath="build\Trarizon.Library.Roslyn.targets" />
+        <None Include="build\Trarizon.Library.Roslyn.targets" Pack="true" PackagePath="buildTransitive\Trarizon.Library.Roslyn.targets" />
 
-    <!-- End Dependency -->
+        <!-- 打包两套 Roslyn 版本的程序集 -->
+        <None Include="bin/$(Configuration)/Legacy/netstandard2.0/Trarizon.Library.Roslyn.dll" Pack="true" PackagePath="build/bin/roslyn_Legacy/Trarizon.Library.Roslyn.dll" />
+        <None Include="bin/$(Configuration)/Modern/netstandard2.0/Trarizon.Library.Roslyn.dll" Pack="true" PackagePath="build/bin/roslyn_Modern/Trarizon.Library.Roslyn.dll" />
+    </ItemGroup>
 
 </Project>
  
