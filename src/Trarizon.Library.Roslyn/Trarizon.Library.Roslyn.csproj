@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
 
-        <!-- <TrarizonRoslynVersion>Legacy</TrarizonRoslynVersion> -->
+        <TrarizonRoslynVersion>Legacy</TrarizonRoslynVersion>
     </PropertyGroup>
 
     <!-- Build configs -->
@@ -11,8 +11,12 @@
         <IncludeBuildOutput>false</IncludeBuildOutput>
         <DevelopmentDependency>true</DevelopmentDependency>
 
-        <!-- Fallback version: Modern-->
-        <TrarizonRoslynVersion Condition="'$(TrarizonRoslynVersion)' == ''">Modern</TrarizonRoslynVersion>
+        <!-- Pack restores two different dependency graphs for the same project.
+             Do not reuse ResolvePackageAssets' binary cache between those sub-builds. -->
+        <DisablePackageAssetsCache Condition="'$(IsSubBuild)' == 'true'">true</DisablePackageAssetsCache>
+
+        <!-- Fallback version: Legacy-->
+        <!-- <TrarizonRoslynVersion Condition="'$(TrarizonRoslynVersion)' == ''">Legacy</TrarizonRoslynVersion> -->
 
         <IntermediateOutputPath>obj\$(TrarizonRoslynVersion)\</IntermediateOutputPath>
         <OutputPath>bin\$(Configuration)\$(TrarizonRoslynVersion)\</OutputPath>
@@ -31,17 +35,17 @@
     <Import Project="..\..\UnitTest.props" />
     <Import Project="..\..\Nuget.props" />
     <PropertyGroup>
-        <Version>0.0.1-alpha.22</Version>
+        <Version>0.0.1-alpha.26</Version>
         <!--<Description>Trarizon's personal library, for functional programming</Description>-->
     </PropertyGroup>
 
     <!-- References -->
 
     <ItemGroup Condition="'$(TrarizonRoslynVersion)' == 'Modern'">
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" VersionOverride="4.9.2" PrivateAssets="all" />
     </ItemGroup>
     <ItemGroup Condition="'$(TrarizonRoslynVersion)' == 'Legacy'">
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" VersionOverride="4.3.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" VersionOverride="4.3.0" PrivateAssets="all" />
     </ItemGroup>
 
     <ItemGroup>
@@ -79,10 +83,18 @@
     <!-- 在打包生成 Nuspec 前，自动触发两次子构建 (Legacy & Modern) -->
     <Target Name="CompileBothTrarizonRoslynVersionsBeforePack" BeforeTargets="GenerateNuspec" Condition="'$(IsSubBuild)' != 'true'">
         <Message Text="=== [1/2] Restoring and Building Roslyn Legacy (4.3.0) ===" Importance="high" />
-        <MSBuild Projects="$(MSBuildProjectFile)" Targets="Restore;Rebuild" Properties="TrarizonRoslynVersion=Legacy;Configuration=$(Configuration);IsSubBuild=true" />
+        <MSBuild Projects="$(MSBuildProjectFile)"
+                 Targets="Restore"
+                 Properties="TrarizonRoslynVersion=Legacy;Configuration=$(Configuration);IsSubBuild=true"
+                 UnloadProjectsOnCompletion="true" />
+        <Exec Command="dotnet build &quot;$(MSBuildProjectFullPath)&quot; --no-restore --configuration &quot;$(Configuration)&quot; -p:TrarizonRoslynVersion=Legacy -p:IsSubBuild=true -p:DisablePackageAssetsCache=true" />
 
         <Message Text="=== [2/2] Restoring and Building Roslyn Modern ===" Importance="high" />
-        <MSBuild Projects="$(MSBuildProjectFile)" Targets="Restore;Rebuild" Properties="TrarizonRoslynVersion=Modern;Configuration=$(Configuration);IsSubBuild=true" />
+        <MSBuild Projects="$(MSBuildProjectFile)"
+                 Targets="Restore"
+                 Properties="TrarizonRoslynVersion=Modern;Configuration=$(Configuration);IsSubBuild=true"
+                 UnloadProjectsOnCompletion="true" />
+        <Exec Command="dotnet build &quot;$(MSBuildProjectFullPath)&quot; --no-restore --configuration &quot;$(Configuration)&quot; -p:TrarizonRoslynVersion=Modern -p:IsSubBuild=true -p:DisablePackageAssetsCache=true" />
     </Target>
 
     <!-- 将编译好的两套 DLL 及构建脚本打包进 nupkg -->
@@ -97,4 +109,3 @@
     </ItemGroup>
 
 </Project>
- 
