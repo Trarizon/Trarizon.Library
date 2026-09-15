@@ -41,25 +41,25 @@ public static partial class NumberText
         {
             case (false, false):
                 negative = '负';
-                digits = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
+                digits = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九', '两'];
                 tens = ['十', '百', '千'];
                 wans = ['万', '亿', '兆', '京', '垓', '秭', '穰', '沟', '涧', '正', '载', '极']; // 恒河沙 阿僧祗 那由他 不可思议 无量大数
                 break;
             case (false, true):
                 negative = '負';
-                digits = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
+                digits = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九', '兩'];
                 tens = ['十', '百', '千'];
                 wans = ['萬', '億', '兆', '京', '垓', '秭', '穰', '溝', '澗', '正', '載', '極']; // 恆河沙 阿僧祇 那由他 不可思議 無量大數
                 break;
             case (true, false):
                 negative = '负';
-                digits = ['零', '壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖'];
+                digits = ['零', '壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖', '两'];
                 tens = ['拾', '佰', '仟'];
                 wans = ['万', '亿', '兆', '京', '垓', '秭', '穰', '沟', '涧', '正', '载', '极'];
                 break;
             case (true, true):
                 negative = '負';
-                digits = ['零', '壹', '貳', '參', '肆', '伍', '陸', '柒', '捌', '玖'];
+                digits = ['零', '壹', '貳', '參', '肆', '伍', '陸', '柒', '捌', '玖', '兩'];
                 tens = ['拾', '佰', '仟'];
                 wans = ['萬', '億', '兆', '京', '垓', '秭', '穰', '溝', '澗', '正', '載', '極'];
                 break;
@@ -124,6 +124,9 @@ public static partial class NumberText
         var isb = 0;
 
         var useYiShiForTen = (options & ToChineseOptions.YiShiForTen) != 0;
+        var useLiangForSingle = (options & ToChineseOptions.UseLiangForTwoWanUnits) != 0;
+        var useLiangForHundred = (options & ToChineseOptions.UseLiangForTwoHundred) != 0;
+        var useLiangForThousand = (options & ToChineseOptions.UseLiangForTwoThousand) != 0;
 
         int requiresZero = 0; // 0 no_output_now, 1 not_required, 2 required 
         for (int i = wans.Length - 1; i >= 0; i--)
@@ -151,8 +154,7 @@ public static partial class NumberText
                 {
                     span[isb++] = digits[0];
                 }
-                NumberToChineseCoreUnder10000(digit, digits, tens, requiresZero, span[isb..], out length, useYiShiForTen);
-                isb += length;
+                isb += NumberToChineseCoreUnder10000(digit, digits, tens, requiresZero, span[isb..], useYiShiForTen, useLiangForSingle, useLiangForHundred, useLiangForThousand);
                 span[isb++] = wans[i];
                 requiresZero = 1;
 
@@ -170,12 +172,12 @@ public static partial class NumberText
         }
         if (number > 0)
         {
+            bool noOutputNow = isb == 0;
             if (requiresZero is 2)
             {
                 span[isb++] = digits[0];
             }
-            NumberToChineseCoreUnder10000(number, digits, tens, requiresZero, span[isb..], out length, useYiShiForTen);
-            isb += length;
+            isb += NumberToChineseCoreUnder10000(number, digits, tens, requiresZero, span[isb..], useYiShiForTen, noOutputNow && (options & ToChineseOptions.UseLiangForTwo) != 0, useLiangForHundred, useLiangForThousand);
         }
         length = isb;
     }
@@ -204,6 +206,9 @@ public static partial class NumberText
         var isb = 0;
 
         var useYiShiForTen = (options & ToChineseOptions.YiShiForTen) != 0;
+        var useLiangForSingle = (options & ToChineseOptions.UseLiangForTwoWanUnits) != 0;
+        var useLiangForHundred = (options & ToChineseOptions.UseLiangForTwoHundred) != 0;
+        var useLiangForThousand = (options & ToChineseOptions.UseLiangForTwoThousand) != 0;
 
         int requiresZero = 0; // 0 no_output_now, 1 not_required, 2 required
         for (int i = WanUnitCount - 1; i >= 0; i--)
@@ -222,10 +227,8 @@ public static partial class NumberText
                 {
                     span[isb++] = digits[0];
                 }
-                NumberToChineseCoreUnder10000(unchecked((uint)digit), digits, tens, requiresZero, span[isb..], out length, useYiShiForTen);
-                isb += length;
-                AppendWanUnit(wans, i, span[isb..], out length);
-                isb += length;
+                isb += NumberToChineseCoreUnder10000(unchecked((uint)digit), digits, tens, requiresZero, span[isb..], useYiShiForTen, useLiangForSingle, useLiangForHundred, useLiangForThousand);
+                isb += AppendWanUnit(wans, i, span[isb..]);
                 requiresZero = 1;
 
                 number = rem;
@@ -241,17 +244,18 @@ public static partial class NumberText
         }
         if (number > 0)
         {
+            bool noOutputNow = isb == 0;
             Debug.Assert(number < 10000);
             if (requiresZero is 2)
             {
                 span[isb++] = digits[0];
             }
-            NumberToChineseCoreUnder10000(unchecked((uint)number), digits, tens, requiresZero, span[isb..], out length, useYiShiForTen);
-            isb += length;
+            isb += NumberToChineseCoreUnder10000(unchecked((uint)number), digits, tens, requiresZero, span[isb..], useYiShiForTen, noOutputNow && (options & ToChineseOptions.UseLiangForTwo) != 0, useLiangForHundred, useLiangForThousand);
         }
         length = isb;
 
-        static void AppendWanUnit(ReadOnlySpan<char> wans, int wanUnit, Span<char> span, out int length)
+        // return length
+        static int AppendWanUnit(ReadOnlySpan<char> wans, int wanUnit, Span<char> span)
         {
             var isb = 0;
             span[isb++] = wans[wanUnit % 2];
@@ -261,7 +265,7 @@ public static partial class NumberText
                 span.Slice(1, yiCount).Fill(wans[1]);
                 isb += yiCount;
             }
-            length = isb;
+            return isb;
         }
     }
 
@@ -277,6 +281,9 @@ public static partial class NumberText
         var isb = 0;
 
         var useYiShiForTen = (options & ToChineseOptions.YiShiForTen) != 0;
+        var useLiangForSingle = (options & ToChineseOptions.UseLiangForTwoWanUnits) != 0;
+        var useLiangForHundred = (options & ToChineseOptions.UseLiangForTwoHundred) != 0;
+        var useLiangForThousand = (options & ToChineseOptions.UseLiangForTwoThousand) != 0;
 
         int requiresZero = 0; // 0 no_output_now, 1 not_required, 2 required
         for (int i = wans.Length - 1; i >= 0; i--)
@@ -295,8 +302,7 @@ public static partial class NumberText
                 {
                     span[isb++] = digits[0];
                 }
-                NumberToChineseCoreUnder10000(unchecked((uint)digit), digits, tens, requiresZero, span[isb..], out length, useYiShiForTen);
-                isb += length;
+                isb += NumberToChineseCoreUnder10000(unchecked((uint)digit), digits, tens, requiresZero, span[isb..], useYiShiForTen, useLiangForSingle, useLiangForHundred, useLiangForThousand);
                 span[isb++] = wans[i];
                 requiresZero = 1;
 
@@ -313,24 +319,32 @@ public static partial class NumberText
         }
         if (number > 0)
         {
+            bool noOutputNow = isb == 0;
             Debug.Assert(number < 10000);
             if (requiresZero is 2)
             {
                 span[isb++] = digits[0];
             }
-            NumberToChineseCoreUnder10000(unchecked((uint)number), digits, tens, requiresZero, span[isb..], out length, useYiShiForTen);
-            isb += length;
+            isb += NumberToChineseCoreUnder10000(unchecked((uint)number), digits, tens, requiresZero, span[isb..], useYiShiForTen, noOutputNow && (options & ToChineseOptions.UseLiangForTwo) != 0, useLiangForHundred, useLiangForThousand);
         }
         length = isb;
     }
 
-    // 0 no_output_now, no prefix zero required
-    // 1 insert,        insert prefix zero if no thousand digit
-    // 2 not_insert,    do not insert prefix zero as already inserted
-    private static void NumberToChineseCoreUnder10000(uint number, ReadOnlySpan<char> digits, ReadOnlySpan<char> tens, int insertPrefixZero, Span<char> span, out int length, bool useYiShiForTen)
+    /// <param name="insertPrefixZero">
+    /// 0 no_output_now, no prefix zero required
+    /// 1 insert,        insert prefix zero if no thousand digit
+    /// 2 not_insert,    do not insert prefix zero as already inserted
+    /// </param>
+    /// <param name="useLiangForSingle">for single digit (ones position)</param>
+    /// <param name="useLiangForHundred">for hundred position</param>
+    /// <param name="useLiangForThousand">for thousand position</param>
+    /// <returns>written length</returns>
+    private static int NumberToChineseCoreUnder10000(uint number, ReadOnlySpan<char> digits, ReadOnlySpan<char> tens, int insertPrefixZero, Span<char> span, bool useYiShiForTen, bool useLiangForSingle, bool useLiangForHundred, bool useLiangForThousand)
     {
         Debug.Assert(number < 10000);
         Debug.Assert(tens.Length <= 3);
+
+        const int IndexLiang = 10;
 
         var isb = 0;
         int requiresZero = 0; // 0 prefix, 1 not_required, 2 required
@@ -348,8 +362,22 @@ public static partial class NumberText
                 if (requiresZero == 2)
                     span[isb++] = digits[0];
 
-                if (useYiShiForTen || !(insertPrefixZero is 0 && requiresZero == 0 && i == 0 && digit == 1))
-                    span[isb++] = digits[unchecked((int)digit)];
+                switch (digit)
+                {
+                    case 1:
+                        if (useYiShiForTen || !(insertPrefixZero is 0 && requiresZero == 0 && i == 0))
+                            span[isb++] = digits[1];
+                        break;
+                    case 2:
+                        if (i > 0 && (i == 2 ? useLiangForThousand : useLiangForHundred)) // ten never with 两
+                            span[isb++] = digits[IndexLiang];
+                        else
+                            span[isb++] = digits[2];
+                        break;
+                    default:
+                        span[isb++] = digits[unchecked((int)digit)];
+                        break;
+                }
                 span[isb++] = tens[i];
 
                 requiresZero = 1;
@@ -367,11 +395,15 @@ public static partial class NumberText
         // 个位数
         if (number > 0)
         {
+            bool noOutputNow = isb == 0;
             if (requiresZero == 2)
                 span[isb++] = digits[0];
-            span[isb++] = digits[unchecked((int)number)];
+            if (useLiangForSingle && noOutputNow && number == 2)
+                span[isb++] = digits[IndexLiang];
+            else
+                span[isb++] = digits[unchecked((int)number)];
         }
-        length = isb;
+        return isb;
     }
 
     [Flags]
@@ -382,5 +414,25 @@ public static partial class NumberText
         LargeUnits = 1 << 1,
         FinancialNumerals = 1 << 2,
         TraditionalChinese = 1 << 3,
+        /// <summary>
+        /// 当值为2时使用“两”
+        /// </summary>
+        UseLiangForTwo = 1 << 4,
+        /// <summary>
+        /// 使用“两百”代替“二百”
+        /// </summary>
+        UseLiangForTwoHundred = 1 << 5,
+        /// <summary>
+        /// 使用“两千”代替“二千”
+        /// </summary>
+        UseLiangForTwoThousand = 1 << 6,
+        /// <summary>
+        /// 使用“两万”“两亿”代替“二万”“二亿”，包括更高单位
+        /// </summary>
+        UseLiangForTwoWanUnits = 1 << 7,
+        /// <summary>
+        /// 在可能的情况下使用“两”代替“二”
+        /// </summary>
+        UseLiangForTwoAlways = UseLiangForTwo | UseLiangForTwoHundred | UseLiangForTwoThousand | UseLiangForTwoWanUnits,
     }
 }

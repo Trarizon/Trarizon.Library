@@ -18,6 +18,10 @@ RunBenchmarks();
 
 ReadOnlySpan<char> str = [];
 
+
+Span<char> chars;
+
+
 partial interface IA<T, in T2> where T : class
 {
 }
