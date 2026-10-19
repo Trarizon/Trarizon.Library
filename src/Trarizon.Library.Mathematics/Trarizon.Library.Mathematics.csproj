@@ -32,6 +32,10 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Trarizon.Library.Core\Trarizon.Library.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
         <None Update="TraMath.Mirror.tt">
             <Generator>TextTemplatingFileGenerator</Generator>
             <LastGenOutput>TraMath.Mirror.ttg.cs</LastGenOutput>

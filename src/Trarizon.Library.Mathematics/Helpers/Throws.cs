@@ -46,6 +46,18 @@ internal static class Throws
     [DoesNotReturn]
     public static void ThrowInvalidOperation(string? message = null)
         => throw new InvalidOperationException(message);
+    
+    [DoesNotReturn]
+    public static T ThrowInvalidOperation<T>(string? message = null)
+        => throw new InvalidOperationException(message);
+
+    [DoesNotReturn]
+    public static void ThrowDivideByZero(string? message = null)
+        => throw new DivideByZeroException(message);
+
+    [DoesNotReturn]
+    public static void ThrowFormatException(string? message = null)
+        => throw new FormatException(message);
 
     [DoesNotReturn]
     public static T ThrowUnreachable<T>()

@@ -8,11 +8,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Trarizon.Library;
 
 RunBenchmarks();
 
@@ -21,6 +23,12 @@ ReadOnlySpan<char> str = [];
 
 Span<char> chars;
 
+int.Gcd(12, 16);
+
+void A<T>(T t) where T : IBinaryInteger<T>
+{
+    T.Gcd(t, t);
+}
 
 partial interface IA<T, in T2> where T : class
 {

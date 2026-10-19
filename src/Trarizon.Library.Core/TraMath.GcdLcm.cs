@@ -17,6 +17,15 @@ public static partial class TraMath
 
         public static T Lcm(T left, T right)
             => left * right / Gcd(left, right);
+
+        /// <summary>
+        /// Returns a tuple, left * tpl.Left == right * tpl.Right == Lcm(left, right)
+        /// </summary>
+        public static (T Left, T Right) LcmMultipliers(T left, T right)
+        {
+            var gcd = Gcd(left, right);
+            return (right / gcd, left / gcd);
+        }
     }
 
 #else
@@ -32,6 +41,12 @@ public static partial class TraMath
 
         public static int Lcm(int left, int right)
             => left * right / Gcd(left, right);
+
+        public static (int Left, int Right) LcmMultipliers(int left, int right)
+        {
+            var gcd = Gcd(left, right);
+            return (right / gcd, left / gcd);
+        }
     }
 
     extension(long)
@@ -45,6 +60,12 @@ public static partial class TraMath
 
         public static long Lcm(long left, long right)
             => left * right / Gcd(left, right);
+    
+        public static (long Left, long Right) LcmMultipliers(long left, long right)
+        {
+            var gcd = Gcd(left, right);
+            return (right / gcd, left / gcd);
+        }
     }
 
 #endif
