@@ -50,7 +50,7 @@ public struct Bounds<T> : IEquatable<Bounds<T>> where T : INumber<T>
             return new Bounds<T>(_min, value);
         return this;
     }
-    public readonly Bounds<T> Encapsulate(Bounds<T> other) => Encapsulate(other.Min).Encapsulate(other.Max);
+    public readonly Bounds<T> Encapsulate(Bounds<T> other) => new Bounds<T>(T.Min(_min, other.Min), T.Max(_max, other.Max));
     public readonly Bounds<T> Expand(T amount) => new Bounds<T>(_min - amount, _max + amount);
     public readonly Bounds<T> Offset(T amount) => new Bounds<T>(_min + amount, _max + amount);
 

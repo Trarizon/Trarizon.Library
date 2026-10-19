@@ -15,20 +15,19 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Trarizon.Library;
+using Trarizon.Library.Mathematics;
 
 RunBenchmarks();
 
 ReadOnlySpan<char> str = [];
+
+Interval<int> interval = Interval<int>.Closed(1, 2);
 
 
 Span<char> chars;
 
 int.Gcd(12, 16);
 
-void A<T>(T t) where T : IBinaryInteger<T>
-{
-    T.Gcd(t, t);
-}
 
 partial interface IA<T, in T2> where T : class
 {

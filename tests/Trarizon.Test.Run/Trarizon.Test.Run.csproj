@@ -27,6 +27,7 @@
 		<ProjectReference Include="..\..\src\compile-time\Trarizon.Library.Roslyn\Trarizon.Library.Roslyn.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />-->
 		<!--<ProjectReference Include="..\..\playground\Trarizon.Library.Playground\Trarizon.Library.Playground.csproj" />-->
 		<ProjectReference Include="..\..\src\Trarizon.Library.Linq\Trarizon.Library.Linq.csproj" />
+		<ProjectReference Include="..\..\src\Trarizon.Library.Mathematics\Trarizon.Library.Mathematics.csproj" />
 		<ProjectReference Include="..\..\src\Trarizon.Library.Text.Json\Trarizon.Library.Text.Json.csproj" />
 		<ProjectReference Include="..\..\src\Trarizon.Library\Trarizon.Library.csproj" />
 		<!--<ProjectReference Include="..\Trarizon.Test.CodeAnalysis\Trarizon.Test.CodeAnalysis.csproj" />-->

@@ -7,7 +7,12 @@ internal static partial class NumberHelpers
 {
 #if NET7_0_OR_GREATER
 
-    public static bool IsIBinaryInteger<T>() => GenericMath<T>.IsBinaryInteger();
+    public static bool IsIBinaryInteger<T>()
+    {
+        if (typeof(T) == typeof(int) || typeof(T) == typeof(uint) || typeof(T) == typeof(long) || typeof(T) == typeof(ulong))
+            return true;
+        return GenericMath<T>.IsBinaryInteger();
+    }
     public static bool IsIFloatingPoint<T>() => GenericMath<T>.IsFloatingPoint();
 
     private static class GenericMath<T>
