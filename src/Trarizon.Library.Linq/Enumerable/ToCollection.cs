@@ -41,6 +41,7 @@ public static partial class TraEnumerable
         {
             var tmp = source.ToArray();
             var array = pool.Rent(tmp.Length);
+            tmp.CopyTo(array);
             return array;
         }
     }

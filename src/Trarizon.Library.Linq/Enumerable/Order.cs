@@ -1,6 +1,5 @@
 ﻿using System.Numerics;
 using System.Runtime.CompilerServices;
-using Trarizon.Library.Linq.Internal;
 
 namespace Trarizon.Library.Linq;
 
@@ -13,8 +12,8 @@ public static partial class TraEnumerable
     /// </summary>
     [OverloadResolutionPriority(1)]
     public static bool IsInOrder<T>(this IEnumerable<T> source, bool descending = false) where T : IComparisonOperators<T, T, bool>
-        => descending ? IsInOrderImpl(source, new ComparisonOperatorsDescCalculator<T>())
-        : IsInOrderImpl(source, new ComparisonOperatorsAscCalculator<T>());
+        => descending ? IsInOrderByImpl<T, SelfTf<T>, OpDescOrder<T>>(source, new(), new OpDescOrder<T>())
+        : IsInOrderByImpl<T, SelfTf<T>, OpAscOrder<T>>(source, new(), new OpAscOrder<T>());
 
 #endif
 
@@ -22,44 +21,29 @@ public static partial class TraEnumerable
     /// Check if sequence is in ascending order according to comparer
     /// </summary>
     public static bool IsInOrder<T>(this IEnumerable<T> source, IComparer<T>? comparer = null)
-        => IsInOrderImpl(source, new ComparerSorter<T>(comparer ?? Comparer<T>.Default));
+        => IsInOrderByImpl<T, SelfTf<T>, CmpOrder<T>>(source, new(), new(comparer ?? Comparer<T>.Default));
 
 #if NET7_0_OR_GREATER
 
     /// <inheritdoc cref="IsInOrder{T}(IEnumerable{T}, bool)"/>
     public static bool IsInOrderBy<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector, bool descending = false) where TKey : IComparisonOperators<TKey, TKey, bool>
-        => descending ? IsInOrderByImpl(source, keySelector, new ComparisonOperatorsDescCalculator<TKey>())
-        : IsInOrderByImpl(source, keySelector, new ComparisonOperatorsAscCalculator<TKey>());
+        => descending ? IsInOrderByImpl<T, TKey, FuncTf<T, TKey>, OpDescOrder<TKey>>(source, new(keySelector), new())
+        : IsInOrderByImpl<T, TKey, FuncTf<T, TKey>, OpAscOrder<TKey>>(source, new(keySelector), new());
 
 #endif
 
     /// <inheritdoc cref="IsInOrder{T}(IEnumerable{T}, IComparer{T}?)"/>
     public static bool IsInOrderBy<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector, IComparer<TKey>? comparer = null)
-        => IsInOrderByImpl(source, keySelector, new ComparerSorter<TKey>(comparer ?? Comparer<TKey>.Default));
+        => IsInOrderByImpl<T, TKey, FuncTf<T, TKey>, CmpOrder<TKey>>(source, new(keySelector), new(comparer ?? Comparer<TKey>.Default));
 
-    private static bool IsInOrderImpl<T, TSorter>(IEnumerable<T> source, TSorter sorter) where TSorter : IOrderComparer<T>
-    {
-        if (source is T[] { Length: <= 1 })
-            return true;
+    private static bool IsInOrderByImpl<T, TTransformer, TSorter>(IEnumerable<T> source, TTransformer transformer, TSorter sorter)
+        where TTransformer : ITransformer<T, T>
+        where TSorter : IOrderComparer<T>
+        => IsInOrderByImpl<T, T, TTransformer, TSorter>(source, transformer, sorter);
 
-        using var enumerator = source.GetEnumerator();
-        if (!enumerator.MoveNext())
-            // An empty collection is in order
-            return true;
-
-        T prev = enumerator.Current;
-
-        while (enumerator.MoveNext())
-        {
-            var curr = enumerator.Current;
-            if (sorter.Greater(prev, curr))
-                return false;
-            prev = curr;
-        }
-        return true;
-    }
-
-    private static bool IsInOrderByImpl<T, TKey, TSorter>(IEnumerable<T> source, Func<T, TKey> keySelector, TSorter sorter) where TSorter : IOrderComparer<TKey>
+    private static bool IsInOrderByImpl<T, TKey, TTransformer, TSorter>(IEnumerable<T> source, TTransformer transformer, TSorter sorter)
+        where TTransformer : ITransformer<T, TKey>
+        where TSorter : IOrderComparer<TKey>
     {
         if (source is T[] { Length: <= 1 })
             return true;
@@ -69,12 +53,12 @@ public static partial class TraEnumerable
             // An empty array is in order
             return true;
 
-        TKey prevKey = keySelector(enumerator.Current);
+        TKey prevKey = transformer.Transform(enumerator.Current);
 
         while (enumerator.MoveNext())
         {
             var curr = enumerator.Current;
-            TKey key = keySelector(curr);
+            TKey key = transformer.Transform(curr);
             if (sorter.Greater(prevKey, key))
                 return false;
             prevKey = key;
